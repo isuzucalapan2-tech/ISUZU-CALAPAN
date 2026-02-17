@@ -55,7 +55,25 @@
 
                 <th class="px-6 py-3 text-left text-sm font-medium">
                   <div class="flex items-center gap-2">
-                    <Briefcase class="w-4 h-4" /> Role
+                    <Shield class="w-4 h-4" /> Role
+                  </div>
+                </th>
+
+                <th class="px-6 py-3 text-left text-sm font-medium">
+                  <div class="flex items-center gap-2">
+                    <Briefcase class="w-4 h-4" /> Position
+                  </div>
+                </th>
+
+                <th class="px-6 py-3 text-left text-sm font-medium">
+                  <div class="flex items-center gap-2">
+                    <Settings class="w-4 h-4" /> Permission
+                  </div>
+                </th>
+
+                <th class="px-6 py-3 text-left text-sm font-medium">
+                  <div class="flex items-center gap-2">
+                    <Shield class="w-4 h-4" /> Status
                   </div>
                 </th>
 
@@ -64,6 +82,7 @@
                     <Settings class="w-4 h-4" /> Actions
                   </div>
                 </th>
+
               </tr>
             </thead>
 
@@ -87,35 +106,86 @@
                   {{ admin.email }}
                 </td>
 
-                <td class="px-6 py-4 text-sm">
-                  <select v-model="admin.role" class="border rounded px-2 py-1 w-full">
-                    <option disabled value="">Select role</option>
-                    <option v-for="role in roles" :key="role" :value="role">
-                      {{ role }}
-                    </option>
+                <!-- Role - Display or Dropdown -->
+                <td :class="textClass" class="px-6 py-4 text-sm">
+                  <select
+                    v-if="admin.isEditing"
+                    v-model="admin.selectedRole"
+                    class="border border-black px-2 py-1 rounded w-full hover:border-red-600 hover:shadow-sm transition-all duration-200"
+                  >
+                    <option disabled value="">Select Role</option>
+                    <option v-for="role in roleOptions" :key="role" :value="role">{{ role }}</option>
                   </select>
+                  <span v-else>{{ admin.roleName || "N/A" }}</span>
+                </td>
+
+                <!-- Position - Display or Dropdown -->
+                <td :class="textClass" class="px-6 py-4 text-sm">
+                  <select
+                    v-if="admin.isEditing"
+                    v-model="admin.selectedPosition"
+                    class="border border-black px-2 py-1 rounded w-full hover:border-red-600 hover:shadow-sm transition-all duration-200"
+                  >
+                    <option disabled value="">Select Position</option>
+                    <option v-for="pos in positionOptions" :key="pos" :value="pos">{{ pos }}</option>
+                  </select>
+                  <span v-else>{{ admin.position || "N/A" }}</span>
+                </td>
+
+                <!-- Permission - Display or Dropdown -->
+                <td :class="textClass" class="px-6 py-4 text-sm">
+                  <select
+                    v-if="admin.isEditing"
+                    v-model="admin.selectedPermission"
+                    class="border border-black px-2 py-1 rounded w-full hover:border-red-600 hover:shadow-sm transition-all duration-200"
+                  >
+                    <option disabled value="">Select Permission</option>
+                    <option v-for="perm in permissionOptions" :key="perm" :value="perm">{{ perm }}</option>
+                  </select>
+                  <span v-else>{{ admin.permission || "N/A" }}</span>
+                </td>
+
+                <td :class="textClass" class="px-6 py-4 text-sm">
+                  <span :class="getStatusBadgeClass(admin.Status)">
+                    {{ admin.Status || "Deactivated" }}
+                  </span>
                 </td>
 
                 <td class="px-6 py-4 text-sm flex gap-2">
+                  <!-- Modify/Grant Privilege Button -->
                   <button
-                    @click="updateAdmin(admin)"
+                    v-if="!admin.isEditing"
+                    @click="enableEditing(admin)"
                     class="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                   >
-                    <Save class="w-4 h-4" /> Save
+                    <Edit class="w-4 h-4" /> Modify Privilege
                   </button>
 
                   <button
-                    @click="deleteAdmin(admin.id)"
-                    class="flex items-center gap-1 bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                    v-else
+                    @click="grantPrivilege(admin)"
+                    class="flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                   >
-                    <Trash2 class="w-4 h-4" /> Delete
+                    <CheckCircle class="w-4 h-4" /> Grant Privilege
+                  </button>
+
+                  <!-- Show Activate/Deactivate button only if not pending -->
+                  <button
+                    v-if="admin.accountStatus !== 'pending'"
+                    @click="toggleStatus(admin)"
+                    :class="getToggleButtonClass(admin.Status)"
+                    class="flex items-center gap-1 text-white px-3 py-1 rounded hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                  >
+                    <Power class="w-4 h-4" /> 
+                    {{ admin.Status === 'Active' ? 'Deactivate' : 'Activate' }}
                   </button>
                 </td>
 
               </tr>
 
               <tr v-if="admins.length === 0">
-                <td colspan="5" :class="subTextClass" class="text-center py-6">
+                <td colspan="9" :class="subTextClass" class="text-center py-6">
+
                   <div class="flex justify-center items-center gap-2">
                     <AlertCircle class="w-5 h-5" />
                     No administrator records found
@@ -139,9 +209,10 @@ import {
   collection,
   getDocs,
   updateDoc,
-  deleteDoc,
-  doc
+  doc,
+  getDoc
 } from "firebase/firestore";
+
 
 //import Topbar from "../../components/Topbar.vue";
 /* 🔧 ADDED */
@@ -156,8 +227,9 @@ import {
   AtSign,
   Briefcase,
   Settings,
-  Save,
-  Trash2,
+  Edit,
+  CheckCircle,
+  Power,
   AlertCircle
 } from "lucide-vue-next";
 
@@ -166,45 +238,225 @@ import {
 ===================== */
 const admins = ref([]);
 const isLoading = ref(true);
+const positionOptions = ref([]);
+const roleOptions = ref([]);
+const permissionOptions = ref([]);
 
-const roles = [
-  "Operation Manager",
-  "Parts Supervisor",
-  "Parts Marketing",
-  "Parts Admin",
-  "Parts Warehouse"
-];
+/* =====================
+   FETCH OPTIONS
+===================== */
+const fetchPositionOptions = async () => {
+  try {
+    const positions = [];
+    const docIds = [
+      "isuzu$calapan$position201",
+      "isuzu$calapan$position202", 
+      "isuzu$calapan$position203",
+      "isuzu$calapan$position204",
+      "isuzu$calapan$position205",
+      "isuzu$calapan$position206"
+    ];
+    
+    for (const docId of docIds) {
+      const docRef = await getDoc(doc(db, "Position_Access", docId));
+      if (docRef.exists() && docRef.data().position) {
+        positions.push(docRef.data().position);
+      }
+    }
+    positionOptions.value = positions;
+  } catch (err) {
+    console.error("Error fetching position options:", err);
+  }
+};
+
+const fetchRoleOptions = async () => {
+  try {
+    const roles = [];
+    const docIds = [
+      "isuzu&calapan&staff103",
+      "isuzu&calapan&admin102",
+      "isuzu&calapan&master&admin101"
+    ];
+    
+    for (const docId of docIds) {
+      const docRef = await getDoc(doc(db, "Role_Access", docId));
+      if (docRef.exists() && docRef.data().roleName) {
+        roles.push(docRef.data().roleName);
+      }
+    }
+    roleOptions.value = roles;
+  } catch (err) {
+    console.error("Error fetching role options:", err);
+  }
+};
+
+const fetchPermissionOptions = async () => {
+  try {
+    const permissions = [];
+    const docIds = [
+      "isuzu#calapan#permission301",
+      "isuzu#calapan#permission302",
+      "isuzu#calapan#permission303",
+      "isuzu#calapan#permission304",
+      "isuzu#calapan#permission305"
+    ];
+    
+    for (const docId of docIds) {
+      const docRef = await getDoc(doc(db, "Permission_Access", docId));
+      if (docRef.exists() && docRef.data().permission) {
+        permissions.push(docRef.data().permission);
+      }
+    }
+    permissionOptions.value = permissions;
+  } catch (err) {
+    console.error("Error fetching permission options:", err);
+  }
+};
+
+// Helper function to fetch role data for an admin
+const fetchAdminRoles = async (adminId) => {
+  try {
+    const roleDoc = await getDoc(doc(db, "Administrator", adminId, "Roles", "Default_Roles"));
+    if (roleDoc.exists()) {
+      return roleDoc.data();
+    }
+    return { position: "", role: "", permission: "", setAt: null, updateAt: null };
+  } catch (err) {
+    console.error("Error fetching roles:", err);
+    return { position: "", role: "", permission: "", setAt: null, updateAt: null };
+  }
+};
+
+
 
 /* =====================
    FETCH ADMINISTRATORS
 ===================== */
 const fetchAdmins = async () => {
   const snapshot = await getDocs(collection(db, "Administrator"));
-  admins.value = snapshot.docs.map(d => ({
-    id: d.id,
-    role: d.data().role || "",
-    ...d.data()
-  }));
-  isLoading.value = false; // 🔧 ADDED
-};
-
-/* =====================
-   UPDATE ROLE
-===================== */
-const updateAdmin = async (admin) => {
-  await updateDoc(doc(db, "Administrator", admin.id), {
-    role: admin.role
+  
+  // Fetch admins and their role data
+  const adminPromises = snapshot.docs.map(async (d) => {
+    const adminData = {
+      id: d.id,
+      role: d.data().role || "",
+      Status: d.data().Status || "Deactivated",
+      accountStatus: d.data().accountStatus || "pending",
+      ...d.data()
+    };
+    
+    // Fetch role data from subcollection
+    const roleData = await fetchAdminRoles(d.id);
+    
+    return {
+      ...adminData,
+      position: roleData.position || "",
+      roleName: roleData.role || "",
+      permission: roleData.permission || "",
+      setAt: roleData.setAt || null,
+      updateAt: roleData.updateAt || null,
+      isEditing: false,
+      selectedPosition: roleData.position || "",
+      selectedRole: roleData.role || "",
+      selectedPermission: roleData.permission || ""
+    };
   });
-  alert("Role updated successfully");
+  
+  admins.value = await Promise.all(adminPromises);
+  isLoading.value = false;
+};
+
+
+/* =====================
+   ENABLE EDITING
+===================== */
+const enableEditing = (admin) => {
+  admin.isEditing = true;
+  // Initialize selected values with current values
+  admin.selectedPosition = admin.position;
+  admin.selectedRole = admin.roleName;
+  admin.selectedPermission = admin.permission;
 };
 
 /* =====================
-   DELETE ADMIN
+   GRANT PRIVILEGE
 ===================== */
-const deleteAdmin = async (id) => {
-  if (!confirm("Delete this administrator?")) return;
-  await deleteDoc(doc(db, "Administrator", id));
-  admins.value = admins.value.filter(a => a.id !== id);
+const grantPrivilege = async (admin) => {
+  if (!admin.selectedPosition || !admin.selectedRole || !admin.selectedPermission) {
+    alert("Please select Position, Role, and Permission before granting privilege");
+    return;
+  }
+  
+  try {
+    // Update Roles subcollection with new values
+    await updateDoc(doc(db, "Administrator", admin.id, "Roles", "Default_Roles"), {
+      position: admin.selectedPosition,
+      role: admin.selectedRole,
+      permission: admin.selectedPermission,
+      updateAt: new Date()
+    });
+    
+    // Update local state
+    admin.position = admin.selectedPosition;
+    admin.roleName = admin.selectedRole;
+    admin.permission = admin.selectedPermission;
+    admin.updateAt = new Date();
+    admin.isEditing = false;
+    
+    alert("Privilege granted successfully");
+  } catch (err) {
+    console.error("Error granting privilege:", err);
+    alert("Failed to grant privilege. Please try again.");
+  }
+};
+
+
+/* =====================
+   TOGGLE STATUS (Activate/Deactivate)
+===================== */
+const toggleStatus = async (admin) => {
+  const newStatus = admin.Status === 'Active' ? 'Deactivated' : 'Active';
+  const action = newStatus === 'Active' ? 'activate' : 'deactivate';
+  
+  if (!confirm(`Are you sure you want to ${action} this administrator?`)) return;
+  
+  try {
+    await updateDoc(doc(db, "Administrator", admin.id), {
+      Status: newStatus
+    });
+    
+    // Update local state
+    admin.Status = newStatus;
+    
+    alert(`Administrator ${action}d successfully`);
+  } catch (err) {
+    console.error("Error toggling status:", err);
+    alert("Failed to update status. Please try again.");
+  }
+};
+
+/* =====================
+   STATUS BADGE CLASS
+===================== */
+const getStatusBadgeClass = (status) => {
+  const baseClass = "px-2 py-1 rounded text-xs font-medium ";
+  switch (status) {
+    case 'Active':
+      return baseClass + "bg-green-100 text-green-800";
+    case 'Deactivated':
+      return baseClass + "bg-red-100 text-red-800";
+    default:
+      return baseClass + "bg-gray-100 text-gray-800";
+  }
+};
+
+/* =====================
+   TOGGLE BUTTON CLASS
+===================== */
+const getToggleButtonClass = (status) => {
+  return status === 'Active' 
+    ? "bg-orange-600 hover:bg-orange-700" 
+    : "bg-green-600 hover:bg-green-700";
 };
 
 /* =====================
@@ -249,5 +501,10 @@ const tableRowClass = computed(() =>
 /* =====================
    LIFECYCLE
 ===================== */
-onMounted(fetchAdmins);
+onMounted(() => {
+  fetchAdmins();
+  fetchPositionOptions();
+  fetchRoleOptions();
+  fetchPermissionOptions();
+});
 </script>

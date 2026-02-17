@@ -1,11 +1,5 @@
 <template>
   <div :class="themeClass" :style="themeStyle" class="min-h-screen">
-
-
-
-    <!-- Topbar -->
-    <Topbar />
-
     <!-- Content -->
     <div class="p-8">
 
@@ -29,8 +23,12 @@
               <th class="p-3">Username</th>
               <th class="p-3">Email</th>
               <th class="p-3">Role</th>
-              <th class="p-3">Action</th>
+              <th class="p-3">Position</th>
+              <th class="p-3">Permission</th>
+              <th class="p-3">Actions</th>
             </tr>
+
+
           </thead>
 
           <tbody>
@@ -44,41 +42,51 @@
 
               <td :class="textClass" class="p-3">{{ user.username || "N/A" }}</td>
               <td :class="textClass" class="p-3">{{ user.email || "N/A" }}</td>
-
-
-              <!-- Role Selector -->
+              
               <td class="p-3">
                 <select
                   v-model="user.selectedRole"
                   class="border border-black px-2 py-1 rounded w-full hover:border-red-600 hover:shadow-sm transition-all duration-200"
                 >
-
                   <option disabled value="">Select Role</option>
-                  <option>Parts Supervisor</option>
-                  <option>Parts Marketing</option>
-                  <option>Parts Admin</option>
-                  <option>Parts Warehouse</option>
+                  <option v-for="role in roleOptions" :key="role" :value="role">{{ role }}</option>
                 </select>
               </td>
-
-              <!-- Approve Button -->
               <td class="p-3">
+                <select
+                  v-model="user.selectedPosition"
+                  class="border border-black px-2 py-1 rounded w-full hover:border-red-600 hover:shadow-sm transition-all duration-200"
+                >
+                  <option disabled value="">Select Position</option>
+                  <option v-for="pos in positionOptions" :key="pos" :value="pos">{{ pos }}</option>
+                </select>
+              </td>
+              <td class="p-3">
+                <select
+                  v-model="user.selectedPermission"
+                  class="border border-black px-2 py-1 rounded w-full hover:border-red-600 hover:shadow-sm transition-all duration-200"
+                >
+                  <option disabled value="">Select Permission</option>
+                  <option v-for="perm in permissionOptions" :key="perm" :value="perm">{{ perm }}</option>
+                </select>
+              </td>
+              <td class="p-3 flex gap-2">
                 <button
                   @click="approveUser(user)"
-                  class="bg-gray-800 text-white px-4 py-1 rounded hover:bg-red-600 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                  class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                 >
                   Approve
                 </button>
-              </td>
-
-            </tr>
-
-            <!-- No Pending Users -->
-            <tr v-if="pendingUsers.length === 0">
-              <td colspan="4" :class="subTextClass" class="text-center p-6">
-                No pending users
+                <button
+                  @click="denyUser(user)"
+                  class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  Deny
+                </button>
               </td>
             </tr>
+
+
 
           </tbody>
         </table>
@@ -91,7 +99,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import Topbar from "../../components/Topbar.vue";
 
 
 import {
@@ -100,34 +107,161 @@ import {
   where,
   onSnapshot,
   doc,
-  updateDoc
+  updateDoc,
+  getDoc,
+  setDoc
 } from "firebase/firestore";
 
 import { db } from "../../Firebase/Firebase";
 
 const pendingUsers = ref([]);
+const positionOptions = ref([]);
+const roleOptions = ref([]);
+const permissionOptions = ref([]);
+
+// Helper function to fetch all position options
+const fetchPositionOptions = async () => {
+  try {
+    const positions = [];
+    const docIds = [
+      "isuzu$calapan$position201",
+      "isuzu$calapan$position202", 
+      "isuzu$calapan$position203",
+      "isuzu$calapan$position204",
+      "isuzu$calapan$position205",
+      "isuzu$calapan$position206"
+    ];
+    
+    for (const docId of docIds) {
+      const docRef = await getDoc(doc(db, "Position_Access", docId));
+      if (docRef.exists() && docRef.data().position) {
+        positions.push(docRef.data().position);
+      }
+    }
+    positionOptions.value = positions;
+  } catch (err) {
+    console.error("Error fetching position options:", err);
+  }
+};
+
+// Helper function to fetch all role options
+const fetchRoleOptions = async () => {
+  try {
+    const roles = [];
+    const docIds = [
+      "isuzu&calapan&staff103",
+      "isuzu&calapan&admin102",
+      "isuzu&calapan&master&admin101"
+    ];
+    
+    for (const docId of docIds) {
+      const docRef = await getDoc(doc(db, "Role_Access", docId));
+      if (docRef.exists() && docRef.data().roleName) {
+        roles.push(docRef.data().roleName);
+      }
+    }
+    roleOptions.value = roles;
+  } catch (err) {
+    console.error("Error fetching role options:", err);
+  }
+};
+
+// Helper function to fetch all permission options
+const fetchPermissionOptions = async () => {
+  try {
+    const permissions = [];
+    const docIds = [
+      "isuzu#calapan#permission301",
+      "isuzu#calapan#permission302",
+      "isuzu#calapan#permission303",
+      "isuzu#calapan#permission304",
+      "isuzu#calapan#permission305"
+    ];
+    
+    for (const docId of docIds) {
+      const docRef = await getDoc(doc(db, "Permission_Access", docId));
+      if (docRef.exists() && docRef.data().permission) {
+        permissions.push(docRef.data().permission);
+      }
+    }
+    permissionOptions.value = permissions;
+  } catch (err) {
+    console.error("Error fetching permission options:", err);
+  }
+};
+
+// Helper function to fetch default role values
+
+const fetchDefaultRoleValues = async () => {
+  try {
+    // Fetch position from Position_Access collection
+    const positionDoc = await getDoc(doc(db, "Position_Access", "isuzu$calapan$position201"));
+    const position = positionDoc.exists() ? positionDoc.data().position : "";
+
+    // Fetch role from Role_Access collection
+    const roleDoc = await getDoc(doc(db, "Role_Access", "isuzu&calapan&staff103"));
+    const role = roleDoc.exists() ? roleDoc.data().roleName : "";
+
+    // Fetch permission from Permission_Access collection
+    const permissionDoc = await getDoc(doc(db, "Permission_Access", "isuzu#calapan#permission305"));
+    const permission = permissionDoc.exists() ? permissionDoc.data().permission : "";
+
+    return { position, role, permission };
+  } catch (err) {
+    console.error("Error fetching default role values:", err);
+    return { position: "", role: "", permission: "" };
+  }
+};
+
+// Helper function to fetch existing roles for a user
+const fetchUserRoles = async (userId) => {
+  try {
+    const roleDoc = await getDoc(doc(db, "Administrator", userId, "Roles", "Default_Roles"));
+    if (roleDoc.exists()) {
+      return roleDoc.data();
+    }
+    return null;
+  } catch (err) {
+    console.error("Error fetching user roles:", err);
+    return null;
+  }
+};
+
+
 
 // ✅ Load Pending Users Only
 const loadPendingUsers = () => {
   try {
     const q = query(
-      collection(db, "users"),
-      where("approved", "==", false)
+      collection(db, "Administrator"),
+      where("accountStatus", "==", "pending")
     );
 
     // Real-time listener
-    onSnapshot(q, (snapshot) => {
-      pendingUsers.value = snapshot.docs.map(docSnap => {
+    onSnapshot(q, async (snapshot) => {
+      const userPromises = snapshot.docs.map(async (docSnap) => {
         const data = docSnap.data();
+        
+        // Fetch role data from subcollection if exists
+        const roleData = await fetchUserRoles(docSnap.id);
+        
         return {
           id: docSnap.id,
           username: data.username || "N/A",
           email: data.email || "N/A",
           role: data.role || "",
-          approved: data.approved || false,
-          selectedRole: ""
+          accountStatus: data.accountStatus || "pending",
+          selectedPosition: roleData?.position || "",
+          selectedRole: roleData?.role || "",
+          selectedPermission: roleData?.permission || "",
+          position: roleData?.position || "",
+          roleName: roleData?.role || "",
+          permission: roleData?.permission || ""
         };
+
       });
+      
+      pendingUsers.value = await Promise.all(userPromises);
     });
 
   } catch (err) {
@@ -135,20 +269,31 @@ const loadPendingUsers = () => {
   }
 };
 
-// ✅ Approve User
+
+// ✅ Approve User - Approve with selected roles
 const approveUser = async (user) => {
-  if (!user.selectedRole) {
-    alert("Please select role first");
+  if (!user.selectedPosition || !user.selectedRole || !user.selectedPermission) {
+    alert("Please select Position, Role, and Permission before approving");
     return;
   }
-
+  
   try {
-    const userRef = doc(db, "users", user.id);
+    const userRef = doc(db, "Administrator", user.id);
+
+    // Create or update Roles subcollection with selected values
+    await setDoc(doc(db, "Administrator", user.id, "Roles", "Default_Roles"), {
+      position: user.selectedPosition,
+      role: user.selectedRole,
+      permission: user.selectedPermission,
+      setAt: new Date(),
+      updateAt: new Date()
+    });
 
     await updateDoc(userRef, {
-      approved: true,
-      role: user.selectedRole
+      accountStatus: "approved",
+      Status: "Active"
     });
+
 
     pendingUsers.value = pendingUsers.value.filter(
       u => u.id !== user.id
@@ -158,6 +303,30 @@ const approveUser = async (user) => {
     console.error("Error approving user:", error);
   }
 };
+
+
+// ❌ Deny User
+const denyUser = async (user) => {
+  if (!confirm("Are you sure you want to deny this user?")) return;
+  
+  try {
+    const userRef = doc(db, "Administrator", user.id);
+    
+    await updateDoc(userRef, {
+      accountStatus: "denied"
+    });
+
+    pendingUsers.value = pendingUsers.value.filter(
+      u => u.id !== user.id
+    );
+
+  } catch (error) {
+    console.error("Error denying user:", error);
+  }
+};
+
+
+
 
 // Theme application
 const applyTheme = (theme) => {
@@ -213,13 +382,18 @@ const subTextClass = computed(() =>
   isDarkMode.value ? 'text-gray-300' : 'text-gray-500'
 );
 
+
 const rowHoverClass = computed(() =>
   isDarkMode.value ? 'hover:bg-gray-700' : 'hover:bg-red-50'
 );
 
 onMounted(() => {
   loadPendingUsers();
+  fetchPositionOptions();
+  fetchRoleOptions();
+  fetchPermissionOptions();
 });
+
 </script>
 
 

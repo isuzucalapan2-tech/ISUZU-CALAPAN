@@ -26,13 +26,13 @@
             User Management
           </router-link>
 
-          <!-- <router-link
+          <router-link
             to="/admin/approve"
             class="nav-link"
             active-class="nav-link-active"
           >
             Approve
-          </router-link> -->
+          </router-link>
 
           <router-link
             to="/admin/inventory"
@@ -91,12 +91,12 @@
         @click="isOpen = false"
       >User Management</router-link>
 
-      <!-- <router-link
+      <router-link
         to="/admin/approve"
         class="block py-2 nav-link"
         active-class="nav-link-active"
         @click="isOpen = false"
-      >Approve</router-link> -->
+      >Approve</router-link>
 
       <router-link
         to="/admin/inventory"

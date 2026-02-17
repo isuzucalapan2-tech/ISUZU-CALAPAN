@@ -187,7 +187,8 @@ import {
   sendEmailVerification,
   signOut
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+
 import { auth, db } from "../Firebase/Firebase";
 import bgRegister from "../assets/isuzubg_login2.jpg";
 
@@ -210,6 +211,40 @@ const termsAgreed = ref(false);
 const error = ref("");
 const successMessage = ref("");
 
+// Helper function to calculate age from birthday
+const calculateAge = (birthDate) => {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+// Helper function to fetch default role values
+const fetchDefaultRoleValues = async () => {
+  try {
+    // Fetch position from Position_Access collection
+    const positionDoc = await getDoc(doc(db, "Position_Access", "isuzu$calapan$position201"));
+    const position = positionDoc.exists() ? positionDoc.data().position : "";
+
+    // Fetch role from Role_Access collection
+    const roleDoc = await getDoc(doc(db, "Role_Access", "isuzu&calapan&staff103"));
+    const role = roleDoc.exists() ? roleDoc.data().roleName : "";
+
+    // Fetch permission from Permission_Access collection
+    const permissionDoc = await getDoc(doc(db, "Permission_Access", "isuzu#calapan#permission305"));
+    const permission = permissionDoc.exists() ? permissionDoc.data().permission : "";
+
+    return { position, role, permission };
+  } catch (err) {
+    console.error("Error fetching default role values:", err);
+    return { position: "", role: "", permission: "" };
+  }
+};
+
 const register = async () => {
   error.value = "";
   successMessage.value = "";
@@ -229,6 +264,10 @@ const register = async () => {
 
     await updateProfile(cred.user, { displayName: username.value });
 
+    // Fetch default role values
+    const defaultRoles = await fetchDefaultRoleValues();
+
+    // Create Administrator document
     await setDoc(doc(db, "Administrator", cred.user.uid), {
       firstName: firstName.value,
       lastName: lastName.value,
@@ -238,8 +277,23 @@ const register = async () => {
       contact: contactNumber.value,
       gender: gender.value,
       birthday: birthday.value,
+      age: calculateAge(birthday.value),
+      termsAgreed: true,
+      termsAgreedAt: new Date(),
+      accountStatus: "pending",
       emailVerified: false,
-      createdAt: new Date()
+      createdAt: new Date(),
+      Status: "Deactivated"
+    });
+
+
+    // Create Roles subcollection with default values
+    await setDoc(doc(db, "Administrator", cred.user.uid, "Roles", "Default_Roles"), {
+      position: defaultRoles.position,
+      role: defaultRoles.role,
+      permission: defaultRoles.permission,
+      setAt: new Date(),
+      updateAt: null
     });
 
     await sendEmailVerification(cred.user);
@@ -258,6 +312,7 @@ const register = async () => {
   }
 
 };
+
 
 function onContactInput(e) {
   if (!e.target.value.startsWith("+63")) {

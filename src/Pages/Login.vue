@@ -117,7 +117,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuth } from "../composables/useAuth";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../Firebase/Firebase";
 
 import bgLogin from "../assets/isuzubg_login2.jpg";
@@ -154,6 +154,8 @@ const handleLogin = async () => {
 
   try {
     let emailToLogin = identifier.value;
+    let adminDoc = null;
+    let adminId = null;
 
     // If identifier is not an email, look up the username
     if (!identifier.value.includes("@")) {
@@ -167,9 +169,50 @@ const handleLogin = async () => {
         isLoading.value = false;
         return;
       }
-      emailToLogin = snap.docs[0].data().email;
+      adminDoc = snap.docs[0].data();
+      adminId = snap.docs[0].id;
+      emailToLogin = adminDoc.email;
+    } else {
+      // If email, look up the administrator by email
+      const q = query(
+        collection(db, "Administrator"),
+        where("email", "==", identifier.value)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        adminDoc = snap.docs[0].data();
+        adminId = snap.docs[0].id;
+      }
     }
 
+    // Check if administrator exists
+    if (!adminDoc) {
+      error.value = "Account not found.";
+      isLoading.value = false;
+      return;
+    }
+
+    // Check accountStatus
+    if (adminDoc.accountStatus === "pending") {
+      error.value = "Your account is pending approval. Please wait for an administrator to approve your account.";
+      isLoading.value = false;
+      return;
+    }
+
+    if (adminDoc.accountStatus === "denied") {
+      error.value = "Your account has been denied. Please contact an administrator for assistance.";
+      isLoading.value = false;
+      return;
+    }
+
+    // Check Status (Deactivated)
+    if (adminDoc.Status === "Deactivated") {
+      error.value = "Your account has been deactivated. Please contact an administrator to reactivate your account.";
+      isLoading.value = false;
+      return;
+    }
+
+    // Attempt login
     const result = await login(emailToLogin, password.value, rememberMe.value);
 
     if (!result.success) {
@@ -177,6 +220,14 @@ const handleLogin = async () => {
         showVerificationNotice.value = true;
       }
       error.value = result.error;
+      isLoading.value = false;
+      return;
+    }
+
+    // Check email verification after successful Firebase login
+    if (!result.user.emailVerified) {
+      showVerificationNotice.value = true;
+      error.value = "Please verify your email before logging in.";
       isLoading.value = false;
       return;
     }
