@@ -11,6 +11,7 @@
         <!-- Desktop Menu (centered) -->
         <div class="hidden md:flex flex-1 justify-center space-x-8">
           <router-link
+            v-if="canViewDashboard"
             to="/admin/dashboard"
             class="nav-link"
             active-class="nav-link-active"
@@ -19,6 +20,7 @@
           </router-link>
 
           <router-link
+            v-if="canViewUserManagement"
             to="/admin/user-management"
             class="nav-link"
             active-class="nav-link-active"
@@ -27,6 +29,7 @@
           </router-link>
 
           <router-link
+            v-if="canViewApprove"
             to="/admin/approve"
             class="nav-link"
             active-class="nav-link-active"
@@ -35,6 +38,7 @@
           </router-link>
 
           <router-link
+            v-if="canViewInventory"
             to="/admin/inventory"
             class="nav-link"
             active-class="nav-link-active"
@@ -43,6 +47,7 @@
           </router-link>
 
           <router-link
+            v-if="canViewSARotation"
             to="/admin/sa-rotation"
             class="nav-link"
             active-class="nav-link-active"
@@ -51,12 +56,24 @@
           </router-link>
 
           <router-link
+            v-if="canViewSettings"
             to="/admin/settings"
             class="nav-link"
             active-class="nav-link-active"
           >
             Settings
           </router-link>
+
+          <!-- Page Control - Master Admin Only -->
+          <router-link
+            v-if="isMasterAdmin"
+            to="/admin/page-control"
+            class="nav-link text-yellow-400"
+            active-class="nav-link-active"
+          >
+            ⚙️ Page Control
+          </router-link>
+
         </div>
 
         <!-- Right side -->
@@ -78,6 +95,7 @@
     <!-- Mobile Menu -->
     <div v-if="isOpen" class="md:hidden bg-neutral-800 px-4 pb-4">
       <router-link
+        v-if="canViewDashboard"
         to="/admin/dashboard"
         class="block py-2 nav-link"
         active-class="nav-link-active"
@@ -85,6 +103,7 @@
       >Dashboard</router-link>
 
       <router-link
+        v-if="canViewUserManagement"
         to="/admin/user-management"
         class="block py-2 nav-link"
         active-class="nav-link-active"
@@ -92,6 +111,7 @@
       >User Management</router-link>
 
       <router-link
+        v-if="canViewApprove"
         to="/admin/approve"
         class="block py-2 nav-link"
         active-class="nav-link-active"
@@ -99,6 +119,7 @@
       >Approve</router-link>
 
       <router-link
+        v-if="canViewInventory"
         to="/admin/inventory"
         class="block py-2 nav-link"
         active-class="nav-link-active"
@@ -106,20 +127,72 @@
       >Inventory</router-link>
 
       <router-link
+        v-if="canViewSARotation"
+        to="/admin/sa-rotation"
+        class="block py-2 nav-link"
+        active-class="nav-link-active"
+        @click="isOpen = false"
+      >Retail Order</router-link>
+
+      <router-link
+        v-if="canViewSettings"
         to="/admin/settings"
         class="block py-2 nav-link"
         active-class="nav-link-active"
         @click="isOpen = false"
       >Settings</router-link>
+
+      <!-- Page Control - Master Admin Only -->
+      <router-link
+        v-if="isMasterAdmin"
+        to="/admin/page-control"
+        class="block py-2 nav-link text-yellow-400"
+        active-class="nav-link-active"
+        @click="isOpen = false"
+      >⚙️ Page Control</router-link>
+
     </div>
 
   </nav>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { usePermissions } from "../composables/usePermissions";
+
 const isOpen = ref(false);
+const { canAccessPage, isMasterAdmin, fetchUserRoles } = usePermissions();
+
+// Track accessible pages
+const accessiblePages = ref({
+  dashboard: true,
+  "user-management": true,
+  approve: true,
+  inventory: true,
+  "sa-rotation": true,
+  settings: true
+});
+
+// Check page access on mount
+onMounted(async () => {
+  await fetchUserRoles();
+  
+  const pages = ["dashboard", "user-management", "approve", "inventory", "sa-rotation", "settings"];
+  
+  for (const page of pages) {
+    accessiblePages.value[page] = await canAccessPage(page);
+  }
+});
+
+// Computed properties for each page
+const canViewDashboard = computed(() => accessiblePages.value.dashboard);
+const canViewUserManagement = computed(() => accessiblePages.value["user-management"]);
+const canViewApprove = computed(() => accessiblePages.value.approve);
+const canViewInventory = computed(() => accessiblePages.value.inventory);
+const canViewSARotation = computed(() => accessiblePages.value["sa-rotation"]);
+const canViewSettings = computed(() => accessiblePages.value.settings);
 </script>
+
 
 <style scoped>
 /* default link */
