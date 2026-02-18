@@ -110,6 +110,21 @@
       <!-- Inventory Table -->
       <div :class="cardClass" :style="cardStyle" class="shadow-lg rounded-lg overflow-hidden border-t-2 border-red-600 hover:shadow-xl transition-all duration-300">
 
+        <div class="flex justify-end p-4">
+          <button
+            @click="exportInventory"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium flex items-center gap-2"
+          >
+            Export Report
+          </button>
+          <button
+            @click="printInventory"
+            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-medium flex items-center gap-2 ml-2"
+          >
+            Print Report
+          </button>
+        </div>
+
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead :class="tableHeaderClass" class="border-b-2 border-red-600">
@@ -507,4 +522,102 @@ const deletePart = async (id) => {
 onMounted(() => {
   initializeInventory();
 });
+
+const exportInventory = () => {
+  // Prepare CSV header
+  const headers = [
+    'Part Code',
+    'Part Name',
+    'Category',
+    'Quantity',
+    'Min Level',
+    'Unit Price',
+    'Status'
+  ];
+  // Prepare CSV rows
+  const rows = filteredInventory.value.map(item => [
+    item.partCode,
+    item.partName,
+    item.category,
+    item.quantity,
+    item.minLevel,
+    item.unitPrice,
+    item.status
+  ]);
+  // Combine header and rows
+  const csvContent = [headers, ...rows]
+    .map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+    .join('\r\n');
+
+  // Get current date/time for filename
+  const now = new Date();
+  const pad = n => n.toString().padStart(2, '0');
+  const year = now.getFullYear();
+  const month = pad(now.getMonth() + 1);
+  const day = pad(now.getDate());
+  const hour = pad(now.getHours());
+  const min = pad(now.getMinutes());
+  const filename = `inventory_${year}-${month}-${day}_${hour}-${min}.csv`;
+
+  // Create Blob and trigger download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const printInventory = () => {
+  // Create printable HTML
+  const headers = [
+    'Part Code',
+    'Part Name',
+    'Category',
+    'Quantity',
+    'Min Level',
+    'Unit Price',
+    'Status'
+  ];
+  const rows = filteredInventory.value.map(item => [
+    item.partCode,
+    item.partName,
+    item.category,
+    item.quantity,
+    item.minLevel,
+    item.unitPrice,
+    item.status
+  ]);
+  let html = `
+    <html>
+      <head>
+        <title>Inventory Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          table { border-collapse: collapse; width: 100%; }
+          th, td { border: 1px solid #888; padding: 8px; text-align: left; }
+          th { background: #f44336; color: #fff; }
+        </style>
+      </head>
+      <body>
+        <h2>Inventory Report</h2>
+        <table>
+          <thead>
+            <tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>
+          </thead>
+          <tbody>
+            ${rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `;
+  const printWindow = window.open('', '', 'width=900,height=700');
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => printWindow.print(), 500);
+};
+
 </script>
