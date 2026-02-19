@@ -18,7 +18,6 @@
               v-model="identifier"
               required
               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              :class="{ 'border-red-500': error }"
               placeholder="Enter your username or email"
             />
           </div>
@@ -33,10 +32,10 @@
               type="password"
               required
               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              :class="{ 'border-red-500': error }"
               placeholder="Enter your password"
             />
           </div>
+
 
           <!-- Remember Me -->
           <div class="mb-4 flex items-center">
@@ -49,32 +48,16 @@
             <label for="remember" class="text-sm text-gray-600">Remember me</label>
           </div>
 
-          <!-- Session expired -->
-          <p
-            v-if="$route.query.session === 'expired'"
-            class="text-yellow-700 text-sm mb-4 text-center"
-          >
-            Your session has expired. Please log in again.
-          </p>
-
-          <!-- Error -->
-          <p v-if="error" class="text-red-600 text-center mb-4">
-            {{ error }}
-          </p>
-
-          <!-- Success -->
-          <p v-if="successMessage" class="text-green-700 text-center mb-4">
-            {{ successMessage }}
-          </p>
-
           <!-- Login Button -->
           <button
             type="submit"
             :disabled="isLoading"
-            class="w-full bg-gray-800 text-white py-2 rounded-lg font-medium hover:bg-gray-900 transition disabled:opacity-50"
+            class="w-full bg-gray-800 text-white py-2 rounded-lg font-medium hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
+            <span v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
             {{ isLoading ? 'Logging in...' : 'Login' }}
           </button>
+
         </form>
 
         <!-- Email verification -->
@@ -85,14 +68,13 @@
           <button
             @click="resendVerification"
             :disabled="resendLoading"
-            class="w-full bg-gray-300 text-gray-800 py-2 rounded-lg font-medium"
+            class="w-full bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition disabled:opacity-50 flex items-center justify-center gap-2"
           >
+            <span v-if="resendLoading" class="animate-spin rounded-full h-4 w-4 border-2 border-gray-600 border-t-transparent"></span>
             {{ resendLoading ? "Sending..." : "Resend Verification Email" }}
           </button>
-          <p v-if="resendMessage" class="text-center text-sm mt-2">
-            {{ resendMessage }}
-          </p>
         </div>
+
 
         <!-- Register -->
         <p class="text-center text-sm text-gray-800 mt-6">
@@ -119,24 +101,26 @@ import { useRoute, useRouter } from "vue-router";
 import { useAuth } from "../composables/useAuth";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../Firebase/Firebase";
+import { useToast } from "../composables/useToast";
 
 import bgLogin from "../assets/isuzubg_login2.jpg";
+
 
 const bgImage = bgLogin;
 
 const identifier = ref("");
 const password = ref("");
 const rememberMe = ref(false);
-const error = ref("");
-const successMessage = ref("");
 const showVerificationNotice = ref(false);
 const resendLoading = ref(false);
-const resendMessage = ref("");
 const isLoading = ref(false);
+
 
 const route = useRoute();
 const router = useRouter();
 const { login, resendVerification: authResendVerification, isAuthenticated } = useAuth();
+const toast = useToast();
+
 
 // Redirect if already authenticated
 onMounted(() => {
@@ -147,10 +131,13 @@ onMounted(() => {
 });
 
 const handleLogin = async () => {
-  error.value = "";
-  successMessage.value = "";
   showVerificationNotice.value = false;
   isLoading.value = true;
+
+  // Check for session expired query param
+  if (route.query.session === 'expired') {
+    toast.warning("Your session has expired. Please log in again.", "Session Expired");
+  }
 
   try {
     let emailToLogin = identifier.value;
@@ -165,7 +152,7 @@ const handleLogin = async () => {
       );
       const snap = await getDocs(q);
       if (snap.empty) {
-        error.value = "Username not found.";
+        toast.error("Username not found.", "Login Failed");
         isLoading.value = false;
         return;
       }
@@ -187,27 +174,27 @@ const handleLogin = async () => {
 
     // Check if administrator exists
     if (!adminDoc) {
-      error.value = "Account not found.";
+      toast.error("Account not found.", "Login Failed");
       isLoading.value = false;
       return;
     }
 
     // Check accountStatus
     if (adminDoc.accountStatus === "pending") {
-      error.value = "Your account is pending approval. Please wait for an administrator to approve your account.";
+      toast.warning("Your account is pending approval. Please wait for an administrator to approve your account.", "Account Pending");
       isLoading.value = false;
       return;
     }
 
     if (adminDoc.accountStatus === "denied") {
-      error.value = "Your account has been denied. Please contact an administrator for assistance.";
+      toast.error("Your account has been denied. Please contact an administrator for assistance.", "Access Denied");
       isLoading.value = false;
       return;
     }
 
     // Check Status (Deactivated)
     if (adminDoc.Status === "Deactivated") {
-      error.value = "Your account has been deactivated. Please contact an administrator to reactivate your account.";
+      toast.error("Your account has been deactivated. Please contact an administrator to reactivate your account.", "Account Deactivated");
       isLoading.value = false;
       return;
     }
@@ -218,8 +205,10 @@ const handleLogin = async () => {
     if (!result.success) {
       if (result.error === 'Please verify your email first.') {
         showVerificationNotice.value = true;
+        toast.error("Please verify your email before logging in.", "Email Not Verified");
+      } else {
+        toast.error(result.error, "Login Failed");
       }
-      error.value = result.error;
       isLoading.value = false;
       return;
     }
@@ -227,33 +216,35 @@ const handleLogin = async () => {
     // Check email verification after successful Firebase login
     if (!result.user.emailVerified) {
       showVerificationNotice.value = true;
-      error.value = "Please verify your email before logging in.";
+      toast.error("Please verify your email before logging in.", "Email Not Verified");
       isLoading.value = false;
       return;
     }
 
-    successMessage.value = "Login successful! Redirecting...";
+    toast.success("Login successful! Redirecting...", "Welcome Back!");
     
     // Redirect to intended page or dashboard
     const redirect = route.query.redirect || '/admin/dashboard';
     setTimeout(() => router.push(redirect), 1200);
 
   } catch (err) {
-    error.value = "Login failed. Please try again.";
+    toast.error("Login failed. Please try again.", "Error");
     isLoading.value = false;
   }
 };
+
 
 const resendVerification = async () => {
   resendLoading.value = true;
   const result = await authResendVerification();
   if (result.success) {
-    resendMessage.value = "Verification email sent.";
+    toast.success("Verification email sent. Please check your inbox.", "Email Sent");
   } else {
-    resendMessage.value = result.error || "Failed to resend email.";
+    toast.error(result.error || "Failed to resend email.", "Error");
   }
   resendLoading.value = false;
 };
+
 </script>
 
 <style scoped>

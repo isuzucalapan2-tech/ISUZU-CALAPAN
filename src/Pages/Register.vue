@@ -54,8 +54,23 @@
               <input
                 v-model="username"
                 required
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                @blur="checkUsernameExists(username)"
+                @input="debouncedCheckUsername(username)"
+                :class="[
+                  'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500',
+                  usernameError ? 'border-red-500' : '',
+                  !usernameError && username && !usernameChecking ? 'border-green-500' : ''
+                ]"
               />
+              <p v-if="usernameChecking" class="text-blue-600 text-xs mt-1">
+                Checking availability...
+              </p>
+              <p v-else-if="usernameError" class="text-red-600 text-xs mt-1">
+                {{ usernameError }}
+              </p>
+              <p v-else-if="username && !isUsernameTaken" class="text-green-600 text-xs mt-1">
+                Username is available
+              </p>
             </div>
 
             <div>
@@ -64,9 +79,25 @@
                 v-model="email"
                 type="email"
                 required
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                @blur="checkEmailExists(email)"
+                @input="debouncedCheckEmail(email)"
+                :class="[
+                  'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500',
+                  emailError ? 'border-red-500' : '',
+                  !emailError && email && !emailChecking ? 'border-green-500' : ''
+                ]"
               />
+              <p v-if="emailChecking" class="text-blue-600 text-xs mt-1">
+                Checking availability...
+              </p>
+              <p v-else-if="emailError" class="text-red-600 text-xs mt-1">
+                {{ emailError }}
+              </p>
+              <p v-else-if="email && !isEmailTaken" class="text-green-600 text-xs mt-1">
+                Email is available
+              </p>
             </div>
+
 
             <div>
               <label class="block text-sm font-medium mb-1">Contact</label>
@@ -139,23 +170,18 @@
             </span>
           </div>
 
-          <!-- ERROR -->
-          <p v-if="error" class="text-red-600 text-center mb-3">
-            {{ error }}
-          </p>
-
-          <!-- SUCCESS -->
-          <p v-if="successMessage" class="text-green-700 text-center mb-3">
-            {{ successMessage }}
-          </p>
-
           <!-- REGISTER BUTTON -->
+
           <button
             type="submit"
-            class="w-full bg-gray-800 text-white py-2 rounded-lg font-medium hover:bg-gray-900 transition mb-4"
+            :disabled="isRegistering || isUsernameTaken || isEmailTaken || usernameChecking || emailChecking"
+            class="w-full bg-gray-800 text-white py-2 rounded-lg font-medium hover:bg-gray-900 transition mb-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Register
+            <span v-if="isRegistering" class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+            {{ isRegistering ? 'Registering...' : 'Register' }}
           </button>
+
+
 
           <!-- LOGIN LINK -->
           <p class="text-center text-sm text-gray-700">
@@ -187,14 +213,19 @@ import {
   sendEmailVerification,
   signOut
 } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+
 
 import { auth, db } from "../Firebase/Firebase";
 import bgRegister from "../assets/isuzubg_login2.jpg";
+import { useToast } from "../composables/useToast";
+
 
 
 const bgImage = bgRegister;
 const router = useRouter();
+const toast = useToast();
+
 
 const firstName = ref("");
 const lastName = ref("");
@@ -208,11 +239,110 @@ const password = ref("");
 const confirmPassword = ref("");
 const termsAgreed = ref(false);
 
-const error = ref("");
-const successMessage = ref("");
+const isRegistering = ref(false);
+
+
+// Validation states for uniqueness checking
+const usernameError = ref("");
+const emailError = ref("");
+const usernameChecking = ref(false);
+const emailChecking = ref(false);
+const isUsernameTaken = ref(false);
+const isEmailTaken = ref(false);
+
+// Debounce timer refs
+let usernameDebounceTimer = null;
+let emailDebounceTimer = null;
+
+
+
+// Debounce utility function
+const debounce = (func, wait) => {
+  return (...args) => {
+    clearTimeout(usernameDebounceTimer);
+    usernameDebounceTimer = setTimeout(() => func.apply(this, args), wait);
+  };
+};
+
+// Check if username already exists in Firestore
+const checkUsernameExists = async (username) => {
+  if (!username || username.trim().length < 3) {
+    usernameError.value = "";
+    isUsernameTaken.value = false;
+    return;
+  }
+
+  usernameChecking.value = true;
+  usernameError.value = "";
+
+  try {
+    const q = query(
+      collection(db, "Administrator"),
+      where("username", "==", username.trim())
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      isUsernameTaken.value = true;
+      usernameError.value = "Username is already taken";
+      toast.error("Username is already taken", "Validation Error");
+    } else {
+      isUsernameTaken.value = false;
+      usernameError.value = "";
+    }
+  } catch (err) {
+    console.error("Error checking username:", err);
+    usernameError.value = "Unable to verify username availability";
+    toast.error("Unable to verify username availability", "Error");
+  } finally {
+    usernameChecking.value = false;
+  }
+};
+
+
+// Check if email already exists in Firestore
+const checkEmailExists = async (email) => {
+  if (!email || !email.includes("@")) {
+    emailError.value = "";
+    isEmailTaken.value = false;
+    return;
+  }
+
+  emailChecking.value = true;
+  emailError.value = "";
+
+  try {
+    const q = query(
+      collection(db, "Administrator"),
+      where("email", "==", email.trim().toLowerCase())
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      isEmailTaken.value = true;
+      emailError.value = "Email is already registered";
+      toast.error("Email is already registered", "Validation Error");
+    } else {
+      isEmailTaken.value = false;
+      emailError.value = "";
+    }
+  } catch (err) {
+    console.error("Error checking email:", err);
+    emailError.value = "Unable to verify email availability";
+    toast.error("Unable to verify email availability", "Error");
+  } finally {
+    emailChecking.value = false;
+  }
+};
+
+
+// Debounced versions for input events
+const debouncedCheckUsername = debounce(checkUsernameExists, 500);
+const debouncedCheckEmail = debounce(checkEmailExists, 500);
 
 // Helper function to calculate age from birthday
 const calculateAge = (birthDate) => {
+
   const today = new Date();
   const birth = new Date(birthDate);
   let age = today.getFullYear() - birth.getFullYear();
@@ -246,20 +376,44 @@ const fetchDefaultRoleValues = async () => {
 };
 
 const register = async () => {
-  error.value = "";
-  successMessage.value = "";
+  // Prevent multiple submissions
+  if (isRegistering.value) return;
+  
+  isRegistering.value = true;
+
 
   if (password.value !== confirmPassword.value) {
-    error.value = "Passwords do not match.";
+    toast.error("Passwords do not match", "Validation Error");
+    isRegistering.value = false;
     return;
   }
 
   if (!termsAgreed.value) {
-    error.value = "You must agree to the terms.";
+    toast.error("You must agree to the terms and conditions", "Validation Error");
+    isRegistering.value = false;
     return;
   }
 
+  // Check uniqueness before proceeding
+  await checkUsernameExists(username.value);
+  await checkEmailExists(email.value);
+
+  if (isUsernameTaken.value) {
+    toast.error("Username is already taken. Please choose a different username.", "Registration Failed");
+    isRegistering.value = false;
+    return;
+  }
+
+  if (isEmailTaken.value) {
+    toast.error("Email is already registered. Please use a different email or login.", "Registration Failed");
+    isRegistering.value = false;
+    return;
+  }
+
+
+
   try {
+
     const cred = await createUserWithEmailAndPassword(auth, email.value, password.value);
 
     await updateProfile(cred.user, { displayName: username.value });
@@ -301,17 +455,37 @@ const register = async () => {
     // Sign out the user immediately so they can't access protected routes
     await signOut(auth);
 
-    successMessage.value = "Registration successful! Please check your email to verify your account before logging in.";
+    toast.success(
+      "Registration successful! Please check your email to verify your account before logging in.",
+      "Welcome!",
+      8000
+    );
     
     // Redirect to login after showing message
     setTimeout(() => router.push("/"), 3000);
 
+
   } catch (err) {
     console.error("Registration error:", err);
-    error.value = "Registration failed. Try again.";
+    
+    // Handle specific Firebase Auth errors with toast notifications
+    if (err.code === "auth/email-already-in-use") {
+      toast.error("This email is already registered. Please use a different email or login.", "Registration Failed");
+    } else if (err.code === "auth/invalid-email") {
+      toast.error("Please enter a valid email address.", "Invalid Email");
+    } else if (err.code === "auth/weak-password") {
+      toast.error("Password is too weak. Please use at least 6 characters.", "Weak Password");
+    } else {
+      toast.error("Registration failed. Please try again.", "Error");
+    }
+    
+    isRegistering.value = false;
   }
 
+
+
 };
+
 
 
 function onContactInput(e) {

@@ -40,15 +40,7 @@
         <button @click="activeTab = 'general'" :class="[tabClass('general'), tabHoverClass]" class="px-4 py-2 flex items-center gap-1 transition-all duration-200 rounded-t">
           <UserIcon class="w-5 h-5" /> General
         </button>
-        <button @click="activeTab = 'inventory'" :class="[tabClass('inventory'), tabHoverClass]" class="px-4 py-2 flex items-center gap-1 transition-all duration-200 rounded-t">
-          <PackageIcon class="w-5 h-5" /> Inventory
-        </button>
-        <button @click="activeTab = 'notifications'" :class="[tabClass('notifications'), tabHoverClass]" class="px-4 py-2 flex items-center gap-1 transition-all duration-200 rounded-t">
-          <BellIcon class="w-5 h-5" /> Notifications
-        </button>
-        <button @click="activeTab = 'warehouse'" :class="[tabClass('warehouse'), tabHoverClass]" class="px-4 py-2 flex items-center gap-1 transition-all duration-200 rounded-t">
-          <MapPinIcon class="w-5 h-5" /> Warehouse
-        </button>
+
       </div>
 
       <!-- Status Messages -->
@@ -101,89 +93,14 @@
           </div>
         </div>
 
-        <!-- Inventory -->
-        <div v-if="activeTab === 'inventory'">
-          <div :class="cardClass" :style="cardStyle" class="border-l-2 border-red-600 hover:shadow-xl transition-all duration-300">
-
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <PackageIcon class="w-5 h-5" /> Inventory Settings
-            </h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="number" v-model.number="settings.inventory.lowStockThreshold" class="border rounded px-4 py-2" placeholder="Low Stock Threshold" />
-              <input type="number" v-model.number="settings.inventory.minReorderQty" class="border rounded px-4 py-2" placeholder="Min Reorder Qty" />
-              <input type="number" v-model.number="settings.inventory.defaultReorderQty" class="border rounded px-4 py-2" placeholder="Default Reorder Qty" />
-              <input type="number" v-model.number="settings.inventory.stockCheckInterval" class="border rounded px-4 py-2" placeholder="Stock Check Interval" />
-            </div>
-
-            <label class="flex items-center mt-4 gap-2">
-              <input type="checkbox" v-model="settings.inventory.autoReorder" />
-              Enable Auto Reorder
-            </label>
-
-            <button @click="saveSettings" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-              <SaveIcon class="w-5 h-5" /> Save Inventory Settings
-            </button>
-
-          </div>
-        </div>
-
-        <!-- Notifications -->
-        <div v-if="activeTab === 'notifications'">
-          <div :class="cardClass" :style="cardStyle" class="border-l-2 border-red-600 hover:shadow-xl transition-all duration-300">
-
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <BellRingIcon class="w-5 h-5" /> Notification Settings
-            </h2>
-
-            <div v-for="(label, key) in notificationLabels" :key="key" class="flex justify-between p-4 bg-gray-50 rounded mb-2 hover:bg-gray-100 transition-all duration-200 cursor-pointer">
-              <span>{{ label }}</span>
-              <input type="checkbox" v-model="settings.notifications[key]" />
-            </div>
 
 
-            <button @click="saveSettings" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-              <SaveIcon class="w-5 h-5" /> Save Notification Settings
-            </button>
-
-          </div>
-        </div>
-
-        <!-- Warehouse -->
-        <div v-if="activeTab === 'warehouse'">
-          <div :class="cardClass" :style="cardStyle" class="border-l-2 border-red-600 hover:shadow-xl transition-all duration-300">
-
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <MapPinIcon class="w-5 h-5" /> Warehouse Locations
-            </h2>
-
-            <div v-for="(wh, i) in settings.warehouse.locations" :key="i" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3 hover:bg-gray-50 p-2 rounded transition-all duration-200">
-              <input v-model="wh.name" class="border rounded px-3 py-2 hover:shadow-sm transition-all duration-200" placeholder="Name" />
-              <input v-model="wh.location" class="border rounded px-3 py-2 hover:shadow-sm transition-all duration-200" placeholder="Location" />
-              <div class="flex gap-2">
-                <input v-model.number="wh.capacity" type="number" class="border rounded px-3 py-2 w-full hover:shadow-sm transition-all duration-200" placeholder="Capacity" />
-                <button @click="removeWarehouse(i)" class="bg-red-600 text-white px-3 rounded hover:bg-red-700 hover:shadow-lg transition-all duration-200">
-                  X
-                </button>
-              </div>
-            </div>
-
-
-            <button @click="addWarehouse" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-              Add Warehouse
-            </button>
-
-            <button @click="saveSettings" class="ml-2 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-              Save Warehouse Settings
-            </button>
-
-          </div>
-        </div>
 
       </div>
     </main>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
@@ -193,10 +110,11 @@ import { db } from "../../Firebase/Firebase";
 import Loaders from "../../components/Loaders.vue";
 
 import {
-  SettingsIcon, LogOutIcon, UserIcon, PackageIcon, BellIcon, MapPinIcon,
-  UserCogIcon, SaveIcon, BellRingIcon,
+  SettingsIcon, LogOutIcon, UserIcon,
+  UserCogIcon, SaveIcon,
   Loader2Icon, CheckCircleIcon, XCircleIcon
 } from "lucide-vue-next";
+
 
 /* ===== AUTH ===== */
 const { user, userRole, logout } = useAuth();
@@ -212,19 +130,10 @@ const saveError = ref(null);
 /* ===== SETTINGS ===== */
 const defaultSettings = {
   general: { companyName: "", companyEmail: "", phone: "", language: "en", theme: "light" },
-  inventory: { lowStockThreshold: 50, minReorderQty: 100, defaultReorderQty: 500, stockCheckInterval: 7, autoReorder: true },
-  notifications: { emailNotifications: true, lowStockAlerts: true, reorderNotifications: true, systemUpdates: true },
-  warehouse: { locations: [] },
 };
 
 const settings = ref(JSON.parse(JSON.stringify(defaultSettings)));
 
-const notificationLabels = {
-  emailNotifications: "Email Notifications",
-  lowStockAlerts: "Low Stock Alerts",
-  reorderNotifications: "Reorder Notifications",
-  systemUpdates: "System Updates",
-};
 
 /* ===== THEME ===== */
 const themeClass = computed(() =>
@@ -290,15 +199,8 @@ const saveSettings = async () => {
   }
 };
 
-const addWarehouse = () => {
-  settings.value.warehouse.locations.push({ name: "", location: "", capacity: 0 });
-};
-
-const removeWarehouse = (i) => {
-  settings.value.warehouse.locations.splice(i, 1);
-};
-
 const handleLogout = async () => {
+
   isLoggingOut.value = true;
   await logout();
   isLoggingOut.value = false;

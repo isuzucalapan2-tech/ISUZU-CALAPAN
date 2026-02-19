@@ -1,6 +1,10 @@
 <template>
   <div id="app" :class="themeClass" :style="themeStyle">
+    <!-- Toast Notifications -->
+    <Toast ref="toastRef" />
+    
     <!-- Session Warning Modal -->
+
     <div v-if="showSessionWarning" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-lg shadow-xl max-w-md mx-4">
         <div class="flex items-center gap-3 mb-4">
@@ -36,8 +40,14 @@
 import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useAuthStore } from './stores/auth';
 import { AlertTriangleIcon } from 'lucide-vue-next';
+import Toast from './components/Toast.vue';
+import { provideToast } from './composables/useToast';
 
 const authStore = useAuthStore();
+
+// Set up toast notification system
+const { toastRef } = provideToast();
+
 const showSessionWarning = ref(false);
 let warningTimeout = null;
 
