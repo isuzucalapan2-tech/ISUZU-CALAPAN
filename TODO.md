@@ -40,6 +40,22 @@
 - [x] Toast notifications for user feedback
 - [x] Status badges showing "To Review", "Stock IN", or "Stock OUT"
 - [x] Processing state management for individual items
+- [x] **3-Day Expiration**: Stock OUT button disables after 3 days from creation
+- [x] Locked transactions show "Locked" badge with tooltip explanation
+- [x] Expiration check prevents Stock OUT operations on old transactions
+
+
+### 5. Transaction OUT System ✅ COMPLETED
+- [x] Created TransactionOut.vue component
+- [x] Database structure: Transactions/{partNo}/Transaction_OUT/TransactionOUT&{partNo}&{datetime}
+- [x] Fields: transactionID, partNo, partName, controlNo, category, model, quantity, unitPrice, totalPrice, client, note, statusOUT, soldAt, createdAt, processedAt
+- [x] Inventory item search/selector with stock display
+- [x] Stock validation (prevents selling more than available)
+- [x] "Process Sale" button to complete sale and subtract from inventory
+- [x] "Cancel" button to cancel sale and restore inventory
+- [x] Status workflow: Pending → Completed/Cancelled
+- [x] Toast notifications for all actions
+- [x] Real-time inventory updates
 
 ### 6. Testing & Validation ⏳ PENDING
 - [ ] Test transaction creation with new structure
@@ -49,6 +65,9 @@
 - [ ] Test Stock IN approval workflow
 - [ ] Test Stock OUT rejection workflow
 - [ ] Test inventory quantity updates
+- [ ] Test Transaction OUT sale workflow
+- [ ] Test Transaction OUT cancel workflow
+
 
 
 

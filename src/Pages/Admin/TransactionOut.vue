@@ -2,36 +2,36 @@
   <div v-if="!isLoading" :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col">
     <!-- Main Content -->
     <main class="flex-1 p-6">
-      <h1 :class="textClass" class="text-3xl font-bold mb-6 border-l-4 border-green-600 pl-4 flex items-center gap-2">
-        <ArrowDownCircle class="w-7 h-7 text-green-600" />
-        Transaction In
+      <h1 :class="textClass" class="text-3xl font-bold mb-6 border-l-4 border-orange-600 pl-4 flex items-center gap-2">
+        <ArrowUpCircle class="w-7 h-7 text-orange-600" />
+        Transaction Out / Sales
       </h1>
 
       <!-- Add New Record Button -->
-      <div :class="cardClass" :style="cardStyle" class="shadow-lg rounded-lg p-6 mb-6 border-l-2 border-green-600">
+      <div :class="cardClass" :style="cardStyle" class="shadow-lg rounded-lg p-6 mb-6 border-l-2 border-orange-600">
         <div class="flex justify-between items-center">
           <div>
-            <h2 class="text-xl font-bold flex items-center gap-2 text-green-600">
-              <ArrowDownCircle class="w-6 h-6" />
-              Incoming Parts / Stock In Records
+            <h2 class="text-xl font-bold flex items-center gap-2 text-orange-600">
+              <ArrowUpCircle class="w-6 h-6" />
+              Outgoing Parts / Sales Records
             </h2>
-            <p :class="subTextClass" class="mt-2">Records of parts received from outside sources</p>
+            <p :class="subTextClass" class="mt-2">Records of parts sold to clients</p>
           </div>
           <button
-            @click="openTransactionInModal"
-            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-medium flex items-center gap-2"
+            @click="openTransactionOutModal"
+            class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition font-medium flex items-center gap-2"
           >
             <Plus class="w-5 h-5" />
-            Add New Record
+            Add New Sale
           </button>
         </div>
       </div>
 
-      <!-- Transaction In Table -->
-      <div :class="cardClass" :style="cardStyle" class="shadow-lg rounded-lg overflow-hidden border-t-2 border-green-600">
+      <!-- Transaction Out Table -->
+      <div :class="cardClass" :style="cardStyle" class="shadow-lg rounded-lg overflow-hidden border-t-2 border-orange-600">
         <div class="overflow-x-auto">
           <table class="w-full">
-            <thead :class="tableHeaderClass" class="border-b-2 border-green-600">
+            <thead :class="tableHeaderClass" class="border-b-2 border-orange-600">
               <tr>
                 <th class="p-4 text-left">Control No.</th>
                 <th class="p-4 text-left">Transaction ID</th>
@@ -42,24 +42,24 @@
                 <th class="p-4 text-left">Quantity</th>
                 <th class="p-4 text-left">Unit Price</th>
                 <th class="p-4 text-left">Total Price</th>
-                <th class="p-4 text-left">Source</th>
+                <th class="p-4 text-left">Client</th>
                 <th class="p-4 text-left">Note</th>
-                <th class="p-4 text-left">Received At</th>
+                <th class="p-4 text-left">Sold At</th>
                 <th class="p-4 text-left">Status</th>
                 <th class="p-4 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr
-                v-for="item in transactionInItems"
+                v-for="item in transactionOutItems"
                 :key="item.id"
                 :class="tableRowClass"
                 class="border-b border-gray-300 transition duration-200 hover:shadow-md"
               >
-                <td :class="textClass" class="p-4 font-medium text-green-600">{{ item.controlNo }}</td>
+                <td :class="textClass" class="p-4 font-medium text-orange-600">{{ item.controlNo }}</td>
                 <td :class="textClass" class="p-4 font-medium">{{ item.transactionID }}</td>
                 <td :class="textClass" class="p-4">
-                  <span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 uppercase">
+                  <span class="px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 uppercase">
                     {{ item.category }}
                   </span>
                 </td>
@@ -69,52 +69,62 @@
                 <td :class="textClass" class="p-4">{{ item.quantity }}</td>
                 <td :class="textClass" class="p-4">₱{{ item.unitPrice?.toLocaleString() }}</td>
                 <td :class="textClass" class="p-4">₱{{ item.totalPrice?.toLocaleString() }}</td>
-                <td :class="textClass" class="p-4">{{ item.source }}</td>
+                <td :class="textClass" class="p-4 font-medium">{{ item.client }}</td>
                 <td :class="textClass" class="p-4">{{ item.note }}</td>
-                <td :class="textClass" class="p-4">{{ formatDate(item.receivedAt) }}</td>
+                <td :class="textClass" class="p-4">{{ formatDate(item.soldAt) }}</td>
                 <td :class="textClass" class="p-4">
-                  <span :class="getStatusBadgeClass(item.statusIN)" class="px-2 py-1 rounded text-xs font-medium uppercase">
-                    {{ item.statusIN || 'To Review' }}
+                  <span :class="getStatusBadgeClass(item.statusOUT)" class="px-2 py-1 rounded text-xs font-medium uppercase">
+                    {{ item.statusOUT || 'Pending' }}
                   </span>
                 </td>
                 <td :class="textClass" class="p-4">
                   <div class="flex gap-2">
-                    <!-- Show Stock IN button only for To Review status -->
+                    <!-- Show Process Sale button only for Pending status -->
                     <button
-                      v-if="item.statusIN === 'To Review' || !item.statusIN"
-                      @click="processStockIn(item)"
+                      v-if="item.statusOUT === 'Pending' || !item.statusOUT"
+                      @click="processSale(item)"
                       :disabled="processingItems[item.id]"
-                      class="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 transition-all duration-200 disabled:opacity-50"
+                      class="flex items-center gap-1 bg-orange-600 text-white px-2 py-1 rounded text-xs hover:bg-orange-700 transition-all duration-200 disabled:opacity-50"
                     >
                       <Check class="w-3 h-3" />
-                      {{ processingItems[item.id] ? 'Processing...' : 'Stock IN' }}
+                      {{ processingItems[item.id] ? 'Processing...' : 'Process Sale' }}
                     </button>
-                    <!-- Show Stock OUT button only for Stock IN status (to reverse/return) -->
+                    <!-- Show Cancel button only for Completed status and within 3 days -->
                     <button
-                      v-if="item.statusIN === 'Stock IN'"
-                      @click="processStockOut(item)"
+                      v-if="item.statusOUT === 'Completed' && isCancelAvailable(item)"
+                      @click="cancelSale(item)"
                       :disabled="processingItems[item.id]"
                       class="flex items-center gap-1 bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-all duration-200 disabled:opacity-50"
                     >
                       <X class="w-3 h-3" />
-                      {{ processingItems[item.id] ? 'Processing...' : 'Stock OUT' }}
+                      {{ processingItems[item.id] ? 'Processing...' : 'Cancel' }}
+                      <span class="ml-1 text-[10px] opacity-75">({{ getCancelExpirationText(item) }})</span>
                     </button>
+                    <!-- Show expired message when cancel is no longer available -->
                     <span
-                      v-if="item.statusIN === 'Stock OUT'"
+                      v-if="item.statusOUT === 'Completed' && !isCancelAvailable(item)"
+                      class="text-gray-500 text-xs flex items-center gap-1"
+                      title="Cancel action expired after 3 days"
+                    >
+                      <XCircle class="w-3 h-3" />
+                      Cancel Expired
+                    </span>
+
+                    <span
+                      v-if="item.statusOUT === 'Cancelled'"
                       class="text-red-600 font-medium text-xs flex items-center gap-1"
                     >
                       <XCircle class="w-4 h-4" />
-                      Retrieved
+                      Cancelled
                     </span>
                   </div>
                 </td>
-
               </tr>
-              <tr v-if="transactionInItems.length === 0">
+              <tr v-if="transactionOutItems.length === 0">
                 <td colspan="14" :class="subTextClass" class="text-center p-8">
                   <div class="flex justify-center items-center gap-2">
-                    <ArrowDownCircle class="w-5 h-5" />
-                    No incoming transaction records found
+                    <ArrowUpCircle class="w-5 h-5" />
+                    No sales records found
                   </div>
                 </td>
               </tr>
@@ -124,12 +134,12 @@
       </div>
     </main>
 
-    <!-- Transaction IN Modal -->
-    <div v-if="showTransactionInModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <!-- Transaction OUT Modal -->
+    <div v-if="showTransactionOutModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div :class="modalClass" :style="modalStyle" class="rounded-lg shadow-xl p-6 w-full max-w-lg">
         <h2 :class="textClass" class="text-2xl font-bold mb-4 flex items-center gap-2">
-          <ArrowDownCircle class="w-6 h-6 text-green-600" />
-          Add Incoming Record
+          <ArrowUpCircle class="w-6 h-6 text-orange-600" />
+          Record Sale
         </h2>
 
         <div class="space-y-4">
@@ -143,7 +153,7 @@
                 type="text"
                 :class="inputClass"
                 class="w-full border rounded px-4 py-2 pl-10"
-                placeholder="Search by part number, name, or model..."
+                placeholder="Search by part number, name, model, or category..."
                 @focus="showInventoryDropdown = true"
               />
             </div>
@@ -159,7 +169,7 @@
                 v-for="item in inventoryItems"
                 :key="item.controlNo"
                 @click="selectInventoryItem(item)"
-                class="p-3 cursor-pointer hover:bg-green-50 dark:hover:bg-green-900 border-b border-gray-200 dark:border-gray-700 last:border-0"
+                class="p-3 cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900 border-b border-gray-200 dark:border-gray-700 last:border-0"
               >
                 <div class="flex justify-between items-start">
                   <div>
@@ -168,12 +178,12 @@
                     <div :class="subTextClass" class="text-xs mt-1">
                       <span class="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase">{{ item.category }}</span>
                       <span class="ml-1">Model: {{ item.model }}</span>
-                      <span class="ml-1">| Qty: {{ item.quantity }}</span>
+                      <span class="ml-1">| Stock: {{ item.quantity }}</span>
                     </div>
                   </div>
                   <div class="text-right">
                     <div :class="subTextClass" class="text-xs font-mono">{{ item.controlNo }}</div>
-                    <div class="text-green-600 font-medium text-sm">₱{{ item.unitPrice?.toLocaleString() }}</div>
+                    <div class="text-orange-600 font-medium text-sm">₱{{ item.unitPrice?.toLocaleString() }}</div>
                   </div>
                 </div>
               </div>
@@ -190,8 +200,8 @@
           </div>
 
           <!-- Selected Item Info -->
-          <div v-if="selectedInventoryItem" :class="cardClass" :style="cardStyle" class="p-3 rounded-lg border border-green-200 dark:border-green-800">
-            <div class="flex items-center gap-2 text-green-600 mb-2">
+          <div v-if="selectedInventoryItem" :class="cardClass" :style="cardStyle" class="p-3 rounded-lg border border-orange-200 dark:border-orange-800">
+            <div class="flex items-center gap-2 text-orange-600 mb-2">
               <Check class="w-4 h-4" />
               <span class="font-medium text-sm">Selected Item</span>
             </div>
@@ -208,6 +218,10 @@
                 <span :class="subTextClass">Part Name:</span>
                 <span :class="textClass" class="font-medium ml-1">{{ selectedInventoryItem.partName }}</span>
               </div>
+              <div class="col-span-2">
+                <span :class="subTextClass">Available Stock:</span>
+                <span :class="textClass" class="font-medium ml-1 text-orange-600">{{ selectedInventoryItem.quantity }} units</span>
+              </div>
             </div>
           </div>
 
@@ -215,20 +229,24 @@
             <div>
               <label :class="subTextClass" class="block mb-1 font-medium">Quantity *</label>
               <input
-                v-model.number="transactionInForm.quantity"
+                v-model.number="transactionOutForm.quantity"
                 type="number"
                 min="1"
+                :max="selectedInventoryItem?.quantity || 999999"
                 :class="inputClass"
                 class="w-full border rounded px-4 py-2"
                 placeholder="0"
                 required
               />
+              <p v-if="selectedInventoryItem" :class="subTextClass" class="text-xs mt-1">
+                Max: {{ selectedInventoryItem.quantity }} units
+              </p>
             </div>
 
             <div>
               <label :class="subTextClass" class="block mb-1 font-medium">Unit Price (₱)</label>
               <input
-                v-model.number="transactionInForm.unitPrice"
+                v-model.number="transactionOutForm.unitPrice"
                 type="number"
                 :class="inputClass"
                 class="w-full border rounded px-4 py-2 bg-gray-100 dark:bg-gray-700"
@@ -241,23 +259,23 @@
           <div>
             <label :class="subTextClass" class="block mb-1 font-medium">Total Price (₱) <span class="text-xs font-normal">(Auto-calculated)</span></label>
             <input
-              v-model.number="transactionInForm.totalPrice"
+              v-model.number="transactionOutForm.totalPrice"
               type="number"
               :class="inputClass"
-              class="w-full border rounded px-4 py-2 bg-green-50 dark:bg-green-900 font-medium text-green-700 dark:text-green-300"
+              class="w-full border rounded px-4 py-2 bg-orange-50 dark:bg-orange-900 font-medium text-orange-700 dark:text-orange-300"
               placeholder="0.00"
               readonly
             />
           </div>
 
           <div>
-            <label :class="subTextClass" class="block mb-1 font-medium">Source *</label>
+            <label :class="subTextClass" class="block mb-1 font-medium">Client Name *</label>
             <input
-              v-model="transactionInForm.source"
+              v-model="transactionOutForm.client"
               type="text"
               :class="inputClass"
               class="w-full border rounded px-4 py-2"
-              placeholder="e.g., Supplier Name"
+              placeholder="e.g., Client Name or Company"
               required
             />
           </div>
@@ -265,7 +283,7 @@
           <div>
             <label :class="subTextClass" class="block mb-1">Note</label>
             <textarea
-              v-model="transactionInForm.note"
+              v-model="transactionOutForm.note"
               :class="inputClass"
               class="w-full border rounded px-4 py-2"
               rows="2"
@@ -276,17 +294,17 @@
 
         <div class="flex justify-end gap-3 mt-6">
           <button
-            @click="closeTransactionInModal"
+            @click="closeTransactionOutModal"
             class="px-4 py-2 border rounded hover:bg-gray-100 hover:shadow-md transition-all duration-200"
             :class="isDarkMode ? 'border-gray-600 hover:bg-gray-800 text-white' : 'border-gray-300'"
           >
             Cancel
           </button>
           <button
-            @click="saveTransactionIn"
-            class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+            @click="saveTransactionOut"
+            class="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
           >
-            Add Record
+            Record Sale
           </button>
         </div>
       </div>
@@ -304,16 +322,14 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { db } from '../../Firebase/Firebase';
 import { collection, getDocs, doc, setDoc, getDoc, collectionGroup, updateDoc } from 'firebase/firestore';
 import { 
-  getNextControlNumber, 
   loadAllInventoryItems, 
-  getInventoryItemByPartNo, 
-  getControlNoByPartNo,
+  getInventoryItemByPartNo,
   generateTransactionID,
   searchInventoryItems 
 } from '../../composables/useControlNumber';
 import { useToast } from '../../composables/useToast';
 import Loaders from '../../components/Loaders.vue';
-import { Plus, ArrowDownCircle, Search, Check, X, CheckCircle, XCircle } from 'lucide-vue-next';
+import { Plus, ArrowUpCircle, Search, Check, X, CheckCircle, XCircle } from 'lucide-vue-next';
 
 // Toast notification
 const toast = useToast();
@@ -322,30 +338,30 @@ const toast = useToast();
 const isLoading = ref(true);
 
 // Transaction data
-const transactionInItems = ref([]);
+const transactionOutItems = ref([]);
 
 // Processing state for individual items
 const processingItems = ref({});
 
 // Transaction modal state
-const showTransactionInModal = ref(false);
+const showTransactionOutModal = ref(false);
 
 // Transaction form
-const transactionInForm = ref({
+const transactionOutForm = ref({
   partNo: '',
   partName: '',
   quantity: 0,
   unitPrice: 0,
   totalPrice: 0,
-  source: '',
+  client: '',
   note: '',
   controlNo: '',
   transactionID: ''
 });
 
-// Collection path constants - Updated to match requirements
+// Collection path constants
 const TRANSACTION_COLLECTION = 'Transactions';
-const TRANSACTION_IN_SUBCOLLECTION = 'Transaction_IN';
+const TRANSACTION_OUT_SUBCOLLECTION = 'Transaction_OUT';
 
 // Inventory items for selector
 const inventoryItems = ref([]);
@@ -408,11 +424,11 @@ const modalStyle = computed(() =>
 // Status badge class helper
 const getStatusBadgeClass = (status) => {
   switch (status) {
-    case 'Stock IN':
+    case 'Completed':
       return 'bg-green-100 text-green-800';
-    case 'Stock OUT':
+    case 'Cancelled':
       return 'bg-red-100 text-red-800';
-    case 'To Review':
+    case 'Pending':
     default:
       return 'bg-yellow-100 text-yellow-800';
   }
@@ -426,6 +442,40 @@ const formatDate = (timestamp) => {
   }
   return new Date(timestamp).toLocaleString();
 };
+
+// Check if cancel is available (within 3 days of sale)
+const isCancelAvailable = (item) => {
+  if (!item.soldAt) return false;
+  
+  const soldDate = item.soldAt.toDate ? item.soldAt.toDate() : new Date(item.soldAt);
+  const now = new Date();
+  const diffTime = now - soldDate;
+  const diffDays = diffTime / (1000 * 60 * 60 * 24); // Convert to days
+  
+  return diffDays <= 3;
+};
+
+// Get cancel expiration text
+const getCancelExpirationText = (item) => {
+  if (!item.soldAt) return '';
+  
+  const soldDate = item.soldAt.toDate ? item.soldAt.toDate() : new Date(item.soldAt);
+  const now = new Date();
+  const diffTime = now - soldDate;
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+  const remainingDays = Math.max(0, 3 - Math.floor(diffDays));
+  
+  if (remainingDays === 0) {
+    const remainingHours = Math.max(0, 72 - Math.floor(diffTime / (1000 * 60 * 60)));
+    if (remainingHours > 0) {
+      return `${remainingHours}h left`;
+    }
+    return 'Expired';
+  }
+  
+  return `${remainingDays}d left`;
+};
+
 
 // Load inventory items for selector
 const loadInventoryItems = async () => {
@@ -460,10 +510,10 @@ watch(searchQuery, (newValue) => {
 // Select inventory item
 const selectInventoryItem = (item) => {
   selectedInventoryItem.value = item;
-  transactionInForm.value.partNo = item.partNo || '';
-  transactionInForm.value.partName = item.partName || '';
-  transactionInForm.value.unitPrice = item.unitPrice || 0;
-  transactionInForm.value.controlNo = item.controlNo || '';
+  transactionOutForm.value.partNo = item.partNo || '';
+  transactionOutForm.value.partName = item.partName || '';
+  transactionOutForm.value.unitPrice = item.unitPrice || 0;
+  transactionOutForm.value.controlNo = item.controlNo || '';
   searchQuery.value = `${item.partNo} - ${item.partName}`;
   showInventoryDropdown.value = false;
   
@@ -472,27 +522,27 @@ const selectInventoryItem = (item) => {
 
 // Calculate total price
 const calculateTotalPrice = () => {
-  const qty = parseInt(transactionInForm.value.quantity) || 0;
-  const price = parseFloat(transactionInForm.value.unitPrice) || 0;
-  transactionInForm.value.totalPrice = qty * price;
+  const qty = parseInt(transactionOutForm.value.quantity) || 0;
+  const price = parseFloat(transactionOutForm.value.unitPrice) || 0;
+  transactionOutForm.value.totalPrice = qty * price;
 };
 
 // Watch quantity changes to auto-calculate total
-watch(() => transactionInForm.value.quantity, () => {
+watch(() => transactionOutForm.value.quantity, () => {
   calculateTotalPrice();
 });
 
-// Load Transaction IN data
-const loadTransactionIn = async () => {
+// Load Transaction OUT data
+const loadTransactionOut = async () => {
   try {
-    transactionInItems.value = [];
+    transactionOutItems.value = [];
     
-    console.log('Loading Transaction IN data...');
+    console.log('Loading Transaction OUT data...');
     
-    const transactionInQuery = collectionGroup(db, TRANSACTION_IN_SUBCOLLECTION);
-    const snapshot = await getDocs(transactionInQuery);
+    const transactionOutQuery = collectionGroup(db, TRANSACTION_OUT_SUBCOLLECTION);
+    const snapshot = await getDocs(transactionOutQuery);
     
-    console.log('Total Transaction_IN documents found:', snapshot.docs.length);
+    console.log('Total Transaction_OUT documents found:', snapshot.docs.length);
     
     for (const transDoc of snapshot.docs) {
       const transData = transDoc.data();
@@ -506,7 +556,7 @@ const loadTransactionIn = async () => {
         continue;
       }
       
-      transactionInItems.value.push({
+      transactionOutItems.value.push({
         id: transDoc.id,
         transactionID: transData.transactionID || '',
         controlNo: transData.controlNo || '',
@@ -517,23 +567,23 @@ const loadTransactionIn = async () => {
         quantity: transData.quantity || 0,
         unitPrice: transData.unitPrice || 0,
         totalPrice: transData.totalPrice || 0,
-        source: transData.source || '',
+        client: transData.client || '',
         note: transData.note || '',
-        statusIN: transData.statusIN || 'To Review',
-        receivedAt: transData.receivedAt || null,
+        statusOUT: transData.statusOUT || 'Pending',
+        soldAt: transData.soldAt || null,
         createdAt: transData.createdAt || null
       });
     }
     
-    transactionInItems.value.sort((a, b) => {
+    transactionOutItems.value.sort((a, b) => {
       const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
       const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
       return dateB - dateA;
     });
     
-    console.log('Total Transaction IN items loaded:', transactionInItems.value.length);
+    console.log('Total Transaction OUT items loaded:', transactionOutItems.value.length);
   } catch (error) {
-    console.error('Error loading transaction in:', error);
+    console.error('Error loading transaction out:', error);
   }
 };
 
@@ -547,6 +597,14 @@ const validateTransactionAgainstInventory = async (transaction) => {
       return {
         valid: false,
         message: `Inventory item with Part No. ${transaction.partNo} not found`
+      };
+    }
+    
+    // Check if enough stock is available
+    if (currentInventoryItem.quantity < transaction.quantity) {
+      return {
+        valid: false,
+        message: `Insufficient stock. Available: ${currentInventoryItem.quantity}, Requested: ${transaction.quantity}`
       };
     }
     
@@ -599,7 +657,7 @@ const validateTransactionAgainstInventory = async (transaction) => {
 };
 
 // Update inventory quantity and total value
-const updateInventoryStock = async (inventoryItem, quantityToAdd) => {
+const updateInventoryStock = async (inventoryItem, quantityToSubtract) => {
   try {
     const docRef = doc(db, "Inventory", `isuzu11&calapan16&inventory2019&${inventoryItem.category.toLowerCase()}`);
     
@@ -618,7 +676,12 @@ const updateInventoryStock = async (inventoryItem, quantityToAdd) => {
     
     // Calculate new values
     const currentQty = parseInt(currentItemData.quantity) || 0;
-    const newQty = currentQty + parseInt(quantityToAdd);
+    const newQty = currentQty - parseInt(quantityToSubtract);
+    
+    if (newQty < 0) {
+      throw new Error('Cannot subtract more than available stock');
+    }
+    
     const unitPrice = parseFloat(currentItemData.unitPrice) || 0;
     const newTotalValue = newQty * unitPrice;
     
@@ -634,7 +697,7 @@ const updateInventoryStock = async (inventoryItem, quantityToAdd) => {
       success: true,
       previousQty: currentQty,
       newQty: newQty,
-      addedQty: quantityToAdd
+      subtractedQty: quantityToSubtract
     };
   } catch (error) {
     console.error('Error updating inventory:', error);
@@ -642,8 +705,8 @@ const updateInventoryStock = async (inventoryItem, quantityToAdd) => {
   }
 };
 
-// Process Stock IN
-const processStockIn = async (transaction) => {
+// Process Sale (subtract from inventory)
+const processSale = async (transaction) => {
   // Set processing state
   processingItems.value[transaction.id] = true;
   
@@ -661,7 +724,7 @@ const processStockIn = async (transaction) => {
     
     toast.info('Updating inventory stock...', 'Processing');
     
-    // Update inventory
+    // Update inventory (subtract quantity)
     const updateResult = await updateInventoryStock(validation.inventoryItem, transaction.quantity);
     
     // Update transaction status
@@ -669,89 +732,112 @@ const processStockIn = async (transaction) => {
     const partNo = pathParts[1] || transaction.partNo;
     const cleanPartNo = partNo.replace(/[\/\.\#\$\[\]\&]/g, '-');
     
-    const transactionRef = doc(db, TRANSACTION_COLLECTION, cleanPartNo, TRANSACTION_IN_SUBCOLLECTION, transaction.id);
+    const transactionRef = doc(db, TRANSACTION_COLLECTION, cleanPartNo, TRANSACTION_OUT_SUBCOLLECTION, transaction.id);
     await updateDoc(transactionRef, {
-      statusIN: 'Stock IN',
+      statusOUT: 'Completed',
       processedAt: new Date(),
       previousInventoryQty: updateResult.previousQty,
       newInventoryQty: updateResult.newQty
     });
     
     toast.success(
-      `Stock IN successful! Added ${updateResult.addedQty} units. Inventory updated from ${updateResult.previousQty} to ${updateResult.newQty}.`,
-      'Stock IN Complete'
+      `Sale completed! Removed ${updateResult.subtractedQty} units. Inventory updated from ${updateResult.previousQty} to ${updateResult.newQty}.`,
+      'Sale Complete'
     );
     
     // Refresh the list
-    await loadTransactionIn();
+    await loadTransactionOut();
   } catch (error) {
-    console.error('Error processing Stock IN:', error);
-    toast.error('Failed to process Stock IN: ' + error.message, 'Error');
+    console.error('Error processing sale:', error);
+    toast.error('Failed to process sale: ' + error.message, 'Error');
   } finally {
     processingItems.value[transaction.id] = false;
   }
 };
 
-// Process Stock OUT (return/subtract from inventory)
-const processStockOut = async (transaction) => {
+// Cancel Sale (add back to inventory)
+const cancelSale = async (transaction) => {
+  // Check if cancel is still available (within 3 days)
+  if (!isCancelAvailable(transaction)) {
+    toast.error('Cancel action has expired. Sales can only be cancelled within 3 days of the transaction date.', 'Cancel Expired');
+    return;
+  }
+  
   // Set processing state
   processingItems.value[transaction.id] = true;
   
   try {
-    toast.info('Validating transaction against inventory...', 'Validation');
+    toast.info('Cancelling sale and restoring inventory...', 'Processing');
+
     
-    // Validate transaction against current inventory
-    const validation = await validateTransactionAgainstInventory(transaction);
+    // Get current inventory item
+    const currentInventoryItem = await getInventoryItemByPartNo(transaction.partNo);
     
-    if (!validation.valid) {
-      toast.error(validation.message, 'Validation Failed');
+    if (!currentInventoryItem) {
+      toast.error('Inventory item not found', 'Error');
       processingItems.value[transaction.id] = false;
       return;
     }
     
-    toast.info('Updating inventory stock (subtracting quantity)...', 'Processing');
+    // Add quantity back to inventory
+    const docRef = doc(db, "Inventory", `isuzu11&calapan16&inventory2019&${currentInventoryItem.category.toLowerCase()}`);
     
-    // Update inventory by SUBTRACTING the quantity (negative value)
-    const updateResult = await updateInventoryStock(validation.inventoryItem, -transaction.quantity);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      throw new Error('Inventory document not found');
+    }
     
-    // Update transaction status to Stock OUT
+    const currentData = docSnap.data();
+    const currentItemData = currentData[currentInventoryItem.controlNo];
+    
+    const currentQty = parseInt(currentItemData.quantity) || 0;
+    const newQty = currentQty + parseInt(transaction.quantity);
+    const unitPrice = parseFloat(currentItemData.unitPrice) || 0;
+    const newTotalValue = newQty * unitPrice;
+    
+    const updateData = {};
+    updateData[`${currentInventoryItem.controlNo}.quantity`] = newQty;
+    updateData[`${currentInventoryItem.controlNo}.totalValue`] = newTotalValue;
+    updateData[`${currentInventoryItem.controlNo}.updatedAt`] = new Date();
+    
+    await updateDoc(docRef, updateData);
+    
+    // Update transaction status to Cancelled
     const pathParts = transaction.id.split('&');
     const partNo = pathParts[1] || transaction.partNo;
     const cleanPartNo = partNo.replace(/[\/\.\#\$\[\]\&]/g, '-');
     
-    const transactionRef = doc(db, TRANSACTION_COLLECTION, cleanPartNo, TRANSACTION_IN_SUBCOLLECTION, transaction.id);
+    const transactionRef = doc(db, TRANSACTION_COLLECTION, cleanPartNo, TRANSACTION_OUT_SUBCOLLECTION, transaction.id);
     await updateDoc(transactionRef, {
-      statusIN: 'Stock OUT',
+      statusOUT: 'Cancelled',
       processedAt: new Date(),
-      previousInventoryQty: updateResult.previousQty,
-      newInventoryQty: updateResult.newQty
+      restoredInventoryQty: newQty
     });
     
     toast.success(
-      `Stock OUT successful! Removed ${transaction.quantity} units. Inventory updated from ${updateResult.previousQty} to ${updateResult.newQty}.`,
-      'Stock OUT Complete'
+      `Sale cancelled! Restored ${transaction.quantity} units. Inventory updated from ${currentQty} to ${newQty}.`,
+      'Sale Cancelled'
     );
     
     // Refresh the list
-    await loadTransactionIn();
+    await loadTransactionOut();
   } catch (error) {
-    console.error('Error processing Stock OUT:', error);
-    toast.error('Failed to process Stock OUT: ' + error.message, 'Error');
+    console.error('Error cancelling sale:', error);
+    toast.error('Failed to cancel sale: ' + error.message, 'Error');
   } finally {
     processingItems.value[transaction.id] = false;
   }
 };
 
-
-// Open Transaction IN modal
-const openTransactionInModal = async () => {
-  transactionInForm.value = {
+// Open Transaction OUT modal
+const openTransactionOutModal = async () => {
+  transactionOutForm.value = {
     partNo: '',
     partName: '',
     quantity: 0,
     unitPrice: 0,
     totalPrice: 0,
-    source: '',
+    client: '',
     note: '',
     controlNo: '',
     transactionID: ''
@@ -761,24 +847,35 @@ const openTransactionInModal = async () => {
   showInventoryDropdown.value = false;
   
   await loadInventoryItems();
-  showTransactionInModal.value = true;
+  showTransactionOutModal.value = true;
 };
 
-// Close Transaction IN modal
-const closeTransactionInModal = () => {
-  showTransactionInModal.value = false;
+// Close Transaction OUT modal
+const closeTransactionOutModal = () => {
+  showTransactionOutModal.value = false;
 };
 
-// Save Transaction IN
-const saveTransactionIn = async () => {
+// Save Transaction OUT
+const saveTransactionOut = async () => {
   try {
-    if (!transactionInForm.value.partNo) {
+    if (!transactionOutForm.value.partNo) {
       alert('Please select an inventory item');
       return;
     }
     
-    if (!transactionInForm.value.quantity || transactionInForm.value.quantity <= 0) {
+    if (!transactionOutForm.value.quantity || transactionOutForm.value.quantity <= 0) {
       alert('Please enter a valid quantity');
+      return;
+    }
+    
+    if (!transactionOutForm.value.client) {
+      alert('Please enter client name');
+      return;
+    }
+    
+    // Check if quantity exceeds available stock
+    if (selectedInventoryItem.value && transactionOutForm.value.quantity > selectedInventoryItem.value.quantity) {
+      alert(`Cannot sell more than available stock. Available: ${selectedInventoryItem.value.quantity}`);
       return;
     }
     
@@ -787,55 +884,55 @@ const saveTransactionIn = async () => {
     const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
     const dateTimeStr = `${dateStr}_${timeStr}`;
     
-    const partNo = transactionInForm.value.partNo || 'UNKNOWN';
+    const partNo = transactionOutForm.value.partNo || 'UNKNOWN';
     const cleanPartNo = partNo.replace(/[\/\.\#\$\[\]\&]/g, '-');
     
-    const documentId = `TransactionIN&${cleanPartNo}&${dateTimeStr}`;
+    const documentId = `TransactionOUT&${cleanPartNo}&${dateTimeStr}`;
     const transactionID = generateTransactionID();
     
     const transactionData = {
       transactionID: transactionID,
-      partNo: transactionInForm.value.partNo,
-      partName: transactionInForm.value.partName,
-      controlNo: transactionInForm.value.controlNo,
+      partNo: transactionOutForm.value.partNo,
+      partName: transactionOutForm.value.partName,
+      controlNo: transactionOutForm.value.controlNo,
       category: selectedInventoryItem.value?.category || '',
       model: selectedInventoryItem.value?.model || '',
-      quantity: parseInt(transactionInForm.value.quantity) || 0,
-      unitPrice: parseFloat(transactionInForm.value.unitPrice) || 0,
-      totalPrice: parseFloat(transactionInForm.value.totalPrice) || 0,
-      source: transactionInForm.value.source || '',
-      note: transactionInForm.value.note || '',
-      statusIN: 'To Review', // Default status
-      receivedAt: now,
+      quantity: parseInt(transactionOutForm.value.quantity) || 0,
+      unitPrice: parseFloat(transactionOutForm.value.unitPrice) || 0,
+      totalPrice: parseFloat(transactionOutForm.value.totalPrice) || 0,
+      client: transactionOutForm.value.client || '',
+      note: transactionOutForm.value.note || '',
+      statusOUT: 'Pending', // Default status
+      soldAt: now,
       createdAt: now
     };
     
     await setDoc(
-      doc(db, TRANSACTION_COLLECTION, cleanPartNo, TRANSACTION_IN_SUBCOLLECTION, documentId),
+      doc(db, TRANSACTION_COLLECTION, cleanPartNo, TRANSACTION_OUT_SUBCOLLECTION, documentId),
       transactionData
     );
     
-    toast.success('Transaction created successfully! Status: To Review', 'Transaction Created');
+    toast.success('Sale recorded successfully! Status: Pending', 'Sale Created');
     
-    await loadTransactionIn();
-    closeTransactionInModal();
+    await loadTransactionOut();
+    closeTransactionOutModal();
   } catch (error) {
-    console.error('Error saving transaction in:', error);
-    toast.error('Failed to save transaction. Please try again.', 'Error');
+    console.error('Error saving transaction out:', error);
+    toast.error('Failed to save sale. Please try again.', 'Error');
   }
 };
 
 // Watch for data changes
-watch(transactionInItems, (newVal) => {
-  console.log('transactionInItems updated:', newVal.length, 'items');
+watch(transactionOutItems, (newVal) => {
+  console.log('transactionOutItems updated:', newVal.length, 'items');
 }, { deep: true, immediate: true });
 
 // Initialize
 onMounted(async () => {
   await nextTick();
-  console.log('Transaction component mounted');
-  await loadTransactionIn();
-  console.log('Transaction data loaded, items count:', transactionInItems.value.length);
+  console.log('TransactionOut component mounted');
+  await loadTransactionOut();
+  console.log('TransactionOut data loaded, items count:', transactionOutItems.value.length);
   isLoading.value = false;
 });
 

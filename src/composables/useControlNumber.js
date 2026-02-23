@@ -194,7 +194,7 @@ export const generateTransactionID = () => {
 
 /**
  * Search inventory items by query string
- * Searches in partNo, partName, model, and description
+ * Searches in partNo, partName, model, description, controlNo, and category
  */
 export const searchInventoryItems = async (query) => {
   try {
@@ -209,7 +209,8 @@ export const searchInventoryItems = async (query) => {
       item.partName?.toLowerCase().includes(searchTerm) ||
       item.model?.toLowerCase().includes(searchTerm) ||
       item.description?.toLowerCase().includes(searchTerm) ||
-      item.controlNo?.toLowerCase().includes(searchTerm)
+      item.controlNo?.toLowerCase().includes(searchTerm) ||
+      item.category?.toLowerCase().includes(searchTerm)
     );
   } catch (error) {
     console.error('Error searching inventory items:', error);

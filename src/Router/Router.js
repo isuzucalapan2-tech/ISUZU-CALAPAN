@@ -13,7 +13,9 @@ import Inventory from '../Pages/Admin/Inventory.vue'
 import UserManagement from '../Pages/Admin/UserManagement.vue'
 import SA_Rotation from '../AfterSales/SA_Rotation.vue'
 import PageControl from '../Pages/Admin/PageControl.vue'
-import Transaction from '../Pages/Admin/Transaction.vue'
+import TransactionIn from '../Pages/Admin/TransactionIn.vue'
+import TransactionOut from '../Pages/Admin/TransactionOut.vue'
+import Test from '../Pages/Test.vue'
 
 const routes = [
   { 
@@ -29,9 +31,20 @@ const routes = [
     meta: { requiresGuest: true }
   },
   { 
-    path: '/transaction', 
-    name: 'Transaction', 
-    component: Transaction,
+    path: '/test', 
+    name: 'Test', 
+    component: Test
+  },
+  { 
+    path: '/transaction-in', 
+    name: 'TransactionIn', 
+    component: TransactionIn,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/transaction-out', 
+    name: 'TransactionOut', 
+    component: TransactionOut,
     meta: { requiresAuth: true }
   },
   {
