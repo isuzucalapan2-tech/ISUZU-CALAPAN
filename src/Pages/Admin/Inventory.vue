@@ -650,10 +650,9 @@
 
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from "vue";
+import { ref, onMounted, computed, watch, nextTick, onUnmounted } from "vue";
 
 import { db } from "../../Firebase/Firebase";
-
 
 import {
   collection,
@@ -664,8 +663,10 @@ import {
   deleteField,
   query,
   orderBy,
-  getDoc
+  getDoc,
+  onSnapshot
 } from "firebase/firestore";
+
 
 import Loaders from "../../components/Loaders.vue";
 import { useToast } from "../../composables/useToast";
@@ -735,9 +736,12 @@ const maxQty = ref("");
 const minPrice = ref("");
 const maxPrice = ref("");
 
+// Real-time listeners
+const inventoryListeners = ref([]);
 
 const inventoryItems = ref([]);
 const availableCategories = ref([]);
+
 
 const form = ref({
   id: null,
@@ -984,8 +988,73 @@ const saveCategory = async (category) => {
 };
 
 /* =====================
-   LOAD INVENTORY
+   REAL-TIME INVENTORY LISTENERS
 ===================== */
+const setupInventoryListeners = async () => {
+  // Clean up existing listeners first
+  cleanupInventoryListeners();
+  
+  try {
+    // Load categories first
+    await loadCategories();
+    
+    // Set up real-time listeners for each category
+    for (const category of availableCategories.value) {
+      const docRef = getInventoryDocRef(category);
+      
+      const unsubscribe = onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          
+          // Remove existing items for this category
+          inventoryItems.value = inventoryItems.value.filter(
+            item => item.category !== category
+          );
+          
+          // Add new items from this category
+          const categoryItems = [];
+          Object.keys(data).forEach(controlNo => {
+            if (controlNo.startsWith('ISZ-')) {
+              categoryItems.push({
+                id: controlNo,
+                controlNo,
+                category, // stored as lowercase
+                ...data[controlNo]
+              });
+            }
+          });
+          
+          // Add category items to inventory
+          inventoryItems.value.push(...categoryItems);
+          
+          console.log(`Real-time update: ${category} - ${categoryItems.length} items`);
+        }
+      }, (error) => {
+        console.warn(`Error in real-time listener for ${category}:`, error);
+      });
+      
+      // Store unsubscribe function
+      inventoryListeners.value.push(unsubscribe);
+    }
+    
+    console.log(`Set up ${inventoryListeners.value} real-time listeners`);
+  } catch (error) {
+    console.error("Error setting up inventory listeners:", error);
+  }
+};
+
+const cleanupInventoryListeners = () => {
+  // Unsubscribe all existing listeners
+  inventoryListeners.value.forEach(unsubscribe => {
+    if (typeof unsubscribe === 'function') {
+      unsubscribe();
+    }
+  });
+  inventoryListeners.value = [];
+  console.log('Cleaned up inventory listeners');
+};
+
+// Legacy function - kept for manual refresh if needed
 const loadInventory = async () => {
   try {
     const allItems = [];
@@ -1023,6 +1092,7 @@ const loadInventory = async () => {
     console.error("Error loading inventory:", error);
   }
 };
+
 
 /* =====================
    CONTROL NUMBER GENERATION
@@ -1464,10 +1534,18 @@ const confirmImport = async () => {
    LIFECYCLE
 ===================== */
 onMounted(async () => {
-  await loadInventory();
+  // Set up real-time listeners instead of one-time load
+  await setupInventoryListeners();
   isLoading.value = false;
   document.addEventListener('click', closeExportMenu);
 });
+
+onUnmounted(() => {
+  // Clean up all listeners when component is destroyed
+  cleanupInventoryListeners();
+  document.removeEventListener('click', closeExportMenu);
+});
+
 
 
 </script>

@@ -13,6 +13,7 @@ import Inventory from '../Pages/Admin/Inventory.vue'
 import UserManagement from '../Pages/Admin/UserManagement.vue'
 import SA_Rotation from '../AfterSales/SA_Rotation.vue'
 import PageControl from '../Pages/Admin/PageControl.vue'
+import Transaction from '../Pages/Admin/Transaction.vue'
 
 const routes = [
   { 
@@ -26,6 +27,12 @@ const routes = [
     name: 'Register', 
     component: Register,
     meta: { requiresGuest: true }
+  },
+  { 
+    path: '/transaction', 
+    name: 'Transaction', 
+    component: Transaction,
+    meta: { requiresAuth: true }
   },
   {
     path: '/admin',
