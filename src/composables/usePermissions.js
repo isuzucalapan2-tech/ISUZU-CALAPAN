@@ -120,6 +120,8 @@ export function usePermissions() {
       'user-management',
       'approve',
       'inventory',
+      'transaction-in',
+      'transaction-out',
       'sa-rotation',
       'settings'
     ]
@@ -134,6 +136,7 @@ export function usePermissions() {
     
     return accessible
   }
+
 
   // Computed helpers
   const canView = computed(() => hasPermission('View'))

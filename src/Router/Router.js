@@ -35,18 +35,6 @@ const routes = [
     name: 'Test', 
     component: Test
   },
-  { 
-    path: '/transaction-in', 
-    name: 'TransactionIn', 
-    component: TransactionIn,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: '/transaction-out', 
-    name: 'TransactionOut', 
-    component: TransactionOut,
-    meta: { requiresAuth: true }
-  },
   {
     path: '/admin',
     component: AdminParent,
@@ -88,6 +76,19 @@ const routes = [
         component: SA_Rotation,
         meta: { requiresAuth: true, pageId: 'sa-rotation' }
       },
+      { 
+        path: 'transaction-in', 
+        name: 'TransactionIn', 
+        component: TransactionIn,
+        meta: { requiresAuth: true, pageId: 'transaction-in' }
+      },
+      { 
+        path: 'transaction-out', 
+        name: 'TransactionOut', 
+        component: TransactionOut,
+        meta: { requiresAuth: true, pageId: 'transaction-out' }
+      },
+
       { 
         path: 'page-control', 
         name: 'PageControl', 

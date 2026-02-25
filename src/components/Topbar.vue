@@ -47,6 +47,24 @@
           </router-link>
 
           <router-link
+            v-if="canViewTransactionIn"
+            to="/admin/transaction-in"
+            class="nav-link"
+            active-class="nav-link-active"
+          >
+            Transaction In
+          </router-link>
+
+          <router-link
+            v-if="canViewTransactionOut"
+            to="/admin/transaction-out"
+            class="nav-link"
+            active-class="nav-link-active"
+          >
+            Transaction Out
+          </router-link>
+
+          <router-link
             v-if="canViewSARotation"
             to="/admin/sa-rotation"
             class="nav-link"
@@ -54,6 +72,7 @@
           >
             Retail Order
           </router-link>
+
 
           <router-link
             v-if="canViewSettings"
@@ -127,6 +146,23 @@
       >Inventory</router-link>
 
       <router-link
+        v-if="canViewTransactionIn"
+        to="/admin/transaction-in"
+        class="block py-2 nav-link"
+        active-class="nav-link-active"
+        @click="isOpen = false"
+      >Transaction In</router-link>
+
+      <router-link
+        v-if="canViewTransactionOut"
+        to="/admin/transaction-out"
+        class="block py-2 nav-link"
+        active-class="nav-link-active"
+        @click="isOpen = false"
+      >Transaction Out</router-link>
+
+
+      <router-link
         v-if="canViewSARotation"
         to="/admin/sa-rotation"
         class="block py-2 nav-link"
@@ -169,28 +205,35 @@ const accessiblePages = ref({
   "user-management": true,
   approve: true,
   inventory: true,
+  "transaction-in": true,
+  "transaction-out": true,
   "sa-rotation": true,
   settings: true
 });
+
 
 // Check page access on mount
 onMounted(async () => {
   await fetchUserRoles();
   
-  const pages = ["dashboard", "user-management", "approve", "inventory", "sa-rotation", "settings"];
+  const pages = ["dashboard", "user-management", "approve", "inventory", "transaction-in", "transaction-out", "sa-rotation", "settings"];
   
   for (const page of pages) {
     accessiblePages.value[page] = await canAccessPage(page);
   }
 });
 
+
 // Computed properties for each page
 const canViewDashboard = computed(() => accessiblePages.value.dashboard);
 const canViewUserManagement = computed(() => accessiblePages.value["user-management"]);
 const canViewApprove = computed(() => accessiblePages.value.approve);
 const canViewInventory = computed(() => accessiblePages.value.inventory);
+const canViewTransactionIn = computed(() => accessiblePages.value["transaction-in"]);
+const canViewTransactionOut = computed(() => accessiblePages.value["transaction-out"]);
 const canViewSARotation = computed(() => accessiblePages.value["sa-rotation"]);
 const canViewSettings = computed(() => accessiblePages.value.settings);
+
 </script>
 
 

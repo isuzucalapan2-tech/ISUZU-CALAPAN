@@ -141,6 +141,32 @@ const pages = ref([
     }
   },
   { 
+    id: 'transaction-in', 
+    name: 'Transaction In', 
+    allowedRoles: [], 
+    allowedPositions: [],
+    features: {
+      viewTransactionIn: { minPermission: 'View' },
+      createTransactionIn: { minPermission: 'Create' },
+      editTransactionIn: { minPermission: 'Edit' },
+      deleteTransactionIn: { minPermission: 'Delete' },
+      stockOut: { minPermission: 'Edit' }
+    }
+  },
+  { 
+    id: 'transaction-out', 
+    name: 'Transaction Out', 
+    allowedRoles: [], 
+    allowedPositions: [],
+    features: {
+      viewTransactionOut: { minPermission: 'View' },
+      createTransactionOut: { minPermission: 'Create' },
+      editTransactionOut: { minPermission: 'Edit' },
+      deleteTransactionOut: { minPermission: 'Delete' },
+      cancelSale: { minPermission: 'Delete' }
+    }
+  },
+  { 
     id: 'sa-rotation', 
     name: 'Retail Order (SA Rotation)', 
     allowedRoles: [], 
@@ -152,6 +178,7 @@ const pages = ref([
       deleteOrder: { minPermission: 'Delete' }
     }
   },
+
   { 
     id: 'settings', 
     name: 'Settings', 

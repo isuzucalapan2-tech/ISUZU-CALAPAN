@@ -312,7 +312,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
-import { db } from '../../Firebase/Firebase';
+import { db } from '../Firebase/Firebase';
 import { collection, getDocs, doc, setDoc, getDoc, collectionGroup, updateDoc } from 'firebase/firestore';
 import { 
   getNextControlNumber, 
@@ -321,9 +321,9 @@ import {
   getControlNoByPartNo,
   generateTransactionID,
   searchInventoryItems 
-} from '../../composables/useControlNumber';
-import { useToast } from '../../composables/useToast';
-import Loaders from '../../components/Loaders.vue';
+} from '../composables/useControlNumber';
+import { useToast } from '../composables/useToast';
+import Loaders from '../components/Loaders.vue';
 import { Plus, ArrowDownCircle, Search, Check, X, CheckCircle, XCircle, Lock } from 'lucide-vue-next';
 
 // Toast notification
