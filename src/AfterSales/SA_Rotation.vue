@@ -68,10 +68,50 @@
         <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 text-white flex items-center gap-2 shadow-sm  shrink-0 ">
           <span class="text-xl">👤</span>
           <h2 class="font-bold text-sm tracking-wide uppercase">Service Advisors</h2>
+          <button 
+            @click="showFairnessDashboard = !showFairnessDashboard"
+            class="ml-auto text-[10px] bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded transition-colors"
+          >
+            {{ showFairnessDashboard ? 'Hide' : 'Show' }} Stats
+          </button>
         </div>
 
+        <!-- Fairness Dashboard -->
+        <div v-if="showFairnessDashboard && serviceAdvisors.length > 0" class="bg-slate-50 border-b border-slate-200 p-2">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold text-slate-600 uppercase">Workload Balance</span>
+            <span 
+              class="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+              :class="getWorkloadDistribution().fairness.isBalanced ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'"
+            >
+              {{ getWorkloadDistribution().fairness.balanceScore }}%
+            </span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-1.5 mb-2">
+            <div 
+              class="h-1.5 rounded-full transition-all duration-500"
+              :class="getWorkloadDistribution().fairness.isBalanced ? 'bg-green-500' : 'bg-amber-500'"
+              :style="{ width: getWorkloadDistribution().fairness.balanceScore + '%' }"
+            ></div>
+          </div>
+          <div class="grid grid-cols-3 gap-1 text-center">
+            <div class="bg-white rounded p-1">
+              <div class="text-[10px] text-slate-400">Avg Load</div>
+              <div class="text-xs font-bold text-indigo-600">{{ getWorkloadDistribution().fairness.averageOngoing }}</div>
+            </div>
+            <div class="bg-white rounded p-1">
+              <div class="text-[10px] text-slate-400">Min</div>
+              <div class="text-xs font-bold text-green-600">{{ getWorkloadDistribution().fairness.minOngoing }}</div>
+            </div>
+            <div class="bg-white rounded p-1">
+              <div class="text-[10px] text-slate-400">Max</div>
+              <div class="text-xs font-bold text-red-600">{{ getWorkloadDistribution().fairness.maxOngoing }}</div>
+            </div>
+          </div>
+        </div>
 
-        <div class="flex-1 p-3">
+        <div class="flex-1 p-3 overflow-y-auto">
+
           <ul class="space-y-2">
             <li v-for="(sa, index) in serviceAdvisors" :key="index" 
                 class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
@@ -91,7 +131,24 @@
                 >
                   {{ sa.saStatus }}
                 </span>
+                <!-- Workload Bar -->
+                <div class="mt-1.5 flex items-center gap-1">
+                  <div class="flex-1 bg-slate-200 rounded-full h-1">
+                    <div 
+                      class="h-1 rounded-full transition-all duration-300"
+                      :class="{
+                        'bg-green-500': getOngoingProCount(sa.saName) <= 1,
+                        'bg-yellow-500': getOngoingProCount(sa.saName) === 2,
+                        'bg-orange-500': getOngoingProCount(sa.saName) === 3,
+                        'bg-red-500': getOngoingProCount(sa.saName) >= 4
+                      }"
+                      :style="{ width: Math.min(100, (getOngoingProCount(sa.saName) / 5) * 100) + '%' }"
+                    ></div>
+                  </div>
+                  <span class="text-[8px] text-slate-400 w-3">{{ getOngoingProCount(sa.saName) }}</span>
+                </div>
               </div>
+
 
               <div class="flex gap-2">
                 <div class="relative group" @mouseenter="hoveringSAIndex = index" @mouseleave="hoveringSAIndex = null">
@@ -222,6 +279,55 @@
                 No Agents Available
               </div>
             </div>
+
+            <!-- Top Candidates Panel -->
+            <div v-if="assignmentForm.selectedPRO && getTopCandidates().length > 0" class="bg-white border border-slate-200 rounded-lg p-2">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[9px] font-bold text-slate-500 uppercase">Top Candidates</span>
+                <button @click="showTopCandidates = !showTopCandidates" class="text-[8px] text-indigo-600 hover:text-indigo-800">
+                  {{ showTopCandidates ? 'Hide' : 'Show' }}
+                </button>
+              </div>
+              <div v-if="showTopCandidates" class="space-y-1">
+                <div v-for="(candidate, idx) in getTopCandidates()" :key="candidate.saName" 
+                     class="flex items-center justify-between p-1.5 rounded text-[10px]"
+                     :class="{
+                       'bg-yellow-50 border border-yellow-200': idx === 0,
+                       'bg-slate-50 border border-slate-100': idx === 1,
+                       'bg-orange-50 border border-orange-100': idx === 2
+                     }">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs">{{ idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉' }}</span>
+                    <span class="font-semibold" :class="{ 'text-yellow-700': idx === 0 }">{{ candidate.saName }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex flex-col items-end">
+                      <span class="text-[8px] text-slate-400">Score</span>
+                      <span class="font-bold" :class="{
+                        'text-yellow-600': idx === 0,
+                        'text-slate-600': idx === 1,
+                        'text-orange-600': idx === 2
+                      }">{{ (candidate.totalScore * 100).toFixed(0) }}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fairness Warning -->
+            <div v-if="fairnessWarning && fairnessWarning.wouldImpact" 
+                 class="bg-amber-50 border border-amber-200 rounded-lg p-2 animate-fade-in">
+              <div class="flex items-start gap-2">
+                <span class="text-sm">{{ fairnessWarning.severity === 'high' ? '⚠️' : 'ℹ️' }}</span>
+                <div class="flex-1">
+                  <p class="text-[10px] text-amber-800 font-medium leading-tight">{{ fairnessWarning.message }}</p>
+                  <button @click="clearFairnessWarning" class="text-[8px] text-amber-600 hover:text-amber-800 mt-1 underline">
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+
 
             <button 
               @click="showManualSelection = !showManualSelection"
@@ -363,9 +469,10 @@
 
          <div class="bg-slate-50 border-b border-slate-200 p-3 flex justify-between items-center gap-2 shrink-0 flex-wrap">
             <div class="flex items-center gap-2 text-slate-600">
-               <span class="text-xl">📜</span>
-               <h2 class="font-bold text-sm tracking-wide uppercase">History</h2>
+               <span class="text-xl">📊</span>
+               <h2 class="font-bold text-sm tracking-wide uppercase">Analytics & History</h2>
             </div>
+
             <div class="flex gap-2 items-center flex-wrap">
                <input 
                   v-model="historyFromDate"
@@ -397,7 +504,52 @@
             </div>
          </div>
 
+        <!-- Quick Analytics Panel -->
+         <div v-if="!historyFromDate || historyFromDate === todayDate" class="bg-indigo-50 border-b border-indigo-100 p-2">
+            <div class="grid grid-cols-5 gap-2 text-center">
+               <div class="bg-white rounded p-1.5 shadow-sm">
+                  <div class="text-[9px] text-slate-400 uppercase">Today</div>
+                  <div class="text-sm font-bold text-indigo-600">{{ getFairnessAnalytics().totalRecent }}</div>
+               </div>
+               <div class="bg-white rounded p-1.5 shadow-sm">
+                  <div class="text-[9px] text-slate-400 uppercase">Done</div>
+                  <div class="text-sm font-bold text-green-600">{{ getFairnessAnalytics().statusDistribution['JOB DONE'] || 0 }}</div>
+               </div>
+               <div class="bg-white rounded p-1.5 shadow-sm">
+                  <div class="text-[9px] text-slate-400 uppercase">Active</div>
+                  <div class="text-sm font-bold text-blue-600">{{ getFairnessAnalytics().statusDistribution['ON GOING'] || 0 }}</div>
+               </div>
+               <div class="bg-white rounded p-1.5 shadow-sm">
+                  <div class="text-[9px] text-slate-400 uppercase">Efficiency</div>
+                  <div class="text-sm font-bold" :class="getFairnessAnalytics().efficiency >= 80 ? 'text-green-600' : getFairnessAnalytics().efficiency >= 60 ? 'text-yellow-600' : 'text-red-600'">
+                    {{ getFairnessAnalytics().efficiency }}%
+                  </div>
+               </div>
+               <div class="bg-white rounded p-1.5 shadow-sm">
+                  <div class="text-[9px] text-slate-400 uppercase">Trend</div>
+                  <div class="text-sm font-bold" :class="{
+                    'text-green-600': getFairnessAnalytics().trend === 'increasing',
+                    'text-red-600': getFairnessAnalytics().trend === 'decreasing',
+                    'text-slate-600': getFairnessAnalytics().trend === 'stable'
+                  }">
+                    {{ getFairnessAnalytics().trend === 'increasing' ? '↑' : getFairnessAnalytics().trend === 'decreasing' ? '↓' : '→' }}
+                  </div>
+               </div>
+            </div>
+            <div class="mt-1.5 flex items-center justify-center gap-3 text-[9px]">
+               <span v-if="getFairnessAnalytics().peakHour" class="text-indigo-600">
+                  🕐 Peak: {{ getFairnessAnalytics().peakHour.hour }}:00 ({{ getFairnessAnalytics().peakHour.count }})
+               </span>
+               <span class="text-slate-400">|</span>
+               <span class="text-slate-500">
+                  Avg: {{ getFairnessAnalytics().averagePerDay }}/day
+               </span>
+            </div>
+         </div>
+
+
          <div class="flex-1 overflow-auto">
+
             <table class="min-w-full divide-y divide-slate-200">
                <thead class="bg-slate-50 sticky top-0 z-10">
                   <tr>
@@ -576,8 +728,48 @@
 <script>
 import { db } from "../Firebase/Firebase";
 import { doc, onSnapshot, updateDoc, getDoc, deleteField, setDoc } from "firebase/firestore";
+import { useSAFairness } from "../composables/useSAFairness";
 
 export default {
+
+    setup() {
+        const { 
+            getBestSA, 
+            getRankedSAs, 
+            recordAssignment, 
+            getWorkloadStats, 
+            checkFairnessImpact,
+            getAnalytics,
+            resetFairnessData,
+            updateWeights,
+            exportData,
+            importData,
+            lastAssignmentTimes,
+            manualOverrideCount,
+            weights,
+            DEFAULT_WEIGHTS
+        } = useSAFairness();
+        
+        return {
+            fairnessUtils: {
+                getBestSA,
+                getRankedSAs,
+                recordAssignment,
+                getWorkloadStats,
+                checkFairnessImpact,
+                getAnalytics,
+                resetFairnessData,
+                updateWeights,
+                exportData,
+                importData,
+                lastAssignmentTimes,
+                manualOverrideCount,
+                weights,
+                DEFAULT_WEIGHTS
+            }
+        };
+    },
+
     data() {
         return {
             serviceAdvisors: [],
@@ -606,7 +798,8 @@ export default {
                 selectedPRO: "",
                 selectedSA: "",
                 note: "",
-                assignmentReason: ""
+                assignmentReason: "",
+                isManualOverride: false
             },
             showEditModal: false,
             editingAssignment: null,
@@ -626,9 +819,19 @@ export default {
             historyPage: 1,
             itemsPerPage: 5,
             assignmentsListener: null,
-            currentlyViewingDateRange: false
+            currentlyViewingDateRange: false,
+            // New properties for fairness features
+            showFairnessDashboard: true,
+            showTopCandidates: false,
+            fairnessWarning: null,
+            isAutoAssigning: false,
+            bulkAssignmentMode: false,
+            selectedBulkPROs: [],
+            assignmentHistory: [],
+            saPerformanceCache: {}
         };
     },
+
     computed: {
         availableSAs() {
             if (!this.assignmentForm.selectedPRO) {
@@ -698,12 +901,22 @@ export default {
             return `${year}-${month}-${day}`;
         },
         isHistoryDateFilterNotToday() {
-            // Check if user is filtering history by a date that is NOT today
+            // Check if user is viewing a date range that is NOT today-only
             const today = this.todayDate;
-            // If either date filter is set and not equal to today, disable assignment
-            return (this.historyFromDate && this.historyFromDate !== today) || 
-                   (this.historyToDate && this.historyToDate !== today);
+            
+            // If no dates selected, default to today (not restricted)
+            if (!this.historyFromDate && !this.historyToDate) {
+                return false;
+            }
+            
+            // If viewing today only, allow assignments
+            const fromIsToday = this.historyFromDate === today;
+            const toIsToday = this.historyToDate === today || !this.historyToDate;
+            
+            // Only allow if both from and to are today
+            return !(fromIsToday && toIsToday);
         }
+
     },
     methods: {
         isAssignmentCutOff(assignment) {
@@ -782,54 +995,100 @@ export default {
                 return null;
             }
 
-            const selectedPRO = this.assignmentForm.selectedPRO;
+            // Use the new fairness composable for weighted scoring
+            const bestSA = this.fairnessUtils.getBestSA(
+                this.serviceAdvisors, 
+                this.assignments,
+                this.assignmentForm.selectedPRO
+            );
             
-            // Filter out BUSY and ABSENT SAs
-            const availableSAs = this.serviceAdvisors.filter(sa => sa.saStatus !== 'BUSY' && sa.saStatus !== 'ABSENT');
-            
-            if (availableSAs.length === 0) {
-                return null;
+            return bestSA;
+        },
+        
+        getTopCandidates() {
+            if (!this.assignmentForm.selectedPRO || this.serviceAdvisors.length === 0) {
+                return [];
             }
-
-            // Priority 1: SAs with NO ongoing assignments who have never done this PRO
-            const availableNoOngoing = availableSAs.filter(sa => this.getOngoingProCount(sa.saName) === 0);
             
-            if (availableNoOngoing.length > 0) {
-                // Among those with no ongoing, find one who never did this PRO
-                const neverDonePRO = availableNoOngoing.find(sa => {
-                    const hasDonePRO = this.assignments.some(
-                        a => a.saName === sa.saName && a.pro === selectedPRO
-                    );
-                    return !hasDonePRO;
-                });
+            return this.fairnessUtils.getRankedSAs(
+                this.serviceAdvisors,
+                this.assignments
+            ).slice(0, 3);
+        },
+        
+        getWorkloadDistribution() {
+            return this.fairnessUtils.getWorkloadStats(this.serviceAdvisors, this.assignments);
+        },
+        
+        getFairnessAnalytics() {
+            return this.fairnessUtils.getAnalytics(this.assignments, 7);
+        },
+        
+        // Export fairness data
+        exportFairnessData() {
+            const data = this.fairnessUtils.exportData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sa-fairness-data-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        },
+        
+        // Import fairness data
+        importFairnessData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    this.fairnessUtils.importData(data);
+                    alert('Fairness data imported successfully!');
+                } catch (err) {
+                    console.error('Error importing fairness data:', err);
+                    alert('Failed to import fairness data. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+        },
+        
+        // Reset fairness data
+        resetFairnessData() {
+            if (confirm('Are you sure you want to reset all fairness tracking data? This cannot be undone.')) {
+                this.fairnessUtils.resetFairnessData();
+                alert('Fairness data has been reset.');
+            }
+        },
+        
+        // Sync SA statuses based on current assignments
+        syncSAStatusesWithAssignments() {
+
+            this.serviceAdvisors.forEach(sa => {
+                const hasOnGoing = this.assignments.some(
+                    a => a.saName === sa.saName && a.status === "ON GOING"
+                );
                 
-                if (neverDonePRO) {
-                    return {
-                        saName: neverDonePRO.saName,
-                        reason: "✨ Available & New "
-                    };
+                const currentStatus = sa.saStatus;
+                let targetStatus = currentStatus;
+                
+                if (hasOnGoing && currentStatus !== "WORKING" && currentStatus !== "BUSY") {
+                    targetStatus = "WORKING";
+                } else if (!hasOnGoing && currentStatus === "WORKING") {
+                    targetStatus = "AVAILABLE";
                 }
                 
-                // If all available SAs have done this PRO, pick one with no ongoing
-                return {
-                    saName: availableNoOngoing[0].saName,
-                    reason: "🎯 Available (No ongoing)"
-                };
-            }
-
-            // Priority 2: Only if all available SAs have ongoing, pick the one with least ongoing
-            const leastBusySA = availableSAs.reduce((least, current) => {
-                const currentOngoing = this.getOngoingProCount(current.saName);
-                const leastOngoing = this.getOngoingProCount(least.saName);
-                return currentOngoing < leastOngoing ? current : least;
+                if (targetStatus !== currentStatus) {
+                    this.updateSAStatus(sa.saName, targetStatus);
+                    console.log(`Synced ${sa.saName} status from ${currentStatus} to ${targetStatus}`);
+                }
             });
-
-            return {
-                saName: leastBusySA.saName,
-                reason: "⚖️ Least busy (All have orders)"
-            };
         },
+
         getAssignmentReason() {
+
             return this.assignmentForm.assignmentReason;
         },
         getOriginalIndex(assignment) {
@@ -843,13 +1102,13 @@ export default {
                        aDateStr === assignmentDateStr;
             });
         },
-        deleteAssignmentDirect(index) {
+        async deleteAssignmentDirect(index) {
             // Delete assignment directly without confirmation
             const saName = this.assignments[index].saName;
             const wasOnGoing = this.assignments[index].status === "ON GOING";
             
             this.assignments.splice(index, 1);
-            this.saveAssignmentsToFirebase();
+            await this.saveAssignmentsToFirebase();
             
             // If deleted assignment was ON GOING, check if SA has other ON GOING assignments
             if (wasOnGoing) {
@@ -859,28 +1118,57 @@ export default {
                 
                 // If no more ON GOING assignments, set status back to AVAILABLE
                 if (!hasOnGoingAssignments) {
-                    this.updateSAStatus(saName, "AVAILABLE");
+                    await this.updateSAStatus(saName, "AVAILABLE");
                 }
             }
         },
+
         async reassignAssignment(index) {
             // Reassign a cut-off assignment to today
             const assignment = this.assignments[index];
+            const saName = assignment.saName;
             
             // Change status to ON GOING and update date to today
             assignment.status = "ON GOING";
             assignment.date = new Date();
+            assignment.reassignedDate = new Date().toISOString();
             
             // Save to Firebase (this will handle grouping by date)
             await this.saveAssignmentsToFirebase();
             
-            // Update SA status to WORKING
-            await this.updateSAStatus(assignment.saName, "WORKING");
+            // Update SA status to WORKING if not already
+            const sa = this.serviceAdvisors.find(s => s.saName === saName);
+            if (sa && sa.saStatus !== "WORKING" && sa.saStatus !== "BUSY") {
+                await this.updateSAStatus(saName, "WORKING");
+            }
         },
+
         selectManualSA(saName) {
+            const recommendedSA = this.selectBestServiceAdvisor();
+            
+            // Check fairness impact
+            const impact = this.fairnessUtils.checkFairnessImpact(
+                saName,
+                recommendedSA,
+                this.serviceAdvisors,
+                this.assignments
+            );
+            
             this.assignmentForm.selectedSA = saName;
-            this.assignmentForm.assignmentReason = "👤 Manually selected";
+            this.assignmentForm.isManualOverride = true;
+            this.fairnessWarning = impact.wouldImpact ? impact : null;
+            
+            if (!impact.wouldImpact) {
+                this.assignmentForm.assignmentReason = "👤 Manually selected";
+            } else {
+                this.assignmentForm.assignmentReason = `👤 Manual (${impact.severity === 'high' ? '⚠️' : 'ℹ️'})`;
+            }
         },
+        
+        clearFairnessWarning() {
+            this.fairnessWarning = null;
+        },
+
         resetToAutoAssignment() {
             const bestSA = this.selectBestServiceAdvisor();
             if (bestSA) {
@@ -1250,31 +1538,93 @@ export default {
         // Assignment Methods
         async proceedAssignment() {
             if (!this.assignmentForm.selectedPRO || !this.assignmentForm.selectedSA) {
-                //alert("Please select both PRO and Service Advisor");
                 return;
             }
 
+            const now = new Date();
             const newAssignment = {
                 pro: this.assignmentForm.selectedPRO,
                 saName: this.assignmentForm.selectedSA,
                 note: this.assignmentForm.note,
                 status: "ON GOING",
-                date: new Date()
+                date: now,
+                timestamp: now.toISOString(),
+                isManualOverride: this.assignmentForm.isManualOverride,
+                assignmentReason: this.assignmentForm.assignmentReason
             };
 
             this.assignments.push(newAssignment);
+            
+            // Record assignment for fairness tracking
+            this.fairnessUtils.recordAssignment(
+                this.assignmentForm.selectedSA,
+                this.assignmentForm.isManualOverride
+            );
+            
             // Update SA status to WORKING
             await this.updateSAStatus(this.assignmentForm.selectedSA, "WORKING");
-            this.saveAssignmentsToFirebase();
+            await this.saveAssignmentsToFirebase();
             this.resetAssignmentForm();
-            //alert("Assignment created successfully!");
+            this.fairnessWarning = null;
         },
+        
+        async proceedBulkAssignment() {
+            if (this.selectedBulkPROs.length === 0 || !this.assignmentForm.selectedSA) {
+                return;
+            }
+            
+            this.isAutoAssigning = true;
+            const now = new Date();
+            
+            for (const pro of this.selectedBulkPROs) {
+                const newAssignment = {
+                    pro: pro,
+                    saName: this.assignmentForm.selectedSA,
+                    note: this.assignmentForm.note,
+                    status: "ON GOING",
+                    date: new Date(now),
+                    timestamp: now.toISOString(),
+                    isManualOverride: true,
+                    assignmentReason: "📦 Bulk Assignment"
+                };
+                
+                this.assignments.push(newAssignment);
+                this.fairnessUtils.recordAssignment(this.assignmentForm.selectedSA, true);
+            }
+            
+            await this.updateSAStatus(this.assignmentForm.selectedSA, "WORKING");
+            await this.saveAssignmentsToFirebase();
+            
+            this.selectedBulkPROs = [];
+            this.bulkAssignmentMode = false;
+            this.isAutoAssigning = false;
+            this.resetAssignmentForm();
+        },
+
         resetAssignmentForm() {
             this.assignmentForm.selectedPRO = "";
             this.assignmentForm.selectedSA = "";
             this.assignmentForm.note = "";
             this.assignmentForm.assignmentReason = "";
+            this.assignmentForm.isManualOverride = false;
+            this.fairnessWarning = null;
+            this.showTopCandidates = false;
         },
+        
+        toggleBulkMode() {
+            this.bulkAssignmentMode = !this.bulkAssignmentMode;
+            this.selectedBulkPROs = [];
+        },
+        
+        togglePROSelection(pro) {
+            const index = this.selectedBulkPROs.indexOf(pro);
+            if (index > -1) {
+                this.selectedBulkPROs.splice(index, 1);
+            } else {
+                this.selectedBulkPROs.push(pro);
+            }
+        },
+
         openEditModal(index, assignment) {
             this.editingIndex = index;
             this.editingAssignment = { ...assignment };
@@ -1292,13 +1642,13 @@ export default {
                 const newStatus = this.editingAssignment.status;
                 
                 this.assignments[this.editingIndex] = this.editingAssignment;
-                this.saveAssignmentsToFirebase();
+                await this.saveAssignmentsToFirebase();
                 
                 // Handle status changes affecting SA status
                 if (previousStatus === "ON GOING" && newStatus !== "ON GOING") {
                     // Assignment changed from ON GOING to something else
                     const hasOnGoingAssignments = this.assignments.some(
-                        a => a.saName === previousSA && a.status === "ON GOING"
+                        (a, idx) => a.saName === previousSA && a.status === "ON GOING" && idx !== this.editingIndex
                     );
                     if (!hasOnGoingAssignments) {
                         await this.updateSAStatus(previousSA, "AVAILABLE");
@@ -1309,35 +1659,55 @@ export default {
                 }
                 
                 this.closeEditModal();
-                //alert("Assignment updated successfully!");
             }
         },
+
         async markAsDone(index) {
-            //if (confirm("Mark this assignment as JOB DONE?")) {
-                const saName = this.assignments[index].saName;
-                this.assignments[index].status = "JOB DONE";
-                this.saveAssignmentsToFirebase();
-                
-                // Check if SA has any other ON GOING assignments
-                const hasOnGoingAssignments = this.assignments.some(
-                    a => a.saName === saName && a.status === "ON GOING"
-                );
-                
-                // If no more ON GOING assignments, set status back to AVAILABLE
-                if (!hasOnGoingAssignments) {
-                    await this.updateSAStatus(saName, "AVAILABLE");
-                }
-                
-                //alert("Assignment marked as done!");
-            //}
+            const saName = this.assignments[index].saName;
+            const now = new Date();
+            
+            this.assignments[index].status = "JOB DONE";
+            this.assignments[index].completedDate = now.toISOString();
+            
+            await this.saveAssignmentsToFirebase();
+            
+            // Check if SA has any other ON GOING assignments (excluding the one just completed)
+            const hasOnGoingAssignments = this.assignments.some(
+                (a, idx) => a.saName === saName && a.status === "ON GOING" && idx !== index
+            );
+            
+            // If no more ON GOING assignments, set status back to AVAILABLE
+            if (!hasOnGoingAssignments) {
+                await this.updateSAStatus(saName, "AVAILABLE");
+            }
         },
+
+
         async cancelAssignment(index) {
-            //if (confirm("Are you sure you want to cancel this assignment?")) {
-                const saName = this.assignments[index].saName;
-                this.assignments[index].status = "CANCELLED";
-                this.saveAssignmentsToFirebase();
-                
-                // Check if SA has any other ON GOING assignments
+            const saName = this.assignments[index].saName;
+            this.assignments[index].status = "CANCELLED";
+            await this.saveAssignmentsToFirebase();
+            
+            // Check if SA has any other ON GOING assignments (excluding the one just cancelled)
+            const hasOnGoingAssignments = this.assignments.some(
+                (a, idx) => a.saName === saName && a.status === "ON GOING" && idx !== index
+            );
+            
+            // If no more ON GOING assignments, set status back to AVAILABLE
+            if (!hasOnGoingAssignments) {
+                await this.updateSAStatus(saName, "AVAILABLE");
+            }
+        },
+
+        async deleteAssignment(index) {
+            const saName = this.assignments[index].saName;
+            const wasOnGoing = this.assignments[index].status === "ON GOING";
+            
+            this.assignments.splice(index, 1);
+            await this.saveAssignmentsToFirebase();
+            
+            // If deleted assignment was ON GOING, check if SA has other ON GOING assignments
+            if (wasOnGoing) {
                 const hasOnGoingAssignments = this.assignments.some(
                     a => a.saName === saName && a.status === "ON GOING"
                 );
@@ -1346,33 +1716,9 @@ export default {
                 if (!hasOnGoingAssignments) {
                     await this.updateSAStatus(saName, "AVAILABLE");
                 }
-                
-                //alert("Assignment cancelled!");
-            //}
+            }
         },
-        async deleteAssignment(index) {
-            //if (confirm("Are you sure you want to delete this assignment?")) {
-                const saName = this.assignments[index].saName;
-                const wasOnGoing = this.assignments[index].status === "ON GOING";
-                
-                this.assignments.splice(index, 1);
-                this.saveAssignmentsToFirebase();
-                
-                // If deleted assignment was ON GOING, check if SA has other ON GOING assignments
-                if (wasOnGoing) {
-                    const hasOnGoingAssignments = this.assignments.some(
-                        a => a.saName === saName && a.status === "ON GOING"
-                    );
-                    
-                    // If no more ON GOING assignments, set status back to AVAILABLE
-                    if (!hasOnGoingAssignments) {
-                        await this.updateSAStatus(saName, "AVAILABLE");
-                    }
-                }
-                
-                //alert("Assignment deleted!");
-            //}
-        },
+
         formatDate(date) {
             if (!date) return "—";
             const d = new Date(date);
@@ -1507,14 +1853,32 @@ export default {
             // Load assignments for a specific date range
             const today = this.todayDate;
             
-            // Check if filtering is for today only
-            const isFilteringToday = this.historyFromDate === today && this.historyToDate === today;
+            // Validate dates - ensure fromDate is not after toDate
+            let fromDateStr = this.historyFromDate;
+            let toDateStr = this.historyToDate;
             
-            if (isFilteringToday || !this.historyFromDate) {
+            // If only toDate is set, use it as fromDate too
+            if (!fromDateStr && toDateStr) {
+                fromDateStr = toDateStr;
+            }
+            
+            // If only fromDate is set, use it as toDate too
+            if (fromDateStr && !toDateStr) {
+                toDateStr = fromDateStr;
+            }
+            
+            // Check if viewing today only (allow real-time updates)
+            const isViewingTodayOnly = fromDateStr === today && toDateStr === today;
+            
+            if (isViewingTodayOnly || !fromDateStr) {
                 // Re-enable real-time listening for today's data
+                this.currentlyViewingDateRange = false;
                 this.listenToAssignments();
                 return;
             }
+
+            // Mark that we're viewing historical data (disable real-time)
+            this.currentlyViewingDateRange = true;
 
             // Unsubscribe from real-time listener before loading historical data
             if (this.assignmentsListener) {
@@ -1523,13 +1887,23 @@ export default {
             }
 
             try {
-                const fromDate = new Date(this.historyFromDate);
-                const toDate = this.historyToDate ? new Date(this.historyToDate) : fromDate;
+                const fromDate = new Date(fromDateStr);
+                const toDate = new Date(toDateStr);
+                
+                // Ensure fromDate is not after toDate
+                if (fromDate > toDate) {
+                    console.warn("From date is after to date, swapping");
+                    [fromDate, toDate] = [toDate, fromDate];
+                }
                 
                 const allAssignments = [];
                 let currentDate = new Date(fromDate);
                 
-                while (currentDate <= toDate) {
+                // Limit range to prevent excessive reads (max 31 days)
+                const maxDays = 31;
+                let daysChecked = 0;
+                
+                while (currentDate <= toDate && daysChecked < maxDays) {
                     const year = currentDate.getFullYear();
                     const month = String(currentDate.getMonth() + 1).padStart(2, "0");
                     const day = String(currentDate.getDate()).padStart(2, "0");
@@ -1545,21 +1919,24 @@ export default {
                             saName: item.saName || "",
                             note: item.note || "",
                             status: item.status || "ON GOING",
-                            date: item.date instanceof Date ? item.date : (item.date ? new Date(item.date) : new Date())
+                            date: item.date instanceof Date ? item.date : (item.date ? new Date(item.date) : new Date()),
+                            sourceDate: dateKey // Track which date this came from
                         }));
                         allAssignments.push(...dayAssignments);
                     }
                     
                     // Move to next day
                     currentDate.setDate(currentDate.getDate() + 1);
+                    daysChecked++;
                 }
                 
                 this.assignments = allAssignments;
-                console.log(`Loaded ${allAssignments.length} assignments for date range`);
+                console.log(`Loaded ${allAssignments.length} assignments for date range ${fromDateStr} to ${toDateStr}`);
             } catch (error) {
                 console.error("Error loading assignments by date range:", error);
             }
         }
+
     },
     watch: {
         searchQuery() {
@@ -1574,21 +1951,34 @@ export default {
         historyStatusFilter() {
             this.historyPage = 1;
         },
-        historyFromDate() {
+        historyFromDate(newVal, oldVal) {
             this.historyPage = 1;
-            this.loadAssignmentsByDateRange();
+            // Prevent infinite loops by checking if value actually changed
+            if (newVal !== oldVal) {
+                this.loadAssignmentsByDateRange();
+            }
         },
-        historyToDate() {
+        historyToDate(newVal, oldVal) {
             this.historyPage = 1;
-            this.loadAssignmentsByDateRange();
+            // Prevent infinite loops by checking if value actually changed
+            if (newVal !== oldVal) {
+                this.loadAssignmentsByDateRange();
+            }
         }
+
     },
     created() {
         this.listenToStatuses();
         this.listenToServiceAdvisors();
         this.listenToPROrders();
         this.listenToAssignments();
+        
+        // Sync SA statuses after a short delay to ensure data is loaded
+        setTimeout(() => {
+            this.syncSAStatusesWithAssignments();
+        }, 2000);
     }
+
 };
 </script>
 

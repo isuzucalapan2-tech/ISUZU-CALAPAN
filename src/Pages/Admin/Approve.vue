@@ -10,11 +10,72 @@
 
       <div :class="cardClass" :style="cardStyle" class="border-2 rounded-xl overflow-hidden border-t-4 border-t-red-600 hover:shadow-xl transition-all duration-300">
 
+        <!-- Search and Filter Bar -->
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-3 flex-wrap">
+          <!-- Search -->
+          <div class="relative flex-1 max-w-md">
+            <Search class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search by username or email..."
+              :class="inputClass"
+              class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
+            />
+          </div>
 
+          <!-- Role Filter -->
+          <select
+            v-model="selectedRole"
+            :class="inputClass"
+            class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
+          >
+            <option value="">All Roles</option>
+            <option v-for="role in roleOptions" :key="role" :value="role">{{ role }}</option>
+          </select>
 
+          <!-- Position Filter -->
+          <select
+            v-model="selectedPosition"
+            :class="inputClass"
+            class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
+          >
+            <option value="">All Positions</option>
+            <option v-for="pos in positionOptions" :key="pos" :value="pos">{{ pos }}</option>
+          </select>
 
+          <!-- Permission Filter -->
+          <select
+            v-model="selectedPermission"
+            :class="inputClass"
+            class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
+          >
+            <option value="">All Permissions</option>
+            <option v-for="perm in permissionOptions" :key="perm" :value="perm">{{ perm }}</option>
+          </select>
+
+          <!-- Clear All Filters Button -->
+          <button
+            v-if="hasActiveFilters"
+            @click="clearAllFilters"
+            class="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm"
+            :class="textClass"
+            title="Clear all filters"
+          >
+            <X class="w-4 h-4" />
+            Clear
+          </button>
+
+          <!-- Result Count -->
+          <div class="ml-auto flex items-center">
+            <span class="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+              {{ resultCount }} pending user{{ resultCount !== 1 ? 's' : '' }}
+            </span>
+          </div>
+        </div>
 
         <!-- Users Table -->
+
         <table class="w-full text-left">
           <thead :class="tableHeaderClass" class="border-b-2 border-red-600">
 
@@ -34,11 +95,12 @@
           <tbody>
             <!-- Pending Users -->
             <tr
-              v-for="user in pendingUsers"
+              v-for="user in paginatedPendingUsers"
               :key="user.id"
               :class="rowHoverClass"
               class="border-b border-gray-300 hover:shadow-md transition-all duration-200"
             >
+
 
               <td :class="textClass" class="p-3">{{ user.username || "N/A" }}</td>
               <td :class="textClass" class="p-3">{{ user.email || "N/A" }}</td>
@@ -86,10 +148,98 @@
               </td>
             </tr>
 
-
+            <tr v-if="paginatedPendingUsers.length === 0">
+              <td colspan="6" :class="subTextClass" class="text-center py-6">
+                <div class="flex justify-center items-center gap-2">
+                  <AlertCircle class="w-5 h-5" />
+                  {{ filteredPendingUsers.length === 0 && hasActiveFilters ? 'No pending users match your filters' : 'No pending users found' }}
+                </div>
+              </td>
+            </tr>
 
           </tbody>
         </table>
+
+        <!-- Pagination -->
+        <div v-if="filteredPendingUsers.length > 0" class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <!-- Items info -->
+          <div :class="subTextClass" class="text-sm">
+            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, filteredPendingUsers.length) }} of {{ filteredPendingUsers.length }} users
+          </div>
+
+          <!-- Pagination controls -->
+          <div class="flex items-center gap-2">
+            <!-- Items per page selector -->
+            <select
+              v-model="itemsPerPage"
+              :class="inputClass"
+              class="px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-red-600"
+            >
+              <option v-for="option in itemsPerPageOptions" :key="option" :value="option">{{ option }}/page</option>
+            </select>
+
+            <!-- First page -->
+            <button
+              @click="currentPage = 1"
+              :disabled="currentPage === 1"
+              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :class="textClass"
+              title="First page"
+            >
+              <ChevronsLeft class="w-5 h-5" />
+            </button>
+
+            <!-- Previous page -->
+            <button
+              @click="currentPage--"
+              :disabled="currentPage === 1"
+              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :class="textClass"
+              title="Previous page"
+            >
+              <ChevronLeft class="w-5 h-5" />
+            </button>
+
+            <!-- Page numbers -->
+            <div class="flex items-center gap-1">
+              <button
+                v-for="page in displayedPages"
+                :key="page"
+                @click="currentPage = page"
+                :class="[
+                  'px-3 py-1 text-sm rounded transition-colors',
+                  currentPage === page
+                    ? 'bg-red-600 text-white'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-700 ' + textClass
+                ]"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <!-- Next page -->
+            <button
+              @click="currentPage++"
+              :disabled="currentPage === totalPages"
+              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :class="textClass"
+              title="Next page"
+            >
+              <ChevronRight class="w-5 h-5" />
+            </button>
+
+            <!-- Last page -->
+            <button
+              @click="currentPage = totalPages"
+              :disabled="currentPage === totalPages"
+              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :class="textClass"
+              title="Last page"
+            >
+              <ChevronsRight class="w-5 h-5" />
+            </button>
+          </div>
+        </div>
 
       </div>
 
@@ -98,7 +248,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
+
 
 
 import {
@@ -114,10 +265,35 @@ import {
 
 import { db } from "../../Firebase/Firebase";
 
+/* ICONS */
+import {
+  Search,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  AlertCircle
+} from "lucide-vue-next";
+
+
 const pendingUsers = ref([]);
 const positionOptions = ref([]);
 const roleOptions = ref([]);
 const permissionOptions = ref([]);
+
+// Search and Filter State
+const searchQuery = ref("");
+const debouncedSearchQuery = ref("");
+const selectedRole = ref("");
+const selectedPosition = ref("");
+const selectedPermission = ref("");
+
+// Pagination State
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const itemsPerPageOptions = [10, 25, 50, 100];
+
 
 // Helper function to fetch all position options
 const fetchPositionOptions = async () => {
@@ -387,7 +563,120 @@ const rowHoverClass = computed(() =>
   isDarkMode.value ? 'hover:bg-gray-700' : 'hover:bg-red-50'
 );
 
+const inputClass = computed(() =>
+  isDarkMode.value 
+    ? "bg-gray-800 text-white border-gray-600 placeholder-gray-400" 
+    : "bg-white text-gray-900 border-gray-300 placeholder-gray-400"
+);
+
+/* =====================
+   DEBOUNCE UTILITY
+===================== */
+let debounceTimeout = null;
+const debounceSearch = (value, delay = 300) => {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    debouncedSearchQuery.value = value;
+  }, delay);
+};
+
+// Watch searchQuery and debounce it
+watch(searchQuery, (newValue) => {
+  debounceSearch(newValue);
+});
+
+// Reset to first page when filters change
+watch([selectedRole, selectedPosition, selectedPermission, debouncedSearchQuery], () => {
+  currentPage.value = 1;
+});
+
+/* =====================
+   FILTER & PAGINATION COMPUTED
+===================== */
+const filteredPendingUsers = computed(() => {
+  let filtered = pendingUsers.value;
+
+  // Text search (debounced) - covers username, email
+  if (debouncedSearchQuery.value) {
+    const query = debouncedSearchQuery.value.toLowerCase().trim();
+    filtered = filtered.filter(user =>
+      user.username?.toLowerCase().includes(query) ||
+      user.email?.toLowerCase().includes(query)
+    );
+  }
+
+  // Role filter
+  if (selectedRole.value) {
+    filtered = filtered.filter(user => user.selectedRole === selectedRole.value || user.roleName === selectedRole.value);
+  }
+
+  // Position filter
+  if (selectedPosition.value) {
+    filtered = filtered.filter(user => user.selectedPosition === selectedPosition.value || user.position === selectedPosition.value);
+  }
+
+  // Permission filter
+  if (selectedPermission.value) {
+    filtered = filtered.filter(user => user.selectedPermission === selectedPermission.value || user.permission === selectedPermission.value);
+  }
+
+  return filtered;
+});
+
+// Result count
+const resultCount = computed(() => filteredPendingUsers.value.length);
+
+// Paginated pending users
+const paginatedPendingUsers = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredPendingUsers.value.slice(start, end);
+});
+
+// Total pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredPendingUsers.value.length / itemsPerPage.value) || 1;
+});
+
+// Page numbers to display
+const displayedPages = computed(() => {
+  const pages = [];
+  const maxVisible = 5;
+  let start = Math.max(1, currentPage.value - Math.floor(maxVisible / 2));
+  let end = Math.min(totalPages.value, start + maxVisible - 1);
+  
+  if (end - start < maxVisible - 1) {
+    start = Math.max(1, end - maxVisible + 1);
+  }
+  
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
+
+// Check if any filters are active
+const hasActiveFilters = computed(() => 
+  selectedRole.value ||
+  selectedPosition.value ||
+  selectedPermission.value ||
+  searchQuery.value
+);
+
+/* =====================
+   FILTER ACTIONS
+===================== */
+const clearAllFilters = () => {
+  searchQuery.value = "";
+  debouncedSearchQuery.value = "";
+  selectedRole.value = "";
+  selectedPosition.value = "";
+  selectedPermission.value = "";
+  currentPage.value = 1;
+};
+
 onMounted(() => {
+
   loadPendingUsers();
   fetchPositionOptions();
   fetchRoleOptions();

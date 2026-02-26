@@ -163,6 +163,47 @@
             </div>
           </div>
 
+          <!-- Print Button with Dropdown -->
+          <div class="relative">
+            <button
+              @click="togglePrintMenu"
+              class="flex items-center justify-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 w-full"
+              :disabled="inventoryItems.length === 0"
+              :class="{ 'opacity-50 cursor-not-allowed': inventoryItems.length === 0 }"
+            >
+              <Printer class="w-5 h-5" />
+              Print
+              <ChevronDown class="w-4 h-4" />
+            </button>
+            
+            <!-- Print Dropdown Menu -->
+            <div
+              v-if="showPrintMenu"
+              :class="cardClass"
+              :style="cardStyle"
+              class="absolute right-0 mt-1 w-48 rounded-lg shadow-lg border z-50 overflow-hidden"
+            >
+              <button
+                @click="printFilteredData"
+                class="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900 transition-colors flex items-center gap-2"
+                :class="textClass"
+                :disabled="filteredInventory.length === 0"
+              >
+                <Filter class="w-4 h-4 text-purple-600" />
+                Print Filtered ({{ filteredInventory.length }})
+              </button>
+              <div class="border-t" :class="borderClass"></div>
+              <button
+                @click="printAllData"
+                class="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900 transition-colors flex items-center gap-2"
+                :class="textClass"
+              >
+                <Database class="w-4 h-4 text-blue-600" />
+                Print All ({{ inventoryItems.length }})
+              </button>
+            </div>
+          </div>
+
           <!-- Add Button -->
           <button
             @click="openAddModal"
@@ -172,6 +213,7 @@
             Add Item
           </button>
         </div>
+
 
 
       </div>
@@ -696,8 +738,10 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  Printer
 } from "lucide-vue-next";
+
 
 
 
@@ -717,10 +761,13 @@ const debouncedSearchQuery = ref("");
 const selectedCategory = ref("");
 const newCategory = ref("");
 const showExportMenu = ref(false);
+const showPrintMenu = ref(false);
 const showImportModal = ref(false);
 const importFile = ref(null);
 const importPreview = ref({ validItems: [], invalidItems: [] });
 const isImporting = ref(false);
+const isPrinting = ref(false);
+
 
 // Pagination state
 const currentPage = ref(1);
@@ -1377,6 +1424,279 @@ const closeExportMenu = (event) => {
   }
 };
 
+/* =====================
+   PRINT FUNCTIONS
+===================== */
+const togglePrintMenu = () => {
+  showPrintMenu.value = !showPrintMenu.value;
+};
+
+// Close print menu when clicking outside
+const closePrintMenu = (event) => {
+  if (!event.target.closest('.relative')) {
+    showPrintMenu.value = false;
+  }
+};
+
+const printFilteredData = () => {
+  if (filteredInventory.value.length === 0) {
+    toast.warning('No filtered data to print', 'Print');
+    return;
+  }
+  
+  showPrintMenu.value = false;
+  printInventory(filteredInventory.value, 'Filtered Inventory Report');
+};
+
+const printAllData = () => {
+  if (inventoryItems.value.length === 0) {
+    toast.warning('No data to print', 'Print');
+    return;
+  }
+  
+  showPrintMenu.value = false;
+  printInventory(inventoryItems.value, 'Complete Inventory Report');
+};
+
+const printInventory = (data, title) => {
+  isPrinting.value = true;
+  
+  // Calculate totals
+  const totalItems = data.length;
+  const totalValue = data.reduce((sum, item) => sum + (item.totalValue || 0), 0);
+  const totalQuantity = data.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  const timeStr = now.toLocaleTimeString('en-PH', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+  
+  // Create print window content
+  const printContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${title} - ISUZU Calapan</title>
+      <style>
+        @page {
+          size: landscape;
+          margin: 10mm;
+        }
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          font-family: Arial, sans-serif;
+          font-size: 10pt;
+          line-height: 1.4;
+          color: #000;
+          background: #fff;
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 15px;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #dc2626;
+        }
+        .logo {
+          max-height: 50px;
+          margin-bottom: 8px;
+        }
+        .company-name {
+          font-size: 18pt;
+          font-weight: bold;
+          color: #dc2626;
+          margin-bottom: 3px;
+        }
+        .company-address {
+          font-size: 9pt;
+          color: #666;
+          margin-bottom: 8px;
+        }
+        .report-title {
+          font-size: 14pt;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+        .report-meta {
+          font-size: 9pt;
+          color: #666;
+          margin-bottom: 10px;
+        }
+        .summary {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 15px;
+          padding: 10px;
+          background: #f3f4f6;
+          border-radius: 5px;
+        }
+        .summary-item {
+          text-align: center;
+        }
+        .summary-label {
+          font-size: 8pt;
+          color: #666;
+          text-transform: uppercase;
+        }
+        .summary-value {
+          font-size: 14pt;
+          font-weight: bold;
+          color: #dc2626;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+        }
+        th {
+          background: #dc2626;
+          color: white;
+          padding: 8px 6px;
+          text-align: left;
+          font-size: 9pt;
+          font-weight: bold;
+          border: 1px solid #dc2626;
+        }
+        td {
+          padding: 6px;
+          border: 1px solid #d1d5db;
+          font-size: 9pt;
+          vertical-align: top;
+        }
+        tr:nth-child(even) {
+          background: #f9fafb;
+        }
+        .text-right {
+          text-align: right;
+        }
+        .text-center {
+          text-align: center;
+        }
+        .category-badge {
+          background: #fee2e2;
+          color: #991b1b;
+          padding: 2px 6px;
+          border-radius: 3px;
+          font-size: 8pt;
+          font-weight: bold;
+          text-transform: uppercase;
+        }
+        .total-value {
+          color: #059669;
+          font-weight: bold;
+        }
+        .footer {
+          margin-top: 15px;
+          padding-top: 10px;
+          border-top: 1px solid #d1d5db;
+          font-size: 8pt;
+          color: #666;
+          text-align: center;
+        }
+        .page-break {
+          page-break-after: always;
+        }
+        @media print {
+          .no-print {
+            display: none;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="company-name">ISUZU CALAPAN</div>
+        <div class="company-address">Inventory Management System</div>
+        <div class="report-title">${title}</div>
+        <div class="report-meta">Generated on ${dateStr} at ${timeStr}</div>
+      </div>
+      
+      <div class="summary">
+        <div class="summary-item">
+          <div class="summary-label">Total Items</div>
+          <div class="summary-value">${totalItems.toLocaleString()}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Total Quantity</div>
+          <div class="summary-value">${totalQuantity.toLocaleString()}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Total Value</div>
+          <div class="summary-value">₱${totalValue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+        </div>
+      </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Control No.</th>
+            <th>Category</th>
+            <th>Part Name</th>
+            <th>Part No.</th>
+            <th>Model</th>
+            <th>Description</th>
+            <th class="text-center">Qty</th>
+            <th class="text-right">Unit Price</th>
+            <th class="text-right">Total Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(item => `
+            <tr>
+              <td>${item.controlNo || '-'}</td>
+              <td><span class="category-badge">${(item.category || '-').toUpperCase()}</span></td>
+              <td>${(item.partName || '-').toUpperCase()}</td>
+              <td>${(item.partNo || '-').toUpperCase()}</td>
+              <td>${(item.model || '-').toUpperCase()}</td>
+              <td>${(item.description || '-').toUpperCase()}</td>
+              <td class="text-center">${item.quantity || 0}</td>
+              <td class="text-right">₱${(item.unitPrice || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td class="text-right total-value">₱${(item.totalValue || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      
+      <div class="footer">
+        <p>ISUZU Calapan Inventory Management System &copy; ${now.getFullYear()}</p>
+        <p>This is a computer-generated report. No signature required.</p>
+      </div>
+      
+      <script>
+        window.onload = function() {
+          setTimeout(function() {
+            window.print();
+            window.close();
+          }, 500);
+        };
+      <\/script>
+    </body>
+    </html>
+  `;
+  
+  // Open print window
+  const printWindow = window.open('', '_blank', 'width=1200,height=800');
+  if (printWindow) {
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  } else {
+    toast.error('Unable to open print window. Please check your popup blocker settings.', 'Print Error');
+  }
+  
+  isPrinting.value = false;
+};
+
+
 const exportFilteredData = () => {
   if (filteredInventory.value.length === 0) {
     toast.warning('No filtered data to export', 'Export');
@@ -1538,13 +1858,16 @@ onMounted(async () => {
   await setupInventoryListeners();
   isLoading.value = false;
   document.addEventListener('click', closeExportMenu);
+  document.addEventListener('click', closePrintMenu);
 });
 
 onUnmounted(() => {
   // Clean up all listeners when component is destroyed
   cleanupInventoryListeners();
   document.removeEventListener('click', closeExportMenu);
+  document.removeEventListener('click', closePrintMenu);
 });
+
 
 
 
