@@ -33,3 +33,16 @@
 ### Approve.vue Changes:
 - Ensure Roles subcollection exists when approving users
 - Initialize with defaults if missing
+
+
+
+
+### added backupo syncing to mysql
+- [x] sync firebase collections and subcollections to mysql database (except transactions collection and transaction_IN and transaction_OUT subcollections)
+- [x] create api endpoint to trigger sync
+- [x] schedule regular sync intervals (weekly) 
+- installed express and mysql2 packages for backend API development
+- installed node-cron for scheduling regular sync intervals
+- installed cors for handling cross-origin requests in the API
+- created `syncFirestoreToMySQL.js` to handle syncing logic between Firestore and MySQL
+- created `server.js` to set up Express server and define API endpoint for triggering sync
