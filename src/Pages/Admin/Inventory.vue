@@ -857,9 +857,10 @@ let debounceTimeout = null;
 const debounceSearch = (value, delay = 300) => {
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
-    debounceSearchQuery.value = value;
+    debouncedSearchQuery.value = value;
   }, delay);
 };
+
 
 // Watch searchQuery and debounce it
 watch(searchQuery, (newValue) => {
@@ -1053,12 +1054,7 @@ const setupInventoryListeners = async () => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           
-          // Remove existing items for this category
-          inventoryItems.value = inventoryItems.value.filter(
-            item => item.category !== category
-          );
-          
-          // Add new items from this category
+          // Build new items array for this category
           const categoryItems = [];
           Object.keys(data).forEach(controlNo => {
             if (controlNo.startsWith('ISZ-')) {
@@ -1071,12 +1067,16 @@ const setupInventoryListeners = async () => {
             }
           });
           
-          // Add category items to inventory
-          inventoryItems.value.push(...categoryItems);
+          // Replace entire array to ensure reactivity
+          inventoryItems.value = [
+            ...inventoryItems.value.filter(item => item.category !== category),
+            ...categoryItems
+          ];
           
-          console.log(`Real-time update: ${category} - ${categoryItems.length} items`);
+          console.log(`Real-time update: ${category} - ${categoryItems.length} items, total: ${inventoryItems.value.length}`);
         }
       }, (error) => {
+
         console.warn(`Error in real-time listener for ${category}:`, error);
       });
       
@@ -1389,7 +1389,6 @@ const deleteItem = async (item) => {
 ===================== */
 
 const clearAllFilters = () => {
-
   searchQuery.value = "";
   debouncedSearchQuery.value = "";
   selectedCategory.value = "";
@@ -1398,6 +1397,7 @@ const clearAllFilters = () => {
   minPrice.value = "";
   maxPrice.value = "";
 };
+
 
 /* =====================
    HELPERS
