@@ -367,7 +367,8 @@
 
 
 <script setup>
-import { ref, onMounted, computed, nextTick, onUnmounted } from "vue";
+import { ref, onMounted, computed, nextTick, onUnmounted, watch } from "vue";
+
 import { useAuth } from "../../composables/useAuth";
 import { db } from "../../Firebase/Firebase";
 import { collection, getDocs, doc, onSnapshot, query, where, collectionGroup } from "firebase/firestore";
@@ -778,8 +779,81 @@ const initCharts = () => {
   }
 };
 
+// Watch inventory data and update charts
+watch(inventoryItems, () => {
+  if (statusChartInstance) {
+    statusChartInstance.data.datasets[0].data = [inStock.value, lowStock.value, outOfStock.value];
+    statusChartInstance.update('none');
+  }
+  if (categoryChartInstance) {
+    const categories = {};
+    inventoryItems.value.forEach(item => {
+      const cat = item.category || "Uncategorized";
+      categories[cat] = (categories[cat] || 0) + (item.quantity || 0);
+    });
+    categoryChartInstance.data.labels = Object.keys(categories);
+    categoryChartInstance.data.datasets[0].data = Object.values(categories);
+    categoryChartInstance.update('none');
+  }
+}, { deep: true });
+
+// Watch transaction data and update transaction chart
+watch([transactionInItems, transactionOutItems], () => {
+  if (transactionChartInstance) {
+    const last7Days = [];
+    const transInData = [];
+    const transOutData = [];
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+      last7Days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+      
+      const dayTransIn = transactionInItems.value.filter(item => {
+        const itemDate = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+        return itemDate.toDateString() === date.toDateString();
+      }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+      
+      const dayTransOut = transactionOutItems.value.filter(item => {
+        const itemDate = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+        return itemDate.toDateString() === date.toDateString();
+      }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+      
+      transInData.push(dayTransIn);
+      transOutData.push(dayTransOut);
+    }
+    
+    transactionChartInstance.data.labels = last7Days;
+    transactionChartInstance.data.datasets[0].data = transInData;
+    transactionChartInstance.data.datasets[1].data = transOutData;
+    transactionChartInstance.update('none');
+  }
+  
+  // Update sales by category chart
+  if (salesCategoryChartInstance) {
+    const salesByCategory = {};
+    transactionOutItems.value.forEach(item => {
+      const cat = item.category || "Uncategorized";
+      salesByCategory[cat] = (salesByCategory[cat] || 0) + (item.totalPrice || 0);
+    });
+    salesCategoryChartInstance.data.labels = Object.keys(salesByCategory);
+    salesCategoryChartInstance.data.datasets[0].data = Object.values(salesByCategory);
+    salesCategoryChartInstance.update('none');
+  }
+}, { deep: true });
+
+// Watch user approval data and update approval chart
+watch([pendingUsers, approvedUsers], () => {
+  if (approvalChartInstance) {
+    approvalChartInstance.data.datasets[0].data = [pendingUsersCount.value, approvedUsersCount.value];
+    approvalChartInstance.update('none');
+  }
+}, { deep: true });
+
 /* ===== LIFECYCLE ===== */
 onMounted(async () => {
+
   await setupInventoryListeners();
   setupPendingUsersListener();
   setupApprovedUsersListener();
