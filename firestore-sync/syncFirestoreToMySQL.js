@@ -3,7 +3,7 @@ import mysql from 'mysql2/promise';
 import { readFileSync } from 'fs';
 
 // Load Firebase service account
-const serviceAccount = JSON.parse(readFileSync('./isuzu-inventory-firebase-adminsdk-fbsvc-38b97f9083.json', 'utf8'));
+const serviceAccount = JSON.parse(readFileSync('./isuzu-inventory-firebase-adminsdk-fbsvc-eeeef3cb44.json', 'utf8'));
 
 // Initialize Firebase Admin
 admin.initializeApp({
