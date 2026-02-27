@@ -20,7 +20,7 @@
           <div class="flex flex-col sm:flex-row gap-3">
             <!-- Search -->
             <div class="relative flex-1 max-w-md">
-              <Search class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Search class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" /> 
               <input
                 v-model="searchQuery"
                 type="text"
