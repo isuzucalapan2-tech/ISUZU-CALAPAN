@@ -1,148 +1,96 @@
-<style scoped>
-  .cube {
-    position: relative;
-    width: 300px;
-    height: 300px;
-    transform-style: preserve-3d;
-    transform: rotateX(-30deg);
-    animation: animateD 8s linear infinite;
-  }
-
-  @keyframes animateD {
-    0% {
-      transform: rotateX(-15deg) rotateY(0deg);
-    }
-
-    100% {
-      transform: rotateX(-15deg) rotateY(-360deg);
-    }
-  }
-
-  .cube div {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-  }
-
-  .cube2 {
-    position: relative;
-    width: 150px;
-    height: 150px;
-    transform-style: preserve-3d;
-    animation: animateD2 5s ease-out infinite alternate;
-  }
-
-  @keyframes animateD2 {
-    0% {
-      transform: rotateX(0deg) rotateY(0deg);
-    }
-
-    100% {
-      transform: rotateX(180deg) rotateY(-360deg);
-    }
-  }
-
-  .cube2 div {
-    position: absolute;
-    top: 35px;
-    left: 0;
-    width: 65%;
-    height: 65%;
-    transform-style: preserve-3d;
-  }
-
-  .cube2 div span {
-    position: absolute;
-    top: 20%;
-    left: 20%;
-    width: 65%;
-    height: 65%;
-    background: transparent;
-    border: 2px solid #DA251C;
-    transform: rotateY(calc(90deg * var(--i))) translateZ(62px);
-  }
-
-  .cube3 {
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    transform-style: preserve-3d;
-    transform: rotateX(-30deg);
-    animation: animateD3 1s ease-in-out infinite alternate;
-  }
-
-  @keyframes animateD3 {
-    0% {
-      transform: rotateX(-90deg) rotateY(0deg);
-    }
-
-    100% {
-      transform: rotateX(90deg) rotateY(45deg);
-    }
-  }
-
-  .cube3 div {
-    position: absolute;
-    top: 70px;
-    left: 70px;
-    width: 15%;
-    height: 15%;
-    transform-style: preserve-3d;
-  }
-
-  .cube3 div span {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #DA251C;
-    transform: rotateY(calc(90deg * var(--i))) translateZ(14px);
-    box-shadow: 0px 0px 7px #DA251C;
-  }
-
-  .top3 {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: #DA251C;
-    transform: rotateX(90deg) translateZ(14px);
-    box-shadow: 0px 0px 10px #DA251C;
-  }
-</style>
-
 <template>
-  <div class="cube">
-    <div class="topD"></div>
-    <div>
-      <span style="--i:0"></span>
-      <span style="--i:1"></span>
-      <span style="--i:2"></span>
-      <span style="--i:3"></span>
-    </div>
-
-    <div class="cube2">
-      <div>
-        <span style="--i:0"></span>
-        <span style="--i:1"></span>
-        <span style="--i:2"></span>
-        <span style="--i:3"></span>
-      </div>
-
-      <div class="cube3">
-        <div class="top3"></div>
-        <div>
-          <span style="--i:0"></span>
-          <span style="--i:1"></span>
-          <span style="--i:2"></span>
-          <span style="--i:3"></span>
-        </div>
-
-      </div>
-
+  <div class="loader-wrapper">
+    <div class="loader">
+      <div class="ring"></div>
+      <h1 class="brand isuzu-font">ISUZU</h1>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Loader wrapper */
+.loader-wrapper {
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: background-color 0.3s ease;
+}
+
+/* Main container */
+.loader {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Rotating ring */
+.ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 6px solid transparent;
+  border-top-color: var(--ring-color);
+  border-bottom-color: var(--ring-color);
+  animation: spin 1.2s linear infinite;
+  box-shadow: 0 0 20px var(--ring-color-glow);
+  transition: all 0.3s ease;
+}
+
+/* ISUZU text */
+.brand {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: var(--text-color);
+  animation: pulse 1.5s ease-in-out infinite;
+  transition: color 0.3s ease;
+}
+
+/* Spin animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Text glow animation */
+@keyframes pulse {
+  0% { text-shadow: 0 0 5px var(--text-glow); }
+  50% { text-shadow: 0 0 20px var(--text-glow); }
+  100% { text-shadow: 0 0 5px var(--text-glow); }
+}
+
+/* ISUZU font */
+.isuzu-font {
+  font-family: 'IsuzuFont', sans-serif;
+}
+
+/* Light mode */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-color: #f9fafb;
+    --ring-color: #DA251C;
+    --ring-color-glow: rgba(218,37,28,0.5);
+    --text-color: #DA251C;
+    --text-glow: rgba(218,37,28,0.6);
+  }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #0f0f0f;
+    --ring-color: #ffffff;
+    --ring-color-glow: rgba(255,255,255,0.6);
+    --text-color: #ffffff;
+    --text-glow: rgba(255,255,255,0.7);
+  }
+}
+</style>

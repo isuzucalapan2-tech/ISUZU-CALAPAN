@@ -90,7 +90,7 @@
             class="nav-link text-yellow-400"
             active-class="nav-link-active"
           >
-            ⚙️ Page Control
+            Page Control
           </router-link>
 
         </div>

@@ -1,96 +1,179 @@
 <template>
-  <div class="min-h-screen flex">
+  <div class="min-h-screen flex font-sans relative">
+    
+    <!-- LEFT SIDE -->
+    <div class="w-full md:w-2/5 flex items-center justify-center bg-white relative overflow-hidden">
 
-    <!-- LEFT: Login Form (Smaller White Section) -->
-    <div class="w-full md:w-2/5 flex items-center justify-center bg-white">
-      <div class="w-full max-w-sm p-8">
-        <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">
+      <!-- BACK TO LANDING ICON -->
+      <router-link
+        to="/"
+        class="absolute top-4 left-135 z-20 flex items-center gap-1 text-red-600 hover:text-red-700 isuzu-font"
+      >
+        <ArrowLeft size="18" />
+        <span class="text-sm">Home</span>
+      </router-link>
+
+      <!-- TOP SVG -->
+      <div class="absolute top-0 left-0 w-full z-0">
+        <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+          <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
+        </svg>
+      </div>
+
+      <!-- LOGIN CARD -->
+      <div class="w-full max-w-xs p-6 z-10">
+        <h2 class="text-3xl text-center mb-10 text-red-600 isuzu-font uppercase tracking-widest">
           Login
         </h2>
 
         <form @submit.prevent="handleLogin">
-          <!-- Username or Email -->
-          <div class="mb-4">
-            <label class="block text-gray-800 mb-1 font-medium">
+          <!-- USERNAME -->
+          <div class="relative mb-6">
+            <input
+              id="identifier"
+              v-model="identifier"
+              type="text"
+              required
+              placeholder=" "
+              class="peer w-full px-5 py-3 text-sm border border-neutral-300 rounded-2xl
+                     focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400"
+            />
+            <label
+              for="identifier"
+              class="absolute left-5 px-1 bg-white text-neutral-400 text-[10px] uppercase tracking-wider
+                     transition-all duration-200 ease-in-out pointer-events-none
+                     top-3 peer-focus:-top-2.5 peer-focus:text-red-400
+                     peer-[:not(:placeholder-shown)]:-top-2.5 isuzu-font"
+            >
               Username or Email
             </label>
-            <input
-              v-model="identifier"
-              required
-              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your username or email"
-            />
           </div>
 
-          <!-- Password -->
-          <div class="mb-4">
-            <label class="block text-gray-800 mb-1 font-medium">
+          <!-- PASSWORD -->
+          <div class="relative mb-4">
+            <input
+              id="password"
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              required
+              placeholder=" "
+              class="peer w-full px-5 py-3 pr-12 text-sm border border-neutral-300 rounded-2xl 
+                     focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400"
+            />
+            <label
+              for="password"
+              class="absolute left-5 px-1 bg-white text-neutral-400 text-[10px] uppercase tracking-wider
+                     transition-all duration-200 ease-in-out pointer-events-none
+                     top-3 peer-focus:-top-2.5 peer-focus:text-red-400
+                     peer-[:not(:placeholder-shown)]:-top-2.5 isuzu-font"
+            >
               Password
             </label>
-            <input
-              v-model="password"
-              type="password"
-              required
-              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
-            />
+
+            <!-- TOGGLE BUTTON -->
+            <button
+              type="button"
+              @click="showPassword = !showPassword"
+              class="absolute right-4 top-1/3 text-neutral-400 hover:text-red-500 transition"
+            >
+              <Eye v-if="!showPassword" size="18" />
+              <EyeOff v-else size="18" />
+            </button>
           </div>
 
-
-          <!-- Remember Me -->
-          <div class="mb-4 flex items-center">
+          <!-- REMEMBER -->
+          <div class="mb-6 flex items-center px-2">
             <input
               v-model="rememberMe"
               type="checkbox"
               id="remember"
-              class="mr-2"
+              class="mr-2 accent-red-600 scale-90"
             />
-            <label for="remember" class="text-sm text-gray-600">Remember me</label>
+            <label for="remember" class="text-xs text-neutral-500">
+              Remember me
+            </label>
           </div>
 
-          <!-- Login Button -->
+          <!-- LOGIN BUTTON -->
           <button
             type="submit"
             :disabled="isLoading"
-            class="w-full bg-gray-800 text-white py-2 rounded-lg font-medium hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            class="w-full bg-neutral-700 text-white py-3 rounded-full uppercase tracking-widest
+                   hover:bg-neutral-800 transition disabled:opacity-50 
+                   disabled:cursor-not-allowed flex items-center justify-center gap-2 isuzu-font shadow-md"
           >
-            <span v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+            <span
+              v-if="isLoading"
+              class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"
+            ></span>
             {{ isLoading ? 'Logging in...' : 'Login' }}
           </button>
-
         </form>
 
-        <!-- Email verification -->
-        <div v-if="showVerificationNotice" class="mt-4">
-          <p class="text-red-600 text-sm text-center mb-2">
-            Your email is not verified.
-          </p>
-          <button
-            @click="resendVerification"
-            :disabled="resendLoading"
-            class="w-full bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            <span v-if="resendLoading" class="animate-spin rounded-full h-4 w-4 border-2 border-gray-600 border-t-transparent"></span>
-            {{ resendLoading ? "Sending..." : "Resend Verification Email" }}
-          </button>
-        </div>
-
-
-        <!-- Register -->
-        <p class="text-center text-sm text-gray-800 mt-6">
+        <p class="text-center text-[11px] text-neutral-600 mt-8">
           Don't have an account?
-          <router-link to="/register" class="text-red-600 underline">
+          <router-link to="/register" class="text-red-600 font-bold hover:underline ml-1">
             Register
           </router-link>
         </p>
       </div>
+
+      <!-- BOTTOM SVG -->
+      <div class="absolute bottom-0 left-0 w-full z-0">
+        <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+          <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
+        </svg>
+      </div>
     </div>
 
-    <!-- RIGHT: Background Image (Bigger Area) -->
+    <!-- RIGHT SIDE IMAGE -->
     <div
-      class="hidden md:block md:w-3/5 bg-cover bg-center"
+      class="hidden md:block md:w-3/5 relative bg-cover bg-center"
       :style="{ backgroundImage: `url(${bgImage})` }"
-    ></div>
+    >
+      <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/60 to-black/50"></div>
+
+      <!-- TOP LEFT LOGO SECTION -->
+      <div class="absolute top-8 left-8 z-10 flex items-center gap-6">
+
+         <!-- MDO -->
+        <div class="flex items-center gap-3">
+          <div class="text-white">
+            <h1 class="text-lg font-semibold tracking-wide">
+              <span class="text-blue-600">Mina</span>
+              <span class="text-yellow-500 mx-1">de</span>
+              <span class="text-red-700">Oro</span>
+            </h1>
+
+            <div class="w-25 h-0.5 bg-neutral-800 my-1"></div>
+
+            <p class="text-[10px] text-center tracking-[0.2em] opacity-80 text-white font-bold">Motors</p>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="h-10 w-px bg-white/40"></div>
+
+        <!-- ISUZU -->
+        <div class="flex items-center gap-4">
+          <div class="text-white isuzu-font">
+            <h1 class="text-3xl tracking-tighter">I S U Z U</h1>
+            <p class="text-[12px] tracking-[0.2em] opacity-80">CALAPAN CITY</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM DEPARTMENTS -->
+      <div class="absolute bottom-8 left-0 right-0 z-10 flex justify-center text-white text-[10px] uppercase tracking-widest opacity-70">
+        <div class="flex items-center divide-x divide-white/30 isuzu-font">
+          <span class="px-4">HR Department</span>
+          <span class="px-4">Sales Department</span>
+          <span class="px-4">After Sales Department</span>
+          <span class="px-4 border-r-0">Admin Department</span>
+        </div>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -102,7 +185,7 @@ import { useAuth } from "../composables/useAuth";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../Firebase/Firebase";
 import { useToast } from "../composables/useToast";
-
+import { Eye, EyeOff, ArrowLeft } from "lucide-vue-next"; 
 import bgLogin from "../assets/isuzubg_login2.jpg";
 
 
@@ -111,6 +194,7 @@ const bgImage = bgLogin;
 const identifier = ref("");
 const password = ref("");
 const rememberMe = ref(false);
+const showPassword = ref(false);
 const showVerificationNotice = ref(false);
 const resendLoading = ref(false);
 const isLoading = ref(false);
@@ -248,7 +332,7 @@ const resendVerification = async () => {
 </script>
 
 <style scoped>
-.border-red-500 {
-  border-color: #ef4444;
+.isuzu-font {
+  font-family: 'IsuzuFont', sans-serif;
 }
 </style>
