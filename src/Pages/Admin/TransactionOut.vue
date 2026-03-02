@@ -7,25 +7,229 @@
         Transaction Out / Sales
       </h1>
 
-      <!-- Add New Record Button -->
+      <!-- Action Bar -->
       <div :class="cardClass" :style="cardStyle" class="shadow-lg rounded-lg p-6 mb-6 border-l-2 border-orange-600">
-        <div class="flex justify-between items-center">
-          <div>
-            <h2 class="text-xl font-bold flex items-center gap-2 text-orange-600">
-              <ArrowUpCircle class="w-6 h-6" />
-              Outgoing Parts / Sales Records
-            </h2>
-            <p :class="subTextClass" class="mt-2">Records of parts sold to clients</p>
+        <div class="flex flex-col gap-4">
+          <!-- Title Row -->
+          <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+            <div>
+              <h2 class="text-xl font-bold flex items-center gap-2 text-orange-600">
+                <ArrowUpCircle class="w-6 h-6" />
+                Outgoing Parts / Sales Records
+              </h2>
+              <p :class="subTextClass" class="mt-2">Records of parts sold to clients</p>
+            </div>
+
+          
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-2">
+            <!-- Import Button -->
+            <button
+              @click="openImportModal"
+              class="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <Upload class="w-5 h-5" />
+              Import Excel
+            </button>
+
+            <!-- Export Button with Dropdown -->
+            <div class="relative">
+              <button
+                @click="toggleExportMenu"
+                class="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 w-full"
+                :disabled="transactionOutItems.length === 0"
+                :class="{ 'opacity-50 cursor-not-allowed': transactionOutItems.length === 0 }"
+              >
+                <FileDown class="w-5 h-5" />
+                Export Excel
+                <ChevronDown class="w-4 h-4" />
+              </button>
+              
+              <!-- Export Dropdown Menu -->
+              <div
+                v-if="showExportMenu"
+                :class="cardClass"
+                :style="cardStyle"
+                class="absolute right-0 mt-1 w-48 rounded-lg shadow-lg border z-50 overflow-hidden"
+              >
+                <button
+                  @click="exportFilteredData"
+                  class="w-full text-left px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-green-900 transition-colors flex items-center gap-2"
+                  :class="textClass"
+                >
+                  <Filter class="w-4 h-4 text-green-600" />
+                  Export Filtered ({{ filteredTransactions.length }})
+                </button>
+                <button
+                  @click="exportAllData"
+                  class="w-full text-left px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-green-900 transition-colors flex items-center gap-2"
+                  :class="textClass"
+                >
+                  <Database class="w-4 h-4 text-blue-600" />
+                  Export All ({{ transactionOutItems.length }})
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Print Button with Dropdown -->
+            <div class="relative">
+              <button
+                @click="togglePrintMenu"
+                class="flex items-center justify-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 w-full"
+                :disabled="transactionOutItems.length === 0"
+                :class="{ 'opacity-50 cursor-not-allowed': transactionOutItems.length === 0 }"
+              >
+                <Printer class="w-5 h-5" />
+                Print
+                <ChevronDown class="w-4 h-4" />
+              </button>
+              
+              <!-- Print Dropdown Menu -->
+              <div
+                v-if="showPrintMenu"
+                :class="cardClass"
+                :style="cardStyle"
+                class="absolute right-0 mt-1 w-48 rounded-lg shadow-lg border z-50 overflow-hidden"
+              >
+                <button
+                  @click="printFilteredData"
+                  class="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900 transition-colors flex items-center gap-2"
+                  :class="textClass"
+                >
+                  <Filter class="w-4 h-4 text-purple-600" />
+                  Print Filtered ({{ filteredTransactions.length }})
+                </button>
+                <button
+                  @click="printAllData"
+                  class="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900 transition-colors flex items-center gap-2"
+                  :class="textClass"
+                >
+                  <Database class="w-4 h-4 text-blue-600" />
+                  Print All ({{ transactionOutItems.length }})
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Add Button -->
+            <button
+              @click="openTransactionOutModal"
+              class="flex items-center justify-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <Plus class="w-5 h-5" />
+              Add New Sale
+            </button>
           </div>
-          <button
-            @click="openTransactionOutModal"
-            class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition font-medium flex items-center gap-2"
-          >
-            <Plus class="w-5 h-5" />
-            Add New Sale
-          </button>
         </div>
       </div>
+
+      <!-- Search and Filter Row -->
+
+        <div class="flex flex-col sm:flex-row gap-3 mt-4 pt-4 border-t" :class="borderClass">
+          <!-- Search -->
+          <div class="relative flex-1 max-w-md">
+            <Search class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              v-model="tableSearchQuery"
+              type="text"
+              placeholder="Search by part name, number, control no, client..."
+              :class="inputClass"
+              class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all duration-200"
+            />
+          </div>
+          
+          <!-- Category Filter -->
+          <select
+            v-model="selectedCategory"
+            :class="inputClass"
+            class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all duration-200"
+          >
+            <option value="">All Categories</option>
+            <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select
+            v-model="selectedStatus"
+            :class="inputClass"
+            class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all duration-200"
+          >
+            <option value="">All Statuses</option>
+            <option v-for="status in availableStatuses" :key="status" :value="status">{{ status }}</option>
+          </select>
+
+          <!-- Clear All Filters Button -->
+          <button
+            v-if="hasActiveFilters"
+            @click="clearAllFilters"
+            class="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm"
+            :class="textClass"
+            title="Clear all filters"
+          >
+            <X class="w-4 h-4" />
+            Clear
+          </button>
+
+          <!-- Result Count -->
+          <div class="ml-auto flex items-center">
+            <span class="px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+              {{ resultCount }} record{{ resultCount !== 1 ? 's' : '' }} found
+            </span>
+          </div>
+        </div>
+
+        <!-- Advanced Filters Row -->
+        <div class="flex flex-col sm:flex-row gap-3 mt-3 items-center flex-wrap">
+          <!-- Quantity Range -->
+          <div class="flex items-center gap-2">
+            <span :class="subTextClass" class="text-sm font-medium">Qty:</span>
+            <input
+              v-model="minQty"
+              type="number"
+              min="0"
+              placeholder="Min"
+              :class="inputClass"
+              class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+            />
+            <span :class="subTextClass">-</span>
+            <input
+              v-model="maxQty"
+              type="number"
+              min="0"
+              placeholder="Max"
+              :class="inputClass"
+              class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+            />
+          </div>
+
+          <!-- Price Range -->
+          <div class="flex items-center gap-2">
+            <span :class="subTextClass" class="text-sm font-medium">Total Price ₱:</span>
+            <input
+              v-model="minPrice"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Min"
+              :class="inputClass"
+              class="w-24 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+            />
+            <span :class="subTextClass">-</span>
+            <input
+              v-model="maxPrice"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Max"
+              :class="inputClass"
+              class="w-24 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+            />
+          </div>
+        </div>
+      </div>
+
+
 
       <!-- Transaction Out Table -->
       <div :class="cardClass" :style="cardStyle" class="shadow-lg rounded-lg overflow-hidden border-t-2 border-orange-600">
@@ -51,8 +255,9 @@
             </thead>
             <tbody>
               <tr
-                v-for="item in transactionOutItems"
+                v-for="item in paginatedTransactions"
                 :key="item.id"
+
                 :class="tableRowClass"
                 class="border-b border-gray-300 transition duration-200 hover:shadow-md"
               >
@@ -120,7 +325,7 @@
                   </div>
                 </td>
               </tr>
-              <tr v-if="transactionOutItems.length === 0">
+              <tr v-if="paginatedTransactions.length === 0">
                 <td colspan="14" :class="subTextClass" class="text-center p-8">
                   <div class="flex justify-center items-center gap-2">
                     <ArrowUpCircle class="w-5 h-5" />
@@ -128,11 +333,94 @@
                   </div>
                 </td>
               </tr>
+
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination -->
+        <div v-if="filteredTransactions.length > 0" class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <!-- Items info -->
+          <div :class="subTextClass" class="text-sm">
+            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, filteredTransactions.length) }} of {{ filteredTransactions.length }} records
+          </div>
+
+          <!-- Pagination controls -->
+          <div class="flex items-center gap-2">
+            <!-- Items per page selector -->
+            <select
+              v-model="itemsPerPage"
+              :class="inputClass"
+              class="px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+            >
+              <option v-for="option in itemsPerPageOptions" :key="option" :value="option">{{ option }}/page</option>
+            </select>
+
+            <!-- First page -->
+            <button
+              @click="currentPage = 1"
+              :disabled="currentPage === 1"
+              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :class="textClass"
+              title="First page"
+            >
+              <ChevronsLeft class="w-5 h-5" />
+            </button>
+
+            <!-- Previous page -->
+            <button
+              @click="currentPage--"
+              :disabled="currentPage === 1"
+              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :class="textClass"
+              title="Previous page"
+            >
+              <ChevronLeft class="w-5 h-5" />
+            </button>
+
+            <!-- Page numbers -->
+            <div class="flex items-center gap-1">
+              <button
+                v-for="page in displayedPages"
+                :key="page"
+                @click="currentPage = page"
+                :class="[
+                  'px-3 py-1 text-sm rounded transition-colors',
+                  currentPage === page
+                    ? 'bg-orange-600 text-white'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-700 ' + textClass
+                ]"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <!-- Next page -->
+            <button
+              @click="currentPage++"
+              :disabled="currentPage === totalPages"
+              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :class="textClass"
+              title="Next page"
+            >
+              <ChevronRight class="w-5 h-5" />
+            </button>
+
+            <!-- Last page -->
+            <button
+              @click="currentPage = totalPages"
+              :disabled="currentPage === totalPages"
+              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :class="textClass"
+              title="Last page"
+            >
+              <ChevronsRight class="w-5 h-5" />
+            </button>
+          </div>
+        </div>
       </div>
     </main>
+
 
     <!-- Transaction OUT Modal -->
     <div v-if="showTransactionOutModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -309,16 +597,94 @@
         </div>
       </div>
     </div>
+
+    <!-- Import Modal -->
+    <div v-if="showImportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div :class="modalClass" :style="modalStyle" class="rounded-lg shadow-xl p-6 w-full max-w-lg">
+        <h2 :class="textClass" class="text-2xl font-bold mb-4 flex items-center gap-2">
+          <FileSpreadsheet class="w-6 h-6 text-blue-600" />
+          Import Sales from Excel
+        </h2>
+
+        <div class="space-y-4">
+          <!-- Info Alert -->
+          <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+            <div class="flex items-start gap-2">
+              <AlertTriangle class="w-5 h-5 text-blue-600 mt-0.5" />
+              <div>
+                <p :class="textClass" class="font-medium text-sm">Important Information</p>
+                <p :class="subTextClass" class="text-sm mt-1">
+                  Import feature requires inventory validation for each item. 
+                  Please ensure all parts exist in inventory with sufficient stock before importing.
+                  For now, please add sales manually using the "Add New Sale" button.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- File Upload -->
+          <div>
+            <label :class="subTextClass" class="block mb-2 font-medium">Select Excel File</label>
+            <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+              <input
+                ref="fileInput"
+                type="file"
+                accept=".xlsx,.xls"
+                class="hidden"
+                @change="handleFileSelect"
+              />
+              <button
+                @click="$refs.fileInput.click()"
+                class="flex items-center justify-center gap-2 mx-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                <Upload class="w-5 h-5" />
+                Choose File
+              </button>
+              <p :class="subTextClass" class="text-sm mt-2">
+                Supported formats: .xlsx, .xls
+              </p>
+            </div>
+          </div>
+
+          <!-- Required Columns Info -->
+          <div :class="cardClass" :style="cardStyle" class="rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <p :class="textClass" class="font-medium text-sm mb-2">Required Columns:</p>
+            <ul :class="subTextClass" class="text-sm space-y-1">
+              <li>• Control No.</li>
+              <li>• Part No.</li>
+              <li>• Part Name</li>
+              <li>• Category</li>
+              <li>• Model</li>
+              <li>• Quantity</li>
+              <li>• Unit Price</li>
+              <li>• Client</li>
+              <li>• Note (optional)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button
+            @click="closeImportModal"
+            class="px-4 py-2 border rounded hover:bg-gray-100 hover:shadow-md transition-all duration-200"
+            :class="isDarkMode ? 'border-gray-600 hover:bg-gray-800 text-white' : 'border-gray-300'"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Loading Screen -->
+
   <div v-else class="min-h-screen flex items-center justify-center">
     <Loaders />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, watch, nextTick, onUnmounted } from 'vue';
 import { db } from '../../Firebase/Firebase';
 import { collection, getDocs, doc, setDoc, getDoc, collectionGroup, updateDoc } from 'firebase/firestore';
 import { 
@@ -328,8 +694,10 @@ import {
   searchInventoryItems 
 } from '../../composables/useControlNumber';
 import { useToast } from '../../composables/useToast';
+import { useExcelExport } from '../../composables/useExcelExport';
 import Loaders from '../../components/Loaders.vue';
-import { Plus, ArrowUpCircle, Search, Check, X, CheckCircle, XCircle } from 'lucide-vue-next';
+import { Plus, ArrowUpCircle, Search, Check, X, CheckCircle, XCircle, FileDown, ChevronDown, Filter, Database, Upload, FileSpreadsheet, Printer, AlertTriangle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-vue-next';
+
 
 // Toast notification
 const toast = useToast();
@@ -369,11 +737,184 @@ const searchQuery = ref('');
 const showInventoryDropdown = ref(false);
 const selectedInventoryItem = ref(null);
 
+// Export, Import, Print state
+const showExportMenu = ref(false);
+const showPrintMenu = ref(false);
+const showImportModal = ref(false);
+const importFile = ref(null);
+const importPreview = ref({ validItems: [], invalidItems: [] });
+const isImporting = ref(false);
+const isPrinting = ref(false);
+
+// Search and Filter state
+const tableSearchQuery = ref('');
+const debouncedSearchQuery = ref('');
+
+const selectedCategory = ref('');
+const selectedStatus = ref('');
+const minQty = ref('');
+const maxQty = ref('');
+const minPrice = ref('');
+const maxPrice = ref('');
+
+// Pagination state
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const itemsPerPageOptions = [10, 25, 50, 100];
+
 // Debounce timer for search
 let searchDebounceTimer = null;
+let debounceTimeout = null;
+
 
 // Theme
 const isDarkMode = computed(() => document.documentElement.classList.contains('dark'));
+
+const borderClass = computed(() =>
+  isDarkMode.value ? 'border-gray-700' : 'border-gray-200'
+);
+
+// Debounce search
+const debounceSearch = (value, delay = 300) => {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    debouncedSearchQuery.value = value;
+  }, delay);
+};
+
+// Watch tableSearchQuery and debounce it
+watch(tableSearchQuery, (newValue) => {
+  debounceSearch(newValue);
+});
+
+
+// Reset to first page when filters change
+watch([debouncedSearchQuery, selectedCategory, selectedStatus, minQty, maxQty, minPrice, maxPrice], () => {
+  currentPage.value = 1;
+});
+
+// Available categories from data
+const availableCategories = computed(() => {
+  const categories = new Set(transactionOutItems.value.map(item => item.category).filter(Boolean));
+  return Array.from(categories).sort();
+});
+
+// Available statuses
+const availableStatuses = ['Pending', 'Completed', 'Cancelled'];
+
+// Filtered transactions
+const filteredTransactions = computed(() => {
+  let filtered = transactionOutItems.value;
+
+  // Category filter
+  if (selectedCategory.value) {
+    filtered = filtered.filter(item => item.category === selectedCategory.value);
+  }
+
+  // Status filter
+  if (selectedStatus.value) {
+    filtered = filtered.filter(item => (item.statusOUT || 'Pending') === selectedStatus.value);
+  }
+
+  // Text search (debounced)
+  if (debouncedSearchQuery.value) {
+    const query = debouncedSearchQuery.value.toLowerCase().trim();
+    filtered = filtered.filter(item =>
+      item.partName?.toLowerCase().includes(query) ||
+      item.partNo?.toLowerCase().includes(query) ||
+      item.controlNo?.toLowerCase().includes(query) ||
+      item.transactionID?.toLowerCase().includes(query) ||
+      item.client?.toLowerCase().includes(query) ||
+      item.model?.toLowerCase().includes(query) ||
+      item.category?.toLowerCase().includes(query)
+    );
+  }
+
+  // Quantity range filter
+  const minQ = parseInt(minQty.value);
+  const maxQ = parseInt(maxQty.value);
+  if (!isNaN(minQ)) {
+    filtered = filtered.filter(item => (item.quantity || 0) >= minQ);
+  }
+  if (!isNaN(maxQ)) {
+    filtered = filtered.filter(item => (item.quantity || 0) <= maxQ);
+  }
+
+  // Price range filter (totalPrice)
+  const minP = parseFloat(minPrice.value);
+  const maxP = parseFloat(maxPrice.value);
+  if (!isNaN(minP)) {
+    filtered = filtered.filter(item => (item.totalPrice || 0) >= minP);
+  }
+  if (!isNaN(maxP)) {
+    filtered = filtered.filter(item => (item.totalPrice || 0) <= maxP);
+  }
+
+  return filtered.sort((a, b) => {
+    const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+    const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+    return dateB - dateA;
+  });
+});
+
+// Result count
+const resultCount = computed(() => filteredTransactions.value.length);
+
+// Check if any filters are active
+const hasActiveFilters = computed(() => 
+  selectedCategory.value ||
+  selectedStatus.value ||
+  tableSearchQuery.value ||
+  minQty.value ||
+  maxQty.value ||
+  minPrice.value ||
+  maxPrice.value
+);
+
+// Clear all filters
+const clearAllFilters = () => {
+  tableSearchQuery.value = '';
+  debouncedSearchQuery.value = '';
+  selectedCategory.value = '';
+  selectedStatus.value = '';
+  minQty.value = '';
+  maxQty.value = '';
+  minPrice.value = '';
+  maxPrice.value = '';
+  currentPage.value = 1;
+};
+
+
+
+// Paginated transactions
+const paginatedTransactions = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredTransactions.value.slice(start, end);
+});
+
+// Total pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredTransactions.value.length / itemsPerPage.value) || 1;
+});
+
+// Page numbers to display
+const displayedPages = computed(() => {
+  const pages = [];
+  const maxVisible = 5;
+  let start = Math.max(1, currentPage.value - Math.floor(maxVisible / 2));
+  let end = Math.min(totalPages.value, start + maxVisible - 1);
+  
+  if (end - start < maxVisible - 1) {
+    start = Math.max(1, end - maxVisible + 1);
+  }
+  
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
+
 
 const themeClass = computed(() =>
   isDarkMode.value ? 'text-white' : 'bg-gray-100 text-gray-900'
@@ -922,6 +1463,377 @@ const saveTransactionOut = async () => {
   }
 };
 
+// Excel Export functions
+const { exportTransactionOut } = useExcelExport();
+
+const toggleExportMenu = () => {
+  showExportMenu.value = !showExportMenu.value;
+};
+
+// Close export menu when clicking outside
+const closeExportMenu = (event) => {
+  if (!event.target.closest('.relative')) {
+    showExportMenu.value = false;
+  }
+};
+
+const exportFilteredData = () => {
+  if (filteredTransactions.value.length === 0) {
+    toast.warning('No filtered data to export', 'Export');
+    return;
+  }
+  
+  showExportMenu.value = false;
+  exportTransactionOut(filteredTransactions.value, 'TransactionOut_Filtered_Export');
+  toast.success(`Exported ${filteredTransactions.value.length} filtered items successfully!`, 'Export Complete');
+};
+
+const exportAllData = () => {
+  if (transactionOutItems.value.length === 0) {
+    toast.warning('No data to export', 'Export');
+    return;
+  }
+  
+  showExportMenu.value = false;
+  exportTransactionOut(transactionOutItems.value, 'TransactionOut_All_Export');
+  toast.success(`Exported all ${transactionOutItems.value.length} items successfully!`, 'Export Complete');
+};
+
+
+// Print functions
+const togglePrintMenu = () => {
+  showPrintMenu.value = !showPrintMenu.value;
+};
+
+// Close print menu when clicking outside
+const closePrintMenu = (event) => {
+  if (!event.target.closest('.relative')) {
+    showPrintMenu.value = false;
+  }
+};
+
+const printFilteredData = () => {
+  if (filteredTransactions.value.length === 0) {
+    toast.warning('No filtered data to print', 'Print');
+    return;
+  }
+  
+  showPrintMenu.value = false;
+  printTransactionOut(filteredTransactions.value, 'Transaction Out / Sales Report (Filtered)');
+};
+
+const printAllData = () => {
+  if (transactionOutItems.value.length === 0) {
+    toast.warning('No data to print', 'Print');
+    return;
+  }
+  
+  showPrintMenu.value = false;
+  printTransactionOut(transactionOutItems.value, 'Transaction Out / Sales Report (All)');
+};
+
+
+const printTransactionOut = (data, title) => {
+  isPrinting.value = true;
+  
+  // Calculate totals
+  const totalItems = data.length;
+  const totalQuantity = data.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const totalValue = data.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+  
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  const timeStr = now.toLocaleTimeString('en-PH', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+  
+  // Create print window content
+  const printContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${title} - ISUZU Calapan</title>
+      <style>
+        @page {
+          size: landscape;
+          margin: 10mm;
+        }
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          font-family: Arial, sans-serif;
+          font-size: 9pt;
+          line-height: 1.3;
+          color: #000;
+          background: #fff;
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 12px;
+          padding-bottom: 8px;
+          border-bottom: 2px solid #ea580c;
+        }
+        .company-name {
+          font-size: 16pt;
+          font-weight: bold;
+          color: #ea580c;
+          margin-bottom: 3px;
+        }
+        .company-address {
+          font-size: 8pt;
+          color: #666;
+          margin-bottom: 6px;
+        }
+        .report-title {
+          font-size: 12pt;
+          font-weight: bold;
+          margin-bottom: 4px;
+        }
+        .report-meta {
+          font-size: 8pt;
+          color: #666;
+          margin-bottom: 8px;
+        }
+        .summary {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 12px;
+          padding: 8px;
+          background: #fff7ed;
+          border-radius: 4px;
+          border: 1px solid #fed7aa;
+        }
+        .summary-item {
+          text-align: center;
+        }
+        .summary-label {
+          font-size: 7pt;
+          color: #666;
+          text-transform: uppercase;
+        }
+        .summary-value {
+          font-size: 12pt;
+          font-weight: bold;
+          color: #ea580c;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 8px;
+        }
+        th {
+          background: #ea580c;
+          color: white;
+          padding: 6px 4px;
+          text-align: left;
+          font-size: 8pt;
+          font-weight: bold;
+          border: 1px solid #ea580c;
+        }
+        td {
+          padding: 4px;
+          border: 1px solid #d1d5db;
+          font-size: 8pt;
+          vertical-align: top;
+        }
+        tr:nth-child(even) {
+          background: #fff7ed;
+        }
+        .text-right {
+          text-align: right;
+        }
+        .text-center {
+          text-align: center;
+        }
+        .category-badge {
+          background: #fed7aa;
+          color: #9a3412;
+          padding: 1px 4px;
+          border-radius: 3px;
+          font-size: 7pt;
+          font-weight: bold;
+          text-transform: uppercase;
+        }
+        .status-badge {
+          padding: 1px 4px;
+          border-radius: 3px;
+          font-size: 7pt;
+          font-weight: bold;
+          text-transform: uppercase;
+        }
+        .status-pending {
+          background: #fef3c7;
+          color: #92400e;
+        }
+        .status-completed {
+          background: #d1fae5;
+          color: #065f46;
+        }
+        .status-cancelled {
+          background: #fee2e2;
+          color: #991b1b;
+        }
+        .footer {
+          margin-top: 12px;
+          padding-top: 8px;
+          border-top: 1px solid #d1d5db;
+          font-size: 7pt;
+          color: #666;
+          text-align: center;
+        }
+        @media print {
+          .no-print {
+            display: none;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="company-name">ISUZU CALAPAN</div>
+        <div class="company-address">Transaction Out / Sales Management System</div>
+        <div class="report-title">${title}</div>
+        <div class="report-meta">Generated on ${dateStr} at ${timeStr}</div>
+      </div>
+      
+      <div class="summary">
+        <div class="summary-item">
+          <div class="summary-label">Total Transactions</div>
+          <div class="summary-value">${totalItems.toLocaleString()}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Total Quantity</div>
+          <div class="summary-value">${totalQuantity.toLocaleString()}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Total Value</div>
+          <div class="summary-value">₱${totalValue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+        </div>
+      </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Control No.</th>
+            <th>Transaction ID</th>
+            <th>Category</th>
+            <th>Part No.</th>
+            <th>Part Name</th>
+            <th>Model</th>
+            <th class="text-center">Qty</th>
+            <th class="text-right">Unit Price</th>
+            <th class="text-right">Total Price</th>
+            <th>Client</th>
+            <th>Note</th>
+            <th>Sold At</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(item => {
+            const statusClass = item.statusOUT === 'Completed' ? 'status-completed' : 
+                               item.statusOUT === 'Cancelled' ? 'status-cancelled' : 'status-pending';
+            const statusText = item.statusOUT || 'Pending';
+            const soldAt = item.soldAt ? new Date(item.soldAt.toDate ? item.soldAt.toDate() : item.soldAt).toLocaleString() : '-';
+            return `
+            <tr>
+              <td>${item.controlNo || '-'}</td>
+              <td>${item.transactionID || '-'}</td>
+              <td><span class="category-badge">${(item.category || '-').toUpperCase()}</span></td>
+              <td>${(item.partNo || '-').toUpperCase()}</td>
+              <td>${(item.partName || '-').toUpperCase()}</td>
+              <td>${(item.model || '-').toUpperCase()}</td>
+              <td class="text-center">${item.quantity || 0}</td>
+              <td class="text-right">₱${(item.unitPrice || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td class="text-right">₱${(item.totalPrice || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td>${(item.client || '-').toUpperCase()}</td>
+              <td>${(item.note || '-').toUpperCase()}</td>
+              <td>${soldAt}</td>
+              <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            </tr>
+          `}).join('')}
+        </tbody>
+      </table>
+      
+      <div class="footer">
+        <p>ISUZU Calapan Transaction Out Management System &copy; ${now.getFullYear()}</p>
+        <p>This is a computer-generated report. No signature required.</p>
+      </div>
+      
+      <script>
+        window.onload = function() {
+          setTimeout(function() {
+            window.print();
+            window.close();
+          }, 500);
+        };
+      <\/script>
+    </body>
+    </html>
+  `;
+  
+  // Open print window
+  const printWindow = window.open('', '_blank', 'width=1200,height=800');
+  if (printWindow) {
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  } else {
+    toast.error('Unable to open print window. Please check your popup blocker settings.', 'Print Error');
+  }
+  
+  isPrinting.value = false;
+};
+
+// Import functions
+const openImportModal = () => {
+  showImportModal.value = true;
+  resetImport();
+};
+
+const closeImportModal = () => {
+  showImportModal.value = false;
+  resetImport();
+};
+
+const resetImport = () => {
+  importFile.value = null;
+  importPreview.value = { validItems: [], invalidItems: [] };
+};
+
+const fileInput = ref(null);
+
+const handleFileSelect = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // Validate file type
+  const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+  if (!validTypes.includes(file.type) && !file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+    toast.error('Please select a valid Excel file (.xlsx or .xls)', 'Invalid File');
+    return;
+  }
+  
+  try {
+    toast.info('Reading file...', 'Processing');
+    // For now, we'll just show a message that import is not fully implemented
+    // as it requires inventory lookup for each item
+    toast.info('Import feature requires inventory validation. Please add sales manually for now.', 'Import Info');
+    closeImportModal();
+  } catch (error) {
+    console.error('Error parsing file:', error);
+    toast.error('Failed to read Excel file. Please check the format.', 'Parse Error');
+  }
+};
+
 // Watch for data changes
 watch(transactionOutItems, (newVal) => {
   console.log('transactionOutItems updated:', newVal.length, 'items');
@@ -929,6 +1841,7 @@ watch(transactionOutItems, (newVal) => {
 
 // Initialize
 onMounted(async () => {
+
   await nextTick();
   console.log('TransactionOut component mounted');
   await loadTransactionOut();
@@ -945,5 +1858,13 @@ const closeDropdown = (event) => {
 
 onMounted(() => {
   document.addEventListener('click', closeDropdown);
+  document.addEventListener('click', closeExportMenu);
+  document.addEventListener('click', closePrintMenu);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeDropdown);
+  document.removeEventListener('click', closeExportMenu);
+  document.removeEventListener('click', closePrintMenu);
 });
 </script>
