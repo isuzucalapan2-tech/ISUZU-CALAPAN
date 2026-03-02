@@ -362,6 +362,19 @@
       </div>
 
     </div>
+
+    <!-- 🔴 Sync Button -->
+    <div class="mb-6 flex justify-end">
+      <button
+        @click="runSync"
+        :disabled="syncing"
+        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition disabled:opacity-50"
+      >
+        <span v-if="!syncing">Sync Firestore to MySQL</span>
+        <span v-else>Syncing...</span>
+      </button>
+    </div>
+
   </div>
 </template>
 
@@ -873,6 +886,32 @@ onUnmounted(() => {
   if (transactionOutListener.value) transactionOutListener.value();
 });
 
+
+/* ===== LIFECYCLE ===== */
+onMounted(async () => {
+  if (user.value) {
+    await loadInventory(user.value.uid);
+    isLoading.value = false;
+    await nextTick();
+    initCharts();
+  }
+});
+
+/* ===== SYNC ===== */
+const syncing = ref(false);
+
+const runSync = async () => {
+  syncing.value = true;
+  try {
+    // Replace with your actual API endpoint
+    const res = await fetch("http://localhost:3001/api/sync", { method: "POST" });
+    if (!res.ok) throw new Error("Sync failed");
+    alert("Sync complete!");
+  } catch (e) {
+    alert("Sync failed: " + e.message);
+  }
+  syncing.value = false;
+};
 </script>
 
 <style scoped>
