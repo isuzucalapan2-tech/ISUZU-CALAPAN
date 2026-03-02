@@ -1,691 +1,327 @@
 <template>
-  <!-- 🔧 LOADING -->
-  <div v-if="isLoading" class="min-h-screen flex items-center justify-center">
-    <Loaders />
+  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white">
+    <div class="flex flex-col items-center gap-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-red-600 border-t-transparent"></div>
+      <p class="isuzu-font text-xs font-black uppercase tracking-[0.3em] text-gray-500">Syncing Inventory...</p>
+    </div>
   </div>
 
-  <!-- MAIN CONTENT -->
-  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col">
-    <main class="flex-1 p-4 sm:p-6">
+  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden rounded-2xl">
+    
+    <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
+      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+        <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
+      </svg>
+    </div>
 
-      <!-- Action Bar -->
-      <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-4 mb-4 sm:mb-6 border-l-2 border-red-600 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-         <!-- Page Title -->
-      <h1 :class="textClass" class="text-2xl sm:text-2xl font-bold mb-4 sm:mb-6 border-l-4 border-red-600 pl-3 sm:pl-4 flex items-center gap-2">
-        <Boxes class="w-6 h-6 sm:w-7 sm:h-7 text-red-600" />
-        Inventory Management
-      </h1>
-        <div class="flex flex-col gap-3 flex-1">
-          <!-- Search and Category Row -->
-          <div class="flex flex-col sm:flex-row gap-3">
-            <!-- Search -->
-            <div class="relative flex-1 max-w-md">
-              <Search class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search by part name, number, control no, category..."
-                :class="inputClass"
-                class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
-              />
-            </div>
-            
-            <!-- Category Filter -->
-            <select
-              v-model="selectedCategory"
-              :class="inputClass"
-              class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
-            >
-              <option value="">All Categories</option>
-              <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
-            </select>
-
-            <!-- Clear All Filters Button -->
-            <button
-              v-if="hasActiveFilters"
-              @click="clearAllFilters"
-              class="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm"
-              :class="textClass"
-              title="Clear all filters"
-            >
-              <X class="w-4 h-4" />
-              Clear
-            </button>
-          </div>
-
-          <!-- Advanced Filters Row -->
-          <div class="flex flex-col sm:flex-row gap-3 items-center flex-wrap">
-            <!-- Quantity Range -->
-            <div class="flex items-center gap-2">
-              <span :class="subTextClass" class="text-sm font-medium">Qty:</span>
-              <input
-                v-model="minQty"
-                type="number"
-                min="0"
-                placeholder="Min"
-                :class="inputClass"
-                class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-red-600"
-              />
-              <span :class="subTextClass">-</span>
-              <input
-                v-model="maxQty"
-                type="number"
-                min="0"
-                placeholder="Max"
-                :class="inputClass"
-                class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-red-600"
-              />
-            </div>
-
-            <!-- Price Range -->
-            <div class="flex items-center gap-2">
-              <span :class="subTextClass" class="text-sm font-medium">Price ₱:</span>
-              <input
-                v-model="minPrice"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="Min"
-                :class="inputClass"
-                class="w-24 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-red-600"
-              />
-              <span :class="subTextClass">-</span>
-              <input
-                v-model="maxPrice"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="Max"
-                :class="inputClass"
-                class="w-24 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-red-600"
-              />
-            </div>
-
-            <!-- Result Count Badge -->
-            <div class="ml-auto">
-              <span class="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                {{ resultCount }} item{{ resultCount !== 1 ? 's' : '' }} found
-              </span>
-            </div>
-          </div>
+    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white border-b border-neutral-400">
+      <div class="flex items-center gap-4">
+        <div class="bg-red-600 p-2 rounded-lg shadow-lg">
+          <Boxes class="w-6 h-6 text-white" />
         </div>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-col gap-2">
-          <!-- Import Button -->
-          <button
-            @click="openImportModal"
-            class="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
-          >
-            <Upload class="w-5 h-5" />
-            Import Excel
-          </button>
-
-          <!-- Export Button with Dropdown -->
-
-          <div class="relative">
-            <button
-              @click="toggleExportMenu"
-              class="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 w-full"
-              :disabled="inventoryItems.length === 0"
-              :class="{ 'opacity-50 cursor-not-allowed': inventoryItems.length === 0 }"
-            >
-              <FileDown class="w-5 h-5" />
-              Export Excel
-              <ChevronDown class="w-4 h-4" />
-            </button>
-            
-            <!-- Export Dropdown Menu -->
-            <div
-              v-if="showExportMenu"
-              :class="cardClass"
-              :style="cardStyle"
-              class="absolute right-0 mt-1 w-48 rounded-lg shadow-lg border z-50 overflow-hidden"
-            >
-              <button
-                @click="exportFilteredData"
-                class="w-full text-left px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-green-900 transition-colors flex items-center gap-2"
-                :class="textClass"
-                :disabled="filteredInventory.length === 0"
-              >
-                <Filter class="w-4 h-4 text-green-600" />
-                Export Filtered ({{ filteredInventory.length }})
-              </button>
-              <div class="border-t" :class="borderClass"></div>
-              <button
-                @click="exportAllData"
-                class="w-full text-left px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-green-900 transition-colors flex items-center gap-2"
-                :class="textClass"
-              >
-                <Database class="w-4 h-4 text-blue-600" />
-                Export All ({{ inventoryItems.length }})
-              </button>
-            </div>
-          </div>
-
-          <!-- Print Button with Dropdown -->
-          <div class="relative">
-            <button
-              @click="togglePrintMenu"
-              class="flex items-center justify-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 w-full"
-              :disabled="inventoryItems.length === 0"
-              :class="{ 'opacity-50 cursor-not-allowed': inventoryItems.length === 0 }"
-            >
-              <Printer class="w-5 h-5" />
-              Print
-              <ChevronDown class="w-4 h-4" />
-            </button>
-            
-            <!-- Print Dropdown Menu -->
-            <div
-              v-if="showPrintMenu"
-              :class="cardClass"
-              :style="cardStyle"
-              class="absolute right-0 mt-1 w-48 rounded-lg shadow-lg border z-50 overflow-hidden"
-            >
-              <button
-                @click="printFilteredData"
-                class="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900 transition-colors flex items-center gap-2"
-                :class="textClass"
-                :disabled="filteredInventory.length === 0"
-              >
-                <Filter class="w-4 h-4 text-purple-600" />
-                Print Filtered ({{ filteredInventory.length }})
-              </button>
-              <div class="border-t" :class="borderClass"></div>
-              <button
-                @click="printAllData"
-                class="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900 transition-colors flex items-center gap-2"
-                :class="textClass"
-              >
-                <Database class="w-4 h-4 text-blue-600" />
-                Print All ({{ inventoryItems.length }})
-              </button>
-            </div>
-          </div>
-
-          <!-- Add Button -->
-          <button
-            @click="openAddModal"
-            class="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
-          >
-            <Plus class="w-5 h-5" />
-            Add Item
-          </button>
+        <div>
+          <h1 class="text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800">
+            Inventory <span class="text-red-600">Management</span>
+          </h1>
+          <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Parts & Logistics Console</p>
         </div>
-
-
-
       </div>
 
-      <!-- Inventory Table -->
-      <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg border-l-2 border-red-600 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y border-t-2 border-red-600">
-            <thead :class="tableHeaderClass" class="border-b-2 border-red-600">
-              <tr>
-                <th class="px-4 py-3 text-left text-sm font-medium">Control No.</th>
-                <th class="px-4 py-3 text-left text-sm font-medium">Category</th>
-                <th class="px-4 py-3 text-left text-sm font-medium">Part Name</th>
-                <th class="px-4 py-3 text-left text-sm font-medium">Part No.</th>
-                <th class="px-4 py-3 text-left text-sm font-medium">Model</th>
-                <th class="px-4 py-3 text-left text-sm font-medium">Description</th>
-                <th class="px-4 py-3 text-left text-sm font-medium">Quantity</th>
-                <th class="px-4 py-3 text-left text-sm font-medium">Unit Price</th>
-                <th class="px-4 py-3 text-left text-sm font-medium">Total Value</th>
-                <th class="px-4 py-3 text-left text-sm font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="item in paginatedInventory"
-                :key="item.id"
-                :class="tableRowClass"
-                class="transition duration-200 hover:shadow-md"
-              >
-
-                <td :class="textClass" class="px-4 py-3 text-sm font-mono">{{ item.controlNo }}</td>
-                <td :class="textClass" class="px-4 py-3 text-sm">
-                  <span class="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800 uppercase">
-                    {{ item.category }}
-                  </span>
-                </td>
-                <td :class="textClass" class="px-4 py-3 text-sm font-medium uppercase">{{ item.partName }}</td>
-                <td :class="textClass" class="px-4 py-3 text-sm uppercase">{{ item.partNo }}</td>
-                <td :class="textClass" class="px-4 py-3 text-sm uppercase">{{ item.model }}</td>
-                <td :class="textClass" class="px-4 py-3 text-sm max-w-xs truncate uppercase">{{ item.description }}</td>
-                <td :class="textClass" class="px-4 py-3 text-sm font-medium text-center">
-                  {{ item.quantity || 0 }}
-                </td>
-                <td :class="textClass" class="px-4 py-3 text-sm font-medium">
-                  ₱{{ formatPrice(item.unitPrice) }}
-                </td>
-                <td :class="textClass" class="px-4 py-3 text-sm font-medium text-green-600">
-                  ₱{{ formatPrice(item.totalValue) }}
-                </td>
-                <td class="px-4 py-3 text-sm">
-                  <div class="flex gap-2">
-                    <button
-                      @click="editItem(item)"
-                      class="flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
-                    >
-                      <Edit class="w-4 h-4" />
-                    </button>
-                    <button
-                      @click="deleteItem(item)"
-                      class="flex items-center gap-1 bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 hover:shadow-lg transition-all duration-200"
-                    >
-                      <Trash2 class="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="paginatedInventory.length === 0">
-                <td colspan="10" :class="subTextClass" class="text-center py-8">
-                  <div class="flex justify-center items-center gap-2">
-                    <PackageX class="w-5 h-5" />
-                    No inventory items found
-                  </div>
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
+      <div class="hidden md:flex items-center gap-4">
+        <div class="bg-neutral-100 px-4 py-2 rounded-full border border-neutral-200">
+          <span class="text-[10px] font-black uppercase tracking-widest text-neutral-600">
+            Total Items: <span class="text-red-600 text-sm ml-1">{{ inventoryItems.length }}</span>
+          </span>
         </div>
+      </div>
+    </header>
 
-        <!-- Pagination -->
-        <div v-if="filteredInventory.length > 0" class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <!-- Items info -->
-          <div :class="subTextClass" class="text-sm">
-            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, filteredInventory.length) }} of {{ filteredInventory.length }} items
-          </div>
+    <main class="flex-1 relative z-10 overflow-auto">
+      <div class="max-w-[1600px] mx-auto p-6 space-y-6">
+        
+        <div class="bg-white rounded-3xl p-6 border border-gray-100 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div class="flex flex-col xl:flex-row gap-6">
+            
+            <div class="flex-1 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div class="lg:col-span-2 relative">
+                  <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    v-model="searchQuery"
+                    type="text"
+                    placeholder="SEARCH PART NAME, NUMBER, OR CONTROL NO..."
+                    class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold uppercase tracking-widest focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                  />
+                </div>
+                
+                <select v-model="selectedCategory" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-red-500">
+                  <option value="">ALL CATEGORIES</option>
+                  <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
+                </select>
+              </div>
 
-          <!-- Pagination controls -->
-          <div class="flex items-center gap-2">
-            <!-- Items per page selector -->
-            <select
-              v-model="itemsPerPage"
-              :class="inputClass"
-              class="px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-red-600"
-            >
-              <option v-for="option in itemsPerPageOptions" :key="option" :value="option">{{ option }}/page</option>
-            </select>
+              <div class="flex flex-wrap items-center gap-6 pt-2 border-t border-gray-100 mt-2">
+                <div class="flex items-center gap-3">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Qty Range:</span>
+                  <input v-model="minQty" type="number" placeholder="MIN" class="w-20 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold outline-none" />
+                  <span class="text-gray-300">-</span>
+                  <input v-model="maxQty" type="number" placeholder="MAX" class="w-20 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold outline-none" />
+                </div>
+                
+                <div class="flex items-center gap-3 border-l pl-6 border-gray-200">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Price Range (₱):</span>
+                  <input v-model="minPrice" type="number" placeholder="MIN" class="w-24 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold outline-none" />
+                  <span class="text-gray-300">-</span>
+                  <input v-model="maxPrice" type="number" placeholder="MAX" class="w-24 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold outline-none" />
+                </div>
 
-            <!-- First page -->
-            <button
-              @click="currentPage = 1"
-              :disabled="currentPage === 1"
-              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :class="textClass"
-              title="First page"
-            >
-              <ChevronsLeft class="w-5 h-5" />
-            </button>
-
-            <!-- Previous page -->
-            <button
-              @click="currentPage--"
-              :disabled="currentPage === 1"
-              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :class="textClass"
-              title="Previous page"
-            >
-              <ChevronLeft class="w-5 h-5" />
-            </button>
-
-            <!-- Page numbers -->
-            <div class="flex items-center gap-1">
-              <button
-                v-for="page in displayedPages"
-                :key="page"
-                @click="currentPage = page"
-                :class="[
-                  'px-3 py-1 text-sm rounded transition-colors',
-                  currentPage === page
-                    ? 'bg-red-600 text-white'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-700 ' + textClass
-                ]"
-              >
-                {{ page }}
-              </button>
+                <button v-if="hasActiveFilters" @click="clearAllFilters" class="text-[10px] font-black text-red-600 uppercase tracking-widest hover:underline flex items-center gap-1">
+                  <X class="w-3 h-3" /> Clear Filters
+                </button>
+              </div>
             </div>
 
-            <!-- Next page -->
-            <button
-              @click="currentPage++"
-              :disabled="currentPage === totalPages"
-              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :class="textClass"
-              title="Next page"
-            >
-              <ChevronRight class="w-5 h-5" />
-            </button>
+            <div class="grid grid-cols-2 md:grid-cols-4 xl:flex xl:flex-col gap-2 min-w-[200px]">
+              <button @click="openAddModal" class="group flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg hover:shadow-red-200">
+                <Plus class="w-4 h-4" /> Add Item
+              </button>
+              
+              <button @click="openImportModal" class="flex items-center justify-center gap-2 bg-neutral-800 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md">
+                <Upload class="w-4 h-4" /> Import Excel
+              </button>
 
-            <!-- Last page -->
-            <button
-              @click="currentPage = totalPages"
-              :disabled="currentPage === totalPages"
-              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :class="textClass"
-              title="Last page"
-            >
-              <ChevronsRight class="w-5 h-5" />
-            </button>
+              <div class="relative group/export">
+                <button @click="toggleExportMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-200 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all shadow-sm">
+                  <FileDown class="w-4 h-4" /> Export <ChevronDown class="w-3 h-3" />
+                </button>
+                <div v-if="showExportMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 shadow-2xl rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  <button @click="exportFilteredData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 flex items-center gap-2">
+                    <Filter class="w-3 h-3" /> Filtered ({{ filteredInventory.length }})
+                  </button>
+                  <button @click="exportAllData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 border-t border-gray-50 flex items-center gap-2">
+                    <Database class="w-3 h-3" /> All ({{ inventoryItems.length }})
+                  </button>
+                </div>
+              </div>
+
+              <div class="relative group/print">
+                <button @click="togglePrintMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-200 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all shadow-sm">
+                  <Printer class="w-4 h-4" /> Print <ChevronDown class="w-3 h-3" />
+                </button>
+                <div v-if="showPrintMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 shadow-2xl rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  <button @click="printFilteredData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 flex items-center gap-2">
+                    <Filter class="w-3 h-3" /> Filtered ({{ filteredInventory.length }})
+                  </button>
+                  <button @click="printAllData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 border-t border-gray-50 flex items-center gap-2">
+                    <Database class="w-3 h-3" /> All ({{ inventoryItems.length }})
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-neutral-800 text-white text-[10px] uppercase tracking-[0.2em] isuzu-font">
+                  <th class="px-6 py-5 font-black">Control No.</th>
+                  <th class="px-6 py-5 font-black">Part Specification</th>
+                  <th class="px-6 py-5 font-black text-center">Stock</th>
+                  <th class="px-6 py-5 font-black">Price Info</th>
+                  <th class="px-6 py-5 font-black">Total Value</th>
+                  <th class="px-6 py-5 font-black text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <tr v-for="item in paginatedInventory" :key="item.id" class="hover:bg-red-50/50 transition-colors group">
+                  <td class="px-6 py-6">
+                    <div class="flex flex-col">
+                      <span class="text-xs font-mono font-black text-red-600">{{ item.controlNo }}</span>
+                      <span class="text-[9px] font-black bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded mt-1 w-fit uppercase">{{ item.category }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-6">
+                    <div class="flex flex-col">
+                      <span class="text-sm font-black text-neutral-800 uppercase tracking-tight">{{ item.partName }}</span>
+                      <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">PN: {{ item.partNo }} | MODEL: {{ item.model }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-6 text-center">
+                    <span :class="item.quantity < 5 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'" 
+                          class="px-3 py-1 rounded-full text-xs font-black">
+                      {{ item.quantity || 0 }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-6">
+                    <span class="text-sm font-bold text-neutral-700">₱{{ formatPrice(item.unitPrice) }}</span>
+                  </td>
+                  <td class="px-6 py-6">
+                    <span class="text-sm font-black text-green-600">₱{{ formatPrice(item.totalValue) }}</span>
+                  </td>
+                  <td class="px-6 py-6 text-center">
+                    <div class="flex items-center justify-center gap-2">
+                      <button @click="editItem(item)" class="bg-neutral-100 hover:bg-blue-600 hover:text-white text-neutral-500 p-2 rounded-lg transition-all">
+                        <Edit class="w-4 h-4" />
+                      </button>
+                      <button @click="deleteItem(item)" class="bg-neutral-100 hover:bg-red-600 hover:text-white text-neutral-500 p-2 rounded-lg transition-all">
+                        <Trash2 class="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr v-if="paginatedInventory.length === 0">
+                  <td colspan="6" class="px-6 py-24 text-center">
+                    <div class="flex flex-col items-center opacity-20">
+                      <PackageX class="w-20 h-20 mb-4" />
+                      <p class="text-xl font-black isuzu-font uppercase tracking-widest">No Items Found</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="px-8 py-5 bg-gray-50 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <select v-model="itemsPerPage" class="bg-white border border-gray-200 rounded-lg px-2 py-1 text-[10px] font-black uppercase outline-none">
+                <option v-for="option in itemsPerPageOptions" :key="option" :value="option">{{ option }} PER PAGE</option>
+              </select>
+              <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredInventory.length) }} of {{ filteredInventory.length }}
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button @click="currentPage--" :disabled="currentPage === 1" class="p-2 rounded-lg bg-white border border-gray-200 disabled:opacity-30 hover:text-red-600 transition-colors">
+                <ChevronLeft class="w-4 h-4" />
+              </button>
+              <div class="flex gap-1">
+                <button v-for="page in displayedPages" :key="page" @click="currentPage = page" 
+                  :class="currentPage === page ? 'bg-red-600 text-white shadow-lg' : 'bg-white text-neutral-600 hover:bg-gray-100'"
+                  class="w-8 h-8 rounded-lg text-xs font-bold transition-all">
+                  {{ page }}
+                </button>
+              </div>
+              <button @click="currentPage++" :disabled="currentPage === totalPages" class="p-2 rounded-lg bg-white border border-gray-200 disabled:opacity-30 hover:text-red-600 transition-colors">
+                <ChevronRight class="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </main>
 
-
-    <!-- Add/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-opacity-100 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-
-      <div :class="cardClass" :style="cardStyle" class="rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="p-6 border-b-2 border-red-600 flex justify-between items-center">
-          <h2 :class="textClass" class="text-xl font-bold flex items-center gap-2">
-            <Package class="w-6 h-6 text-red-600" />
-            {{ isEditing ? 'Edit Item' : 'Add NEW Item' }}
-          </h2>
-          <button @click="closeModal" class="text-gray-500 hover:text-gray-700 transition-colors">
-            <X class="w-6 h-6" />
-          </button>
-        </div>
-
-        <form @submit.prevent="saveItem" class="p-6 space-y-4">
-          <!-- Category -->
-          <div>
-            <label :class="textClass" class="block text-sm font-medium mb-1">Category *</label>
-            <div class="flex gap-2">
-              <select
-                v-model="form.category"
-                :class="inputClass"
-                class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
-                required
-              >
-                <option value="">Select or type new category</option>
-                <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
-              </select>
-              <input
-                v-model="newCategory"
-                type="text"
-                placeholder="New category"
-                :class="inputClass"
-                class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200 w-40"
-              />
-              <button
-                type="button"
-                @click="addNewCategory"
-                class="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-all duration-200"
-              >
-                <Plus class="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          <!-- Part Name & Part No -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label :class="textClass" class="block text-sm font-medium mb-1">Part Name *</label>
-              <input
-                v-model="form.partName"
-                @input="form.partName = form.partName.toUpperCase()"
-                type="text"
-                placeholder="ENTER PART NAME"
-                :class="inputClass"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
-                required
-              />
-            </div>
-            <div>
-              <label :class="textClass" class="block text-sm font-medium mb-1">Part Number *</label>
-              <input
-                v-model="form.partNo"
-                @input="form.partNo = form.partNo.toUpperCase()"
-                type="text"
-                placeholder="ENTER PART NUMBER"
-                :class="inputClass"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
-                required
-              />
-            </div>
-          </div>
-
-          <!-- Model, Quantity & Unit Price -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label :class="textClass" class="block text-sm font-medium mb-1">Model *</label>
-              <input
-                v-model="form.model"
-                @input="form.model = form.model.toUpperCase()"
-                type="text"
-                placeholder="ENTER MODEL"
-                :class="inputClass"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
-                required
-              />
-            </div>
-            <div>
-              <label :class="textClass" class="block text-sm font-medium mb-1">Quantity *</label>
-              <input
-                v-model="form.quantity"
-                type="number"
-                min="0"
-                placeholder="0"
-                :class="inputClass"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
-                required
-              />
-            </div>
-            <div>
-              <label :class="textClass" class="block text-sm font-medium mb-1">Unit Price (₱) *</label>
-              <input
-                v-model="form.unitPrice"
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                :class="inputClass"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200"
-                required
-              />
-            </div>
-          </div>
-
-          <!-- Total Value (Auto-calculated) -->
-          <div v-if="!isEditing">
-            <label :class="textClass" class="block text-sm font-medium mb-1">Total Value (Auto-calculated)</label>
-            <div class="px-4 py-2 border rounded-lg bg-green-50 font-mono text-sm text-green-700 font-medium" :class="textClass">
-              ₱{{ formatPrice(calculatedTotalValue) }}
-            </div>
-          </div>
-
-          <!-- Description -->
-          <div>
-            <label :class="textClass" class="block text-sm font-medium mb-1">Description</label>
-            <textarea
-              v-model="form.description"
-              rows="3"
-              placeholder="Enter Description (optional)"
-              :class="inputClass"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200 resize-none"
-            ></textarea>
-          </div>
-
-
-          <!-- Control Number Preview (Read-only) -->
-          <div v-if="!isEditing">
-            <label :class="textClass" class="block text-sm font-medium mb-1">Control Number (Auto-generated)</label>
-            <div class="px-4 py-2 border rounded-lg bg-gray-100 font-mono text-sm" :class="textClass">
-              {{ previewControlNo || 'Will be generated on save' }}
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex justify-end gap-3 pt-4 border-t" :class="borderClass">
-            <button
-              type="button"
-              @click="closeModal"
-              class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              :disabled="isSaving"
-              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ isSaving ? "Saving..." : "Save Item" }}
+    <Transition name="fade">
+      <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeModal"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
+          <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
+            <h2 class="text-white isuzu-font font-black uppercase tracking-widest flex items-center gap-3">
+              <Package class="w-5 h-5 text-red-600" />
+              {{ isEditing ? 'Edit Item' : 'New Part Registration' }}
+            </h2>
+            <button @click="closeModal" class="text-gray-400 hover:text-white transition-colors">
+              <X class="w-6 h-6" />
             </button>
           </div>
-        </form>
-      </div>
-    </div>
 
-    <!-- Import Modal -->
-    <div v-if="showImportModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div :class="cardClass" :style="cardStyle" class="rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="p-6 border-b-2 border-blue-600 flex justify-between items-center">
-          <h2 :class="textClass" class="text-xl font-bold flex items-center gap-2">
-            <FileSpreadsheet class="w-6 h-6 text-blue-600" />
-            Import Inventory from Excel
-          </h2>
-          <button @click="closeImportModal" class="text-gray-500 hover:text-gray-700 transition-colors">
-            <X class="w-6 h-6" />
-          </button>
-        </div>
-
-        <div class="p-6 space-y-4">
-          <!-- File Upload -->
-          <div v-if="importPreview.validItems.length === 0 && importPreview.invalidItems.length === 0">
-            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-              <input
-                type="file"
-                ref="fileInput"
-                @change="handleFileSelect"
-                accept=".xlsx,.xls"
-                class="hidden"
-              />
-              <FileSpreadsheet class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p :class="textClass" class="text-lg font-medium mb-2">Upload Excel File</p>
-              <p :class="subTextClass" class="text-sm mb-4">Supported formats: .xlsx, .xls</p>
-              <button
-                @click="$refs.fileInput.click()"
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Select File
-              </button>
-              <div class="mt-4 text-left" :class="subTextClass">
-                <p class="text-sm font-medium mb-2">Required columns:</p>
-                <ul class="text-xs space-y-1 list-disc list-inside">
-                  <li>Category (required)</li>
-                  <li>Part Name (required)</li>
-                  <li>Part No. (required)</li>
-                  <li>Model (required)</li>
-                  <li>Quantity (required, number)</li>
-                  <li>Unit Price (required, number)</li>
-                  <li>Description (optional)</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <!-- Preview Results -->
-          <div v-else>
-            <!-- Summary -->
-            <div class="flex gap-4 mb-4">
-              <div class="flex-1 bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg p-4">
-                <div class="flex items-center gap-2 text-green-700 dark:text-green-300">
-                  <CheckCircle class="w-5 h-5" />
-                  <span class="font-medium">{{ importPreview.validItems.length }} Valid Items</span>
+          <form @submit.prevent="saveItem" class="p-8 overflow-y-auto max-h-[calc(90vh-100px)] space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-2 md:col-span-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Category Select/Add</label>
+                <div class="flex gap-2">
+                  <select v-model="form.category" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500 uppercase">
+                    <option value="">Select Existing</option>
+                    <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat }}</option>
+                  </select>
+                  <input v-model="newCategory" type="text" placeholder="OR TYPE NEW..." class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500 uppercase" />
+                  <button type="button" @click="addNewCategory" class="bg-red-600 text-white p-3 rounded-xl hover:bg-neutral-800 transition-all">
+                    <Plus class="w-5 h-5" />
+                  </button>
                 </div>
               </div>
-              <div v-if="importPreview.invalidItems.length > 0" class="flex-1 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-4">
-                <div class="flex items-center gap-2 text-red-700 dark:text-red-300">
-                  <AlertTriangle class="w-5 h-5" />
-                  <span class="font-medium">{{ importPreview.invalidItems.length }} Invalid Items</span>
-                </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Part Name</label>
+                <input v-model="form.partName" type="text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500 uppercase" required />
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Part Number</label>
+                <input v-model="form.partNo" type="text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500 uppercase" required />
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Quantity</label>
+                <input v-model="form.quantity" type="number" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500" required />
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Unit Price (₱)</label>
+                <input v-model="form.unitPrice" type="number" step="0.01" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500" required />
               </div>
             </div>
 
-            <!-- Valid Items Table -->
-            <div v-if="importPreview.validItems.length > 0" class="mb-4">
-              <h3 :class="textClass" class="font-medium mb-2">Valid Items (Ready to Import)</h3>
-              <div class="overflow-x-auto max-h-60">
-                <table class="min-w-full divide-y border">
-                  <thead :class="tableHeaderClass">
-                    <tr>
-                      <th class="px-3 py-2 text-left text-xs font-medium">Category</th>
-                      <th class="px-3 py-2 text-left text-xs font-medium">Part Name</th>
-                      <th class="px-3 py-2 text-left text-xs font-medium">Part No.</th>
-                      <th class="px-3 py-2 text-left text-xs font-medium">Model</th>
-                      <th class="px-3 py-2 text-left text-xs font-medium">Qty</th>
-                      <th class="px-3 py-2 text-left text-xs font-medium">Unit Price</th>
-                      <th class="px-3 py-2 text-left text-xs font-medium">Total Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(item, index) in importPreview.validItems.slice(0, 10)" :key="index" :class="tableRowClass">
-                      <td :class="textClass" class="px-3 py-2 text-xs uppercase">{{ item.category }}</td>
-                      <td :class="textClass" class="px-3 py-2 text-xs uppercase">{{ item.partName }}</td>
-                      <td :class="textClass" class="px-3 py-2 text-xs uppercase">{{ item.partNo }}</td>
-                      <td :class="textClass" class="px-3 py-2 text-xs uppercase">{{ item.model }}</td>
-                      <td :class="textClass" class="px-3 py-2 text-xs">{{ item.quantity }}</td>
-                      <td :class="textClass" class="px-3 py-2 text-xs">₱{{ formatPrice(item.unitPrice) }}</td>
-                      <td :class="textClass" class="px-3 py-2 text-xs text-green-600">₱{{ formatPrice(item.totalValue) }}</td>
-                    </tr>
-                    <tr v-if="importPreview.validItems.length > 10">
-                      <td :class="subTextClass" class="px-3 py-2 text-xs text-center" colspan="7">
-                        ... and {{ importPreview.validItems.length - 10 }} more items
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div class="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
+               <div class="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
+                  <span class="text-gray-400">Total Valuation Preview:</span>
+                  <span class="text-green-600 text-lg">₱{{ formatPrice(calculatedTotalValue) }}</span>
+               </div>
             </div>
 
-            <!-- Invalid Items Table -->
-            <div v-if="importPreview.invalidItems.length > 0" class="mb-4">
-              <h3 :class="textClass" class="font-medium mb-2 text-red-600">Invalid Items (Will be Skipped)</h3>
-              <div class="overflow-x-auto max-h-40">
-                <table class="min-w-full divide-y border border-red-200">
-                  <thead class="bg-red-50 dark:bg-red-900">
-                    <tr>
-                      <th class="px-3 py-2 text-left text-xs font-medium text-red-700 dark:text-red-300">Row</th>
-                      <th class="px-3 py-2 text-left text-xs font-medium text-red-700 dark:text-red-300">Part Name</th>
-                      <th class="px-3 py-2 text-left text-xs font-medium text-red-700 dark:text-red-300">Errors</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(item, index) in importPreview.invalidItems" :key="index" class="bg-red-50/50 dark:bg-red-900/50">
-                      <td class="px-3 py-2 text-xs text-red-600">{{ item.rowNumber }}</td>
-                      <td :class="textClass" class="px-3 py-2 text-xs">{{ item.partName || 'N/A' }}</td>
-                      <td class="px-3 py-2 text-xs text-red-600">{{ item.errors.join(', ') }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex justify-end gap-3 pt-4 border-t" :class="borderClass">
-              <button
-                @click="resetImport"
-                class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Select Different File
-              </button>
-              <button
-                v-if="importPreview.validItems.length > 0"
-                @click="confirmImport"
-                :disabled="isImporting"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-              >
-                {{ isImporting ? 'Importing...' : `Import ${importPreview.validItems.length} Items` }}
+            <div class="flex justify-end gap-3 pt-4">
+              <button type="button" @click="closeModal" class="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-gray-100 transition-all">Cancel</button>
+              <button type="submit" :disabled="isSaving" class="bg-red-600 text-white px-10 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl shadow-red-100 disabled:opacity-50">
+                {{ isSaving ? 'Syncing...' : 'Confirm Registration' }}
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
+    </Transition>
+
+    <Transition name="fade">
+       <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeImportModal"></div>
+          <div class="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 animate-in zoom-in-95 duration-300">
+             <div class="flex items-center gap-4 mb-8">
+                <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg"><FileSpreadsheet class="w-8 h-8" /></div>
+                <div>
+                   <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter">Batch <span class="text-blue-600">Import</span></h3>
+                   <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Excel Data Integration</p>
+                </div>
+             </div>
+
+             <div v-if="importPreview.validItems.length === 0" class="border-4 border-dashed border-gray-100 rounded-3xl p-12 text-center hover:border-blue-100 transition-all group">
+                <input type="file" ref="fileInput" @change="handleFileSelect" accept=".xlsx,.xls" class="hidden" />
+                <Upload class="w-16 h-16 text-gray-200 mx-auto mb-4 group-hover:text-blue-400 transition-colors" />
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Drop Excel File Here or Click to Browse</p>
+                <button @click="$refs.fileInput.click()" class="bg-blue-600 text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-blue-100">Select Spreadsheet</button>
+             </div>
+
+             <div v-else class="space-y-6">
+                <div class="flex justify-between items-center bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                   <div class="text-xs font-black uppercase tracking-widest">
+                      <span class="text-green-600">{{ importPreview.validItems.length }} VALID ENTRIES</span> / 
+                      <span class="text-red-600">{{ importPreview.invalidItems.length }} ERRORS</span>
+                   </div>
+                   <div class="flex gap-2">
+                      <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400">Cancel</button>
+                      <button @click="confirmImport" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100">Process Import</button>
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+    </Transition>
+
+    <div class="absolute bottom-0 left-0 w-full z-0 opacity-10 pointer-events-none transform rotate-180">
+      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+        <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
+      </svg>
     </div>
   </div>
 </template>
@@ -1890,5 +1526,8 @@ onUnmounted(() => {
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background-color: rgba(156, 163, 175, 0.7);
+}
+.isuzu-font {
+  font-family: 'IsuzuFont', sans-serif;
 }
 </style>

@@ -1,84 +1,81 @@
 <template>
   <div class="admin-parent">
-    <!-- Loading State -->
+    
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-spinner">
         <div class="spinner"></div>
-        <p>Loading...</p>
+        <p class="mt-4 font-bold text-neutral-600 tracking-widest uppercase text-xs">Initializing System...</p>
       </div>
     </div>
-    
-    <!-- Authenticated Content -->
+
     <template v-else-if="isAuthenticated">
-      <Topbar class="sticky-topbar" />
-      <div class="admin-content">
-        <router-view />
-      </div>
+      <Sidebar />
     </template>
+
+    <div v-else class="flex items-center justify-center h-screen bg-neutral-100">
+       <p>Redirecting to login...</p>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, onUnmounted, watchEffect } from 'vue'
 import { useAuthStore } from '../../stores/auth'
-import Topbar from '@/components/Topbar.vue'
+import { useRouter } from 'vue-router'
+import Sidebar from '@/components/Sidebar.vue'
 
-const router = useRouter()
 const authStore = useAuthStore()
+const router = useRouter()
 
 const isLoading = computed(() => authStore.isLoading)
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
-onMounted(() => {
-  // Start activity monitoring for session timeout
+// Monitor activity to prevent session timeout
+const updateActivity = () => {
   if (isAuthenticated.value) {
-    window.addEventListener('click', updateActivity)
-    window.addEventListener('keydown', updateActivity)
-    window.addEventListener('scroll', updateActivity)
+    authStore.updateLastActivity()
+  }
+}
+
+// Redirect if not authenticated (Security Layer)
+watchEffect(() => {
+  if (!isLoading.value && !isAuthenticated.value) {
+    router.push('/login')
   }
 })
 
-const updateActivity = () => {
-  authStore.updateLastActivity()
-}
+onMounted(() => {
+  // Listeners para sa auto-logout or activity tracking
+  window.addEventListener('click', updateActivity)
+  window.addEventListener('keydown', updateActivity)
+  window.addEventListener('scroll', updateActivity)
+  window.addEventListener('mousemove', updateActivity)
+})
 
-// Cleanup
-window.removeEventListener('click', updateActivity)
-window.removeEventListener('keydown', updateActivity)
-window.removeEventListener('scroll', updateActivity)
+onUnmounted(() => {
+  window.removeEventListener('click', updateActivity)
+  window.removeEventListener('keydown', updateActivity)
+  window.removeEventListener('scroll', updateActivity)
+  window.removeEventListener('mousemove', updateActivity)
+})
 </script>
 
 <style scoped>
 .admin-parent {
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.sticky-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.admin-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
+  width: 100%;
+  overflow: hidden;
 }
 
 .loading-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
+  inset: 0;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 9999;
 }
 
 .loading-spinner {
@@ -86,13 +83,13 @@ window.removeEventListener('scroll', updateActivity)
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #ef4444; /* Isuzu Red */
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto;
 }
 
 @keyframes spin {
