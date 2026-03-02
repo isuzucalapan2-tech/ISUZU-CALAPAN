@@ -3,7 +3,7 @@
     <Loaders />
   </div>
 
-  <div v-else class="min-h-screen flex flex-col bg-gray-50 font-sans relative overflow-hidden">
+  <div v-else class="min-h-screen flex flex-col bg-neutral-50 font-sans relative overflow-hidden">
     
     <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
@@ -11,7 +11,7 @@
       </svg>
     </div>
 
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white border-b border-neutral-400">
+    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white/10 backdrop-blur-none">
       <div class="flex items-center gap-4">
         <div class="bg-red-600 p-2 rounded-lg text-white">
           <Users class="w-6 h-6" />
@@ -32,9 +32,9 @@
     </header>
 
     <main class="flex-1 relative z-10 overflow-auto p-8">
-      <div class="max-w-7xl mx-auto space-y-6">
+      <div class="max-w-7xl mx-auto space-y-3">
         
-        <div class="bg-white/40 backdrop-blur-none rounded-3xl p-6 border border-neutral-300 flex flex-wrap items-center gap-4">
+        <div class="bg-white/40 backdrop-blur-none rounded-2xl p-6 border border-neutral-300 flex flex-wrap items-center gap-4">
           <div class="relative flex-1 min-w-[300px]">
             <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -67,7 +67,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden relative">
+        <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden relative">
           <div class="h-1.5 w-full bg-neutral-800 flex">
             <div class="h-full w-24 bg-red-600"></div>
           </div>

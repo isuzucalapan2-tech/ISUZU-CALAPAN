@@ -1,312 +1,180 @@
 <template>
-  <div class="font-sans text-neutral-800">
+  <div class="font-sans text-neutral-800 overflow-x-hidden">
 
-    <!-- ================= HEADER / NAVBAR ================= -->
-    <header class="fixed top-0 left-0 w-full bg-white z-50">
-      <div class="max-w-7xl mx-auto flex justify-between py-1 pr-5 md:pr-1 pl-0">
+    <header class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-gray-100">
+      <div class="max-w-7xl mx-auto flex justify-between items-center py-2 px-4 md:px-6">
         
-        <!-- Logo + Brand (Sagad Left) -->
-        <div class="flex items-center space-x-4">
-          
-          <!-- Logo Image -->
+        <div class="flex items-center space-x-3">
           <img 
             src="/mdoLogo.png" 
             alt="Mina De Oro Motors Logo" 
-            class="w-12 h-12 object-contain"
+            class="w-10 h-10 md:w-12 md:h-12 object-contain"
           />
 
-          <!-- Brand Text -->
           <div class="leading-tight">
-            <h1 class="text-[10px] md:text-sm font-bold uppercase tracking-wide">
+            <h1 class="text-xs md:text-sm font-bold uppercase tracking-tight">
               <span class="text-blue-800">Mina</span>
               <span class="text-yellow-500"> De </span>
               <span class="text-red-600">Oro</span>
             </h1>
-
-            <!-- Divider -->
-            <div class="w-25 h-0.5 bg-neutral-700 my-1"></div>
-
-            <p class="text-[6px] md:text-xs text-center font-semibold text-neutral-900 tracking-widest">
+            <div class="w-full h-[1px] bg-neutral-300 my-0.5 md:my-1"></div>
+            <p class="text-[8px] md:text-[10px] text-center font-bold text-neutral-900 uppercase tracking-[0.2em]">
               Motors
             </p>
           </div>
-
         </div>
 
-        <!-- Navigation -->
-        <nav class="flex space-x-7 pr-0 relative top-3 isuzu-font">
-          <router-link
-            to="/register"
-            class="text-neutral-800 hover:text-red-600 transition"
-          >
-            Sign Up
-          </router-link>
-          <router-link
-            to="/login"
-            class="text-neutral-800 hover:text-red-600 transition"
-          >
-            Login
-          </router-link>
+        <nav class="flex space-x-4 md:space-x-8 isuzu-font text-[10px] md:text-xs uppercase font-black tracking-widest">
+          <router-link to="/register" class="text-neutral-800 hover:text-red-600 transition">Sign Up</router-link>
+          <router-link to="/login" class="text-neutral-800 hover:text-red-600 transition">Login</router-link>
         </nav>
-
       </div>
     </header>
 
-    <!-- Add padding-top so content isn't hidden under fixed header -->
-    <div class="pt-10">
+    <div class="pt-14 md:pt-16">
 
-      <!-- ================= HERO ================= -->
       <section
-        class="relative min-h-screen bg-cover bg-center overflow-hidden"
+        class="relative min-h-screen flex flex-col justify-center bg-cover bg-center overflow-hidden px-6 md:px-12 py-20"
         style="background-image: url('/LDbg.webp');"
       >
-        <!-- Dark Gradient Overlay -->
-        <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/50"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/40"></div>
         
-        <!-- Top SVG -->
-        <div class="absolute top-0 left-0 w-full z-0 opacity-50">
+        <div class="absolute top-0 left-0 w-full z-0 opacity-30 hidden md:block">
           <svg viewBox="0 0 500 50" xmlns="http://www.w3.org/2000/svg" class="w-full">
-            <path 
-              d="M0 15 H280 L330 45 H500" 
-              class="stroke-red-600 stroke-[1]" 
-              fill="none"
-            />
-          </svg>
-        </div>
-        
-
-        <!-- LEFT SIDE TEXT -->
-        <div class="relative z-10 max-w-2xl text-white px-6 md:px-12 pt-32 md:pt-40">
-          <div class="mb-6">
-            <h1 class="uppercase leading-none isuzu-font">
-              <span class="block text-6xl md:text-6xl tracking-tight">
-                I S U Z U
-              </span>
-              <span class="block text-xl md:text-[ypx] tracking-[0.4em] text-gray-300 mt-2">
-                CALAPAN CITY
-              </span>
-            </h1>
-          </div>
-
-          <div class="w-60 h-0.5 bg-red-600/60 mb-6"></div>
-
-          <p class="text-lg md:text-xl text-gray-300 font-semibold max-w-md">
-            Power You Can Trust. Performance You Deserve.
-          </p>
-        </div>
-
-        <!-- RIGHT SIDE BUTTONS (ABSOLUTE POSITION) -->
-        <div class="absolute top-1/4 right-12 flex flex-col items-end space-y-6 z-10">
-          <button @click="scrollToSection('promos')" class="group flex flex-col items-end">
-            <span class="text-white uppercase tracking-[0.2em] text-sm md:text-base font-medium group-hover:text-red-500 transition-colors duration-300 isuzu-font">
-              Promos
-            </span>
-          </button>
-
-          <div class="w-16 h-[1px] bg-gray-500 opacity-50"></div>
-
-          <button @click="scrollToSection('mission-vision')" class="group flex flex-col items-end">
-            <span class="text-white uppercase tracking-[0.2em] text-sm md:text-base font-medium group-hover:text-red-500 transition-colors duration-300 isuzu-font">
-              Mission & Vision
-            </span>
-          </button>
-
-          <div class="w-24 h-[1px] bg-gray-500 opacity-50"></div>
-
-          <button @click="scrollToSection('about-us')" class="group flex flex-col items-end">
-            <span class="text-white uppercase tracking-[0.2em] text-sm md:text-base font-medium group-hover:text-red-500 transition-colors duration-300 isuzu-font">
-              About Us
-            </span>
-          </button>
-        </div>
-
-        <!-- ================== BOTTOM TRANSPARENT CARDS ================== -->
-        <div class="absolute bottom-30 left-1/2 transform -translate-x-1/2 w-full px-6 md:px-12 z-10">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-
-            <div class="bg-black/40 backdrop-blur-none p-6 rounded-2xl text-white transition">
-              <h3 class="text-xl font-bold mb-2">Eco-Friendly Vehicles</h3>
-
-              <div class="w-73 h-0.5 bg-neutral-600 mb-6"></div>
-              
-              <p class="text-sm opacity-80">
-                Our fleet is designed to maximize fuel efficiency and reduce carbon footprint.
-              </p>
-            </div>
-
-            <div class="bg-black/40 backdrop-blur-none p-6 rounded-2xl text-white transition">
-              <h3 class="text-xl font-bold mb-2">Community Events</h3>
-
-              <div class="w-73 h-0.5 bg-neutral-600 mb-6"></div>
-
-              <p class="text-sm opacity-80">
-                Join our monthly car meetups and workshops in Calapan City and nearby areas.
-              </p>
-            </div>
-
-            <div class="bg-black/40 backdrop-blur-none p-6 rounded-2xl text-white transition">
-              <h3 class="text-xl font-bold mb-2">24/7 Customer Support</h3>
-
-              <div class="w-73 h-0.5 bg-neutral-600 mb-6"></div>
-
-              <p class="text-sm opacity-80">
-                Our team is always ready to assist you with inquiries and emergency services.
-              </p>
-            </div>
-
-            <div class="bg-black/40 backdrop-blur-none p-6 rounded-2xl text-white transition">
-              <h3 class="text-xl font-bold mb-2">Certified Mechanics</h3>
-
-              <div class="w-73 h-0.5 bg-neutral-600 mb-6"></div>
-
-              <p class="text-sm opacity-80">
-                Skilled professionals ensuring your vehicle receives top-notch maintenance.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= PROMOS ================= -->
-      <section id="promos" class="relative py-16 px-6 md:px-16 bg-white text-black relative min-h-screen bg-cover bg-center overflow-hidden;">
-
-        <!-- Top SVG -->
-        <div class="absolute top-0 left-0 w-full z-0 opacity-50">
-          <svg viewBox="0 0 500 60" xmlns="http://www.w3.org/2000/svg" class="w-full">
-            <path 
-              d="M0 15 H280 L330 45 H500" 
-              class="stroke-red-600 stroke-[1]" 
-              fill="none"
-            />
+            <path d="M0 15 H280 L330 45 H500" class="stroke-red-600 stroke-[1]" fill="none"/>
           </svg>
         </div>
 
-        <!-- Section Title -->
-        <h2 class="text-3xl md:text-4xl text-black text-left mb-12 uppercase tracking-widest isuzu-font">
-          Car Promos
-        </h2>
-
-        <!-- Car Promos Grid -->
-        <div class="mb-16 grid md:grid-cols-3 gap-8">
-          <div v-for="car in carPromos" :key="car.name"
-            class="bg-neutral-300 rounded-3xl overflow-hidden transition p-6 text-center">
-
-            <div class="h-56 flex items-center justify-center bg-neutral-500 rounded-2xl mb-4">
-              <span class="text-neutral-700">Not Available</span>
+        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+          <div class="text-white space-y-6">
+            <div class="space-y-2">
+              <h1 class="uppercase leading-none isuzu-font">
+                <span class="block text-5xl md:text-7xl lg:text-8xl tracking-tighter">ISUZU</span>
+                <span class="block text-base md:text-2xl tracking-[0.3em] text-gray-300">CALAPAN CITY</span>
+              </h1>
+              <div class="w-20 md:w-32 h-1 bg-red-600"></div>
             </div>
+            <p class="text-lg md:text-xl text-gray-300 font-medium max-w-sm leading-relaxed">
+              Power You Can Trust. Performance You Deserve.
+            </p>
+          </div>
 
-            <h3 class="text-xl isuzu-font mb-2">{{ car.name }}</h3>
-            <p class="text-sm text-neutral-800 mb-4">
-              {{ car.description }}
-            </p>
-            <p class="text-red-500 font-bold text-lg">
-              {{ car.promo }}
-            </p>
+          <div class="flex flex-col lg:items-end space-y-4 md:space-y-6">
+            <button v-for="link in navLinks" :key="link.id" 
+              @click="scrollToSection(link.id)" 
+              class="group flex items-center lg:flex-row-reverse gap-4"
+            >
+              <div class="w-12 h-[1px] bg-red-600 group-hover:w-20 transition-all duration-300"></div>
+              <span class="text-white uppercase tracking-[0.2em] text-xs md:text-sm font-bold group-hover:text-red-500 transition-colors isuzu-font">
+                {{ link.label }}
+              </span>
+            </button>
           </div>
         </div>
 
-        <div class="w-350 h-0.5 bg-red-600 mb-6"></div>
-
-        <h2 class="text-3xl md:text-4xl text-right mb-12 uppercase tracking-widest isuzu-font">
-          Parts Promos
-        </h2>
-
-        <!-- Parts Promos Grid -->
-        <div class="grid md:grid-cols-3 gap-8">
-          <div v-for="part in partsPromos" :key="part.name"
-            class="bg-neutral-300 rounded-3xl p-6 transition text-center">
-
-            <div class="h-40 flex items-center justify-center bg-neutral-500 rounded-2xl mb-4">
-              <span class="opacity-50">Not Available</span>
-            </div>
-
-            <h3 class="tfont-bold text-lg isuzu-font mb-2">
-              {{ part.name }}
-            </h3>
-            <p class="text-sm opacity-80 mb-4">
-              {{ part.description }}
-            </p>
-            <p class="fext-xl font-bold mb-3 text-red-500 ">
-              {{ part.promo }}
-            </p>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- ================= MISSION & VISION ================= -->
-      <section id="mission-vision" class="py-10 px-6 md:px-16 bg-white">
-
-        <div class="w-350 h-0.5 bg-red-600 mb-6"></div>
-
-        <h2 class="text-3xl md:text-4xl text-left mb-12 text-black uppercase tracking-widest  isuzu-font">
-          Mission & Vision
-        </h2>
-
-        <div class="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
-
-          <div class="bg-neutral-300 text-neutral-700 p-8 rounded-3xl">
-            <h3 class="text-2xl mb-4 text-red-500 isuzu-font">Mission</h3>
-            <p class="leading-relaxed opacity-90">
-              Improve transportation of commodities in/out of mindoro province. Provide excellent sales, aftersales, genuine parts and accesories
-            </p>
-          </div>
-
-          <div class="bg-neutral-300 text-neutral-700 p-8 rounded-3xl">
-            <h3 class="text-2xl mb-4 text-red-500 isuzu-font">Vision</h3>
-            <p class="leading-relaxed opacity-90">
-              Mina De Oro professes to bring Mindoro in becoming an 'ISUZU COUNTRY' and to contribute to the economic progress of the province.
-            </p>
-          </div>
-
-          <div class="bg-neutral-300 text-neutral-700 p-8 rounded-3xl">
-            <h3 class="text-2xl mb-6 text-red-500 isuzu-font">Core Values</h3>
-
-            <div class="text-[13px] grid grid-cols-2 gap-x-10 gap-y-3 leading-relaxed">
-              <span>• INNOVATION</span>
-              <span>• PASSSION</span>
-              <span>• INTEGRITY</span>
-              <span>• TRUST</span>
-              <span>• TEAMWORK</span>
-              <span>• LOYALTY</span>
-              <span>• LEADERSHIP</span>
-              <span>• COMMITMENT</span>
+        <div class="mt-20 md:mt-auto max-w-7xl mx-auto w-full relative z-10 pb-10">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div v-for="card in heroCards" :key="card.title" class="bg-black/40 backdrop-blur-md p-5 rounded-xl border border-white/10 text-white hover:bg-black/60 transition-all">
+              <h3 class="text-sm font-bold mb-3 uppercase tracking-wider text-red-500">{{ card.title }}</h3>
+              <div class="w-10 h-[2px] bg-neutral-600 mb-4"></div>
+              <p class="text-xs opacity-70 leading-relaxed">{{ card.desc }}</p>
             </div>
           </div>
-
         </div>
       </section>
 
-      <!-- ================= ABOUT US ================= -->
-      <section id="about-us" class="py-10 px-6 md:px-16 bg-neutral-700 text-white">
-        <h2 class="text-3xl md:text-4xl text-center mb-12 uppercase tracking-widest isuzu-font">
-          About Us
-        </h2>
+      <section id="promos" class="relative py-16 px-6 md:px-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+          <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+            <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Car Promos</h2>
+            <div class="h-[2px] flex-1 bg-red-600 hidden md:block ml-8"></div>
+          </div>
 
-        <div class="max-w-4xl mx-auto space-y-8 text-center">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+            <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all p-5 border border-gray-100">
+              <div class="aspect-video flex items-center justify-center bg-gray-200 rounded-xl mb-5">
+                <span class="text-gray-400 font-bold text-xs uppercase tracking-widest">Image Coming Soon</span>
+              </div>
+              <h3 class="text-lg isuzu-font mb-2">{{ car.name }}</h3>
+              <p class="text-xs text-neutral-500 mb-4">{{ car.description }}</p>
+              <p class="text-red-600 font-black text-lg">{{ car.promo }}</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-10 gap-4">
+            <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Parts Promos</h2>
+            <div class="h-[2px] flex-1 bg-red-600 hidden md:block mr-8"></div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-800 text-white rounded-2xl p-6 hover:bg-neutral-900 transition-all">
+              <div class="h-32 flex items-center justify-center bg-white/5 rounded-xl mb-5">
+                <span class="opacity-30 text-[10px] uppercase font-bold tracking-widest">Preview N/A</span>
+              </div>
+              <h3 class="font-bold text-base isuzu-font mb-2 text-red-500">{{ part.name }}</h3>
+              <p class="text-xs opacity-60 mb-4">{{ part.description }}</p>
+              <p class="text-lg font-black text-white">{{ part.promo }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="mission-vision" class="py-20 px-6 md:px-16 bg-white">
+        <div class="max-w-7xl mx-auto">
+          <div class="w-20 h-1 bg-red-600 mb-6"></div>
+          <h2 class="text-2xl md:text-4xl text-left mb-12 text-black uppercase tracking-widest isuzu-font">Mission & Vision</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-gray-100 p-8 rounded-2xl hover:border-red-500 border-2 border-transparent transition-all">
+              <h3 class="text-xl mb-4 text-red-600 font-black uppercase isuzu-font">Mission</h3>
+              <p class="text-sm leading-relaxed text-gray-600">
+                Improve transportation of commodities in/out of mindoro province. Provide excellent sales, aftersales, genuine parts and accessories.
+              </p>
+            </div>
+
+            <div class="bg-gray-100 p-8 rounded-2xl hover:border-red-500 border-2 border-transparent transition-all">
+              <h3 class="text-xl mb-4 text-red-600 font-black uppercase isuzu-font">Vision</h3>
+              <p class="text-sm leading-relaxed text-gray-600">
+                Mina De Oro professes to bring Mindoro in becoming an 'ISUZU COUNTRY' and to contribute to the economic progress of the province.
+              </p>
+            </div>
+
+            <div class="bg-neutral-900 text-white p-8 rounded-2xl">
+              <h3 class="text-xl mb-6 text-red-500 font-black uppercase isuzu-font">Core Values</h3>
+              <div class="text-[10px] md:text-xs grid grid-cols-2 gap-3 font-bold tracking-wider">
+                <span v-for="val in coreValues" :key="val" class="flex items-center gap-2">
+                  <span class="w-1 h-1 bg-red-500"></span> {{ val }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about-us" class="py-20 px-6 md:px-16 bg-neutral-800 text-white">
+        <div class="max-w-4xl mx-auto text-center space-y-10">
+          <h2 class="text-2xl md:text-4xl uppercase tracking-widest isuzu-font">About Us</h2>
           
-          <p class="text-base md:text-lg leading-relaxed opacity-90">
-            Mina De Oro Motors has been serving Calapan City and the surrounding areas 
-            with quality vehicles and exceptional customer service for many years. 
-            Our mission is to provide reliable transportation solutions while ensuring 
-            every customer receives personalized care and attention.
-          </p>
-
-          <p class="text-base md:text-lg leading-relaxed opacity-90">
-            Our Inventory Management System ensures that our vehicle parts and accessories 
-            are always organized and available, making it easier for our customers to 
-            get what they need quickly and efficiently. We take pride in our commitment 
-            to excellence and continuous improvement.
-          </p>
-
-          <p class="text-base md:text-lg leading-relaxed opacity-90">
-            At Mina De Oro Motors, we believe in trust, transparency, and performance. 
-            Every vehicle, every service, and every part is handled with care to deliver 
-            the quality experience our customers deserve.
-          </p>
-
+          <div class="space-y-6 text-sm md:text-base text-gray-300 leading-loose">
+            <p>
+              Mina De Oro Motors has been serving Calapan City and the surrounding areas 
+              with quality vehicles and exceptional customer service for many years. 
+            </p>
+            <p>
+              Our Inventory Management System ensures that our vehicle parts and accessories 
+              are lways organized and available, making it easier for our customers to 
+              get what they need quickly and efficiently.
+            </p>
+            <div class="pt-6">
+              <p class="isuzu-font text-red-500 tracking-widest text-lg md:text-xl">Power You Can Trust.</p>
+            </div>
+          </div>
         </div>
       </section>
+
+      <footer class="bg-neutral-900 py-6 text-center border-t border-white/5">
+        <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">© 2026 Mina De Oro Motors. All Rights Reserved.</p>
+      </footer>
 
     </div>
   </div>
@@ -315,33 +183,49 @@
 <script setup>
 import { ref } from "vue";
 
+const navLinks = [
+  { id: 'promos', label: 'Promos' },
+  { id: 'mission-vision', label: 'Mission & Vision' },
+  { id: 'about-us', label: 'About Us' }
+];
+
+const heroCards = [
+  { title: "Eco-Friendly", desc: "Fleet designed to maximize fuel efficiency and reduce carbon footprint." },
+  { title: "Community", desc: "Join monthly car meetups and workshops in Calapan City." },
+  { title: "24/7 Support", desc: "Ready to assist you with inquiries and emergency services." },
+  { title: "Mechanics", desc: "Skilled professionals ensuring top-notch maintenance." }
+];
+
 const carPromos = [
-  { name: "Soon", description: "Soon", promo: "Soon" },
-  { name: "Soon", description: "Soon", promo: "Soon" },
-  { name: "Soon", description: "Soon", promo: "Soon" },
+  { name: "D-MAX Special", description: "Extreme durability meets comfort.", promo: "Low Downpayment" },
+  { name: "mu-X Series", description: "Premium 7-seater family SUV.", promo: "Free 1yr Insurance" },
+  { name: "Traviz", description: "The ultimate business partner.", promo: "Cash Discount" },
 ];
 
 const partsPromos = [
-  { name: "Soon", description: "Soon", promo: "Soon" },
-  { name: "Soon", description: "Soon", promo: "Soon" },
-  { name: "Soon", description: "Soon", promo: "Soon" }
+  { name: "Engine Oil", description: "Genuine Isuzu engine protection.", promo: "20% OFF" },
+  { name: "Brake Pads", description: "Reliable stopping power.", promo: "Buy 1 Get 1 50%" },
+  { name: "Filters", description: "Maintain air purity inside.", promo: "Bundle Deal" }
 ];
 
-function scrollToAbout() {
-    const aboutSection = document.querySelector('#about-us');
-    if (aboutSection) {
-      aboutSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
+const coreValues = [
+  'INNOVATION', 'PASSION', 'INTEGRITY', 'TRUST', 
+  'TEAMWORK', 'LOYALTY', 'LEADERSHIP', 'COMMITMENT'
+];
 
-  function scrollToSection(sectionId) {
+function scrollToSection(sectionId) {
   const section = document.getElementById(sectionId)
-
   if (section) {
-    section.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    })
+    const offset = 80; // Offset for fixed header
+    const bodyRect = document.body.getBoundingClientRect().top;
+    const elementRect = section.getBoundingClientRect().top;
+    const elementPosition = elementRect - bodyRect;
+    const offsetPosition = elementPosition - offset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
   }
 }
 </script>
@@ -349,5 +233,12 @@ function scrollToAbout() {
 <style scoped>
 .isuzu-font {
   font-family: 'IsuzuFont', sans-serif;
+}
+
+/* Ensure font fallback if IsuzuFont fails */
+@font-face {
+  font-family: 'IsuzuFont';
+  src: local('Impact'), local('Arial Black');
+  font-display: swap;
 }
 </style>

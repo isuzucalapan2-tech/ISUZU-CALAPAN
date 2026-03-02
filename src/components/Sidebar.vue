@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-screen bg-neutral-100 font-sans overflow-hidden">
     
-    <aside class="hidden md:flex md:flex-col w-64 bg-neutral-900/95 backdrop-blur-md text-white border-r border-neutral-800 shadow-2xl flex-shrink-0">
+    <aside class="hidden md:flex md:flex-col w-64 bg-neutral-900 backdrop-blur-md text-white border-r border-neutral-900/90 shadow-2xl flex-shrink-0">
       
       <div class="h-16 flex items-center px-8 border-b border-neutral-800/30">
         <span class="text-xl font-black text-red-600 tracking-[0.2em] uppercase isuzu-font">
@@ -35,7 +35,7 @@
 
         <router-link v-if="accessiblePages.inventory" to="/admin/inventory" class="nav-link group" active-class="nav-link-active">
           <Package class="nav-icon" /> 
-          <span class="nav-text">Inventory Control</span>
+          <span class="nav-text">Inventory</span>
         </router-link>
 
         <router-link v-if="accessiblePages['transaction-in']" to="/admin/transaction-in" class="nav-link group" active-class="nav-link-active">

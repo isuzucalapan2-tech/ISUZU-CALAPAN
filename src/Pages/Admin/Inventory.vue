@@ -14,7 +14,7 @@
       </svg>
     </div>
 
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white border-b border-neutral-400">
+    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white/10 backdrop-blur-none">
       <div class="flex items-center gap-4">
         <div class="bg-red-600 p-2 rounded-lg shadow-lg">
           <Boxes class="w-6 h-6 text-white" />
@@ -37,14 +37,14 @@
     </header>
 
     <main class="flex-1 relative z-10 overflow-auto">
-      <div class="max-w-[1600px] mx-auto p-6 space-y-6">
+      <div class="max-w-[1600px] mx-auto p-6 space-y-0">
         
-        <div class="bg-white rounded-3xl p-6 border border-gray-100 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div class="bg-white/10 backdrop-blur-none rounded-3xl p-6 border border-neutral-100 animate-in fade-in slide-in-from-top-4 duration-500">
           <div class="flex flex-col xl:flex-row gap-6">
             
             <div class="flex-1 space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                <div class="lg:col-span-2 relative">
+                <div class="lg:col-span-2 relative border border-neutral-300 rounded-xl">
                   <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     v-model="searchQuery"
@@ -54,7 +54,7 @@
                   />
                 </div>
                 
-                <select v-model="selectedCategory" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-red-500">
+                <select v-model="selectedCategory" class="bg-gray-50 border border-neutral-200 rounded-xl px-4 py-3 text-[10px] text-neutral-500 uppercase tracking-widest outline-none focus:ring-2 focus:ring-red-500">
                   <option value="">ALL CATEGORIES</option>
                   <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
                 </select>
@@ -82,7 +82,7 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 xl:flex xl:flex-col gap-2 min-w-[200px]">
-              <button @click="openAddModal" class="group flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg hover:shadow-red-200">
+              <button @click="openAddModal" class="group flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-neutral-800 transition-all hover:shadow-red-200">
                 <Plus class="w-4 h-4" /> Add Item
               </button>
               
@@ -121,7 +121,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
@@ -325,7 +325,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { ref, onMounted, computed, watch, nextTick, onUnmounted } from "vue";
@@ -1485,7 +1484,6 @@ const confirmImport = async () => {
   }
 };
 
-
 /* =====================
    LIFECYCLE
 ===================== */
@@ -1503,10 +1501,6 @@ onUnmounted(() => {
   document.removeEventListener('click', closeExportMenu);
   document.removeEventListener('click', closePrintMenu);
 });
-
-
-
-
 </script>
 
 <style scoped>

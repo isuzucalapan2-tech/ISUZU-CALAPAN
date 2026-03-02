@@ -11,7 +11,7 @@
       </svg>
     </div>
 
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white border-b border-neutral-400">
+    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white/10 backdrop-blur-none">
       <div class="flex items-center gap-4">
         <div class="bg-red-600 p-2 rounded-lg">
           <SettingsIcon class="w-6 h-6 text-white" />
@@ -197,101 +197,119 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useAuth } from "../../composables/useAuth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../../Firebase/Firebase";
 import Loaders from "../../components/Loaders.vue";
+
 import {
-  SettingsIcon, LogOutIcon, UserIcon, LayoutIcon, UserCogIcon, 
-  SaveIcon, TagIcon, TargetIcon, InfoIcon, Loader2Icon, 
-  CheckCircleIcon, PlusIcon, Trash2Icon, ImageIcon
+  SettingsIcon, LogOutIcon, UserIcon,
+  UserCogIcon, SaveIcon,
+  Loader2Icon, CheckCircleIcon, XCircleIcon
 } from "lucide-vue-next";
+
 
 /* ===== AUTH ===== */
 const { user, userRole, logout } = useAuth();
 
-/* ===== UI STATE ===== */
+/* ===== STATE ===== */
 const activeTab = ref("general");
 const isLoading = ref(true);
 const isLoggingOut = ref(false);
 const isSaving = ref(false);
 const saveSuccess = ref(false);
+const saveError = ref(null);
 
-/* ===== SETTINGS STATE ===== */
-const settings = ref({
-  general: { companyName: "", companyEmail: "", theme: "light" },
-  landing: {
-    carPromos: [],
-    partsPromos: [],
-    mission: "",
-    vision: "",
-    coreValues: [],
-    aboutText: "",
-    aboutImage: null
-  }
-});
+/* ===== SETTINGS ===== */
+const defaultSettings = {
+  general: { companyName: "", companyEmail: "", phone: "", language: "en", theme: "light" },
+};
 
-/* ===== THEME LOGIC ===== */
+const settings = ref(JSON.parse(JSON.stringify(defaultSettings)));
+
+
+/* ===== THEME ===== */
+const themeClass = computed(() =>
+  settings.value.general.theme === "dark"
+    ? "text-white"
+    : "bg-gray-100 text-gray-900"
+);
+
+const themeStyle = computed(() =>
+  settings.value.general.theme === "dark"
+    ? { backgroundColor: "#232323" }
+    : {}
+);
+
+const cardClass = computed(() =>
+  settings.value.general.theme === "dark"
+    ? "p-6 rounded shadow"
+    : "bg-white p-6 rounded shadow"
+);
+
+const cardStyle = computed(() =>
+  settings.value.general.theme === "dark"
+    ? { backgroundColor: "#2a2a2a" }
+    : {}
+);
+
+/* ===== THEME APPLICATION ===== */
 const applyTheme = (theme) => {
   const html = document.documentElement;
   html.classList.remove('dark', 'light');
-  if (theme === 'dark') html.classList.add('dark');
-  else html.classList.add('light');
+
+  if (theme === 'dark') {
+    html.classList.add('dark');
+  } else if (theme === 'light') {
+    html.classList.add('light');
+  } else if (theme === 'auto') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) {
+      html.classList.add('dark');
+    } else {
+      html.classList.add('light');
+    }
+  }
   localStorage.setItem('appTheme', theme);
 };
 
-const themeClass = computed(() => settings.value.general.theme === "dark" ? "bg-[#121212] text-white" : "bg-gray-100 text-gray-900");
-const themeStyle = computed(() => ({}));
-const cardClass = computed(() => settings.value.general.theme === "dark" ? "p-8 rounded-3xl bg-[#1e1e1e]" : "bg-white p-8 rounded-3xl");
-const cardStyle = computed(() => ({}));
-
-/* ===== ACTIONS ===== */
+/* ===== METHODS ===== */
 const saveSettings = async () => {
   if (!user.value) return;
+  
   isSaving.value = true;
+  saveError.value = null;
   
   try {
-    const userPrefRef = doc(db, "users", user.value.uid, "settings", "preferences");
-    await setDoc(userPrefRef, { 
-      general: settings.value.general 
-    }, { merge: true });
-
-    const landingRef = doc(db, "settings", "landingPage");
-    await setDoc(landingRef, settings.value.landing, { merge: true });
-
+    await setDoc(doc(db, "users", user.value.uid, "settings", "preferences"), settings.value);
+    applyTheme(settings.value.general.theme);
     saveSuccess.value = true;
     setTimeout(() => (saveSuccess.value = false), 3000);
   } catch (error) {
-    console.error("Critical Save Error:", error);
-    alert("Database access denied. Check your Firestore rules or internet connection.");
+    saveError.value = "Failed to save settings";
   } finally {
     isSaving.value = false;
   }
 };
 
 const handleLogout = async () => {
+
   isLoggingOut.value = true;
   await logout();
   isLoggingOut.value = false;
 };
 
-/* ===== LOAD DATA ===== */
+/* ===== LIFECYCLE ===== */
 onMounted(async () => {
   if (user.value) {
     try {
-      const userSnap = await getDoc(doc(db, "users", user.value.uid, "settings", "preferences"));
-      if (userSnap.exists()) {
-        settings.value.general = userSnap.data().general;
-        if (settings.value.general.theme) applyTheme(settings.value.general.theme);
-      }
-
-      const landingSnap = await getDoc(doc(db, "settings", "landingPage"));
-      if (landingSnap.exists()) {
-        settings.value.landing = landingSnap.data();
+      const snap = await getDoc(doc(db, "users", user.value.uid, "settings", "preferences"));
+      if (snap.exists()) {
+        settings.value = snap.data();
       }
     } catch (error) {
-      console.error("Load error:", error);
+      console.error("Error loading settings:", error);
     }
   }
   isLoading.value = false;
@@ -299,8 +317,15 @@ onMounted(async () => {
 
 const tabClass = (tab) =>
   activeTab.value === tab
-    ? "bg-red-600 text-white shadow-lg"
-    : "text-gray-500 hover:bg-gray-200";
+    ? "text-blue-600 border-b-2 border-blue-600"
+    : "text-gray-600";
+
+const tabHoverClass = computed(() =>
+  settings.value.general.theme === "dark"
+    ? "hover:bg-gray-700 hover:text-blue-400"
+    : "hover:bg-gray-100 hover:text-blue-700"
+);
+
 </script>
 
 <style scoped>

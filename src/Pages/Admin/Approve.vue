@@ -11,7 +11,7 @@
       </svg>
     </div>
 
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white border-b border-neutral-400">
+    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white/10 backdrop-blur-none">
       <div class="flex items-center gap-4">
         <div class="bg-red-600 p-2 rounded-lg shadow-lg">
           <UserPlus class="w-6 h-6 text-white" />
@@ -34,10 +34,10 @@
     <main class="flex-1 relative z-10 overflow-auto">
       <div class="max-w-7xl mx-auto p-8">
         
-        <div class="bg-white rounded-3xl p-6 shadow-xl border border-gray-100 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div class="bg-white rounded-2xl p-6 border border-neutral-300 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             
-            <div class="lg:col-span-2 relative">
+            <div class="lg:col-span-3 relative">
               <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 v-model="searchQuery"
