@@ -399,7 +399,136 @@ for (const doc of serviceAdvisorSnapshot.docs) {
   ]);
 }
 
+// Create Transactions table (only UID)
+await connection.query(`
+  CREATE TABLE IF NOT EXISTS transactions (
+    UID VARCHAR(128) PRIMARY KEY
+  )
+`);
+
+// Create Transaction_IN table
+await connection.query(`
+  CREATE TABLE IF NOT EXISTS transaction_IN (
+    UID VARCHAR(128) PRIMARY KEY,
+    category VARCHAR(64),
+    controlNo VARCHAR(64),
+    createdAt VARCHAR(64),
+    model VARCHAR(64),
+    newInventoryQty INT,
+    note TEXT,
+    partName VARCHAR(128),
+    partNo VARCHAR(128),
+    previousInventoryQty INT,
+    processesAt VARCHAR(64),
+    quantity INT,
+    receivedAt VARCHAR(64),
+    source VARCHAR(128),
+    statusIn VARCHAR(32),
+    totalPrice DOUBLE,
+    transactionID VARCHAR(128),
+    unitPrice DOUBLE,
+    FOREIGN KEY (partNo) REFERENCES transactions(UID)
+  )
+`);
+
+// Create Transaction_OUT table
+await connection.query(`
+  CREATE TABLE IF NOT EXISTS transaction_OUT (
+    UID VARCHAR(128) PRIMARY KEY,
+    category VARCHAR(64),
+    client VARCHAR(128),
+    controlNo VARCHAR(64),
+    createdAt VARCHAR(64),
+    model VARCHAR(64),
+    newInventoryQty INT,
+    note TEXT,
+    partName VARCHAR(128),
+    partNo VARCHAR(128),
+    previousInventoryQty INT,
+    processesAt VARCHAR(64),
+    quantity INT,
+    soldAt VARCHAR(64),
+    statusOUT VARCHAR(32),
+    totalPrice DOUBLE,
+    transactionID VARCHAR(128),
+    unitPrice DOUBLE,
+    FOREIGN KEY (partNo) REFERENCES transactions(UID)
+  )
+`);
+
+// Backup Transactions documents and subcollections
+const transactionRefs = await db.collection('Transactions').listDocuments();
+console.log('Transaction doc refs:', transactionRefs.map(ref => ref.id));
+for (const docRef of transactionRefs) {
+  await connection.query('REPLACE INTO transactions (UID) VALUES (?)', [docRef.id]);
+  // Transaction_IN
+  const inCol = await docRef.collection('Transaction_IN').get();
+  for (const inDoc of inCol.docs) {
+    const d = inDoc.data();
+    await connection.query(
+      `REPLACE INTO transaction_IN (
+        UID, category, controlNo, createdAt, model, newInventoryQty, note, partName, partNo, previousInventoryQty, processesAt, quantity, receivedAt, source, statusIn, totalPrice, transactionID, unitPrice
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        inDoc.id,
+        fixField(d.category),
+        fixField(d.controlNo),
+        fixField(d.createdAt),
+        fixField(d.model),
+        fixField(d.newInventoryQty),
+        fixField(d.note),
+        fixField(d.partName),
+        docRef.id, // partNo (foreign key)
+        fixField(d.previousInventoryQty),
+        fixField(d.processesAt),
+        fixField(d.quantity),
+        fixField(d.receivedAt),
+        fixField(d.source),
+        fixField(d.statusIn),
+        fixField(d.totalPrice),
+        fixField(d.transactionID),
+        fixField(d.unitPrice)
+      ]
+    );
+    console.log('Saving transaction:', docRef.id);
+    console.log('Saving transaction_IN:', inDoc.id, d);
+  }
+  // Transaction_OUT
+  const outCol = await docRef.collection('Transaction_OUT').get();
+  for (const outDoc of outCol.docs) {
+    const d = outDoc.data();
+    await connection.query(
+      `REPLACE INTO transaction_OUT (
+        UID, category, client, controlNo, createdAt, model, newInventoryQty, note, partName, partNo, previousInventoryQty, processesAt, quantity, soldAt, statusOUT, totalPrice, transactionID, unitPrice
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        outDoc.id,
+        fixField(d.category),
+        fixField(d.client),
+        fixField(d.controlNo),
+        fixField(d.createdAt),
+        fixField(d.model),
+        fixField(d.newInventoryQty),
+        fixField(d.note),
+        fixField(d.partName),
+        docRef.id, // partNo (foreign key)
+        fixField(d.previousInventoryQty),
+        fixField(d.processesAt),
+        fixField(d.quantity),
+        fixField(d.soldAt),
+        fixField(d.statusOUT),
+        fixField(d.totalPrice),
+        fixField(d.transactionID),
+        fixField(d.unitPrice)
+      ]
+    );
+    console.log('Saving transaction:', docRef.id);
+    console.log('Saving transaction_OUT:', outDoc.id, d);
+  }
+}
+
 await connection.end();
+
 console.log('Backup complete!');
 
 function fixField(val) {
@@ -414,3 +543,100 @@ function fixField(val) {
   }
   return val;
 }
+
+try {
+  // 2. Check Firestore docs count
+  const transactions = await db.collection('Transactions').get();
+  console.log('Transactions found:', transactions.docs.length);
+
+  for (const doc of transactions.docs) {
+    const parentId = doc.id;
+    console.log('Saving transaction:', parentId);
+
+    // 1. Insert parent UID and check result
+    await connection.query('REPLACE INTO transactions (UID) VALUES (?)', [parentId]);
+    console.log('Inserted transaction:', parentId);
+
+    // Backup Transaction_IN subcollection
+    const inCol = await doc.ref.collection('Transaction_IN').get();
+    console.log('Transaction_IN docs found:', inCol.docs.length);
+    for (const inDoc of inCol.docs) {
+      const d = inDoc.data();
+      try {
+        await connection.query(
+          `REPLACE INTO transaction_IN (
+            UID, category, controlNo, createdAt, model, newInventoryQty, note, partName, partNo, previousInventoryQty, processesAt, quantity, receivedAt, source, statusIn, totalPrice, transactionID, unitPrice
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            inDoc.id,
+            fixField(d.category),
+            fixField(d.controlNo),
+            fixField(d.createdAt),
+            fixField(d.model),
+            fixField(d.newInventoryQty),
+            fixField(d.note),
+            fixField(d.partName),
+            parentId, // partNo (foreign key)
+            fixField(d.previousInventoryQty),
+            fixField(d.processesAt),
+            fixField(d.quantity),
+            fixField(d.receivedAt),
+            fixField(d.source),
+            fixField(d.statusIn),
+            fixField(d.totalPrice),
+            fixField(d.transactionID),
+            fixField(d.unitPrice)
+          ]
+        );
+        console.log('Saved transaction_IN:', inDoc.id);
+      } catch (err) {
+        // 3. Catch and log errors for transaction_IN
+        console.error('Error saving transaction_IN:', inDoc.id, err);
+      }
+    }
+
+    // Backup Transaction_OUT subcollection
+    const outCol = await doc.ref.collection('Transaction_OUT').get();
+    console.log('Transaction_OUT docs found:', outCol.docs.length);
+    for (const outDoc of outCol.docs) {
+      const d = outDoc.data();
+      try {
+        await connection.query(
+          `REPLACE INTO transaction_OUT (
+            UID, category, client, controlNo, createdAt, model, newInventoryQty, note, partName, partNo, previousInventoryQty, processesAt, quantity, soldAt, statusOUT, totalPrice, transactionID, unitPrice
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            outDoc.id,
+            fixField(d.category),
+            fixField(d.client),
+            fixField(d.controlNo),
+            fixField(d.createdAt),
+            fixField(d.model),
+            fixField(d.newInventoryQty),
+            fixField(d.note),
+            fixField(d.partName),
+            parentId, // partNo (foreign key)
+            fixField(d.previousInventoryQty),
+            fixField(d.processesAt),
+            fixField(d.quantity),
+            fixField(d.soldAt),
+            fixField(d.statusOUT),
+            fixField(d.totalPrice),
+            fixField(d.transactionID),
+            fixField(d.unitPrice)
+          ]
+        );
+        console.log('Saved transaction_OUT:', outDoc.id);
+      } catch (err) {
+        // 3. Catch and log errors for transaction_OUT
+        console.error('Error saving transaction_OUT:', outDoc.id, err);
+      }
+    }
+  }
+} catch (err) {
+  // 3. Catch and log any top-level errors
+  console.error('Sync error:', err);
+}
+
+await connection.end();
+console.log('Backup complete!');
