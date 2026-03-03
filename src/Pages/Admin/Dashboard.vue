@@ -3,7 +3,7 @@
     <Loaders />
   </div>
 
-  <div v-else :class="themeClass" class="min-h-screen flex flex-col font-sans relative overflow-hidden bg-neutral-100">
+  <div v-else :class="themeClass" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
     
     <div class="absolute top-0 left-0 w-full z-0 opacity-5 pointer-events-none">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
@@ -23,7 +23,7 @@
             <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] ml-5">Real-time Operations Overview</p>
           </div>
           
-          <div class="bg-white/50 backdrop-blur-sm border border-gray-200 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-sm">
+          <div class="bg-white/50 backdrop-blur-sm border border-neutral-500 rounded-2xl px-4 py-3 flex items-center gap-4">
             <Calendar class="w-4 h-4 text-red-600" />
             <span class="text-xs font-bold text-neutral-600 uppercase tracking-widest">{{ new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }}</span>
           </div>
@@ -411,7 +411,8 @@ import {
   DollarSign,
   Clock,
   UserCheck,
-  UserX
+  UserX,
+  Calendar
 } from "lucide-vue-next";
 
 import { Chart, registerables } from "chart.js";

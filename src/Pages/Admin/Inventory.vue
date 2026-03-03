@@ -6,7 +6,7 @@
     </div>
   </div>
 
-  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden rounded-2xl">
+  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
     
     <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
@@ -14,9 +14,9 @@
       </svg>
     </div>
 
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white/10 backdrop-blur-none">
+    <header class="relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none">
       <div class="flex items-center gap-4">
-        <div class="bg-red-600 p-2 rounded-lg shadow-lg">
+        <div class="bg-red-600 p-2 rounded-lg">
           <Boxes class="w-6 h-6 text-white" />
         </div>
         <div>
@@ -39,7 +39,7 @@
     <main class="flex-1 relative z-10 overflow-auto">
       <div class="max-w-[1600px] mx-auto p-6 space-y-0">
         
-        <div class="bg-white/10 backdrop-blur-none rounded-3xl p-6 border border-neutral-100 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div class=" backdrop-blur-none rounded-3xl p-6 animate-in fade-in slide-in-from-top-4 duration-500">
           <div class="flex flex-col xl:flex-row gap-6">
             
             <div class="flex-1 space-y-4">
@@ -86,7 +86,7 @@
                 <Plus class="w-4 h-4" /> Add Item
               </button>
               
-              <button @click="openImportModal" class="flex items-center justify-center gap-2 bg-neutral-800 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md">
+              <button @click="openImportModal" class="flex items-center justify-center gap-2 bg-neutral-800 border border-white text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md">
                 <Upload class="w-4 h-4" /> Import Excel
               </button>
 
@@ -125,7 +125,7 @@
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-neutral-800 text-white text-[10px] uppercase tracking-[0.2em] isuzu-font">
+                <tr class="bg-neutral-900/90 text-white text-[10px] uppercase tracking-[0.2em] isuzu-font">
                   <th class="px-6 py-5 font-black">Control No.</th>
                   <th class="px-6 py-5 font-black">Part Specification</th>
                   <th class="px-6 py-5 font-black text-center">Stock</th>

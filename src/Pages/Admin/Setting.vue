@@ -11,7 +11,7 @@
       </svg>
     </div>
 
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white/10 backdrop-blur-none">
+    <header class="relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none">
       <div class="flex items-center gap-4">
         <div class="bg-red-600 p-2 rounded-lg">
           <SettingsIcon class="w-6 h-6 text-white" />
@@ -33,7 +33,7 @@
         <button
           @click="handleLogout"
           :disabled="isLoggingOut"
-          class="group flex items-center gap-2 bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg disabled:opacity-50"
+          class="group flex items-center gap-2 bg-red-600 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 disabled:opacity-50"
         >
           <LogOutIcon class="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
           {{ isLoggingOut ? 'Logout' : 'Logout' }}
@@ -47,7 +47,7 @@
         <div class="flex space-x-2 mb-8 bg-gray-200/50 p-1 rounded-2xl w-fit">
           <button 
             @click="activeTab = 'general'" 
-            :class="activeTab === 'general' ? 'bg-white text-red-600 shadow-md' : 'text-gray-500 hover:text-neutral-800'"
+            :class="activeTab === 'general' ? 'bg-white text-red-600 shadow-md' : 'text-neutral-500 hover:text-neutral-800'"
             class="px-8 py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-xs tracking-widest isuzu-font"
           >
             <UserIcon class="w-4 h-4" /> General
@@ -75,7 +75,7 @@
         <div class="space-y-8 pb-20">
           
           <div v-if="activeTab === 'general'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="bg-white rounded-3xl p-10 shadow-xl border border-gray-100 relative overflow-hidden max-w-2xl">
+            <div class="bg-neutral-700/40 rounded-2xl p-10 border border-neutral-400 relative overflow-hidden max-w-2xl">
               <div class="absolute top-0 right-0 p-4 opacity-5">
                 <Settings2Icon class="w-32 h-32 text-neutral-900" />
               </div>
@@ -87,7 +87,7 @@
               <div class="relative z-10 space-y-8">
                 <div class="flex items-center justify-between p-6 bg-gray-50 rounded-2xl border border-gray-100">
                   <div class="flex items-center gap-4">
-                    <div class="p-3 bg-white rounded-xl shadow-sm">
+                    <div class="p-3 bg-white rounded-full border border-neutral-500">
                       <SunIcon v-if="settings.general.theme === 'light'" class="w-6 h-6 text-orange-500" />
                       <MoonIcon v-else class="w-6 h-6 text-indigo-600" />
                     </div>
@@ -231,9 +231,9 @@
               </div>
             </div>
 
-            <div class="flex justify-center pt-10">
-              <button @click="saveLandingContent" class="group bg-red-600 text-white px-16 py-5 rounded-full font-black text-xl shadow-[0_20px_50px_rgba(204,0,0,0.3)] transition-all flex items-center gap-4 isuzu-font">
-                <SaveIcon class="w-7 h-7" /> UPDATE LIVE WEBSITE
+            <div class="flex justify-left pt-10">
+              <button @click="saveLandingContent" class="group bg-red-600 text-white px-6 py-2 rounded-full font-black text-sm transition-all flex items-center gap-4 isuzu-font">
+                <SaveIcon class="w-4 h-4" /> Save
               </button>
             </div>
           </div>
