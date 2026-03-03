@@ -123,26 +123,23 @@
         <div class="max-w-7xl mx-auto">
           <div class="w-20 h-1 bg-red-600 mb-6"></div>
           <h2 class="text-2xl md:text-4xl text-left mb-12 text-black uppercase tracking-widest isuzu-font">Mission & Vision</h2>
-
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-gray-100 p-8 rounded-2xl hover:border-red-500 border-2 border-transparent transition-all">
               <h3 class="text-xl mb-4 text-red-600 font-black uppercase isuzu-font">Mission</h3>
               <p class="text-sm leading-relaxed text-gray-600">
-                Improve transportation of commodities in/out of mindoro province. Provide excellent sales, aftersales, genuine parts and accessories.
+                {{ brandIdentity.mission }}
               </p>
             </div>
-
             <div class="bg-gray-100 p-8 rounded-2xl hover:border-red-500 border-2 border-transparent transition-all">
               <h3 class="text-xl mb-4 text-red-600 font-black uppercase isuzu-font">Vision</h3>
               <p class="text-sm leading-relaxed text-gray-600">
-                Mina De Oro professes to bring Mindoro in becoming an 'ISUZU COUNTRY' and to contribute to the economic progress of the province.
+                {{ brandIdentity.vision }}
               </p>
             </div>
-
             <div class="bg-neutral-900 text-white p-8 rounded-2xl">
               <h3 class="text-xl mb-6 text-red-500 font-black uppercase isuzu-font">Core Values</h3>
               <div class="text-[10px] md:text-xs grid grid-cols-2 gap-3 font-bold tracking-wider">
-                <span v-for="val in coreValues" :key="val" class="flex items-center gap-2">
+                <span v-for="val in brandIdentity.coreValues" :key="val" class="flex items-center gap-2">
                   <span class="w-1 h-1 bg-red-500"></span> {{ val }}
                 </span>
               </div>
@@ -151,22 +148,15 @@
         </div>
       </section>
 
+      <!-- About Us Section -->
       <section id="about-us" class="py-20 px-6 md:px-16 bg-neutral-800 text-white">
         <div class="max-w-4xl mx-auto text-center space-y-10">
           <h2 class="text-2xl md:text-4xl uppercase tracking-widest isuzu-font">About Us</h2>
-          
           <div class="space-y-6 text-sm md:text-base text-gray-300 leading-loose">
-            <p>
-              Mina De Oro Motors has been serving Calapan City and the surrounding areas 
-              with quality vehicles and exceptional customer service for many years. 
-            </p>
-            <p>
-              Our Inventory Management System ensures that our vehicle parts and accessories 
-              are lways organized and available, making it easier for our customers to 
-              get what they need quickly and efficiently.
-            </p>
+            <p>{{ aboutUs.aboutTextLine1 }}</p>
+            <p>{{ aboutUs.aboutTextLine2 }}</p>
             <div class="pt-6">
-              <p class="isuzu-font text-red-500 tracking-widest text-lg md:text-xl">Power You Can Trust.</p>
+              <p class="isuzu-font text-red-500 tracking-widest text-lg md:text-xl">{{ aboutUs.slogan }}</p>
             </div>
           </div>
         </div>
@@ -181,7 +171,9 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "../Firebase/Firebase";
 
 const navLinks = [
   { id: 'promos', label: 'Promos' },
@@ -213,6 +205,28 @@ const coreValues = [
   'TEAMWORK', 'LOYALTY', 'LEADERSHIP', 'COMMITMENT'
 ];
 
+// This ref holds the editable landing page data
+const landingPageData = ref({
+  aboutImage: null,
+  aboutText: "",
+  carPromos: [...carPromos],
+  coreValues: [...coreValues],
+  mission: "",
+  partsPromos: [...partsPromos],
+  vision: ""
+});
+
+// Call this function to save landing page changes to Firestore
+async function saveLandingPage() {
+  try {
+    await setDoc(doc(db, "settings", "landingPage"), landingPageData.value);
+    // Optionally show a success message here
+  } catch (error) {
+    // Optionally handle error here
+    console.error("Failed to save landing page:", error);
+  }
+}
+
 function scrollToSection(sectionId) {
   const section = document.getElementById(sectionId)
   if (section) {
@@ -228,6 +242,30 @@ function scrollToSection(sectionId) {
     });
   }
 }
+
+const brandIdentity = ref({ mission: "", vision: "", coreValues: [] });
+const aboutUs = ref({
+  aboutTextLine1: "",
+  aboutTextLine2: "",
+  slogan: ""
+});
+
+onMounted(async () => {
+  try {
+    const snap = await getDoc(doc(db, "settings", "landingPage"));
+    if (snap.exists()) {
+      const data = snap.data();
+      brandIdentity.value.mission = data.mission || "";
+      brandIdentity.value.vision = data.vision || "";
+      brandIdentity.value.coreValues = Array.isArray(data.values) ? data.values : (data.values ? data.values.split("\n").filter(v => v.trim() !== "") : []);
+      aboutUs.value.aboutTextLine1 = data.aboutUsTextLine1 || "";
+      aboutUs.value.aboutTextLine2 = data.aboutUsTextLine2 || "";
+      aboutUs.value.slogan = data.sloganText || "";
+    }
+  } catch (error) {
+    console.error("Error fetching landing page brand identity:", error);
+  }
+});
 </script>
 
 <style scoped>

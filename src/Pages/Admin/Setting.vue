@@ -127,6 +127,14 @@
                     <button class="text-[10px] font-black uppercase tracking-widest text-red-600 hover:underline opacity-50 cursor-not-allowed">Add New Unit</button>
                   </div>
                   <div class="group relative p-6 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl hover:border-red-300 transition-colors">
+                    <!-- Image Upload for Car Units -->
+                    <div class="mb-3">
+                      <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Car Image</label>
+                      <input type="file" accept="image/*" @change="onCarImageUpload" class="block w-full text-xs" />
+                      <div v-if="carUnitImage" class="mt-2">
+                        <img :src="carUnitImage" alt="Car Preview" class="w-full max-h-32 object-contain rounded-lg border" />
+                      </div>
+                    </div>
                     <input placeholder="Car Model Name" class="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold uppercase tracking-tight outline-none focus:border-red-400" />
                     <textarea placeholder="Description / Features" rows="2" class="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-xs outline-none mt-3 focus:border-red-400"></textarea>
                     <div class="mt-3 flex items-center gap-2">
@@ -144,6 +152,14 @@
                     <button class="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:underline opacity-50 cursor-not-allowed">Add New Service</button>
                   </div>
                   <div class="p-6 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl hover:border-blue-300 transition-colors">
+                    <!-- Image Upload for After Sales -->
+                    <div class="mb-3">
+                      <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Service Image</label>
+                      <input type="file" accept="image/*" @change="onServiceImageUpload" class="block w-full text-xs" />
+                      <div v-if="serviceImage" class="mt-2">
+                        <img :src="serviceImage" alt="Service Preview" class="w-full max-h-32 object-contain rounded-lg border" />
+                      </div>
+                    </div>
                     <input placeholder="Part Name / Service" class="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold uppercase tracking-tight outline-none focus:border-blue-400" />
                     <textarea placeholder="Service Details" rows="2" class="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-xs outline-none mt-3 focus:border-blue-400"></textarea>
                     <div class="mt-3 flex items-center gap-2">
@@ -164,22 +180,55 @@
               </h2>
               <div class="grid md:grid-cols-3 gap-6 relative z-10">
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Mission</label>
-                    <textarea placeholder="Mission Statement" rows="5" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-sm leading-relaxed"></textarea>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Mission</label>
+                  <textarea v-model="missionText" placeholder="Mission Statement" rows="5" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-sm leading-relaxed"></textarea>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Vision</label>
-                    <textarea placeholder="Vision Statement" rows="5" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-sm leading-relaxed"></textarea>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Vision</label>
+                  <textarea v-model="visionText" placeholder="Vision Statement" rows="5" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-sm leading-relaxed"></textarea>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Core Values</label>
-                    <textarea placeholder="Values..." rows="5" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-sm leading-relaxed"></textarea>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Core Values</label>
+                  <textarea v-model="valuesText" placeholder="Values..." rows="5" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-sm leading-relaxed"></textarea>
                 </div>
               </div>
             </div>
 
+            <!-- Editable About Us & Slogan Card -->
+            <div v-if="activeTab === 'landing'" class="bg-white rounded-3xl p-8 border border-gray-100 mt-8">
+              <h2 class="text-2xl font-black mb-10 flex items-center gap-3 uppercase tracking-tighter text-neutral-800 isuzu-font">
+                <TagIcon class="w-7 h-7 text-red-600" /> 
+                About Us <span class="text-red-600">Editor</span>
+              </h2>
+              <div class="space-y-6">
+                <div>
+                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">About Us Text (Line 1)</label>
+                  <input v-model="aboutUsTextLine1" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400 mb-2" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">About Us Text (Line 2)</label>
+                  <input v-model="aboutUsTextLine2" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Slogan</label>
+                  <input v-model="sloganText" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold outline-none focus:border-red-400" />
+                  <div v-if="aboutUsSaveSuccess" class="mt-2 text-green-600 text-xs font-bold">Slogan updated!</div>
+                  <div v-if="aboutUsSaveError" class="mt-2 text-red-600 text-xs font-bold">{{ aboutUsSaveError }}</div>
+                </div>
+                <div class="mt-8">
+                  <h3 class="font-black text-sm uppercase tracking-widest text-neutral-700 mb-2">Preview:</h3>
+                  <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <p class="text-sm text-gray-700 mb-4 whitespace-pre-line">{{ aboutUsTextLine1 }}</p>
+                    <p class="text-sm text-gray-700 mb-4 whitespace-pre-line">{{ aboutUsTextLine2 }}</p>
+                    <p class="isuzu-font text-red-500 tracking-widest text-lg">{{ sloganText }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
             <div class="flex justify-center pt-10">
-              <button class="group bg-red-600 text-white px-16 py-5 rounded-full font-black text-xl shadow-[0_20px_50px_rgba(204,0,0,0.3)] transition-all opacity-50 cursor-not-allowed flex items-center gap-4 isuzu-font">
+              <button @click="saveLandingContent" class="group bg-red-600 text-white px-16 py-5 rounded-full font-black text-xl shadow-[0_20px_50px_rgba(204,0,0,0.3)] transition-all flex items-center gap-4 isuzu-font">
                 <SaveIcon class="w-7 h-7" /> UPDATE LIVE WEBSITE
               </button>
             </div>
@@ -227,6 +276,13 @@ const defaultSettings = {
 };
 
 const settings = ref(JSON.parse(JSON.stringify(defaultSettings)));
+
+// About Us & Slogan state
+const aboutUsTextLine1 = ref("Mina De Oro Motors has been serving Calapan City and the surrounding areas with quality vehicles and exceptional customer service for many years.");
+const aboutUsTextLine2 = ref("Our Inventory Management System ensures that our vehicle parts and accessories are always organized and available, making it easier for our customers to get what they need quickly and efficiently.");
+const sloganText = ref("Power You Can Trust.");
+const aboutUsSaveSuccess = ref(false);
+const aboutUsSaveError = ref(null);
 
 
 /* ===== THEME ===== */
@@ -293,6 +349,45 @@ const saveSettings = async () => {
   }
 };
 
+
+// Brand Identity state
+const defaultBrandIdentity = {
+  mission: `Improve transportation of commoditized in/out of Mindoro Provinces.Provide excellent sales, aftersales, genuine parts and accessories.`,
+  vision: `Mina De Oro professes to bring Mindoro in becoming an 'ISUZU COUNTRY' and to contribute to the economic progress of the province.`,
+  values: [
+    "INNOVATION",
+    "PASSION",
+    "TRUST",
+    "TEAMWORK",
+    "LOYALTY",
+    "LEADERSHIP",
+    "COMMITMENT"
+  ]
+};
+const missionText = ref(defaultBrandIdentity.mission);
+const visionText = ref(defaultBrandIdentity.vision);
+const valuesText = ref(defaultBrandIdentity.values.join("\n"));
+
+
+// Save all landing content (About Us, Slogan, Mission, Vision, Core Values) in settings/landingPage (global, not user-based)
+const saveLandingContent = async () => {
+  aboutUsSaveError.value = null;
+  try {
+    await setDoc(doc(db, "settings", "landingPage"), {
+      aboutUsTextLine1: aboutUsTextLine1.value,
+      aboutUsTextLine2: aboutUsTextLine2.value,
+      sloganText: sloganText.value,
+      mission: missionText.value,
+      vision: visionText.value,
+      values: valuesText.value,
+    }, { merge: true });
+    aboutUsSaveSuccess.value = true;
+    setTimeout(() => (aboutUsSaveSuccess.value = false), 3000);
+  } catch (error) {
+    aboutUsSaveError.value = "Failed to save landing content";
+  }
+};
+
 const handleLogout = async () => {
 
   isLoggingOut.value = true;
@@ -307,6 +402,19 @@ onMounted(async () => {
       const snap = await getDoc(doc(db, "users", user.value.uid, "settings", "preferences"));
       if (snap.exists()) {
         settings.value = snap.data();
+      }
+      // Load About Us & Slogan
+      const aboutSnap = await getDoc(doc(db, "users", user.value.uid, "settings", "aboutUs"));
+      if (aboutSnap.exists()) {
+        aboutUsText.value = aboutSnap.data().aboutUsText || aboutUsText.value;
+        sloganText.value = aboutSnap.data().sloganText || sloganText.value;
+      }
+      // Load Brand Identity
+      const brandSnap = await getDoc(doc(db, "users", user.value.uid, "settings", "brandIdentity"));
+      if (brandSnap.exists()) {
+        missionText.value = brandSnap.data().mission || missionText.value;
+        visionText.value = brandSnap.data().vision || visionText.value;
+        valuesText.value = brandSnap.data().values || valuesText.value;
       }
     } catch (error) {
       console.error("Error loading settings:", error);
@@ -344,3 +452,28 @@ input, textarea, select { background-color: white !important; color: #1a202c !im
   font-family: 'IsuzuFont', sans-serif;
 }
 </style>
+
+<script>
+const carUnitImage = ref(null);
+const serviceImage = ref(null);
+
+function onCarImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    carUnitImage.value = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function onServiceImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    serviceImage.value = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+</script>
