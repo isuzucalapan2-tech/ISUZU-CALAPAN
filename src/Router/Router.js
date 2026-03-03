@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../Firebase/Firebase'
 
+import LandingPage from '../Pages/LandingPage.vue'
 import Login from '../Pages/Login.vue'
 import Register from '../Pages/Register.vue'
 import AdminParent from '../Pages/Admin/AdminParent.vue'
@@ -20,7 +21,13 @@ import Test from '../Pages/Test.vue'
 const routes = [
   { 
     path: '/', 
-    name: 'Login', 
+    name: 'LandingPage', 
+    component: LandingPage,
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/login',
+    name: 'Login',
     component: Login,
     meta: { requiresGuest: true }
   },

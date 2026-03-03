@@ -1,366 +1,388 @@
 <template>
-  <!-- Loading Screen -->
-  <div v-if="isLoading" class="h-screen flex items-center justify-center">
+  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white">
     <Loaders />
   </div>
 
-  <!-- MAIN CONTENT -->
-  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col">
-    <div class="flex-1 overflow-y-auto p-4 sm:p-6">
-      <h1 :class="textClass" class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 border-l-4 border-red-600 pl-3 sm:pl-4 flex items-center gap-2">
-        <LayoutDashboard class="w-6 h-6 sm:w-7 sm:h-7 text-red-600" />
-        Dashboard
-      </h1>
+  <div v-else :class="themeClass" class="min-h-screen flex flex-col font-sans relative overflow-hidden bg-neutral-100">
+    
+    <div class="absolute top-0 left-0 w-full z-0 opacity-5 pointer-events-none">
+      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+        <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
+      </svg>
+    </div>
 
-      <!-- ==================== INVENTORY SECTION ==================== -->
-      <div class="mb-8 sm:mb-10">
-        <div class="flex items-center gap-2 mb-4 sm:mb-5 pb-2 border-b-2 border-red-600">
-          <Boxes class="w-6 h-6 sm:w-7 sm:h-7 text-red-600" />
-          <h2 :class="textClass" class="text-xl sm:text-2xl font-bold">Inventory Overview</h2>
-        </div>
-
-        <!-- Inventory Stats Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 mb-6">
-
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-gray-500 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-            <Package class="w-7 h-7 sm:w-8 sm:h-8 text-gray-500 flex-shrink-0" />
-            <div class="min-w-0">
-              <h3 :class="subTextClass" class="text-xs truncate">Total Parts</h3>
-              <p :class="textClass" class="text-lg sm:text-xl lg:text-2xl font-bold">{{ inventoryItems.length }}</p>
-            </div>
+    <main class="flex-1 relative z-10 overflow-auto">
+      <div class="max-w-[1600px] mx-auto p-6 lg:p-10 space-y-12">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-black isuzu-font uppercase tracking-tight text-neutral-800 flex items-center gap-3">
+              <span class="w-2 h-10 bg-red-600 rounded-full"></span>
+              System <span class="text-red-600">Dashboard</span>
+            </h1>
+            <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] ml-5">Real-time Operations Overview</p>
           </div>
-
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-blue-500 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-            <DollarSign class="w-7 h-7 sm:w-8 sm:h-8 text-blue-500 flex-shrink-0" />
-            <div class="min-w-0">
-              <h3 class="text-xs text-blue-500 truncate">Total Value</h3>
-              <p :class="textClass" class="text-lg sm:text-xl lg:text-2xl font-bold">₱{{ totalInventoryValue.toLocaleString() }}</p>
-            </div>
-          </div>
-
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-purple-500 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-            <TrendingUp class="w-7 h-7 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />
-            <div class="min-w-0">
-              <h3 class="text-xs text-purple-500 truncate">Total Qty</h3>
-              <p :class="textClass" class="text-lg sm:text-xl lg:text-2xl font-bold">{{ totalInventoryQuantity.toLocaleString() }}</p>
-            </div>
-          </div>
-
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-green-500 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-            <CheckCircle class="w-7 h-7 sm:w-8 sm:h-8 text-green-500 flex-shrink-0" />
-            <div class="min-w-0">
-              <h3 class="text-xs text-green-500 truncate">In Stock</h3>
-              <p class="text-lg sm:text-xl lg:text-2xl font-bold text-green-500">{{ inStock }}</p>
-            </div>
-          </div>
-
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-red-500 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-
-            <XCircle class="w-7 h-7 sm:w-8 sm:h-8 text-red-500 flex-shrink-0" />
-            <div class="min-w-0">
-              <h3 class="text-xs text-red-500 truncate">Out of Stock</h3>
-              <p class="text-lg sm:text-xl lg:text-2xl font-bold text-red-500">{{ outOfStock }}</p>
-            </div>
+          
+          <div class="bg-white/50 backdrop-blur-sm border border-gray-200 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-sm">
+            <Calendar class="w-4 h-4 text-red-600" />
+            <span class="text-xs font-bold text-neutral-600 uppercase tracking-widest">{{ new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }}</span>
           </div>
         </div>
 
-        <!-- Inventory Charts -->
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-4 sm:p-6 border-t-2 border-red-600 xl:col-span-1 hover:shadow-xl transition-all duration-300">
-            <h2 :class="textClass" class="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <PieChart class="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
-              Inventory Status
+        <section class="space-y-6">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="bg-red-600 p-2 rounded-xl">
+              <Boxes class="w-5 h-5 text-white" />
+            </div>
+            <h2 class="text-xl font-black uppercase tracking-tighter text-neutral-800 isuzu-font">Inventory <span class="text-red-600">Overview</span></h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            <div class="bg-neutral-200 rounded-2xl p-6 border border-neutral-300 hover:border-red-200 transition-all group relative overflow-hidden">
+               <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform">
+                <Package class="w-24 h-24 text-neutral-900" />
+              </div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Parts</p>
+              <p class="text-3xl font-black text-neutral-800">{{ inventoryItems.length }}</p>
+              <div class="mt-4 flex items-center text-[10px] font-bold text-green-600 bg-green-50 w-fit px-2 py-1 rounded-lg">
+                <ArrowUpRight class="w-3 h-3 mr-1" /> ACTIVE ITEMS
+              </div>
+            </div>
+
+            <div class="bg-neutral-200 rounded-2xl p-6 border border-neutral-300 hover:border-blue-200 transition-all group relative overflow-hidden">
+              <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform text-blue-900">
+                <DollarSign class="w-24 h-24" />
+              </div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Stock Value</p>
+              <p class="text-3xl font-black text-neutral-800">₱{{ totalInventoryValue.toLocaleString() }}</p>
+              <div class="mt-4 text-[10px] font-bold text-blue-600 uppercase tracking-widest">Market Valuation</div>
+            </div>
+
+            <div class="bg-neutral-200 rounded-2xl p-6 border border-neutral-300 group relative overflow-hidden">
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Quantity</p>
+              <p class="text-3xl font-black text-neutral-800">{{ totalInventoryQuantity.toLocaleString() }}</p>
+              <div class="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-purple-500 rounded-full" style="width: 70%"></div>
+              </div>
+            </div>
+
+            <div class="bg-neutral-800 rounded-2xl p-6 relative overflow-hidden group">
+              <div class="absolute top-0 right-0 w-16 h-16 bg-green-500/10 rounded-bl-[4rem]"></div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Availability</p>
+              <p class="text-3xl font-black text-green-500">{{ inStock }} <span class="text-xs text-white/50 font-medium">IN STOCK</span></p>
+              <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">Optimal Levels</p>
+            </div>
+
+            <div class="bg-neutral-200 rounded-2xl p-6 border-b-4 border-red-600 relative group overflow-hidden">
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Critical Stock</p>
+              <p class="text-3xl font-black text-red-600">{{ outOfStock }}</p>
+              <p class="mt-4 text-[10px] font-bold text-red-600/50 uppercase tracking-widest flex items-center gap-1">
+                <AlertTriangle class="w-3 h-3" /> Reorder Needed
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div class="bg-neutral-200 rounded-2xl p-8 border border-neutral-300 xl:col-span-1">
+              <h3 class="text-sm font-black uppercase tracking-widest text-neutral-800 mb-8 flex items-center gap-2">
+                <PieChart class="w-4 h-4 text-red-600" /> Status Distribution
+              </h3>
+              <div class="h-[250px] relative">
+                <canvas ref="statusChart"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-neutral-200 rounded-2xl p-8 border border-neutral-300 xl:col-span-2">
+              <h3 class="text-sm font-black uppercase tracking-widest text-neutral-800 mb-8 flex items-center gap-2">
+                <BarChart3 class="w-4 h-4 text-red-600" /> Stock by Category
+              </h3>
+              <div class="h-[250px] relative ">
+                <canvas ref="categoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
+          <div class="bg-white rounded-2xl p-8 border border-neutral-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+            <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12 group-hover:scale-110 transition-transform duration-500">
+              <UserCheck class="w-40 h-40 text-neutral-900" />
+            </div>
+
+            <div class="relative z-10 flex flex-col h-full">
+              <div class="flex items-center justify-between mb-10">
+                <div class="bg-green-100 p-3 rounded-2xl">
+                  <UserCheck class="w-6 h-6 text-green]-600" />
+                </div>
+                <span class="text-[9px] font-black bg-green-50 text-green-700 px-3 py-1 rounded-full uppercase tracking-widest border border-green-100">Verified System Access</span>
+              </div>
+              
+              <div class="mt-auto">
+                <h2 class="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-1">Total Approved</h2>
+                <div class="flex items-baseline gap-2">
+                  <p class="text-6xl font-black tracking-tighter text-neutral-800 leading-none">
+                    {{ approvedUsersCount }}
+                  </p>
+                  <p class="text-xs font-bold text-green-600 uppercase tracking-tighter">Users</p>
+                </div>
+                <div class="mt-4 flex items-center gap-2">
+                  <div class="h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-green-500 rounded-full" :style="{ width: '100%' }"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-neutral-900 rounded-2xl p-8 text-white relative overflow-hidden group shadow-xl hover:shadow-2xl transition-all">
+            <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12 group-hover:scale-110 transition-transform duration-500">
+              <Users class="w-40 h-40" />
+            </div>
+
+            <div class="relative z-10 flex flex-col h-full">
+              <div class="flex items-center justify-between mb-10">
+                <div class="bg-yellow-500 p-3 rounded-2xl shadow-lg shadow-yellow-500/20">
+                  <UserX class="w-6 h-6 text-neutral-900" />
+                </div>
+                <span v-if="pendingUsersCount > 0" class="text-[9px] font-black bg-yellow-500 text-neutral-900 px-3 py-1 rounded-full uppercase tracking-widest animate-pulse">
+                  Action Required
+                </span>
+              </div>
+
+              <div class="mt-auto">
+                <h2 class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Awaiting Approval</h2>
+                <div class="flex items-baseline gap-2">
+                  <p class="text-6xl font-black tracking-tighter text-yellow-500 leading-none">
+                    {{ pendingUsersCount }}
+                  </p>
+                  <p class="text-xs font-bold text-yellow-500 uppercase tracking-tighter italic">Pending</p>
+                </div>
+                <p class="text-[9px] font-medium text-gray-500 uppercase tracking-widest mt-4">New registration requests in queue</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-neutral-200 rounded-2xl p-8 border border-neutral-300 flex flex-col relative group">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-2">
+                  <PieChart class="w-3.5 h-3.5 text-yellow-600" /> Access Distribution
+                </h3>
+              </div>
+              <div class="flex -space-x-2">
+                <div class="w-6 h-6 rounded-full border-2 border-neutral-200 bg-neutral-400"></div>
+                <div class="w-6 h-6 rounded-full border-2 border-neutral-200 bg-yellow-500"></div>
+              </div>
+            </div>
+            
+            <div class="flex-1 min-h-[160px] relative flex items-center justify-center">
+              <canvas ref="approvalChart" class="max-h-[180px]"></canvas>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-neutral-300 flex justify-between items-center">
+              <span class="text-[9px] font-black text-neutral-500 uppercase tracking-widest italic">Live Analytics</span>
+              <button class="text-[9px] font-black text-yellow-700 uppercase hover:underline">View Matrix</button>
+            </div>
+          </div>
+
+        </section>
+
+        <section class="space-y-8">          
+          <div class="flex items-center gap-3 pb-3 border-b-2 border-blue-600 mb-6">
+            <div class="flex -space-x-2">
+              <ArrowDownCircle class="w-7 h-7 text-blue-600 bg-white rounded-full" />
+              <ArrowUpCircle class="w-7 h-7 text-orange-600 bg-white rounded-full" />
+            </div>
+            <h2 :class="textClass" class="text-2xl font-black uppercase tracking-tighter isuzu-font">
+              Transactions <span class="text-blue-600">Overview</span>
             </h2>
-            <div class="chart-wrapper chart-wrapper-small">
-              <canvas ref="statusChart"></canvas>
+          </div>
+
+          <div class="space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 :class="textClass" class="text-lg font-bold flex items-center gap-2 text-green-600 uppercase tracking-wider isuzu-font">
+                  <ArrowDownCircle class="w-5 h-5" />
+                  Transaction In 
+                </h3>
+                <p class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">
+                  Status: {{ transactionInFilter === 'today' ? 'Daily' : transactionInFilter === 'week' ? 'Weekly' : 'Monthly' }} Report
+                </p>
+              </div>
+              
+              <div class="flex bg-neutral-100 dark:bg-neutral-200 p-1 rounded-xl border border-neutral-200 dark:border-gray-700">
+                <button 
+                  v-for="filter in ['today', 'week', 'month']" 
+                  :key="filter"
+                  @click="transactionInFilter = filter"
+                  :class="transactionInFilter === filter ? 'bg-white dark:bg-neutral-600 shadow-sm text-green-600 scale-105' : 'text-gray-500 hover:text-gray-700'"
+                  class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-200"
+                >
+                  {{ filter }}
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+              <div :class="cardClass" :style="cardStyle" class="relative overflow-hidden rounded-xl p-4 border-l-4 border-green-500 group transition-all">
+                <div class="relative z-10">
+                  <h3 class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Records</h3>
+                  <p :class="textClass" class="text-2xl font-black leading-none">{{ filteredTransactionInCount }}</p>
+                </div>
+                <ArrowDownCircle class="absolute -right-2 -bottom-2 w-12 h-12 text-green-500/10 group-hover:scale-110 transition-transform" />
+              </div>
+
+              <div :class="cardClass" :style="cardStyle" class="relative overflow-hidden rounded-xl p-4 border-l-4 border-blue-500 group transition-all">
+                <div class="relative z-10">
+                  <h3 class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Qty</h3>
+                  <p :class="textClass" class="text-2xl font-black leading-none">{{ filteredTransactionInQty.toLocaleString() }}</p>
+                </div>
+                <Package class="absolute -right-2 -bottom-2 w-12 h-12 text-blue-500/10 group-hover:scale-110 transition-transform" />
+              </div>
+
+              <div :class="cardClass" :style="cardStyle" class="relative overflow-hidden rounded-xl p-4 border-l-4 border-purple-500 group transition-all">
+                <div class="relative z-10">
+                  <h3 class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Value</h3>
+                  <p :class="textClass" class="text-2xl font-black leading-none text-purple-600">₱{{ filteredTransactionInValue.toLocaleString() }}</p>
+                </div>
+                <DollarSign class="absolute -right-2 -bottom-2 w-12 h-12 text-purple-500/10 group-hover:scale-110 transition-transform" />
+              </div>
+
+              <div :class="cardClass" :style="cardStyle" class="relative overflow-hidden rounded-xl p-4 border-l-4 border-yellow-500 group transition-all">
+                <div class="relative z-10">
+                  <h3 class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">To Review</h3>
+                  <p class="text-2xl font-black leading-none text-yellow-600">{{ filteredTransactionInToReview }}</p>
+                </div>
+                <Clock class="absolute -right-2 -bottom-2 w-12 h-12 text-yellow-500/10 group-hover:scale-110 transition-transform" />
+              </div>
+
+              <div :class="cardClass" :style="cardStyle" class="relative overflow-hidden rounded-xl p-4 border-l-4 border-emerald-600 group transition-all">
+                <div class="relative z-10">
+                  <h3 class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Stock IN</h3>
+                  <p class="text-2xl font-black leading-none text-emerald-600">{{ filteredTransactionInStockIn }}</p>
+                </div>
+                <CheckCircle class="absolute -right-2 -bottom-2 w-12 h-12 text-emerald-600/10 group-hover:scale-110 transition-transform" />
+              </div>
+
+              <div :class="cardClass" :style="cardStyle" class="relative overflow-hidden rounded-xl p-4 border-l-4 border-red-500 group transition-all">
+                <div class="relative z-10">
+                  <h3 class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Stock OUT</h3>
+                  <p class="text-2xl font-black leading-none text-red-500">{{ filteredTransactionInStockOut }}</p>
+                </div>
+                <XCircle class="absolute -right-2 -bottom-2 w-12 h-12 text-red-500/10 group-hover:scale-110 transition-transform" />
+              </div>
+            </div>
+
+            <div v-if="recentTransactionIn.length > 0" :class="cardClass" :style="cardStyle" class="overflow-hidden rounded-2xl border border-neutral-300">
+              <div class="p-4 border-b border-gray-50 bg-gray-50/50 flex items-center justify-between">
+                <h4 :class="textClass" class="text-xs font-black uppercase tracking-widest flex items-center gap-2 isuzu-font">
+                  <TrendingUp class="w-4 h-4 text-green-600" />
+                  Recent Stock Inflow
+                </h4>
+                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter italic">Live Updates</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left ">
+                  <thead class="isuzu-font">
+                    <tr class="bg-white border-b border-gray-100">
+                      <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Part No</th>
+                      <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Description</th>
+                      <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Qty</th>
+                      <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Status</th>
+                      <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-50">
+                    <tr v-for="item in recentTransactionIn.slice(0, 5)" :key="item.id" class="hover:bg-gray-50/80 transition-colors group">
+                      <td class="p-4 text-[12px] font-bold text-neutral-800 group-hover:text-blue-600">{{ item.partNo }}</td>
+                      <td class="p-4 text-[12px] text-gray-500 font-medium">{{ item.partName }}</td>
+                      <td class="p-4 text-[12px] font-black text-center text-neutral-800">{{ item.quantity }}</td>
+                      <td class="p-4 text-center">
+                        <span :class="getTransactionInStatusClass(item.statusIN)" class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border">
+                          {{ item.statusIN || 'To Review' }}
+                        </span>
+                      </td>
+                      <td class="p-4 text-[11px] text-gray-400 font-bold uppercase">{{ formatTransactionDate(item.createdAt) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-4 sm:p-6 border-t-2 border-red-600 xl:col-span-2 hover:shadow-xl transition-all duration-300">
-            <h2 :class="textClass" class="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <BarChart3 class="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
-              Inventory by Category
-            </h2>
-            <div class="chart-wrapper">
-              <canvas ref="categoryChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
+          <hr class="border-dashed border-gray-200" />
 
-      <!-- ==================== USER APPROVALS SECTION ==================== -->
-      <div class="mb-8 sm:mb-10">
-        <div class="flex items-center gap-2 mb-4 sm:mb-5 pb-2 border-b-2 border-yellow-600">
-          <Users class="w-6 h-6 sm:w-7 sm:h-7 text-yellow-600" />
-          <h2 :class="textClass" class="text-xl sm:text-2xl font-bold">User Approvals</h2>
-        </div>
-
-        <!-- Approval Stats Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 lg:p-6 border-l-4 border-yellow-500 flex items-center gap-2 sm:gap-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-            <UserX class="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500 flex-shrink-0" />
-            <div class="min-w-0">
-              <h3 class="text-xs sm:text-sm text-yellow-500 truncate">Pending Approval</h3>
-              <p :class="textClass" class="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-500">{{ pendingUsersCount }}</p>
-            </div>
-          </div>
-
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 lg:p-6 border-l-4 border-green-500 flex items-center gap-2 sm:gap-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-            <UserCheck class="w-8 h-8 sm:w-10 sm:h-10 text-green-500 flex-shrink-0" />
-            <div class="min-w-0">
-              <h3 class="text-xs sm:text-sm text-green-500 truncate">Approved Users</h3>
-              <p :class="textClass" class="text-xl sm:text-2xl lg:text-3xl font-bold text-green-500">{{ approvedUsersCount }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pending Users Table + Approval Chart -->
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
-          <div v-if="pendingUsers.length > 0" :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-4 border-t-2 border-yellow-600 xl:col-span-2 hover:shadow-xl transition-all duration-300">
-            <h3 :class="textClass" class="text-lg font-bold mb-3 flex items-center gap-2">
-              <Clock class="w-5 h-5 text-yellow-600" />
-              Pending Users ({{ pendingUsers.length }})
+          <div class="space-y-6">
+            <h3 :class="textClass" class="text-lg font-bold flex items-center gap-2 text-orange-600 uppercase tracking-wider isuzu-font">
+              <ArrowUpCircle class="w-5 h-5" />
+              Transaction Out / Sales
             </h3>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left">
-                <thead :class="tableHeaderClass">
-                  <tr>
-                    <th class="p-3 text-sm">Name</th>
-                    <th class="p-3 text-sm">Email</th>
-                    <th class="p-3 text-sm">Account Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="user in pendingUsers.slice(0, 5)" :key="user.id" :class="tableRowClass" class="border-b border-gray-200 dark:border-gray-700">
-                    <td :class="textClass" class="p-3 text-sm font-medium">{{ user.username }}</td>
-                    <td :class="subTextClass" class="p-3 text-sm">{{ user.email }}</td>
-                    <td class="p-3">
-                      <span class="px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800 uppercase">{{ user.accountStatus }}</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-neutral-800 rounded-2xl p-6 text-white relative overflow-hidden group">
+                <div class="relative z-10">
+                  <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 mb-2 isuzu-font">Today's Sales</h3>
+                  <p class="text-4xl font-black tracking-tighter text-orange-500 leading-none group-hover:scale-105 transition-transform">{{ todaysTransactionOutCount }}</p>
+                </div>
+                <ArrowUpCircle class="absolute -right-4 -bottom-4 w-24 h-24 text-white/5 rotate-12" />
+              </div>
+
+              <div :class="cardClass" :style="cardStyle" class="rounded-2xl p-6 border border-neutral-300 relative overflow-hidden group">
+                <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 isuzu-font">Total Qty Sold</h3>
+                <p :class="textClass" class="text-4xl font-black tracking-tighter leading-none text-blue-600">{{ todaysTransactionOutQty.toLocaleString() }}</p>
+                <Package class="absolute -right-4 -bottom-4 w-24 h-24 text-blue-500/5 rotate-12" />
+              </div>
+
+              <div :class="cardClass" :style="cardStyle" class="rounded-2xl p-6 border border-neutral-300 relative overflow-hidden group">
+                <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 isuzu-font">Total Sales (₱)</h3>
+                <p :class="textClass" class="text-3xl font-black tracking-tighter leading-none text-green-600">₱{{ todaysTransactionOutValue.toLocaleString() }}</p>
+                <DollarSign class="absolute -right-4 -bottom-4 w-24 h-24 text-green-500/5 rotate-12" />
+              </div>
+
+              <div :class="cardClass" :style="cardStyle" class="rounded-2xl p-6 border border-neutral-300 relative overflow-hidden group">
+                <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 isuzu-font text-yellow-600">Pending Sales</h3>
+                <p :class="textClass" class="text-4xl font-black tracking-tighter leading-none text-yellow-600">{{ pendingTransactionOut }}</p>
+                <Clock class="absolute -right-4 -bottom-4 w-24 h-24 text-yellow-500/5 rotate-12" />
+              </div>
             </div>
           </div>
 
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-4 sm:p-6 border-t-2 border-yellow-600 hover:shadow-xl transition-all duration-300">
-            <h2 :class="textClass" class="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <PieChart class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
-              User Approval Status
-            </h2>
-            <div class="chart-wrapper chart-wrapper-small">
-              <canvas ref="approvalChart"></canvas>
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            
+            <div :class="cardClass" :style="cardStyle" class=" rounded-2xl p-6 border-t-4 border-red-600 xl:col-span-2">
+              <div class="flex items-center justify-between mb-6">
+                <h2 :class="textClass" class="text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2">
+                  <TrendingUp class="w-5 h-5 text-blue-600" />
+                  Stock Flow <span class="text-blue-600">Analytics</span>
+                </h2>
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Last 7 Days</span>
+              </div>
+              <div class="h-[300px] w-full relative">
+                <canvas ref="transactionChart"></canvas>
+              </div>
             </div>
+
+            <div :class="cardClass" :style="cardStyle" class="rounded-2xl p-6 border-t-4 border-red-600">
+              <div class="flex items-center justify-between mb-6">
+                <h2 :class="textClass" class="text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2">
+                  <BarChart3 class="w-5 h-5 text-orange-600" />
+                  Category <span class="text-orange-600">Sales</span>
+                </h2>
+              </div>
+              <div class="h-[300px] w-full relative">
+                <canvas ref="salesCategoryChart"></canvas>
+              </div>
+            </div>
+            
           </div>
-        </div>
+        </section>
       </div>
+    </main>
 
-      <!-- ==================== TRANSACTIONS SECTION ==================== -->
-      <div class="mb-8 sm:mb-10">
-        <div class="flex items-center gap-2 mb-4 sm:mb-5 pb-2 border-b-2 border-blue-600">
-          <ArrowDownCircle class="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
-          <ArrowUpCircle class="w-6 h-6 sm:w-7 sm:h-7 text-orange-600" />
-          <h2 :class="textClass" class="text-xl sm:text-2xl font-bold">Transactions Overview</h2>
-        </div>
-
-        <!-- Transaction In Cards -->
-        <div class="mb-6">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-            <h3 :class="textClass" class="text-lg font-semibold flex items-center gap-2 text-green-600">
-              <ArrowDownCircle class="w-5 h-5" />
-              Transaction In 
-              <span class="text-sm font-normal text-gray-500">({{ transactionInFilter === 'today' ? 'Today' : transactionInFilter === 'week' ? 'This Week' : 'This Month' }})</span>
-            </h3>
-            <!-- Filter Buttons -->
-            <div class="flex gap-2">
-              <button 
-                @click="transactionInFilter = 'today'"
-                :class="transactionInFilter === 'today' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'"
-                class="px-3 py-1 rounded text-sm font-medium transition-all"
-              >
-                Today
-              </button>
-              <button 
-                @click="transactionInFilter = 'week'"
-                :class="transactionInFilter === 'week' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'"
-                class="px-3 py-1 rounded text-sm font-medium transition-all"
-              >
-                Week
-              </button>
-              <button 
-                @click="transactionInFilter = 'month'"
-                :class="transactionInFilter === 'month' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'"
-                class="px-3 py-1 rounded text-sm font-medium transition-all"
-              >
-                Month
-              </button>
-            </div>
-          </div>
-          
-          <!-- Status Summary Pills -->
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-              To Review: {{ filteredTransactionInToReview }}
-            </span>
-            <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-              Stock IN: {{ filteredTransactionInStockIn }}
-            </span>
-            <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-              Stock OUT: {{ filteredTransactionInStockOut }}
-            </span>
-          </div>
-          
-          <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
-            <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-green-500 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <ArrowDownCircle class="w-7 h-7 sm:w-8 sm:h-8 text-green-500 flex-shrink-0" />
-              <div class="min-w-0">
-                <h3 class="text-xs text-green-500 truncate">Total Records</h3>
-                <p :class="textClass" class="text-lg sm:text-xl font-bold">{{ filteredTransactionInCount }}</p>
-              </div>
-            </div>
-
-            <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-blue-500 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <Package class="w-7 h-7 sm:w-8 sm:h-8 text-blue-500 flex-shrink-0" />
-              <div class="min-w-0">
-                <h3 class="text-xs text-blue-500 truncate">Total Qty</h3>
-                <p :class="textClass" class="text-lg sm:text-xl font-bold">{{ filteredTransactionInQty.toLocaleString() }}</p>
-              </div>
-            </div>
-
-            <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-purple-500 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <DollarSign class="w-7 h-7 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" />
-              <div class="min-w-0">
-                <h3 class="text-xs text-purple-500 truncate">Total Value</h3>
-                <p :class="textClass" class="text-lg sm:text-xl font-bold">₱{{ filteredTransactionInValue.toLocaleString() }}</p>
-              </div>
-            </div>
-
-            <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-yellow-500 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <Clock class="w-7 h-7 sm:w-8 sm:h-8 text-yellow-500 flex-shrink-0" />
-              <div class="min-w-0">
-                <h3 class="text-xs text-yellow-500 truncate">To Review</h3>
-                <p :class="textClass" class="text-lg sm:text-xl font-bold text-yellow-500">{{ filteredTransactionInToReview }}</p>
-              </div>
-            </div>
-
-            <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-green-600 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <CheckCircle class="w-7 h-7 sm:w-8 sm:h-8 text-green-600 flex-shrink-0" />
-              <div class="min-w-0">
-                <h3 class="text-xs text-green-600 truncate">Stock IN</h3>
-                <p :class="textClass" class="text-lg sm:text-xl font-bold text-green-600">{{ filteredTransactionInStockIn }}</p>
-              </div>
-            </div>
-
-            <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 border-l-4 border-red-500 flex items-center gap-2 sm:gap-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <XCircle class="w-7 h-7 sm:w-8 sm:h-8 text-red-500 flex-shrink-0" />
-              <div class="min-w-0">
-                <h3 class="text-xs text-red-500 truncate">Stock OUT</h3>
-                <p :class="textClass" class="text-lg sm:text-xl font-bold text-red-500">{{ filteredTransactionInStockOut }}</p>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Recent Transaction In Preview -->
-          <div v-if="recentTransactionIn.length > 0" :class="cardClass" :style="cardStyle" class="mt-4 shadow rounded-lg p-4 border-t-2 border-green-600">
-            <h4 :class="textClass" class="text-sm font-semibold mb-3 flex items-center gap-2">
-              <TrendingUp class="w-4 h-4" />
-              Recent Transactions
-            </h4>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-sm">
-                <thead :class="tableHeaderClass">
-                  <tr>
-                    <th class="p-2">Part No</th>
-                    <th class="p-2">Part Name</th>
-                    <th class="p-2">Qty</th>
-                    <th class="p-2">Status</th>
-                    <th class="p-2">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in recentTransactionIn.slice(0, 5)" :key="item.id" :class="tableRowClass" class="border-b border-gray-200 dark:border-gray-700">
-                    <td :class="textClass" class="p-2 font-medium">{{ item.partNo }}</td>
-                    <td :class="subTextClass" class="p-2">{{ item.partName }}</td>
-                    <td :class="textClass" class="p-2">{{ item.quantity }}</td>
-                    <td class="p-2">
-                      <span :class="getTransactionInStatusClass(item.statusIN)" class="px-2 py-0.5 rounded text-xs font-medium uppercase">
-                        {{ item.statusIN || 'To Review' }}
-                      </span>
-                    </td>
-                    <td :class="subTextClass" class="p-2">{{ formatTransactionDate(item.createdAt) }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-
-        <!-- Transaction Out Cards -->
-        <div class="mb-6">
-          <h3 :class="textClass" class="text-lg font-semibold mb-3 flex items-center gap-2 text-orange-600">
-            <ArrowUpCircle class="w-5 h-5" />
-            Transaction Out / Sales (Today's Outgoing)
-          </h3>
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 lg:p-6 border-l-4 border-orange-500 flex items-center gap-2 sm:gap-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <ArrowUpCircle class="w-8 h-8 sm:w-10 sm:h-10 text-orange-500 flex-shrink-0" />
-              <div class="min-w-0">
-                <h3 class="text-xs sm:text-sm text-orange-500 truncate">Today's Sales</h3>
-                <p :class="textClass" class="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-500">{{ todaysTransactionOutCount }}</p>
-              </div>
-            </div>
-
-            <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 lg:p-6 border-l-4 border-blue-500 flex items-center gap-2 sm:gap-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <Package class="w-8 h-8 sm:w-10 sm:h-10 text-blue-500 flex-shrink-0" />
-              <div class="min-w-0">
-                <h3 class="text-xs sm:text-sm text-blue-500 truncate">Total Qty Sold</h3>
-                <p :class="textClass" class="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-500">{{ todaysTransactionOutQty.toLocaleString() }}</p>
-              </div>
-            </div>
-
-            <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 lg:p-6 border-l-4 border-green-500 flex items-center gap-2 sm:gap-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <DollarSign class="w-8 h-8 sm:w-10 sm:h-10 text-green-500 flex-shrink-0" />
-              <div class="min-w-0">
-                <h3 class="text-xs sm:text-sm text-green-500 truncate">Total Sales (₱)</h3>
-                <p :class="textClass" class="text-xl sm:text-2xl lg:text-3xl font-bold text-green-500">₱{{ todaysTransactionOutValue.toLocaleString() }}</p>
-              </div>
-            </div>
-
-            <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-3 sm:p-4 lg:p-6 border-l-4 border-yellow-500 flex items-center gap-2 sm:gap-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <Clock class="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500 flex-shrink-0" />
-              <div class="min-w-0">
-                <h3 class="text-xs sm:text-sm text-yellow-500 truncate">Pending Sales</h3>
-                <p :class="textClass" class="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-500">{{ pendingTransactionOut }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Transaction Charts -->
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-4 sm:p-6 border-t-2 border-blue-600 xl:col-span-2 hover:shadow-xl transition-all duration-300">
-            <h2 :class="textClass" class="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <TrendingUp class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-              Transaction In vs Out (Last 7 Days)
-            </h2>
-            <div class="chart-wrapper">
-              <canvas ref="transactionChart"></canvas>
-            </div>
-          </div>
-
-          <div :class="cardClass" :style="cardStyle" class="shadow rounded-lg p-4 sm:p-6 border-t-2 border-orange-600 hover:shadow-xl transition-all duration-300">
-            <h2 :class="textClass" class="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <BarChart3 class="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
-              Sales by Category
-            </h2>
-            <div class="chart-wrapper">
-              <canvas ref="salesCategoryChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div class="absolute bottom-0 left-0 w-full z-0 opacity-5 pointer-events-none transform rotate-180">
+      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+        <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
+      </svg>
     </div>
 
     <!-- 🔴 Sync Button -->
@@ -377,7 +399,6 @@
 
   </div>
 </template>
-
 
 <script setup>
 import { ref, onMounted, computed, nextTick, onUnmounted, watch } from "vue";

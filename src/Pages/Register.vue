@@ -1,80 +1,85 @@
 <template>
-  <div class="min-h-screen flex">
+  <div class="min-h-screen flex font-sans">
+    
+    <div class="w-full md:w-2/5 flex items-center justify-center bg-white relative overflow-hidden">
 
-    <!-- LEFT: REGISTER FORM -->
-    <div class="w-full md:w-2/5 flex items-center justify-center bg-white">
-      <div class="w-full max-w-2xl p-8">
+      <!-- BACK TO LANDING ICON -->
+      <router-link
+        to="/"
+        class="absolute top-4 left-135 z-20 flex items-center gap-1 text-red-600 hover:text-red-700 isuzu-font"
+      >
+        <ArrowLeft size="18" />
+        <span class="text-sm">Home</span>
+      </router-link>
+      
+      <div class="absolute top-0 left-0 w-full z-0">
+        <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+          <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
+        </svg>
+      </div>
 
-        <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">
+      <div class="w-full max-w-2xl p-8 z-10 my-12">
+        <h2 class="text-3xl text-center mb-8 text-red-600 isuzu-font uppercase tracking-widest">
           Register
         </h2>
 
-        <form @submit.prevent="register">
+        <form @submit.prevent="register" class="space-y-4">
 
-          <!-- ROW 1: Last, First, Middle -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label class="block text-sm font-medium mb-1">Last Name</label>
+              <label class="block text-[10px] mb-1 text-neutral-500 uppercase tracking-wider isuzu-font">Last Name</label>
               <input
                 v-model="lastName"
                 required
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-2 text-sm border border-neutral-300 rounded-2xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                 style="text-transform:uppercase"
                 @input="lastName = lastName.toUpperCase()"
               />
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-1">First Name</label>
+              <label class="block text-[10px] mb-1 text-neutral-500 uppercase tracking-wider isuzu-font">First Name</label>
               <input
                 v-model="firstName"
                 required
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-2 text-sm border border-neutral-300 rounded-2xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                 style="text-transform:uppercase"
                 @input="firstName = firstName.toUpperCase()"
               />
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-1">Middle</label>
+              <label class="block text-[10px] mb-1 text-neutral-500 uppercase tracking-wider isuzu-font">Middle</label>
               <input
                 v-model="middleInitial"
                 maxlength="1"
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-2 text-sm border border-neutral-300 rounded-2xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                 style="text-transform:uppercase"
                 @input="middleInitial = middleInitial.toUpperCase()"
               />
             </div>
           </div>
 
-          <!-- ROW 2: Username, Email, Contact -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label class="block text-sm font-medium mb-1">Username</label>
+              <label class="block text-[10px] mb-1 text-neutral-500 uppercase tracking-wider isuzu-font">Username</label>
               <input
                 v-model="username"
                 required
                 @blur="checkUsernameExists(username)"
                 @input="debouncedCheckUsername(username)"
                 :class="[
-                  'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500',
-                  usernameError ? 'border-red-500' : '',
+                  'w-full px-4 py-2 text-sm border rounded-2xl focus:outline-none focus:ring-1 focus:ring-red-500',
+                  usernameError ? 'border-red-500' : 'border-neutral-300',
                   !usernameError && username && !usernameChecking ? 'border-green-500' : ''
                 ]"
               />
-              <p v-if="usernameChecking" class="text-blue-600 text-xs mt-1">
-                Checking availability...
-              </p>
-              <p v-else-if="usernameError" class="text-red-600 text-xs mt-1">
-                {{ usernameError }}
-              </p>
-              <p v-else-if="username && !isUsernameTaken" class="text-green-600 text-xs mt-1">
-                Username is available
-              </p>
+              <p v-if="usernameChecking" class="text-[9px] text-blue-600 mt-1 italic">Checking...</p>
+              <p v-else-if="usernameError" class="text-[9px] text-red-600 mt-1">{{ usernameError }}</p>
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-1">Email</label>
+              <label class="block text-[10px] mb-1 text-neutral-500 uppercase tracking-wider isuzu-font">Email</label>
               <input
                 v-model="email"
                 type="email"
@@ -82,124 +87,188 @@
                 @blur="checkEmailExists(email)"
                 @input="debouncedCheckEmail(email)"
                 :class="[
-                  'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500',
-                  emailError ? 'border-red-500' : '',
-                  !emailError && email && !emailChecking ? 'border-green-500' : ''
+                  'w-full px-4 py-2 text-sm border rounded-2xl focus:outline-none focus:ring-1 focus:ring-red-500',
+                  emailError ? 'border-red-500' : 'border-neutral-300'
                 ]"
               />
-              <p v-if="emailChecking" class="text-blue-600 text-xs mt-1">
-                Checking availability...
-              </p>
-              <p v-else-if="emailError" class="text-red-600 text-xs mt-1">
-                {{ emailError }}
-              </p>
-              <p v-else-if="email && !isEmailTaken" class="text-green-600 text-xs mt-1">
-                Email is available
-              </p>
             </div>
 
-
             <div>
-              <label class="block text-sm font-medium mb-1">Contact</label>
+              <label class="block text-[10px] mb-1 text-neutral-500 uppercase tracking-wider isuzu-font">Contact</label>
               <input
                 v-model="contactNumber"
                 @input="onContactInput"
                 maxlength="13"
                 required
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-2 text-sm border border-neutral-300 rounded-2xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               />
             </div>
           </div>
 
-          <!-- ROW 3: Gender, Birthday -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium mb-1">Gender</label>
+              <label class="block text-[10px] mb-1 text-neutral-500 uppercase tracking-wider isuzu-font">Gender</label>
               <select
                 v-model="gender"
                 required
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-2 text-sm border border-neutral-300 rounded-2xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 appearance-none bg-white"
               >
-                <option value="">Select</option>
-                <option>Male</option>
-                <option>Female</option>
-                <option>Other</option>
+                <option value="" class="text-neutral-500">Select Gender</option>
+                <option class="text-neutral-500">Male</option>
+                <option class="text-neutral-500">Female</option>
               </select>
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-1">Birthday</label>
+              <label class="block text-[10px] mb-1 text-neutral-500 uppercase tracking-wider isuzu-font">Birthday</label>
               <input
                 v-model="birthday"
                 type="date"
                 required
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-2 text-sm border border-neutral-300 rounded-2xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               />
             </div>
           </div>
 
-          <!-- ROW 4: Password -->
-          <div class="mb-4">
-            <label class="block text-sm font-medium mb-1">Password</label>
-            <input
-              v-model="password"
-              type="password"
-              required
-              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
+          <!-- PASSWORD SECTION -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- PASSWORD -->
+            <div class="relative">
+              <label class="block text-[10px] mb-1 text-neutral-500 uppercase tracking-wider isuzu-font">
+                Password
+              </label>
+
+              <input
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                required
+                class="w-full px-4 py-2 pr-12 text-sm border border-neutral-300 rounded-2xl 
+                       focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              />
+
+              <!-- ICON -->
+              <button
+                type="button"
+                @click="showPassword = !showPassword"
+                 class="absolute right-4 top-1/2 -translate-y text-neutral-400 hover:text-red-500 transition"
+              >
+                <Eye v-if="!showPassword" size="18" />
+                <EyeOff v-else size="18" />
+              </button>
+            </div>
+
+            <!-- CONFIRM PASSWORD -->
+            <div class="relative">
+              <label class="block text-[10px] mb-1 text-neutral-500 uppercase tracking-wider isuzu-font">
+                Confirm Password
+              </label>
+
+              <input
+                v-model="confirmPassword"
+                :type="showConfirmPassword ? 'text' : 'password'"
+                required
+                class="w-full px-4 py-2 pr-12 text-sm border border-neutral-300 rounded-2xl 
+                       focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              />
+
+              <!-- ICON -->
+              <button
+                type="button"
+                @click="showConfirmPassword = !showConfirmPassword"
+                 class="absolute right-4 top-1/2 -translate-y text-neutral-400 hover:text-red-500 transition"
+              >
+                <Eye v-if="!showConfirmPassword" size="18" />
+                <EyeOff v-else size="18" />
+              </button>
+            </div>
+
           </div>
 
-          <!-- ROW 5: Confirm Password -->
-          <div class="mb-4">
-            <label class="block text-sm font-medium mb-1">Confirm Password</label>
-            <input
-              v-model="confirmPassword"
-              type="password"
-              required
-              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
 
-          <!-- TERMS -->
-          <div class="mb-4 flex items-start">
-            <input type="checkbox" v-model="termsAgreed" class="mt-1 mr-2" />
-            <span class="text-sm">
+          <div class="py-2 flex items-center gap-2">
+            <input type="checkbox" v-model="termsAgreed" class="accent-red-600" />
+            <span class="text-xs text-neutral-600">
               I agree to the
-              <a href="/terms" class="text-blue-600 underline">Terms</a> and
-              <a href="/privacy" class="text-blue-600 underline">Privacy Policy</a>
+              <a href="/terms" class="text-red-600 font-bold hover:underline">Terms</a> and
+              <a href="/privacy" class="text-red-600 font-bold hover:underline">Privacy Policy</a>
             </span>
           </div>
-
-          <!-- REGISTER BUTTON -->
 
           <button
             type="submit"
             :disabled="isRegistering || isUsernameTaken || isEmailTaken || usernameChecking || emailChecking"
-            class="w-full bg-gray-800 text-white py-2 rounded-lg font-medium hover:bg-gray-900 transition mb-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            class="w-full bg-neutral-700 text-white py-3 rounded-full uppercase tracking-widest hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 isuzu-font shadow-md"
           >
             <span v-if="isRegistering" class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
             {{ isRegistering ? 'Registering...' : 'Register' }}
           </button>
 
-
-
-          <!-- LOGIN LINK -->
-          <p class="text-center text-sm text-gray-700">
+          <p class="text-center text-xs text-neutral-600 mt-4">
             Have an account?
-            <router-link to="/" class="text-blue-600 font-medium hover:underline">
+            <router-link to="/login" class="text-red-600 font-bold hover:underline ml-1">
               Login
             </router-link>
           </p>
 
         </form>
       </div>
+
+      <div class="absolute bottom-0 left-0 w-full z-0">
+        <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+          <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
+        </svg>
+      </div>
     </div>
 
-    <!-- RIGHT: BACKGROUND -->
+   <!-- RIGHT SIDE IMAGE -->
     <div
-      class="hidden md:block md:w-3/5 bg-cover bg-center"
+      class="hidden md:block md:w-3/5 relative bg-cover bg-center"
       :style="{ backgroundImage: `url(${bgImage})` }"
-    ></div>
+    >
+      <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/60 to-black/50"></div>
+
+      <!-- TOP LEFT LOGO SECTION -->
+      <div class="absolute top-8 left-8 z-10 flex items-center gap-6">
+
+         <!-- MDO -->
+        <div class="flex items-center gap-3">
+          <div class="text-white">
+            <h1 class="text-lg font-semibold tracking-wide">
+              <span class="text-blue-600">Mina</span>
+              <span class="text-yellow-500 mx-1">de</span>
+              <span class="text-red-700">Oro</span>
+            </h1>
+
+            <div class="w-25 h-0.5 bg-neutral-800 my-1"></div>
+
+            <p class="text-[10px] text-center tracking-[0.2em] opacity-80 text-white font-bold">Motors</p>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="h-10 w-px bg-white/40"></div>
+
+        <!-- ISUZU -->
+        <div class="flex items-center gap-4">
+          <div class="text-white isuzu-font">
+            <h1 class="text-3xl tracking-tighter">I S U Z U</h1>
+            <p class="text-[12px] tracking-[0.2em] opacity-80">CALAPAN CITY</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM DEPARTMENTS -->
+      <div class="absolute bottom-8 left-0 right-0 z-10 flex justify-center text-white text-[10px] uppercase tracking-widest opacity-70">
+        <div class="flex items-center divide-x divide-white/30 isuzu-font">
+          <span class="px-4">HR Department</span>
+          <span class="px-4">Sales Department</span>
+          <span class="px-4">After Sales Department</span>
+          <span class="px-4 border-r-0">Admin Department</span>
+        </div>
+      </div>
+    </div> 
 
   </div>
 </template>
@@ -214,7 +283,7 @@ import {
   signOut
 } from "firebase/auth";
 import { doc, setDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
-
+import { Eye, EyeOff, ArrowLeft } from "lucide-vue-next";
 
 import { auth, db } from "../Firebase/Firebase";
 import bgRegister from "../assets/isuzubg_login2.jpg";
@@ -240,6 +309,9 @@ const confirmPassword = ref("");
 const termsAgreed = ref(false);
 
 const isRegistering = ref(false);
+
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 
 
 // Validation states for uniqueness checking
@@ -500,6 +572,8 @@ input:focus,
 select:focus,
 button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #2563eb;
+}
+.isuzu-font {
+  font-family: 'IsuzuFont', sans-serif;
 }
 </style>
