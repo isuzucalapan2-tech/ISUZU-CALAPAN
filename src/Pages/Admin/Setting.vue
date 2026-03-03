@@ -3,7 +3,7 @@
     <Loaders />
   </div>
 
-  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden bg-gray-70">
+  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden bg-gray-50">
     
     <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
@@ -36,7 +36,7 @@
           class="group flex items-center gap-2 bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg disabled:opacity-50"
         >
           <LogOutIcon class="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
-          {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+          {{ isLoggingOut ? 'Logout' : 'Logout' }}
         </button>
       </div>
     </header>
@@ -75,37 +75,45 @@
         <div class="space-y-8 pb-20">
           
           <div v-if="activeTab === 'general'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 relative overflow-hidden">
+            <div class="bg-white rounded-3xl p-10 shadow-xl border border-gray-100 relative overflow-hidden max-w-2xl">
               <div class="absolute top-0 right-0 p-4 opacity-5">
-                <UserCogIcon class="w-32 h-32 text-neutral-900" />
+                <Settings2Icon class="w-32 h-32 text-neutral-900" />
               </div>
 
-              <h2 class="text-xl font-black mb-8 flex items-center gap-3 uppercase tracking-tighter text-neutral-800">
-                <span class="w-2 h-8 bg-red-600 rounded-full"></span> Account & System
+              <h2 class="text-xl font-black mb-10 flex items-center gap-3 uppercase tracking-tighter text-neutral-800">
+                <span class="w-2 h-8 bg-red-600 rounded-full"></span> Interface Preferences
               </h2>
 
-              <div class="grid md:grid-cols-2 gap-8 relative z-10">
-                <div class="space-y-2">
-                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Company Name</label>
-                  <input v-model="settings.general.companyName" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-3.5 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all outline-none font-medium text-neutral-800" />
+              <div class="relative z-10 space-y-8">
+                <div class="flex items-center justify-between p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div class="flex items-center gap-4">
+                    <div class="p-3 bg-white rounded-xl shadow-sm">
+                      <SunIcon v-if="settings.general.theme === 'light'" class="w-6 h-6 text-orange-500" />
+                      <MoonIcon v-else class="w-6 h-6 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p class="text-sm font-black uppercase tracking-widest text-neutral-800">System Theme</p>
+                      <p class="text-xs text-gray-500">Toggle between Light and Dark visual modes</p>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    @click="settings.general.theme = settings.general.theme === 'light' ? 'dark' : 'light'; applyTheme(settings.general.theme)"
+                    class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-300 focus:outline-none"
+                    :class="settings.general.theme === 'dark' ? 'bg-red-600' : 'bg-gray-300'"
+                  >
+                    <span
+                      :class="settings.general.theme === 'dark' ? 'translate-x-7' : 'translate-x-1'"
+                      class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 shadow-md"
+                    />
+                  </button>
                 </div>
-                <div class="space-y-2">
-                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Company Email</label>
-                  <input v-model="settings.general.companyEmail" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-3.5 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all outline-none font-medium text-neutral-800" />
-                </div>
-                <div class="space-y-2">
-                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">System Theme</label>
-                  <select v-model="settings.general.theme" @change="applyTheme(settings.general.theme)" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-3.5 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all outline-none font-bold text-neutral-800">
-                    <option value="light">LIGHT MODE</option>
-                    <option value="dark">DARK MODE</option>
-                  </select>
-                </div>
-              </div>
 
-              <div class="mt-12 pt-8 border-t border-gray-100">
-                <button @click="saveSettings" class="bg-red-600 text-white px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] hover:bg-neutral-800 transition-all duration-300 flex items-center gap-3 shadow-xl hover:shadow-red-200 isuzu-font text-sm">
-                  <SaveIcon class="w-5 h-5" /> Save Preferences
-                </button>
+                <div class="pt-6 border-t border-gray-100">
+                  <button @click="saveSettings" class="bg-red-600 text-white px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] hover:bg-neutral-800 transition-all duration-300 flex items-center gap-3 shadow-xl isuzu-font text-sm">
+                    <SaveIcon class="w-5 h-5" /> Save Changes
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -127,7 +135,6 @@
                     <button class="text-[10px] font-black uppercase tracking-widest text-red-600 hover:underline opacity-50 cursor-not-allowed">Add New Unit</button>
                   </div>
                   <div class="group relative p-6 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl hover:border-red-300 transition-colors">
-                    <!-- Image Upload for Car Units -->
                     <div class="mb-3">
                       <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Car Image</label>
                       <input type="file" accept="image/*" @change="onCarImageUpload" class="block w-full text-xs" />
@@ -152,7 +159,6 @@
                     <button class="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:underline opacity-50 cursor-not-allowed">Add New Service</button>
                   </div>
                   <div class="p-6 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl hover:border-blue-300 transition-colors">
-                    <!-- Image Upload for After Sales -->
                     <div class="mb-3">
                       <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Service Image</label>
                       <input type="file" accept="image/*" @change="onServiceImageUpload" class="block w-full text-xs" />
@@ -194,8 +200,7 @@
               </div>
             </div>
 
-            <!-- Editable About Us & Slogan Card -->
-            <div v-if="activeTab === 'landing'" class="bg-white rounded-3xl p-8 border border-gray-100 mt-8">
+            <div class="bg-white rounded-3xl p-8 border border-gray-100 mt-8">
               <h2 class="text-2xl font-black mb-10 flex items-center gap-3 uppercase tracking-tighter text-neutral-800 isuzu-font">
                 <TagIcon class="w-7 h-7 text-red-600" /> 
                 About Us <span class="text-red-600">Editor</span>
@@ -217,15 +222,14 @@
                 </div>
                 <div class="mt-8">
                   <h3 class="font-black text-sm uppercase tracking-widest text-neutral-700 mb-2">Preview:</h3>
-                  <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
                     <p class="text-sm text-gray-700 mb-4 whitespace-pre-line">{{ aboutUsTextLine1 }}</p>
                     <p class="text-sm text-gray-700 mb-4 whitespace-pre-line">{{ aboutUsTextLine2 }}</p>
-                    <p class="isuzu-font text-red-500 tracking-widest text-lg">{{ sloganText }}</p>
+                    <p class="isuzu-font text-red-500 tracking-widest text-lg font-black">{{ sloganText }}</p>
                   </div>
                 </div>
               </div>
             </div>
-
 
             <div class="flex justify-center pt-10">
               <button @click="saveLandingContent" class="group bg-red-600 text-white px-16 py-5 rounded-full font-black text-xl shadow-[0_20px_50px_rgba(204,0,0,0.3)] transition-all flex items-center gap-4 isuzu-font">
@@ -254,7 +258,7 @@ import Loaders from "../../components/Loaders.vue";
 
 import {
   SettingsIcon, LogOutIcon, UserIcon,
-  UserCogIcon, SaveIcon,
+  UserCogIcon, SaveIcon, MoonIcon, SunIcon, 
   Loader2Icon, CheckCircleIcon, XCircleIcon
 } from "lucide-vue-next";
 
@@ -284,6 +288,10 @@ const sloganText = ref("Power You Can Trust.");
 const aboutUsSaveSuccess = ref(false);
 const aboutUsSaveError = ref(null);
 
+const toggleTheme = () => {
+  settings.value.general.theme = settings.value.general.theme === 'light' ? 'dark' : 'light';
+  applyTheme(settings.value.general.theme);
+}
 
 /* ===== THEME ===== */
 const themeClass = computed(() =>
@@ -423,6 +431,29 @@ onMounted(async () => {
   isLoading.value = false;
 });
 
+const carUnitImage = ref(null);
+const serviceImage = ref(null);
+
+function onCarImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    carUnitImage.value = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function onServiceImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    serviceImage.value = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 const tabClass = (tab) =>
   activeTab.value === tab
     ? "text-blue-600 border-b-2 border-blue-600"
@@ -452,28 +483,3 @@ input, textarea, select { background-color: white !important; color: #1a202c !im
   font-family: 'IsuzuFont', sans-serif;
 }
 </style>
-
-<script>
-const carUnitImage = ref(null);
-const serviceImage = ref(null);
-
-function onCarImageUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    carUnitImage.value = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function onServiceImageUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    serviceImage.value = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-</script>
