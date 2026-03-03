@@ -47,14 +47,14 @@
         <div class="flex space-x-2 mb-8 bg-gray-200/50 p-1 rounded-2xl w-fit">
           <button 
             @click="activeTab = 'general'" 
-            :class="activeTab === 'general' ? 'bg-white text-red-600 shadow-md' : 'text-neutral-500 hover:text-neutral-800'"
+            :class="activeTab === 'general' ? 'bg-white text-red-600 shadow-md' : 'text-neutral-700 hover:text-neutral-800'"
             class="px-8 py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-xs tracking-widest isuzu-font"
           >
             <UserIcon class="w-4 h-4" /> General
           </button>
           <button 
             @click="activeTab = 'landing'" 
-            :class="activeTab === 'landing' ? 'bg-white text-red-600 shadow-md' : 'text-gray-500 hover:text-neutral-800'"
+            :class="activeTab === 'landing' ? 'bg-white text-red-600 shadow-md' : 'text-neutral-700 hover:text-neutral-800'"
             class="px-8 py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-xs tracking-widest isuzu-font"
           >
             <LayoutIcon class="w-4 h-4" /> Landing Editor
@@ -75,7 +75,7 @@
         <div class="space-y-8 pb-20">
           
           <div v-if="activeTab === 'general'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="bg-neutral-700/40 rounded-2xl p-10 border border-neutral-400 relative overflow-hidden max-w-2xl">
+            <div class="rounded-2xl p-10 relative overflow-hidden max-w-2xl">
               <div class="absolute top-0 right-0 p-4 opacity-5">
                 <Settings2Icon class="w-32 h-32 text-neutral-900" />
               </div>
@@ -85,10 +85,10 @@
               </h2>
 
               <div class="relative z-10 space-y-8">
-                <div class="flex items-center justify-between p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                <div class="flex items-center justify-between p-6 rounded-2xl border border-neutral-100">
                   <div class="flex items-center gap-4">
                     <div class="p-3 bg-white rounded-full border border-neutral-500">
-                      <SunIcon v-if="settings.general.theme === 'light'" class="w-6 h-6 text-orange-500" />
+                      <SunIcon v-if="settings.general.theme === 'light'" class="w-6 h-6 text-yellow-500" />
                       <MoonIcon v-else class="w-6 h-6 text-indigo-600" />
                     </div>
                     <div>
@@ -100,7 +100,7 @@
                   <button 
                     @click="settings.general.theme = settings.general.theme === 'light' ? 'dark' : 'light'; applyTheme(settings.general.theme)"
                     class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-300 focus:outline-none"
-                    :class="settings.general.theme === 'dark' ? 'bg-red-600' : 'bg-gray-300'"
+                    :class="settings.general.theme === 'dark' ? 'border border-neutral-600 bg-gradient-to-r from-indigo-900 via-blue-600/40 to-black-900' : 'border border-neutral-400 bg-gradient-to-r from-neutral-200 to-yellow-600'"
                   >
                     <span
                       :class="settings.general.theme === 'dark' ? 'translate-x-7' : 'translate-x-1'"
@@ -110,8 +110,8 @@
                 </div>
 
                 <div class="pt-6 border-t border-gray-100">
-                  <button @click="saveSettings" class="bg-red-600 text-white px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] hover:bg-neutral-800 transition-all duration-300 flex items-center gap-3 shadow-xl isuzu-font text-sm">
-                    <SaveIcon class="w-5 h-5" /> Save Changes
+                  <button @click="saveSettings" class="bg-red-600 text-white px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-3 isuzu-font text-sm">
+                    <SaveIcon class="w-5 h-5" /> Save
                   </button>
                 </div>
               </div>
