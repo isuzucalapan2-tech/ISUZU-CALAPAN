@@ -1,5 +1,6 @@
 <template>
   <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
+  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
     <Loaders />
   </div>
 
@@ -12,19 +13,23 @@
     </div>
 
     <header :class="[headerClass, 'relative z-10 px-8 py-6 flex justify-between items-center']">
+    <header :class="[headerClass, 'relative z-10 px-8 py-6 flex justify-between items-center']">
       <div class="flex items-center gap-4">
         <div class="bg-red-600 p-2 rounded-lg text-white">
           <Users class="w-6 h-6" />
         </div>
         <div>
           <h1 :class="['text-2xl font-black uppercase tracking-widest isuzu-font', textClass]">
+          <h1 :class="['text-2xl font-black uppercase tracking-widest isuzu-font', textClass]">
             User <span class="text-red-600">Management</span>
           </h1>
+          <p :class="['text-[10px] uppercase tracking-[0.3em] font-bold', subTextClass]">Access Control Matrix</p>
           <p :class="['text-[10px] uppercase tracking-[0.3em] font-bold', subTextClass]">Access Control Matrix</p>
         </div>
       </div>
 
       <div class="flex items-center gap-4">
+         <span :class="['px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest', isDarkMode ? 'bg-red-900/30 text-red-400 border-red-800' : 'bg-red-50 text-red-600 border-red-100']">
          <span :class="['px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest', isDarkMode ? 'bg-red-900/30 text-red-400 border-red-800' : 'bg-red-50 text-red-600 border-red-100']">
             {{ resultCount }} Active Records
          </span>
@@ -35,22 +40,27 @@
       <div class="max-w-7xl mx-auto space-y-3">
         
         <div :class="[cardClass, 'backdrop-blur-none rounded-2xl p-6 border flex flex-wrap items-center gap-4']" :style="cardStyle">
+        <div :class="[cardClass, 'backdrop-blur-none rounded-2xl p-6 border flex flex-wrap items-center gap-4']" :style="cardStyle">
           <div class="relative flex-1 min-w-[300px]">
+            <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2" :class="subTextClass" />
             <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2" :class="subTextClass" />
             <input
               v-model="searchQuery"
               type="text"
               placeholder="SEARCH BY NAME, USERNAME, EMAIL..."
               :class="['w-full pl-11 pr-4 py-3 border rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all', isDarkMode ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-neutral-800']"
+              :class="['w-full pl-11 pr-4 py-3 border rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all', isDarkMode ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-neutral-800']"
             />
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
             <select v-model="selectedRole" :class="['px-4 py-3 border rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none cursor-pointer', isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 border-gray-200 text-neutral-800']">
+            <select v-model="selectedRole" :class="['px-4 py-3 border rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none cursor-pointer', isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 border-gray-200 text-neutral-800']">
               <option value="">ALL ROLES</option>
               <option v-for="role in roleOptions" :key="role" :value="role">{{ role.toUpperCase() }}</option>
             </select>
 
+            <select v-model="selectedStatus" :class="['px-4 py-3 border rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none cursor-pointer', isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 border-gray-200 text-neutral-800']">
             <select v-model="selectedStatus" :class="['px-4 py-3 border rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none cursor-pointer', isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 border-gray-200 text-neutral-800']">
               <option value="">ALL STATUS</option>
               <option value="Active">ACTIVE</option>
@@ -67,6 +77,7 @@
           </div>
         </div>
 
+        <div :class="[cardClass, 'rounded-2xl border overflow-hidden relative']" :style="cardStyle">
         <div :class="[cardClass, 'rounded-2xl border overflow-hidden relative']" :style="cardStyle">
           <div class="h-1.5 w-full bg-neutral-800 flex">
             <div class="h-full w-24 bg-red-600"></div>
@@ -93,11 +104,13 @@
                       </div>
                       <div>
                         <p :class="['text-sm font-black uppercase tracking-tight', textClass]">{{ admin.firstName }} {{ admin.lastName }}</p>
+                        <p :class="['text-sm font-black uppercase tracking-tight', textClass]">{{ admin.firstName }} {{ admin.lastName }}</p>
                         <p class="text-[10px] text-red-600 font-bold tracking-widest">@{{ admin.username }}</p>
                       </div>
                     </div>
                   </td>
 
+                  <td :class="['px-6 py-5 text-xs font-bold italic', subTextClass]">
                   <td :class="['px-6 py-5 text-xs font-bold italic', subTextClass]">
                     {{ admin.email }}
                   </td>
@@ -114,13 +127,17 @@
                     <div v-else>
                       <p :class="['text-xs font-black uppercase', textClass]">{{ admin.position || 'N/A' }}</p>
                       <p :class="['text-[10px] font-bold uppercase', subTextClass]">{{ admin.roleName || 'N/A' }}</p>
+                      <p :class="['text-xs font-black uppercase', textClass]">{{ admin.position || 'N/A' }}</p>
+                      <p :class="['text-[10px] font-bold uppercase', subTextClass]">{{ admin.roleName || 'N/A' }}</p>
                     </div>
                   </td>
 
                   <td class="px-6 py-5">
                     <select v-if="admin.isEditing" v-model="admin.selectedPermission" :class="['w-full border rounded px-2 py-1 text-[10px] font-bold uppercase', isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white text-neutral-800 border-gray-200']">
+                    <select v-if="admin.isEditing" v-model="admin.selectedPermission" :class="['w-full border rounded px-2 py-1 text-[10px] font-bold uppercase', isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white text-neutral-800 border-gray-200']">
                       <option v-for="perm in permissionOptions" :key="perm" :value="perm">{{ perm }}</option>
                     </select>
+                    <span v-else :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border', isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-neutral-100 text-neutral-600 border-neutral-200']">
                     <span v-else :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border', isDarkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-neutral-100 text-neutral-600 border-neutral-200']">
                       {{ admin.permission || "STANDARD" }}
                     </span>
@@ -161,6 +178,11 @@
                 <div :class="['flex items-center px-4 text-[10px] font-black italic uppercase', textClass]">PAGE {{ currentPage }} / {{ totalPages }}</div>
                 <button @click="currentPage++" :disabled="currentPage === totalPages" :class="['p-2 rounded-lg border bg-white disabled:opacity-30 hover:text-red-600 transition-colors', isDarkMode ? 'border-gray-600 text-white' : 'border-gray-200 text-neutral-800']"><ChevronRight class="w-4 h-4" /></button>
                 <button @click="currentPage = totalPages" :disabled="currentPage === totalPages" :class="['p-2 rounded-lg border bg-white disabled:opacity-30 hover:text-red-600 transition-colors', isDarkMode ? 'border-gray-600 text-white' : 'border-gray-200 text-neutral-800']"><ChevronsRight class="w-4 h-4" /></button>
+                <button @click="currentPage = 1" :disabled="currentPage === 1" :class="['p-2 rounded-lg border bg-white disabled:opacity-30 hover:text-red-600 transition-colors', isDarkMode ? 'border-gray-600 text-white' : 'border-gray-200 text-neutral-800']"><ChevronsLeft class="w-4 h-4" /></button>
+                <button @click="currentPage--" :disabled="currentPage === 1" :class="['p-2 rounded-lg border bg-white disabled:opacity-30 hover:text-red-600 transition-colors', isDarkMode ? 'border-gray-600 text-white' : 'border-gray-200 text-neutral-800']"><ChevronLeft class="w-4 h-4" /></button>
+                <div :class="['flex items-center px-4 text-[10px] font-black italic uppercase', textClass]">PAGE {{ currentPage }} / {{ totalPages }}</div>
+                <button @click="currentPage++" :disabled="currentPage === totalPages" :class="['p-2 rounded-lg border bg-white disabled:opacity-30 hover:text-red-600 transition-colors', isDarkMode ? 'border-gray-600 text-white' : 'border-gray-200 text-neutral-800']"><ChevronRight class="w-4 h-4" /></button>
+                <button @click="currentPage = totalPages" :disabled="currentPage === totalPages" :class="['p-2 rounded-lg border bg-white disabled:opacity-30 hover:text-red-600 transition-colors', isDarkMode ? 'border-gray-600 text-white' : 'border-gray-200 text-neutral-800']"><ChevronsRight class="w-4 h-4" /></button>
               </div>
             </div>
           </div>
@@ -179,6 +201,15 @@ import {
   Users, Edit, CheckCircle, Power, AlertCircle, Search, X, 
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight 
 } from "lucide-vue-next";
+
+/* ===== THEME ===== */
+const isDarkMode = computed(() => document.documentElement.classList.contains('dark'));
+const themeClass = computed(() => isDarkMode.value ? 'text-white bg-neutral-900' : 'bg-neutral-50 text-gray-900');
+const headerClass = computed(() => isDarkMode.value ? 'bg-neutral-800/10' : 'bg-white/10');
+const cardClass = computed(() => isDarkMode.value ? 'text-white' : 'bg-white text-gray-900');
+const cardStyle = computed(() => isDarkMode.value ? { backgroundColor: '#262626', borderColor: '#374151' } : { borderColor: '#e5e7eb' });
+const textClass = computed(() => isDarkMode.value ? 'text-white' : 'text-neutral-800');
+const subTextClass = computed(() => isDarkMode.value ? 'text-gray-400' : 'text-gray-400');
 
 /* ===== THEME ===== */
 const isDarkMode = computed(() => document.documentElement.classList.contains('dark'));
@@ -283,6 +314,11 @@ const clearAllFilters = () => {
 };
 
 const getStatusBadgeClass = (status) => {
+  if (isDarkMode.value) {
+    return status === 'Active' 
+      ? "bg-green-900/30 border-green-700 text-green-400" 
+      : "bg-red-900/30 border-red-700 text-red-400";
+  }
   if (isDarkMode.value) {
     return status === 'Active' 
       ? "bg-green-900/30 border-green-700 text-green-400" 

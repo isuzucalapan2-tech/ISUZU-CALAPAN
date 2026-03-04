@@ -1,5 +1,6 @@
 <template>
   <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
+  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
     <Loaders />
   </div>
 
@@ -21,10 +22,12 @@
               System <span class="text-red-600">Dashboard</span>
             </h1>
             <p :class="['text-[10px] uppercase tracking-[0.3em] ml-5', subTextClass]">Real-time Operations Overview</p>
+            <p :class="['text-[10px] uppercase tracking-[0.3em] ml-5', subTextClass]">Real-time Operations Overview</p>
           </div>
           
           <div :class="[cardClass, 'backdrop-blur-sm border border-neutral-400 rounded-2xl px-4 py-3 flex items-center gap-4 shadow-sm']">
             <Calendar class="w-4 h-4 text-red-600" />
+            <span :class="['text-xs font-bold uppercase tracking-widest', subTextClass]">{{ new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }}</span>
             <span :class="['text-xs font-bold uppercase tracking-widest', subTextClass]">{{ new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }}</span>
           </div>
         </div>
@@ -109,6 +112,7 @@
           <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-500/20 relative overflow-hidden group transition-all']" :style="cardStyle">
             <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12 group-hover:scale-110 transition-transform duration-500">
               <UserCheck class="w-40 h-40" :class="isDarkMode ? 'text-white' : 'text-neutral-900'" />
+              <UserCheck class="w-40 h-40" :class="isDarkMode ? 'text-white' : 'text-neutral-900'" />
             </div>
 
             <div class="relative z-10 flex flex-col h-full">
@@ -117,14 +121,18 @@
                   <UserCheck class="w-6 h-6" :class="isDarkMode ? 'text-green-400' : 'text-green-600'" />
                 </div>
                 <span :class="['text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest border', isDarkMode ? 'bg-green-900/50 text-green-400 border-green-800' : 'bg-green-50 text-green-700 border-green-100']">Verified System Access</span>
+                <span :class="['text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest border', isDarkMode ? 'bg-green-900/50 text-green-400 border-green-800' : 'bg-green-50 text-green-700 border-green-100']">Verified System Access</span>
               </div>
               
               <div class="mt-auto">
                 <h2 :class="['text-[11px] font-black uppercase tracking-[0.2em] mb-1', subTextClass]">Total Approved</h2>
+                <h2 :class="['text-[11px] font-black uppercase tracking-[0.2em] mb-1', subTextClass]">Total Approved</h2>
                 <div class="flex items-baseline gap-2">
+                  <p :class="['text-6xl font-black tracking-tighter leading-none', textClass]">
                   <p :class="['text-6xl font-black tracking-tighter leading-none', textClass]">
                     {{ approvedUsersCount }}
                   </p>
+                  <p :class="['text-xs font-bold uppercase tracking-tighter', isDarkMode ? 'text-green-400' : 'text-green-600']">Users</p>
                   <p :class="['text-xs font-bold uppercase tracking-tighter', isDarkMode ? 'text-green-400' : 'text-green-600']">Users</p>
                 </div>
                 <div class="mt-4 flex items-center gap-2">
@@ -138,7 +146,7 @@
 
           <div class="bg-neutral-900 rounded-3xl p-8 text-white relative overflow-hidden group transition-all">
             <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12 group-hover:scale-110 transition-transform duration-500">
-              <Users class="w-40 h-40" />
+              <Users class="w-40 h-40" :class="isDarkMode ? 'text-white' : 'text-neutral-900'" />
             </div>
 
             <div class="relative z-10 flex flex-col h-full">
@@ -152,14 +160,14 @@
               </div>
 
               <div class="mt-auto">
-                <h2 class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Awaiting Approval</h2>
+                <h2 :class="['text-[11px] font-black uppercase tracking-[0.2em] mb-1', isDarkMode ? 'text-gray-400' : 'text-neutral-500']">Awaiting Approval</h2>
                 <div class="flex items-baseline gap-2">
-                  <p class="text-6xl font-black tracking-tighter text-yellow-500 leading-none">
+                  <p :class="['text-6xl font-black tracking-tighter leading-none', isDarkMode ? 'text-yellow-400' : 'text-yellow-500']">
                     {{ pendingUsersCount }}
                   </p>
-                  <p class="text-xs font-bold text-yellow-500 uppercase tracking-tighter italic">Pending</p>
+                  <p :class="['text-xs font-bold uppercase tracking-tighter italic', isDarkMode ? 'text-yellow-400' : 'text-yellow-500']">Pending</p>
                 </div>
-                <p class="text-[9px] font-medium text-gray-500 uppercase tracking-widest mt-4">New registration requests in queue</p>
+                <p :class="['text-[9px] font-medium uppercase tracking-widest mt-4', isDarkMode ? 'text-gray-500' : 'text-neutral-500']">New registration requests in queue</p>
               </div>
             </div>
           </div>
@@ -168,10 +176,12 @@
             <div class="flex items-center justify-between mb-6">
               <div>
                 <h3 :class="['text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2', subTextClass]">
+                <h3 :class="['text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2', subTextClass]">
                   <PieChart class="w-3.5 h-3.5 text-yellow-600" /> Access Distribution
                 </h3>
               </div>
               <div class="flex -space-x-2">
+                <div class="w-6 h-6 rounded-full border-2" :class="isDarkMode ? 'border-gray-700 bg-gray-500' : 'border-neutral-200 bg-neutral-400'"></div>
                 <div class="w-6 h-6 rounded-full border-2" :class="isDarkMode ? 'border-gray-700 bg-gray-500' : 'border-neutral-200 bg-neutral-400'"></div>
                 <div class="w-6 h-6 rounded-full border-2 border-neutral-200 bg-yellow-500"></div>
               </div>
@@ -181,6 +191,9 @@
               <canvas ref="approvalChart" class="max-h-[180px]"></canvas>
             </div>
 
+            <div :class="['mt-4 pt-4 border-t flex justify-between items-center', isDarkMode ? 'border-gray-700' : 'border-neutral-300']">
+              <span :class="['text-[9px] font-black uppercase tracking-widest italic', subTextClass]">Live Analytics</span>
+              <button :class="['text-[9px] font-black uppercase hover:underline', isDarkMode ? 'text-yellow-400' : 'text-yellow-700']">View Matrix</button>
             <div :class="['mt-4 pt-4 border-t flex justify-between items-center', isDarkMode ? 'border-gray-700' : 'border-neutral-300']">
               <span :class="['text-[9px] font-black uppercase tracking-widest italic', subTextClass]">Live Analytics</span>
               <button :class="['text-[9px] font-black uppercase hover:underline', isDarkMode ? 'text-yellow-400' : 'text-yellow-700']">View Matrix</button>
@@ -196,6 +209,8 @@
             </div>
             <h2 :class="['text-2xl font-black uppercase tracking-tighter isuzu-font', textClass]">
               Transactions <span :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">Overview</span>
+            <h2 :class="['text-2xl font-black uppercase tracking-tighter isuzu-font', textClass]">
+              Transactions <span :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">Overview</span>
             </h2>
           </div>
 
@@ -203,9 +218,11 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h3 :class="['text-lg font-bold flex items-center gap-2', textClass, isDarkMode ? 'text-green-400' : 'text-green-600']">
+                <h3 :class="['text-lg font-bold flex items-center gap-2', textClass, isDarkMode ? 'text-green-400' : 'text-green-600']">
                   <ArrowDownCircle class="w-5 h-5" />
                   Transaction In 
                 </h3>
+                <p :class="['text-[10px] font-black uppercase tracking-[0.2em]', subTextClass]">
                 <p :class="['text-[10px] font-black uppercase tracking-[0.2em]', subTextClass]">
                   Status: {{ transactionInFilter === 'today' ? 'Daily' : transactionInFilter === 'week' ? 'Weekly' : 'Monthly' }} Report
                 </p>
@@ -216,6 +233,9 @@
                   v-for="filter in ['today', 'week', 'month']" 
                   :key="filter"
                   @click="transactionInFilter = filter"
+                  :class="transactionInFilter === filter 
+                    ? ['bg-white dark:bg-neutral-600 shadow-sm text-green-600 scale-105'] 
+                    : [isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700']"
                   :class="transactionInFilter === filter 
                     ? ['bg-white dark:bg-neutral-600 shadow-sm text-green-600 scale-105'] 
                     : [isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700']"
@@ -231,12 +251,16 @@
                 <div class="relative z-10">
                   <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Records</h3>
                   <p :class="['text-2xl font-black leading-none', textClass]">{{ filteredTransactionInCount }}</p>
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Records</h3>
+                  <p :class="['text-2xl font-black leading-none', textClass]">{{ filteredTransactionInCount }}</p>
                 </div>
                 <ArrowDownCircle class="absolute -right-2 -bottom-2 w-12 h-12 text-green-500/10 group-hover:scale-110 transition-transform" />
               </div>
 
               <div :class="[cardClass, 'relative overflow-hidden rounded-2xl p-4 border-l-4 border-blue-500 group transition-all shadow-sm']" :style="cardStyle">
                 <div class="relative z-10">
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Qty</h3>
+                  <p :class="['text-2xl font-black leading-none', textClass]">{{ filteredTransactionInQty.toLocaleString() }}</p>
                   <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Qty</h3>
                   <p :class="['text-2xl font-black leading-none', textClass]">{{ filteredTransactionInQty.toLocaleString() }}</p>
                 </div>
@@ -247,12 +271,16 @@
                 <div class="relative z-10">
                   <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Value</h3>
                   <p :class="['text-2xl font-black leading-none', textClass, isDarkMode ? 'text-purple-400' : 'text-purple-600']">₱{{ filteredTransactionInValue.toLocaleString() }}</p>
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Value</h3>
+                  <p :class="['text-2xl font-black leading-none', textClass, isDarkMode ? 'text-purple-400' : 'text-purple-600']">₱{{ filteredTransactionInValue.toLocaleString() }}</p>
                 </div>
                 <DollarSign class="absolute -right-2 -bottom-2 w-12 h-12 text-purple-500/10 group-hover:scale-110 transition-transform" />
               </div>
 
               <div :class="[cardClass, 'relative overflow-hidden rounded-2xl p-4 border-l-4 border-yellow-500 group transition-all shadow-sm']" :style="cardStyle">
                 <div class="relative z-10">
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">To Review</h3>
+                  <p :class="['text-2xl font-black leading-none', isDarkMode ? 'text-yellow-400' : 'text-yellow-600']">{{ filteredTransactionInToReview }}</p>
                   <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">To Review</h3>
                   <p :class="['text-2xl font-black leading-none', isDarkMode ? 'text-yellow-400' : 'text-yellow-600']">{{ filteredTransactionInToReview }}</p>
                 </div>
@@ -263,12 +291,16 @@
                 <div class="relative z-10">
                   <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Stock IN</h3>
                   <p :class="['text-2xl font-black leading-none', isDarkMode ? 'text-emerald-400' : 'text-emerald-600']">{{ filteredTransactionInStockIn }}</p>
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Stock IN</h3>
+                  <p :class="['text-2xl font-black leading-none', isDarkMode ? 'text-emerald-400' : 'text-emerald-600']">{{ filteredTransactionInStockIn }}</p>
                 </div>
                 <CheckCircle class="absolute -right-2 -bottom-2 w-12 h-12 text-emerald-600/10 group-hover:scale-110 transition-transform" />
               </div>
 
               <div :class="[cardClass, 'relative overflow-hidden rounded-2xl p-4 border-l-4 border-red-500 group transition-all shadow-sm']" :style="cardStyle">
                 <div class="relative z-10">
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Stock OUT</h3>
+                  <p :class="['text-2xl font-black leading-none text-red-500', textClass]">{{ filteredTransactionInStockOut }}</p>
                   <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Stock OUT</h3>
                   <p :class="['text-2xl font-black leading-none text-red-500', textClass]">{{ filteredTransactionInStockOut }}</p>
                 </div>
@@ -283,10 +315,17 @@
                   Recent Stock Inflow
                 </h4>
                 <span :class="['text-[9px] font-bold uppercase tracking-tighter italic', subTextClass]">Live Updates</span>
+                <span :class="['text-[9px] font-bold uppercase tracking-tighter italic', subTextClass]">Live Updates</span>
               </div>
               <div class="overflow-x-auto">
                 <table class="w-full text-left ">
                   <thead class="isuzu-font">
+                    <tr :class="[isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100']">
+                      <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Part No</th>
+                      <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Description</th>
+                      <th :class="['p-4 text-[10px] font-black uppercase tracking-widest text-center', subTextClass]">Qty</th>
+                      <th :class="['p-4 text-[10px] font-black uppercase tracking-widest text-center', subTextClass]">Status</th>
+                      <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Date</th>
                     <tr :class="[isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100']">
                       <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Part No</th>
                       <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Description</th>
@@ -300,11 +339,17 @@
                       <td :class="['p-4 text-[12px] font-bold', textClass, 'group-hover:text-blue-600']">{{ item.partNo }}</td>
                       <td :class="['p-4 text-[12px] font-medium', subTextClass]">{{ item.partName }}</td>
                       <td :class="['p-4 text-[12px] font-black text-center', textClass]">{{ item.quantity }}</td>
+                  <tbody :class="['divide-y', isDarkMode ? 'divide-gray-700' : 'divide-gray-50']">
+                    <tr v-for="item in recentTransactionIn.slice(0, 5)" :key="item.id" :class="['transition-colors group', isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50/80']">
+                      <td :class="['p-4 text-[12px] font-bold', textClass, 'group-hover:text-blue-600']">{{ item.partNo }}</td>
+                      <td :class="['p-4 text-[12px] font-medium', subTextClass]">{{ item.partName }}</td>
+                      <td :class="['p-4 text-[12px] font-black text-center', textClass]">{{ item.quantity }}</td>
                       <td class="p-4 text-center">
                         <span :class="getTransactionInStatusClass(item.statusIN)" class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border shadow-sm">
                           {{ item.statusIN || 'To Review' }}
                         </span>
                       </td>
+                      <td :class="['p-4 text-[11px] font-bold uppercase', subTextClass]">{{ formatTransactionDate(item.createdAt) }}</td>
                       <td :class="['p-4 text-[11px] font-bold uppercase', subTextClass]">{{ formatTransactionDate(item.createdAt) }}</td>
                     </tr>
                   </tbody>
@@ -314,8 +359,10 @@
           </div>
 
           <hr :class="['border-dashed', isDarkMode ? 'border-gray-700' : 'border-gray-200']" />
+          <hr :class="['border-dashed', isDarkMode ? 'border-gray-700' : 'border-gray-200']" />
 
           <div class="space-y-6">
+            <h3 :class="['text-lg font-bold flex items-center gap-2', textClass, isDarkMode ? 'text-orange-400' : 'text-orange-600']">
             <h3 :class="['text-lg font-bold flex items-center gap-2', textClass, isDarkMode ? 'text-orange-400' : 'text-orange-600']">
               <ArrowUpCircle class="w-5 h-5" />
               Transaction Out / Sales
@@ -355,9 +402,12 @@
             <div :class="[cardClass, 'rounded-3xl p-6 bg-white/10 backdrop-blur-none xl:col-span-2']" :style="cardStyle">
               <div class="flex items-center justify-between mb-6">
                 <h2 :class="['text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2', textClass]">
+                <h2 :class="['text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2', textClass]">
                   <TrendingUp class="w-5 h-5 text-blue-600" />
                   Stock Flow <span :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">Analytics</span>
+                  Stock Flow <span :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">Analytics</span>
                 </h2>
+                <span :class="['text-[10px] font-black uppercase tracking-widest', subTextClass]">Last 7 Days</span>
                 <span :class="['text-[10px] font-black uppercase tracking-widest', subTextClass]">Last 7 Days</span>
               </div>
               <div class="h-[320px] w-full relative">
@@ -368,7 +418,9 @@
             <div :class="[cardClass, 'rounded-3xl p-6 bg-white/10 backdrop-blur-none']" :style="cardStyle">
               <div class="flex items-center justify-between mb-6">
                 <h2 :class="['text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2', textClass]">
+                <h2 :class="['text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2', textClass]">
                   <BarChart3 class="w-5 h-5 text-orange-600" />
+                  Category <span :class="isDarkMode ? 'text-orange-400' : 'text-orange-600'">Sales</span>
                   Category <span :class="isDarkMode ? 'text-orange-400' : 'text-orange-600'">Sales</span>
                 </h2>
               </div>
