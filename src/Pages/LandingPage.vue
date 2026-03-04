@@ -173,8 +173,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { doc, getDoc } from "firebase/firestore";
+import { ref, onMounted, onUnmounted } from "vue";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../Firebase/Firebase";
 
 const navLinks = [
@@ -190,17 +190,19 @@ const heroCards = [
   { title: "Mechanics", desc: "Skilled professionals ensuring top-notch maintenance." }
 ];
 
+
 const carPromos = ref([]);
 const partsPromos = ref([]);
 const brandIdentity = ref({ mission: "", vision: "", coreValues: [] });
 const aboutUs = ref({ aboutTextLine1: "", aboutTextLine2: "", slogan: "" });
 
-onMounted(async () => {
-  try {
-    const snap = await getDoc(doc(db, "settings", "landingPage"));
+let unsubscribe = null;
+
+onMounted(() => {
+  const landingDoc = doc(db, "settings", "landingPage");
+  unsubscribe = onSnapshot(landingDoc, (snap) => {
     if (snap.exists()) {
       const data = snap.data();
-      // Load all non-image fields from Firestore
       carPromos.value = Array.isArray(data.carPromos) ? JSON.parse(JSON.stringify(data.carPromos)) : [];
       partsPromos.value = Array.isArray(data.partsPromos) ? JSON.parse(JSON.stringify(data.partsPromos)) : [];
       brandIdentity.value.mission = data.mission || "";
@@ -225,9 +227,11 @@ onMounted(async () => {
         }
       });
     }
-  } catch (error) {
-    console.error("Error fetching landing page data:", error);
-  }
+  });
+});
+
+onUnmounted(() => {
+  if (unsubscribe) unsubscribe();
 });
 
 function scrollToSection(sectionId) {

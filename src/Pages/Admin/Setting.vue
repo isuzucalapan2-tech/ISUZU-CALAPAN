@@ -120,7 +120,7 @@
                 <div class="h-[2px] flex-1 bg-red-600 hidden md:block ml-8"></div>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                <div v-for="(car, idx) in landingCarPromos" :key="car.name" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all p-5 border border-gray-100">
+                <div v-for="(car, idx) in landingCarPromos" :key="idx" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all p-5 border border-gray-100">
                   <div class="aspect-video flex items-center justify-center bg-gray-200 rounded-xl mb-5 relative">
                     <input type="file" accept="image/*" @change="e => handleCarImageUpload(e, idx)" class="absolute top-2 right-2 w-7 h-7 opacity-0 cursor-pointer" title="Upload Image" />
                     <label class="absolute top-2 right-2 bg-white rounded-full p-1 shadow cursor-pointer" style="z-index:2;">
@@ -130,9 +130,9 @@
                     <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover rounded-xl" />
                     <span v-else class="text-gray-400 text-xs font-bold">IMAGE COMING SOON</span>
                   </div>
-                  <input v-model="car.name" class="isuzu-font text-lg mb-2 font-bold w-full bg-transparent border-none outline-none" />
-                  <textarea v-model="car.description" class="text-xs text-neutral-500 mb-2 w-full bg-transparent border-none outline-none resize-none" />
-                  <input v-model="car.promo" class="text-red-600 font-black text-lg w-full bg-transparent border-none outline-none" />
+                  <input v-model="car.name" class="isuzu-font text-lg mb-2 font-bold w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Car Name" type="text" />
+                  <textarea v-model="car.description" class="text-xs text-neutral-500 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
+                  <input v-model="car.promo" class="text-red-600 font-black text-lg w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
                   <button @click="removeCarPromo(idx)" class="mt-2 text-xs text-red-500 hover:underline">Remove</button>
                 </div>
                 <div class="flex items-center justify-center">
@@ -150,7 +150,7 @@
                 <div class="h-[2px] flex-1 bg-red-600 hidden md:block mr-8"></div>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                <div v-for="(part, idx) in landingPartsPromos" :key="part.name" class="bg-neutral-800 text-white rounded-2xl p-6 hover:bg-neutral-900 transition-all">
+                <div v-for="(part, idx) in landingPartsPromos" :key="idx" class="bg-neutral-800 text-white rounded-2xl p-6 hover:bg-neutral-900 transition-all">
                   <div class="h-32 flex items-center justify-center bg-white/5 rounded-xl mb-5 relative">
                     <input type="file" accept="image/*" @change="e => handlePartImageUpload(e, idx)" class="absolute top-2 right-2 w-7 h-7 opacity-0 cursor-pointer" title="Upload Image" />
                     <label class="absolute top-2 right-2 bg-white rounded-full p-1 shadow cursor-pointer" style="z-index:2;">
@@ -160,9 +160,9 @@
                     <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover rounded-xl" />
                     <span v-else class="text-gray-400 text-xs font-bold">PREVIEW N/A</span>
                   </div>
-                  <input v-model="part.name" class="font-bold text-base isuzu-font mb-2 text-red-500 w-full bg-transparent border-none outline-none" />
-                  <textarea v-model="part.description" class="text-xs opacity-60 mb-2 w-full bg-transparent border-none outline-none resize-none" />
-                  <input v-model="part.promo" class="text-lg font-black text-white w-full bg-transparent border-none outline-none" />
+                  <input v-model="part.name" class="font-bold text-base isuzu-font mb-2 text-red-500 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Part Name" type="text" />
+                  <textarea v-model="part.description" class="text-xs opacity-60 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
+                  <input v-model="part.promo" class="text-lg font-black text-white w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
                   <button @click="removePartPromo(idx)" class="mt-2 text-xs text-red-400 hover:underline">Remove</button>
                 </div>
                 <div class="flex items-center justify-center">
@@ -266,6 +266,33 @@ import {
   Loader2Icon, CheckCircleIcon, XCircleIcon
 } from "lucide-vue-next";
 
+// Add/Remove Car and Part Promo handlers
+function addCarPromo() {
+  landingCarPromos.value.push({
+    name: "",
+    description: "",
+    promo: "",
+    image: ""
+  });
+}
+
+function addPartPromo() {
+  landingPartsPromos.value.push({
+    name: "",
+    description: "",
+    promo: "",
+    image: ""
+  });
+}
+
+function removeCarPromo(idx) {
+  landingCarPromos.value.splice(idx, 1);
+}
+
+function removePartPromo(idx) {
+  landingPartsPromos.value.splice(idx, 1);
+}
+
 
 // Promos Management State
 const landingCarPromos = ref([]);
@@ -307,8 +334,10 @@ function handleCarImageUpload(e, idx) {
   const reader = new FileReader();
   reader.onload = (ev) => {
     landingCarPromos.value[idx].image = ev.target.result;
-    // Do NOT reload or reset promos here
     savePromos();
+  };
+  reader.onerror = () => {
+    alert("Failed to read image file. Please try again or use a different image.");
   };
   reader.readAsDataURL(file);
 }
@@ -320,6 +349,9 @@ function handlePartImageUpload(e, idx) {
   reader.onload = (ev) => {
     landingPartsPromos.value[idx].image = ev.target.result;
     savePromos();
+  };
+  reader.onerror = () => {
+    alert("Failed to read image file. Please try again or use a different image.");
   };
   reader.readAsDataURL(file);
 }
