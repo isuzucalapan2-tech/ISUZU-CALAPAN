@@ -362,9 +362,9 @@ const defaultSettings = {
 const settings = ref(JSON.parse(JSON.stringify(defaultSettings)));
 
 // About Us & Slogan state
-const aboutUsTextLine1 = ref("Mina De Oro Motors has been serving Calapan City and the surrounding areas with quality vehicles and exceptional customer service for many years.");
-const aboutUsTextLine2 = ref("Our Inventory Management System ensures that our vehicle parts and accessories are always organized and available, making it easier for our customers to get what they need quickly and efficiently.");
-const sloganText = ref("Power You Can Trust.");
+const aboutUsTextLine1 = ref("");
+const aboutUsTextLine2 = ref("");
+const sloganText = ref("");
 const aboutUsSaveSuccess = ref(false);
 const aboutUsSaveError = ref(null);
 
@@ -435,22 +435,41 @@ const saveSettings = async () => {
 
 
 // Brand Identity state
-const defaultBrandIdentity = {
-  mission: `Improve transportation of commoditized in/out of Mindoro Provinces.Provide excellent sales, aftersales, genuine parts and accessories.`,
-  vision: `Mina De Oro professes to bring Mindoro in becoming an 'ISUZU COUNTRY' and to contribute to the economic progress of the province.`,
-  values: [
-    "INNOVATION",
-    "LOYALTY",
-    "PASSION",
-    "LEADERSHIP",
-    "TRUST",
-    "COMMITMENT", 
-    "TEAMWORK"
-  ]
-};
-const missionText = ref(defaultBrandIdentity.mission);
-const visionText = ref(defaultBrandIdentity.vision);
-const valuesText = ref(defaultBrandIdentity.values.join("\n"));
+const missionText = ref("");
+const visionText = ref("");
+const valuesText = ref("");
+onMounted(async () => {
+  // ...existing user/settings loading...
+  try {
+    const snap = await getDoc(doc(db, "settings", "landingPage"));
+    if (snap.exists()) {
+      const data = snap.data();
+      landingCarPromos.value = Array.isArray(data.carPromos) ? JSON.parse(JSON.stringify(data.carPromos)) : [];
+      landingPartsPromos.value = Array.isArray(data.partsPromos) ? JSON.parse(JSON.stringify(data.partsPromos)) : [];
+      // Load About Us & Slogan from Firestore
+      aboutUsTextLine1.value = data.aboutUsTextLine1 || "";
+      aboutUsTextLine2.value = data.aboutUsTextLine2 || "";
+      sloganText.value = data.sloganText || "";
+      // Load Brand Identity from Firestore
+      missionText.value = data.mission || "";
+      visionText.value = data.vision || "";
+      valuesText.value = Array.isArray(data.values) ? data.values.join("\n") : (data.values || "");
+    } else {
+      // If no data, initialize with blanks
+      landingCarPromos.value = [];
+      landingPartsPromos.value = [];
+      aboutUsTextLine1.value = "";
+      aboutUsTextLine2.value = "";
+      sloganText.value = "";
+      missionText.value = "";
+      visionText.value = "";
+      valuesText.value = "";
+    }
+  } catch (error) {
+    console.error("Error loading promos:", error);
+  }
+  isLoading.value = false;
+});
 
 
 // Save all landing content (About Us, Slogan, Mission, Vision, Core Values) in settings/landingPage (global, not user-based)
