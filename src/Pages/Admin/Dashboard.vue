@@ -915,7 +915,7 @@ const runSync = async () => {
   syncing.value = true;
   try {
     // Replace with your actual API endpoint
-    const res = await fetch("http://localhost:3001/api/sync", { method: "POST" });
+const res = await fetch("/api/sync", { method: "POST" });
     if (!res.ok) throw new Error("Sync failed");
     alert("Sync complete!");
   } catch (e) {

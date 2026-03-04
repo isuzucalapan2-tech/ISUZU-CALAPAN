@@ -23,3 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 firestore-sync/*.json
+isuzu-inventory-firebase-adminsdk-fbsvc-eeeef3cb44.json

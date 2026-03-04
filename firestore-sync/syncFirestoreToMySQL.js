@@ -406,6 +406,9 @@ await connection.query(`
   )
 `);
 
+// Disable foreign key checks for transaction tables
+await connection.query('SET FOREIGN_KEY_CHECKS = 0');
+
 // Create Transaction_IN table
 await connection.query(`
   CREATE TABLE IF NOT EXISTS transaction_IN (
