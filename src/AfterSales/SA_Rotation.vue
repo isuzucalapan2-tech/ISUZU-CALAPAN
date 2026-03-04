@@ -1889,8 +1889,8 @@ export default {
             }
 
             try {
-                const fromDate = new Date(fromDateStr);
-                const toDate = new Date(toDateStr);
+                let fromDate = new Date(fromDateStr);
+                let toDate = new Date(toDateStr);
                 
                 // Ensure fromDate is not after toDate
                 if (fromDate > toDate) {
