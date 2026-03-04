@@ -385,7 +385,7 @@
       </svg>
     </div>
 
-    <!-- 🔴 Sync Button -->
+    <!-- Sync Button -->
     <div class="mb-6 flex justify-end">
       <button
         @click="runSync"
@@ -424,7 +424,8 @@ import {
   DollarSign,
   Clock,
   UserCheck,
-  UserX
+  UserX,
+  Calendar
 } from "lucide-vue-next";
 
 import { Chart, registerables } from "chart.js";
@@ -905,17 +906,6 @@ onUnmounted(() => {
   if (approvedUsersListener.value) approvedUsersListener.value();
   if (transactionInListener.value) transactionInListener.value();
   if (transactionOutListener.value) transactionOutListener.value();
-});
-
-
-/* ===== LIFECYCLE ===== */
-onMounted(async () => {
-  if (user.value) {
-    await loadInventory(user.value.uid);
-    isLoading.value = false;
-    await nextTick();
-    initCharts();
-  }
 });
 
 /* ===== SYNC ===== */

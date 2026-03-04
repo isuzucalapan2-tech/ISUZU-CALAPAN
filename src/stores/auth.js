@@ -95,7 +95,8 @@ export const useAuthStore = defineStore('auth', () => {
       
       // Update last login
       await updateDoc(doc(db, 'Administrator', credential.user.uid), {
-        lastLogin: new Date().toISOString()
+        lastLogin: new Date().toISOString(),
+        emailVerified: true
       }).catch(() => {
         // Ignore if document doesn't exist
       })

@@ -1012,7 +1012,9 @@ export default {
             
             return this.fairnessUtils.getRankedSAs(
                 this.serviceAdvisors,
-                this.assignments
+                this.assignments,
+                null,
+                this.assignmentForm.selectedPRO
             ).slice(0, 3);
         },
         

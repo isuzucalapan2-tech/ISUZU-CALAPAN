@@ -8,6 +8,10 @@ import { ref, computed } from 'vue';
  * - Performance metrics (30%)
  * - Availability scoring (20%)
  * - Round-robin rotation (10%)
+ * 
+ * Fairness Rule: SA can't be assigned to similar PRO in that day if not everyone 
+ * has done that PRO yet. An SA can only be re-assigned to the same PRO on the same 
+ * day if ALL other SAs have already been assigned to that PRO today.
  */
 
 // Default weights (can be customized)
@@ -257,39 +261,157 @@ export function useSAFairness(customWeights = null) {
     };
   };
 
+
+  /**
+   * Get SAs who have already been assigned to a specific PRO today
+   * @param {string} proName - The PRO name to check
+   * @param {Array} assignments - All assignments
+   * @returns {Array} Array of SA names who have been assigned to this PRO today
+   */
+  const getSAsAssignedToPROToday = (proName, assignments) => {
+    if (!proName || !Array.isArray(assignments)) return [];
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return assignments
+      .filter(a => {
+        // Check if assignment is for the same PRO
+        if (a.pro !== proName) return false;
+        
+        // Check if assignment is from today
+        let assignmentDate;
+        if (a.createdAt?.toDate) {
+          assignmentDate = a.createdAt.toDate();
+        } else if (a.date?.toDate) {
+          assignmentDate = a.date.toDate();
+        } else {
+          assignmentDate = new Date(a.date);
+        }
+        
+        // Check status: includes ON GOING, IN PROGRESS (active assignments)
+        const isActiveStatus = a.status === 'ON GOING' || a.status === 'IN PROGRESS';
+        
+        return assignmentDate >= today && isActiveStatus;
+      })
+      .map(a => a.saName);
+  };
+
+
+  /**
+   * Check if an SA can be assigned to a specific PRO today
+   * Rule: SA can be re-assigned to same PRO only if ALL other SAs have already been assigned to that PRO today
+   * @param {string} saName - The SA name to check
+   * @param {string} proName - The PRO name
+   * @param {Array} assignments - All assignments
+   * @param {Array} serviceAdvisors - All service advisors
+   * @returns {boolean} True if SA can be assigned to this PRO today
+   */
+  const canSABeAssignedToPROToday = (saName, proName, assignments, serviceAdvisors) => {
+    if (!saName || !proName || !Array.isArray(assignments) || !Array.isArray(serviceAdvisors)) {
+      return true; // Allow if we can't determine, safer to allow
+    }
+    
+    // Get all active SAs (not BUSY or ABSENT)
+    const activeSAs = serviceAdvisors
+      .filter(sa => sa.saStatus !== 'BUSY' && sa.saStatus !== 'ABSENT')
+      .map(sa => sa.saName);
+    
+    // Get SAs already assigned to this PRO today
+    const assignedSAsToday = getSAsAssignedToPROToday(proName, assignments);
+    
+    // If this SA is not yet assigned to this PRO today, they can be assigned
+    if (!assignedSAsToday.includes(saName)) {
+      return true;
+    }
+    
+    // If this SA is already assigned to this PRO today, check if ALL other active SAs have been assigned
+    const otherActiveSAs = activeSAs.filter(name => name !== saName);
+    const allOtherSAsAssigned = otherActiveSAs.every(sa => assignedSAsToday.includes(sa));
+    
+    // Allow re-assignment only if all other SAs have been assigned to this PRO
+    return allOtherSAsAssigned;
+  };
+
+
   /**
    * Get ranked list of SAs for assignment
+   * @param {Array} serviceAdvisors - List of service advisors
+   * @param {Array} assignments - List of all assignments
+   * @param {string} excludeSA - SA to exclude from ranking
+   * @param {string} selectedPRO - Optional: The selected PRO to check fairness rule
    */
-  const getRankedSAs = (serviceAdvisors, assignments, excludeSA = null) => {
+  const getRankedSAs = (serviceAdvisors, assignments, excludeSA = null, selectedPRO = null) => {
     const availableSAs = serviceAdvisors.filter(sa => 
       sa.saStatus !== 'BUSY' && sa.saStatus !== 'ABSENT' && sa.saName !== excludeSA
     );
     
     if (availableSAs.length === 0) return [];
     
+    // Get SAs already assigned to selected PRO today (if specified)
+    const assignedSAsToday = selectedPRO ? getSAsAssignedToPROToday(selectedPRO, assignments) : [];
+    
+    // Get all active SAs
+    const activeSAs = serviceAdvisors
+      .filter(sa => sa.saStatus !== 'BUSY' && sa.saStatus !== 'ABSENT')
+      .map(sa => sa.saName);
+    
+    // Check if we can allow re-assignment (all other SAs have been assigned)
+    const otherActiveSAs = activeSAs.filter(name => !assignedSAsToday.includes(name));
+    const allOthersAssigned = otherActiveSAs.length === 0 || assignedSAsToday.length >= activeSAs.length - 1;
+    
     const scoredSAs = availableSAs.map(sa => {
       const ongoingCount = assignments.filter(
         a => a.saName === sa.saName && a.status === 'ON GOING'
       ).length;
       
-      return calculateTotalScore(sa, assignments, ongoingCount);
+      const scoreData = calculateTotalScore(sa, assignments, ongoingCount);
+      
+      // Add fairness check for PRO assignment
+      const isAlreadyAssignedToday = assignedSAsToday.includes(sa.saName);
+      
+      // If SA is already assigned to this PRO today and not all others have been assigned, penalize heavily
+      if (selectedPRO && isAlreadyAssignedToday && !allOthersAssigned) {
+        scoreData.totalScore = 0; // Effectively exclude from selection
+        scoreData.proFairnessBlocked = true;
+        scoreData.proFairnessReason = `Already assigned to ${selectedPRO} today`;
+      } else if (selectedPRO && isAlreadyAssignedToday && allOthersAssigned) {
+        scoreData.proFairnessReason = `All SAs assigned to ${selectedPRO}, allowing re-assignment`;
+      }
+      
+      return scoreData;
     });
     
     // Sort by total score (descending)
     return scoredSAs.sort((a, b) => b.totalScore - a.totalScore);
   };
 
+
   /**
    * Get the best SA for assignment with detailed reasoning
    */
   const getBestSA = (serviceAdvisors, assignments, selectedPRO = null) => {
-    const rankedSAs = getRankedSAs(serviceAdvisors, assignments);
+    const rankedSAs = getRankedSAs(serviceAdvisors, assignments, null, selectedPRO);
     
     if (rankedSAs.length === 0) {
       return null;
     }
     
     const bestSA = rankedSAs[0];
+    
+    // Check if blocked by PRO fairness
+    if (bestSA.proFairnessBlocked) {
+      return {
+        saName: null,
+        totalScore: 0,
+        reason: '🔒 All SAs have not yet been assigned to this PRO today',
+        breakdown: bestSA.breakdown,
+        allRankings: rankedSAs.filter(s => !s.proFairnessBlocked).slice(0, 3),
+        isManualOverride: false,
+        proFairnessBlocked: true,
+        proFairnessReason: bestSA.proFairnessReason
+      };
+    }
     
     // Generate reasoning based on highest contributing factor
     const breakdown = bestSA.breakdown;
@@ -319,15 +441,23 @@ export function useSAFairness(customWeights = null) {
       reason += ` + ${secondary.icon}`;
     }
     
+    // Add PRO fairness reason if applicable
+    if (bestSA.proFairnessReason) {
+      reason += ` (${bestSA.proFairnessReason})`;
+    }
+    
     return {
       saName: bestSA.saName,
       totalScore: bestSA.totalScore,
       reason,
       breakdown: bestSA.breakdown,
       allRankings: rankedSAs.slice(0, 3), // Top 3 for display
-      isManualOverride: false
+      isManualOverride: false,
+      proFairnessBlocked: bestSA.proFairnessBlocked || false,
+      proFairnessReason: bestSA.proFairnessReason
     };
   };
+
 
   /**
    * Update last assignment time for an SA
@@ -339,6 +469,7 @@ export function useSAFairness(customWeights = null) {
       manualOverrideCount.value[saName] = (manualOverrideCount.value[saName] || 0) + 1;
     }
   };
+
 
   /**
    * Get workload statistics for all SAs
@@ -497,6 +628,7 @@ export function useSAFairness(customWeights = null) {
     return { wouldImpact: false, message: '' };
   };
 
+
   /**
    * Get assignment analytics
    */
@@ -591,6 +723,7 @@ export function useSAFairness(customWeights = null) {
     };
   };
 
+
   /**
    * Reset all fairness data (for testing or new period)
    */
@@ -602,6 +735,7 @@ export function useSAFairness(customWeights = null) {
     console.log('SA Fairness: All data reset');
   };
 
+
   /**
    * Update weights dynamically
    */
@@ -611,6 +745,7 @@ export function useSAFairness(customWeights = null) {
     calculationCache.clear(); // Clear cache as calculations depend on weights
     console.log('SA Fairness: Weights updated', weights.value);
   };
+
 
   /**
    * Export fairness data for persistence
@@ -623,6 +758,7 @@ export function useSAFairness(customWeights = null) {
       timestamp: new Date().toISOString()
     };
   };
+
 
   /**
    * Import fairness data from persistence
@@ -651,6 +787,10 @@ export function useSAFairness(customWeights = null) {
     getWorkloadStats,
     checkFairnessImpact,
     getAnalytics,
+    
+    // PRO-specific fairness methods
+    getSAsAssignedToPROToday,
+    canSABeAssignedToPROToday,
     
     // Data management
     resetFairnessData,
