@@ -13,8 +13,9 @@ A comprehensive inventory management system with Firebase backend and MySQL sync
 5. [Running the Application](#running-the-application)
 6. [Network Hosting](#network-hosting)
 7. [Auto-Start Setup](#auto-start-setup)
-8. [File Descriptions](#file-descriptions)
-9. [Troubleshooting](#troubleshooting)
+8. [System Changes](#system-changes)
+9. [File Descriptions](#file-descriptions)
+10. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -288,6 +289,99 @@ pm2 save
 ### Verify Auto-Start
 
 After setup, restart your computer. The application should start automatically.
+
+---
+
+## System Changes
+
+This section documents all the changes made to your computer when setting up the network hosting features.
+
+### Files Created for This Setup
+
+| File | Purpose |
+|------|---------|
+| `ecosystem.config.cjs` | PM2 configuration for managing both frontend and backend processes |
+| `start.bat` | Batch script to start both services with PM2 |
+| `start-with-autostart.bat` | Batch script with auto-start on boot setup |
+| `setup-firewall.bat` | Windows Firewall rules for network access |
+| `logs/` | Directory for PM2 log files |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `vite.config.js` | Added `server.host = '0.0.0.0'` for network access, added proxy for `/api` |
+| `firestore-sync/server.js` | Changed listen address to `0.0.0.0` for network access |
+| `package.json` | Added PM2 scripts (`start`, `stop`, `restart`, `status`, `logs`) |
+
+### Network Binding Changes
+
+#### Frontend (vite.config.js)
+```
+javascript
+server: {
+    host: '0.0.0.0',  // Changed from default 'localhost'
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        ws: true
+      }
+    }
+}
+```
+
+#### Backend (firestore-sync/server.js)
+```
+javascript
+app.listen(PORT, '0.0.0.0', () => {  // Changed from 'localhost'
+  console.log(`Sync API server running on http://0.0.0.0:${PORT}`);
+});
+```
+
+### Windows Firewall Changes
+
+When you run `setup-firewall.bat`, the following inbound rules are added:
+
+| Rule Name | Port | Action |
+|-----------|------|--------|
+| ISUZU Frontend | 5173 | Allow TCP |
+| ISUZU Backend | 3001 | Allow TCP |
+
+These rules allow other computers on your network to access the application.
+
+### PM2 Process Changes
+
+When running with PM2 (via `start.bat` or `start-with-autostart.bat`):
+
+| Process | Name | Port | Log File |
+|---------|------|------|-----------|
+| Frontend | isuzu-frontend | 5173 | logs/frontend-out.log |
+| Backend | isuzu-backend | 3001 | logs/backend-out.log |
+
+### Windows Auto-Start Changes
+
+When running `start-with-autostart.bat`:
+
+1. **PM2 Saved State**: The current process list is saved for auto-restart
+2. **Startup Shortcut**: A shortcut is created in:
+   
+```
+   %APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\ISUZU-App-Startup.lnk
+   
+```
+3. **VBS Script**: A temporary VBS script is created for silent execution
+
+### What Gets Enabled/Disabled
+
+#### Enabled
+- Windows Firewall inbound rules for ports 5173 and 3001
+- Network access to the application on all network interfaces
+
+#### No Services Disabled
+- This setup uses Node.js/PM2 instead of Windows Services
+- No existing Windows services are modified or disabled
 
 ---
 
