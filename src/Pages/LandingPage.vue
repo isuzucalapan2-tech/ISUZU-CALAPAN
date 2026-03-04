@@ -93,7 +93,8 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
             <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all p-5 border border-gray-100">
               <div class="aspect-video flex items-center justify-center bg-gray-200 rounded-xl mb-5">
-                <span class="text-gray-400 font-bold text-xs uppercase tracking-widest">Image Coming Soon</span>
+                <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover rounded-xl" />
+                <span v-else class="text-gray-400 font-bold text-xs uppercase tracking-widest">Image Coming Soon</span>
               </div>
               <h3 class="text-lg isuzu-font mb-2">{{ car.name }}</h3>
               <p class="text-xs text-neutral-500 mb-4">{{ car.description }}</p>
@@ -109,7 +110,8 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-800 text-white rounded-2xl p-6 hover:bg-neutral-900 transition-all">
               <div class="h-32 flex items-center justify-center bg-white/5 rounded-xl mb-5">
-                <span class="opacity-30 text-[10px] uppercase font-bold tracking-widest">Preview N/A</span>
+                <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover rounded-xl" />
+                <span v-else class="opacity-30 text-[10px] uppercase font-bold tracking-widest">Preview N/A</span>
               </div>
               <h3 class="font-bold text-base isuzu-font mb-2 text-red-500">{{ part.name }}</h3>
               <p class="text-xs opacity-60 mb-4">{{ part.description }}</p>
@@ -172,7 +174,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../Firebase/Firebase";
 
 const navLinks = [
@@ -188,44 +190,45 @@ const heroCards = [
   { title: "Mechanics", desc: "Skilled professionals ensuring top-notch maintenance." }
 ];
 
-const carPromos = [
-  { name: "D-MAX Special", description: "Extreme durability meets comfort.", promo: "Low Downpayment" },
-  { name: "mu-X Series", description: "Premium 7-seater family SUV.", promo: "Free 1yr Insurance" },
-  { name: "Traviz", description: "The ultimate business partner.", promo: "Cash Discount" },
-];
+const carPromos = ref([]);
+const partsPromos = ref([]);
+const brandIdentity = ref({ mission: "", vision: "", coreValues: [] });
+const aboutUs = ref({ aboutTextLine1: "", aboutTextLine2: "", slogan: "" });
 
-const partsPromos = [
-  { name: "Engine Oil", description: "Genuine Isuzu engine protection.", promo: "20% OFF" },
-  { name: "Brake Pads", description: "Reliable stopping power.", promo: "Buy 1 Get 1 50%" },
-  { name: "Filters", description: "Maintain air purity inside.", promo: "Bundle Deal" }
-];
-
-const coreValues = [
-  'INNOVATION', 'PASSION', 'INTEGRITY', 'TRUST', 
-  'TEAMWORK', 'LOYALTY', 'LEADERSHIP', 'COMMITMENT'
-];
-
-// This ref holds the editable landing page data
-const landingPageData = ref({
-  aboutImage: null,
-  aboutText: "",
-  carPromos: [...carPromos],
-  coreValues: [...coreValues],
-  mission: "",
-  partsPromos: [...partsPromos],
-  vision: ""
-});
-
-// Call this function to save landing page changes to Firestore
-async function saveLandingPage() {
+onMounted(async () => {
   try {
-    await setDoc(doc(db, "settings", "landingPage"), landingPageData.value);
-    // Optionally show a success message here
+    const snap = await getDoc(doc(db, "settings", "landingPage"));
+    if (snap.exists()) {
+      const data = snap.data();
+      // Load all non-image fields from Firestore
+      carPromos.value = Array.isArray(data.carPromos) ? JSON.parse(JSON.stringify(data.carPromos)) : [];
+      partsPromos.value = Array.isArray(data.partsPromos) ? JSON.parse(JSON.stringify(data.partsPromos)) : [];
+      brandIdentity.value.mission = data.mission || "";
+      brandIdentity.value.vision = data.vision || "";
+      brandIdentity.value.coreValues = Array.isArray(data.values) ? data.values : (data.values ? data.values.split("\n").filter(v => v.trim() !== "") : []);
+      aboutUs.value.aboutTextLine1 = data.aboutUsTextLine1 || "";
+      aboutUs.value.aboutTextLine2 = data.aboutUsTextLine2 || "";
+      aboutUs.value.slogan = data.sloganText || "";
+
+      // Load base64 images from localStorage if present
+      const localCarPromos = JSON.parse(localStorage.getItem('carPromosImages') || '[]');
+      carPromos.value.forEach((car, idx) => {
+        if (localCarPromos[idx] && localCarPromos[idx].image) {
+          car.image = localCarPromos[idx].image;
+        }
+      });
+      // Ensure parts promos images are synced and shown
+      const localPartsPromos = JSON.parse(localStorage.getItem('partsPromosImages') || '[]');
+      partsPromos.value.forEach((part, idx) => {
+        if (localPartsPromos[idx] && localPartsPromos[idx].image) {
+          part.image = localPartsPromos[idx].image;
+        }
+      });
+    }
   } catch (error) {
-    // Optionally handle error here
-    console.error("Failed to save landing page:", error);
+    console.error("Error fetching landing page data:", error);
   }
-}
+});
 
 function scrollToSection(sectionId) {
   const section = document.getElementById(sectionId)
@@ -242,30 +245,6 @@ function scrollToSection(sectionId) {
     });
   }
 }
-
-const brandIdentity = ref({ mission: "", vision: "", coreValues: [] });
-const aboutUs = ref({
-  aboutTextLine1: "",
-  aboutTextLine2: "",
-  slogan: ""
-});
-
-onMounted(async () => {
-  try {
-    const snap = await getDoc(doc(db, "settings", "landingPage"));
-    if (snap.exists()) {
-      const data = snap.data();
-      brandIdentity.value.mission = data.mission || "";
-      brandIdentity.value.vision = data.vision || "";
-      brandIdentity.value.coreValues = Array.isArray(data.values) ? data.values : (data.values ? data.values.split("\n").filter(v => v.trim() !== "") : []);
-      aboutUs.value.aboutTextLine1 = data.aboutUsTextLine1 || "";
-      aboutUs.value.aboutTextLine2 = data.aboutUsTextLine2 || "";
-      aboutUs.value.slogan = data.sloganText || "";
-    }
-  } catch (error) {
-    console.error("Error fetching landing page brand identity:", error);
-  }
-});
 </script>
 
 <style scoped>
