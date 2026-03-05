@@ -1421,3 +1421,9 @@ onUnmounted(() => {
   document.removeEventListener('click', closePrintMenu);
 });
 </script>
+
+<style scoped>
+.isuzu-font {
+  font-family: 'IsuzuFont', sans-serif;
+}
+</style>
