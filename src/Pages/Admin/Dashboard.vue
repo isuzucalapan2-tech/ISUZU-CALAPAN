@@ -405,6 +405,7 @@
               <span v-else>Processing Data Transfer...</span>
             </span>
           </button>
+          
         </div>
       </div>
     </main>
@@ -413,18 +414,6 @@
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
         <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
       </svg>
-    </div>
-
-    <!-- Sync Button -->
-    <div class="mb-6 flex justify-end">
-      <button
-        @click="runSync"
-        :disabled="syncing"
-        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition disabled:opacity-50"
-      >
-        <span v-if="!syncing">Sync Firestore to MySQL</span>
-        <span v-else>Syncing...</span>
-      </button>
     </div>
 
   </div>
@@ -457,12 +446,7 @@ import {
   Clock,
   UserCheck,
   UserX,
-<<<<<<< HEAD
   Calendar
-=======
-  Calendar,
-  RefreshCw
->>>>>>> origin/UI-ISZ
 } from "lucide-vue-next";
 
 import { Chart, registerables } from "chart.js";
@@ -1111,10 +1095,6 @@ const res = await fetch("/api/sync", { method: "POST" });
   }
   syncing.value = false;
 };
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/UI-ISZ
 </script>
 
 <style scoped>
