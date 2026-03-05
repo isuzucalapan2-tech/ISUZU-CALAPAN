@@ -84,41 +84,69 @@
       </section>
 
       <section id="promos" class="relative py-16 px-6 md:px-16 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
-          <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
-            <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Car Promos</h2>
-            <div class="h-[2px] flex-1 bg-red-600 hidden md:block ml-8"></div>
-          </div>
+        <section id="promos" class="relative py-16 px-6 md:px-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto">
+      
+      <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <h2 class="text-2xl md:text-3xl text-black uppercase tracking-widest isuzu-font font-black">
+          Car <span class="text-red-600">Promos</span>
+        </h2>
+        <div class="h-[2px] flex-1 bg-neutral-200 hidden md:block ml-8 relative">
+          <div class="absolute left-0 top-0 h-full w-24 bg-red-600"></div>
+        </div>
+      </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
-            <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-2xl overflow-hidden transition-all p-5 border border-neutral-300">
-              <div class="aspect-video flex items-center justify-center bg-gray-200 rounded-xl mb-5">
-                <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover rounded-xl" />
-                <span v-else class="text-gray-400 font-bold text-xs uppercase tracking-widest">Image Coming Soon</span>
-              </div>
-              <h3 class="text-lg isuzu-font mb-2">{{ car.name }}</h3>
-              <p class="text-xs text-neutral-500 mb-4">{{ car.description }}</p>
-              <p class="text-red-600 font-black text-lg">{{ car.promo }}</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
+        <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-3xl overflow-hidden border border-neutral-200 shadow-sm">
+          <div class="aspect-[16/10] bg-neutral-200 w-full overflow-hidden">
+            <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover" />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <span class="text-neutral-400 font-bold text-[10px] uppercase tracking-[0.3em]">Image Coming Soon</span>
             </div>
           </div>
-
-          <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-10 gap-4">
-            <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Parts Promos</h2>
-            <div class="h-[2px] flex-1 bg-red-600 hidden md:block mr-8"></div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-800 text-white rounded-2xl p-6 hover:bg-neutral-900 transition-all">
-              <div class="h-32 flex items-center justify-center bg-white/5 rounded-xl mb-5">
-                <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover rounded-xl" />
-                <span v-else class="opacity-30 text-[10px] uppercase font-bold tracking-widest">Preview N/A</span>
-              </div>
-              <h3 class="font-bold text-base isuzu-font mb-2 text-red-500">{{ part.name }}</h3>
-              <p class="text-xs opacity-60 mb-4">{{ part.description }}</p>
-              <p class="text-lg font-black text-white">{{ part.promo }}</p>
+          
+          <div class="p-5">
+            <h3 class="text-sm font-black isuzu-font uppercase tracking-wider mb-1 text-neutral-900">{{ car.name }}</h3>
+            <p class="text-[10px] text-neutral-500 uppercase font-bold tracking-tight mb-3 line-clamp-1">{{ car.description }}</p>
+            <div class="flex items-center justify-between pt-3 border-t border-neutral-100">
+              <span class="text-[9px] font-black text-neutral-400 uppercase tracking-widest">Special Offer</span>
+              <p class="text-red-600 font-black text-base italic">{{ car.promo }}</p>
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-8 gap-4">
+        <h2 class="text-2xl md:text-3xl text-black uppercase tracking-widest isuzu-font font-black">
+          Parts <span class="text-red-600">Promos</span>
+        </h2>
+        <div class="h-[2px] flex-1 bg-neutral-200 hidden md:block mr-8 relative">
+          <div class="absolute right-0 top-0 h-full w-24 bg-red-600"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-900 rounded-3xl overflow-hidden border border-neutral-800 shadow-2xl">
+          <div class="aspect-[16/9] bg-neutral-800 w-full overflow-hidden">
+            <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover" />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <span class="opacity-20 text-white text-[10px] uppercase font-bold tracking-[0.3em]">No Preview</span>
+            </div>
+          </div>
+          
+          <div class="p-5">
+            <h3 class="text-sm font-black isuzu-font uppercase tracking-wider mb-1 text-red-500">{{ part.name }}</h3>
+            <p class="text-[10px] text-neutral-400 uppercase font-bold tracking-tight mb-3 line-clamp-1 opacity-60">{{ part.description }}</p>
+            <div class="flex items-center justify-between pt-3 border-t border-white/10">
+              <span class="text-[9px] font-black text-neutral-600 uppercase tracking-widest">Genuine Parts</span>
+              <p class="text-white font-black text-base italic">{{ part.promo }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
       </section>
 
       <section id="mission-vision" class="py-20 px-6 md:px-16 bg-white">
