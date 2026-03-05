@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
+  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white">
     <Loaders />
   </div>
 
@@ -11,7 +11,7 @@
       </svg>
     </div>
 
-    <header :class="[headerClass, 'relative z-10 px-8 py-6 flex justify-between items-center border-b border-white/5 backdrop-blur-md']">
+    <header :class="[headerClass, 'relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none']">
       <div class="flex items-center gap-4">
         <div class="bg-red-600 p-2.5 rounded-xl text-white shadow-lg shadow-red-600/20">
           <Users class="w-6 h-6" />

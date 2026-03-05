@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
+  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white">
     <Loaders />
   </div>
 
@@ -31,7 +31,7 @@
 
         <section class="space-y-6">
           <div class="flex items-center gap-3 mb-2">
-            <div class="bg-red-600 p-2 rounded-xl shadow-lg shadow-red-600/20">
+            <div class="bg-red-600 p-2 rounded-xl">
               <Boxes class="w-5 h-5 text-white" />
             </div>
             <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">Inventory <span class="text-red-600">Overview</span></h2>
