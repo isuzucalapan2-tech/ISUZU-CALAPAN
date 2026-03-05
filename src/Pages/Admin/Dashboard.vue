@@ -457,12 +457,7 @@ import {
   Clock,
   UserCheck,
   UserX,
-<<<<<<< HEAD
   Calendar
-=======
-  Calendar,
-  RefreshCw
->>>>>>> origin/UI-ISZ
 } from "lucide-vue-next";
 
 import { Chart, registerables } from "chart.js";
@@ -1111,10 +1106,6 @@ const res = await fetch("/api/sync", { method: "POST" });
   }
   syncing.value = false;
 };
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/UI-ISZ
 </script>
 
 <style scoped>
