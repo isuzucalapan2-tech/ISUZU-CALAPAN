@@ -188,9 +188,8 @@ import { db } from "../../Firebase/Firebase";
 import { collection, getDocs, updateDoc, doc, getDoc } from "firebase/firestore";
 import Loaders from "../../components/Loaders.vue";
 import { 
-  Users, Edit, CheckCircle, Power, AlertCircle, Search, X, 
+  Users, Edit, CheckCircle, Power, Search, X, 
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
-  Save, Trash2, ShieldCheck, UserCog
 } from "lucide-vue-next";
 
 /* ===== THEME & STYLES ===== */

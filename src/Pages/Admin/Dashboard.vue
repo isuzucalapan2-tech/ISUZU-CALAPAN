@@ -38,7 +38,7 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-red-200 transition-all group relative overflow-hidden shadow-sm">
+            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-red-600 transition-all group relative overflow-hidden shadow-sm">
                <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
                 <Package class="w-24 h-24 text-neutral-500" />
               </div>
@@ -49,7 +49,7 @@
               </div>
             </div>
 
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-blue-200 transition-all group relative overflow-hidden shadow-sm">
+            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-blue-600 transition-all group relative overflow-hidden shadow-sm">
               <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform text-blue-500">
                 <DollarSign class="w-24 h-24" />
               </div>
@@ -58,7 +58,7 @@
               <div class="mt-4 text-[10px] font-bold text-blue-600 uppercase tracking-widest">Market Valuation</div>
             </div>
 
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 group relative overflow-hidden shadow-sm">
+            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-purple-600 transition-all group relative overflow-hidden shadow-sm">
               <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Quantity</p>
               <p class="text-3xl font-black text-neutral-800">{{ totalInventoryQuantity.toLocaleString() }}</p>
               <div class="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
@@ -73,7 +73,7 @@
               <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">Optimal Levels</p>
             </div>
 
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border-b-4 border-red-600 relative group overflow-hidden shadow-sm">
+            <div class="bg-neutral-600/10 rounded-3xl p-6 border-b-4 border-red-600 hover:border-red-900 relative group overflow-hidden shadow-sm">
               <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Critical Stock</p>
               <p class="text-3xl font-black text-red-600">{{ outOfStock }}</p>
               <p class="mt-4 text-[10px] font-bold text-red-600/50 uppercase tracking-widest flex items-center gap-1">

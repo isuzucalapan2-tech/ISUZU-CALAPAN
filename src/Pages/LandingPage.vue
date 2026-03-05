@@ -91,7 +91,7 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
-            <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all p-5 border border-gray-100">
+            <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-2xl overflow-hidden transition-all p-5 border border-neutral-300">
               <div class="aspect-video flex items-center justify-center bg-gray-200 rounded-xl mb-5">
                 <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover rounded-xl" />
                 <span v-else class="text-gray-400 font-bold text-xs uppercase tracking-widest">Image Coming Soon</span>
