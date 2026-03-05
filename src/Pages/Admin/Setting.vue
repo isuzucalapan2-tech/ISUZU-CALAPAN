@@ -64,7 +64,7 @@
         <TransitionGroup name="slide-fade">
           <div v-if="isSaving" key="saving" class="fixed bottom-10 right-10 bg-neutral-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-4 border-b-4 border-blue-500">
             <Loader2Icon class="w-5 h-5 animate-spin text-blue-400" /> 
-            <span class="text-sm font-bold uppercase tracking-widest">Syncing Database...</span>
+            <span class="text-sm font-bold uppercase tracking-widest">Syncing...</span>
           </div>
           <div v-if="saveSuccess" key="success" class="fixed bottom-10 right-10 bg-neutral-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-4 border-b-4 border-green-500">
             <CheckCircleIcon class="w-5 h-5 text-green-400" /> 
@@ -73,7 +73,6 @@
         </TransitionGroup>
 
         <div class="space-y-8 pb-20">
-          
           <div v-if="activeTab === 'general'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div class="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 relative overflow-hidden">
               <div class="absolute top-0 right-0 p-4 opacity-5">
@@ -331,13 +330,15 @@ onMounted(async () => {
 function handleCarImageUpload(e, idx) {
   const file = e.target.files[0];
   if (!file) return;
+  if (file.size > 500 * 1024) { // 500KB limit example
+    alert("Image too large! Please upload images under 500KB.");
+    return;
+  }
   const reader = new FileReader();
   reader.onload = (ev) => {
     landingCarPromos.value[idx].image = ev.target.result;
+    // Do NOT reload or reset promos here
     savePromos();
-  };
-  reader.onerror = () => {
-    alert("Failed to read image file. Please try again or use a different image.");
   };
   reader.readAsDataURL(file);
 }
@@ -345,13 +346,14 @@ function handleCarImageUpload(e, idx) {
 function handlePartImageUpload(e, idx) {
   const file = e.target.files[0];
   if (!file) return;
+  if (file.size > 500 * 1024) { // 500KB limit example
+    alert("Image too large! Please upload images under 500KB.");
+    return;
+  }
   const reader = new FileReader();
   reader.onload = (ev) => {
     landingPartsPromos.value[idx].image = ev.target.result;
     savePromos();
-  };
-  reader.onerror = () => {
-    alert("Failed to read image file. Please try again or use a different image.");
   };
   reader.readAsDataURL(file);
 }

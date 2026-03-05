@@ -73,7 +73,7 @@
         </div>
 
         <div class="mt-20 md:mt-auto max-w-7xl mx-auto w-full relative z-10 pb-10">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid gap-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
             <div v-for="card in heroCards" :key="card.title" class="bg-black/40 backdrop-blur-md p-5 rounded-xl border border-white/10 text-white hover:bg-black/60 transition-all">
               <h3 class="text-sm font-bold mb-3 uppercase tracking-wider text-red-500">{{ card.title }}</h3>
               <div class="w-10 h-[2px] bg-neutral-600 mb-4"></div>
