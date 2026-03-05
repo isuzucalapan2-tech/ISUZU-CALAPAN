@@ -20,8 +20,8 @@ app.post('/api/sync', (req, res) => {
   });
 });
 
-// 🔄 Schedule sync every Sunday at midnight
-cron.schedule('0 0 * * 0', () => {
+// 🔄 Schedule sync every Monday at 8:30 AM
+cron.schedule('30 8 * * 1', () => {
   console.log('Weekly sync started...');
   exec('node firestore-sync/syncFirestoreToMySQL.js', { cwd: process.cwd() }, (error, stdout, stderr) => {
     if (error) {

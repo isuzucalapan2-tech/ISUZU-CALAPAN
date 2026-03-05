@@ -64,11 +64,11 @@
         <TransitionGroup name="slide-fade">
           <div v-if="isSaving" key="saving" class="fixed bottom-10 right-10 bg-neutral-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-4 border-b-4 border-blue-500">
             <Loader2Icon class="w-5 h-5 animate-spin text-blue-400" /> 
-            <span class="text-sm font-bold uppercase tracking-widest">Syncing...</span>
+            <span class="text-sm font-bold uppercase tracking-widest">Saving...</span>
           </div>
           <div v-if="saveSuccess" key="success" class="fixed bottom-10 right-10 bg-neutral-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-4 border-b-4 border-green-500">
             <CheckCircleIcon class="w-5 h-5 text-green-400" /> 
-            <span class="text-sm font-bold uppercase tracking-widest">Settings Updated</span>
+            <span class="text-sm font-bold uppercase tracking-widest">Promos Updated</span>
           </div>
         </TransitionGroup>
 

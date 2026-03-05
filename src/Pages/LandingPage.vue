@@ -102,13 +102,9 @@
             </div>
           </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-900 rounded-3xl overflow-hidden border border-neutral-800 shadow-2xl">
-          <div class="aspect-[16/9] bg-neutral-800 w-full overflow-hidden">
-            <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex items-center justify-center">
-              <span class="opacity-20 text-white text-[10px] uppercase font-bold tracking-[0.3em]">No Preview</span>
-            </div>
+          <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-10 gap-4">
+            <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Parts Promos</h2>
+            <div class="h-[2px] flex-1 bg-red-600 hidden md:block mr-8"></div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -123,10 +119,6 @@
             </div>
           </div>
         </div>
-      </div>
-
-    </div>
-  </section>
       </section>
 
       <section id="mission-vision" class="py-20 px-6 md:px-16 bg-white">
