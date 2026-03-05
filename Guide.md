@@ -179,7 +179,9 @@ node firestore-sync/server.js
 ```
 - Runs on: http://localhost:3001
 
-### Option 2: PM2 Auto-Start (Recommended for Network Hosting)
+### Option 2: PM2 Auto-Start (Recommended for Network Hosting) 
+
+### !!! Must cd to the project directory !!!
 
 This is the recommended method for production/network hosting.
 
@@ -187,6 +189,9 @@ Simply run:
 ```
 bash
 start.bat
+
+.\start.bat
+
 ```
 
 This will:
@@ -236,6 +241,8 @@ Other computers on the network can access:
 ```
 bash
 setup-firewall.bat
+
+.\setup-firewall.bat
 ```
 
 This will:
@@ -262,6 +269,8 @@ Simply run:
 ```
 bash
 start-with-autostart.bat
+
+.\start-with-autostart.bat
 ```
 
 This will:

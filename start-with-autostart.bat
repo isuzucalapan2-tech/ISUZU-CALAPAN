@@ -17,17 +17,21 @@ echo.
 echo Step 3: Setting up Windows auto-start with PM2...
 echo.
 
-:: Create startup shortcut in user's startup folder
-echo Creating startup shortcut in user's startup folder...
-set "STARTUP_FOLDER=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
+:: Create PowerShell script for shortcut creation
+echo $WshShell = New-Object -ComObject WScript.Shell > "%TEMP%\create_isuzu_shortcut.ps1"
+echo $Shortcut = $WshShell.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\ISUZU-App-Startup.lnk") >> "%TEMP%\create_isuzu_shortcut.ps1"
+echo $Shortcut.TargetPath = "%~dp0pm2.cmd" >> "%TEMP%\create_isuzu_shortcut.ps1"
+echo $Shortcut.Arguments = "start ecosystem.config.cjs" >> "%TEMP%\create_isuzu_shortcut.ps1"
+echo $Shortcut.WorkingDirectory = "%~dp0" >> "%TEMP%\create_isuzu_shortcut.ps1"
+echo $Shortcut.Description = "ISUZU App Auto-Start" >> "%TEMP%\create_isuzu_shortcut.ps1"
+echo $Shortcut.Save() >> "%TEMP%\create_isuzu_shortcut.ps1"
+echo Write-Host "Shortcut created successfully" >> "%TEMP%\create_isuzu_shortcut.ps1"
 
-:: Create a VBS script for silent batch execution
-echo Set WshShell = CreateObject("WScript.Shell") > "%TEMP%\isuzu_run.vbs"
-echo strPath = WshShell.ExpandEnvironmentStrings("%%CD%%") >> "%TEMP%\isuzu_run.vbs"
-echo WshShell.Run strPath ^& "\pm2.cmd start ecosystem.config.cjs", 0, False >> "%TEMP%\isuzu_run.vbs"
+:: Run PowerShell script to create shortcut
+powershell -ExecutionPolicy Bypass -File "%TEMP%\create_isuzu_shortcut.ps1"
 
-:: Create the shortcut using PowerShell
-powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut('%STARTUP_FOLDER%\ISUZU-App-Startup.lnk'); $Shortcut.TargetPath = 'wscript.exe'; $Shortcut.Arguments = '\"%TEMP%\isuzu_run.vbs\"'; $Shortcut.WorkingDirectory = '%CD%'; $Shortcut.Description = 'ISUZU App Auto-Start'; $Shortcut.Save()"
+:: Clean up temp script
+del "%TEMP%\create_isuzu_shortcut.ps1"
 
 echo [OK] Startup shortcut created!
 echo.
@@ -35,20 +39,9 @@ echo.
 echo ==============================================
 echo Setup Complete!
 echo.
-echo The app will now automatically start when Windows boots.
-echo.
 echo To manually start now: double-click start.bat
 echo To check status: pm2 status
-echo To view logs: pm2 logs
-echo To stop: pm2 stop all
-echo To restart: pm2 restart all
-echo.
-echo Access the app at:
-echo - Frontend: http://localhost:5173
-echo - Backend API: http://localhost:3001
-echo.
-echo To access via network IP:
-echo - Use your computer's IP address (e.g., http://192.168.x.x:5173)
 echo ==============================================
 echo.
 pause
+
