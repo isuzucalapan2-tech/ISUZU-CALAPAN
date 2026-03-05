@@ -1,769 +1,301 @@
 <template>
-  <div v-if="!isLoading" :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col">
-    <!-- Main Content -->
-    <main class="flex-1 p-6">
-      <h1 :class="textClass" class="text-3xl font-bold mb-6 border-l-4 border-green-600 pl-4 flex items-center gap-2">
-        <ArrowDownCircle class="w-7 h-7 text-green-600" />
-        Transaction In
-      </h1>
+  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white">
+    <Loaders />
+  </div>
 
-      <!-- Action Bar -->
-      <div :class="cardClass" :style="cardStyle" class="shadow-lg rounded-lg p-4 mb-6 border-l-2 border-green-600">
-        <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-          <!-- Title Section -->
-          <div>
-            <h2 class="text-xl font-bold flex items-center gap-2 text-green-600">
-              <ArrowDownCircle class="w-6 h-6" />
-              Incoming Parts / Stock In Records
-            </h2>
-            <p :class="subTextClass" class="mt-1 text-sm">Records of parts received from outside sources</p>
-          </div>
+  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
+    
+    <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
+      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+        <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
+      </svg>
+    </div>
 
-          <!-- Filters Section -->
-          <div class="flex flex-col sm:flex-row gap-3 flex-1 max-w-4xl">
-            <!-- Search -->
-            <div class="relative flex-1">
-              <Search class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search by control no, transaction ID, part no, name, source..."
-                :class="inputClass"
-                class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition-all duration-200"
-              />
-            </div>
-            
-            <!-- Category Filter -->
-            <select
-              v-model="selectedCategory"
-              :class="inputClass"
-              class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition-all duration-200"
-            >
-              <option value="">All Categories</option>
-              <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
-            </select>
-
-            <!-- Status Filter -->
-            <select
-              v-model="selectedStatus"
-              :class="inputClass"
-              class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition-all duration-200"
-            >
-              <option value="">All Statuses</option>
-              <option v-for="status in availableStatuses" :key="status" :value="status">{{ status }}</option>
-            </select>
-
-            <!-- Clear Filters -->
-            <button
-              v-if="hasActiveFilters"
-              @click="clearAllFilters"
-              class="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm"
-              :class="textClass"
-              title="Clear all filters"
-            >
-              <X class="w-4 h-4" />
-              Clear
-            </button>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex flex-col sm:flex-row gap-2">
-            <!-- Import Button -->
-            <button
-              @click="openImportModal"
-              class="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <Upload class="w-5 h-5" />
-              Import Excel
-            </button>
-
-            <!-- Export Button with Dropdown -->
-            <div class="relative export-menu-container">
-              <button
-                @click="toggleExportMenu"
-                class="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 w-full"
-                :disabled="transactionInItems.length === 0"
-                :class="{ 'opacity-50 cursor-not-allowed': transactionInItems.length === 0 }"
-              >
-                <FileDown class="w-5 h-5" />
-                Export Excel
-                <ChevronDown class="w-4 h-4" />
-              </button>
-              
-              <!-- Export Dropdown Menu -->
-              <div
-                v-if="showExportMenu"
-                :class="cardClass"
-                :style="cardStyle"
-                class="absolute right-0 mt-1 w-48 rounded-lg shadow-lg border z-50 overflow-hidden"
-              >
-                <button
-                  @click="exportFilteredData"
-                  class="w-full text-left px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-green-900 transition-colors flex items-center gap-2"
-                  :class="textClass"
-                  :disabled="filteredTransactions.length === 0"
-                >
-                  <Filter class="w-4 h-4 text-green-600" />
-                  Export Filtered ({{ filteredTransactions.length }})
-                </button>
-                <div class="border-t" :class="borderClass"></div>
-                <button
-                  @click="exportAllData"
-                  class="w-full text-left px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-green-900 transition-colors flex items-center gap-2"
-                  :class="textClass"
-                >
-                  <Database class="w-4 h-4 text-blue-600" />
-                  Export All ({{ transactionInItems.length }})
-                </button>
-              </div>
-            </div>
-
-            <!-- Print Button with Dropdown -->
-            <div class="relative print-menu-container">
-              <button
-                @click="togglePrintMenu"
-                class="flex items-center justify-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 w-full"
-                :disabled="transactionInItems.length === 0"
-                :class="{ 'opacity-50 cursor-not-allowed': transactionInItems.length === 0 }"
-              >
-                <Printer class="w-5 h-5" />
-                Print
-                <ChevronDown class="w-4 h-4" />
-              </button>
-              
-              <!-- Print Dropdown Menu -->
-              <div
-                v-if="showPrintMenu"
-                :class="cardClass"
-                :style="cardStyle"
-                class="absolute right-0 mt-1 w-48 rounded-lg shadow-lg border z-50 overflow-hidden"
-              >
-                <button
-                  @click="printFilteredData"
-                  class="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900 transition-colors flex items-center gap-2"
-                  :class="textClass"
-                  :disabled="filteredTransactions.length === 0"
-                >
-                  <Filter class="w-4 h-4 text-purple-600" />
-                  Print Filtered ({{ filteredTransactions.length }})
-                </button>
-                <div class="border-t" :class="borderClass"></div>
-                <button
-                  @click="printAllData"
-                  class="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900 transition-colors flex items-center gap-2"
-                  :class="textClass"
-                >
-                  <Database class="w-4 h-4 text-blue-600" />
-                  Print All ({{ transactionInItems.length }})
-                </button>
-              </div>
-            </div>
-
-            <!-- Add Button -->
-            <button
-              @click="openTransactionInModal"
-              class="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <Plus class="w-5 h-5" />
-              Add New Record
-            </button>
-          </div>
+    <header class="relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none">
+      <div class="flex items-center gap-4">
+        <div class="bg-red-600 p-2 rounded-lg">
+          <ArrowDownCircle class="w-6 h-6 text-white" />
         </div>
-
-        <!-- Advanced Filters Row -->
-        <div class="flex flex-col sm:flex-row gap-3 items-center flex-wrap mt-4 pt-4 border-t" :class="borderClass">
-          <!-- Quantity Range -->
-          <div class="flex items-center gap-2">
-            <span :class="subTextClass" class="text-sm font-medium">Qty:</span>
-            <input
-              v-model="minQty"
-              type="number"
-              min="0"
-              placeholder="Min"
-              :class="inputClass"
-              class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-            />
-            <span :class="subTextClass">-</span>
-            <input
-              v-model="maxQty"
-              type="number"
-              min="0"
-              placeholder="Max"
-              :class="inputClass"
-              class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-            />
-          </div>
-
-          <!-- Price Range -->
-          <div class="flex items-center gap-2">
-            <span :class="subTextClass" class="text-sm font-medium">Price ₱:</span>
-            <input
-              v-model="minPrice"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Min"
-              :class="inputClass"
-              class="w-24 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-            />
-            <span :class="subTextClass">-</span>
-            <input
-              v-model="maxPrice"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Max"
-              :class="inputClass"
-              class="w-24 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-            />
-          </div>
-
-          <!-- Date Range -->
-          <div class="flex items-center gap-2">
-            <span :class="subTextClass" class="text-sm font-medium">Date:</span>
-            <input
-              v-model="startDate"
-              type="date"
-              :class="inputClass"
-              class="px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-            />
-            <span :class="subTextClass">-</span>
-            <input
-              v-model="endDate"
-              type="date"
-              :class="inputClass"
-              class="px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-            />
-          </div>
-
-          <!-- Result Count Badge -->
-          <div class="ml-auto">
-            <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-              {{ resultCount }} item{{ resultCount !== 1 ? 's' : '' }} found
-            </span>
-          </div>
+        <div>
+          <h1 class="text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800">
+            Transaction <span class="text-red-600">IN</span>
+          </h1>
+          <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Incoming Stock & Reception Ledger</p>
         </div>
       </div>
 
-
-      <!-- Transaction In Table -->
-      <div :class="cardClass" :style="cardStyle" class="shadow-lg rounded-lg overflow-hidden border-t-2 border-green-600">
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead :class="tableHeaderClass" class="border-b-2 border-green-600">
-              <tr>
-                <th class="p-4 text-left">Control No.</th>
-                <th class="p-4 text-left">Transaction ID</th>
-                <th class="p-4 text-left">Category</th>
-                <th class="p-4 text-left">Part No.</th>
-                <th class="p-4 text-left">Part Name</th>
-                <th class="p-4 text-left">Model</th>
-                <th class="p-4 text-left">Quantity</th>
-                <th class="p-4 text-left">Unit Price</th>
-                <th class="p-4 text-left">Total Price</th>
-                <th class="p-4 text-left">Source</th>
-                <th class="p-4 text-left">Note</th>
-                <th class="p-4 text-left">Received At</th>
-                <th class="p-4 text-left">Status</th>
-                <th class="p-4 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="item in paginatedTransactions"
-                :key="item.id"
-                :class="tableRowClass"
-                class="border-b border-gray-300 transition duration-200 hover:shadow-md"
-              >
-
-                <td :class="textClass" class="p-4 font-medium text-green-600">{{ item.controlNo }}</td>
-                <td :class="textClass" class="p-4 font-medium">{{ item.transactionID }}</td>
-                <td :class="textClass" class="p-4">
-                  <span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 uppercase">
-                    {{ item.category }}
-                  </span>
-                </td>
-                <td :class="textClass" class="p-4 font-medium">{{ item.partNo }}</td>
-                <td :class="textClass" class="p-4">{{ item.partName }}</td>
-                <td :class="textClass" class="p-4">{{ item.model }}</td>
-                <td :class="textClass" class="p-4">{{ item.quantity }}</td>
-                <td :class="textClass" class="p-4">₱{{ item.unitPrice?.toLocaleString() }}</td>
-                <td :class="textClass" class="p-4">₱{{ item.totalPrice?.toLocaleString() }}</td>
-                <td :class="textClass" class="p-4">{{ item.source }}</td>
-                <td :class="textClass" class="p-4">{{ item.note }}</td>
-                <td :class="textClass" class="p-4">{{ formatDate(item.receivedAt) }}</td>
-                <td :class="textClass" class="p-4">
-                  <span :class="getStatusBadgeClass(item.statusIN)" class="px-2 py-1 rounded text-xs font-medium uppercase">
-                    {{ item.statusIN || 'To Review' }}
-                  </span>
-                </td>
-                <td :class="textClass" class="p-4">
-                  <div class="flex gap-2">
-                    <!-- Show Stock IN button only for To Review status -->
-                    <button
-                      v-if="item.statusIN === 'To Review' || !item.statusIN"
-                      @click="processStockIn(item)"
-                      :disabled="processingItems[item.id]"
-                      class="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 transition-all duration-200 disabled:opacity-50"
-                    >
-                      <Check class="w-3 h-3" />
-                      {{ processingItems[item.id] ? 'Processing...' : 'Stock IN' }}
-                    </button>
-                    <!-- Show Stock OUT button only for Stock IN status (to reverse/return) and within 3 days -->
-                    <button
-                      v-if="item.statusIN === 'Stock IN' && isStockOutButtonEnabled(item)"
-                      @click="processStockOut(item)"
-                      :disabled="processingItems[item.id]"
-                      class="flex items-center gap-1 bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-all duration-200 disabled:opacity-50"
-                    >
-                      <X class="w-3 h-3" />
-                      {{ processingItems[item.id] ? 'Processing...' : 'Stock OUT' }}
-                      <span class="ml-1 text-[10px] opacity-75">({{ getStockOutExpirationText(item) }})</span>
-                    </button>
-                    <!-- Show expired message if Stock OUT button is disabled due to 3-day expiration -->
-                    <span
-                      v-if="item.statusIN === 'Stock IN' && !isStockOutButtonEnabled(item)"
-                      class="text-gray-500 text-xs flex items-center gap-1"
-                      title="Stock OUT action expired after 3 days"
-                    >
-                      <Lock class="w-3 h-3" />
-                      Stock OUT Expired
-                    </span>
-
-                    <span
-                      v-if="item.statusIN === 'Stock OUT'"
-                      class="text-red-600 font-medium text-xs flex items-center gap-1"
-                    >
-                      <XCircle class="w-4 h-4" />
-                      Returned
-                    </span>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="paginatedTransactions.length === 0">
-                <td colspan="14" :class="subTextClass" class="text-center p-8">
-                  <div class="flex justify-center items-center gap-2">
-                    <ArrowDownCircle class="w-5 h-5" />
-                    {{ transactionInItems.length === 0 ? 'No incoming transaction records found' : 'No records match your filters' }}
-                  </div>
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
+      <div class="hidden md:flex items-center gap-6">
+        <div class="text-right border-r pr-6 border-gray-300">
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Database Status</p>
+          <p class="text-xs font-black text-green-600 uppercase flex items-center justify-end gap-1">
+            <Database class="w-3 h-3" /> Synchronized
+          </p>
         </div>
+        <button @click="openTransactionInModal" class="group bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg flex items-center gap-2">
+          <Plus class="w-4 h-4" /> Add New Record
+        </button>
+      </div>
+    </header>
 
-        <!-- Pagination -->
-        <div v-if="filteredTransactions.length > 0" class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <!-- Items info -->
-          <div :class="subTextClass" class="text-sm">
-            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, filteredTransactions.length) }} of {{ filteredTransactions.length }} items
-          </div>
+    <main class="flex-1 relative z-10 overflow-auto p-6 lg:p-6">
+      <div class="max-w-[1800px] mx-auto space-y-6">
+        
+        <div class="bg-white rounded-2xl p-6 border border-neutral-300 space-y-2">
+          <div class="flex flex-col xl:flex-row gap-6">
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="relative">
+                <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input v-model="searchQuery" type="text" placeholder="Search" :class="inputClass" class="w-full pl-12 pr-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest outline-none focus:ring-2 focus:ring-red-500 border transition-all" />
+              </div>
 
-          <!-- Pagination controls -->
-          <div class="flex items-center gap-2">
-            <!-- Items per page selector -->
-            <select
-              v-model="itemsPerPage"
-              :class="inputClass"
-              class="px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-            >
-              <option v-for="option in itemsPerPageOptions" :key="option" :value="option">{{ option }}/page</option>
-            </select>
+              <select v-model="selectedCategory" :class="inputClass" class="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none border focus:ring-2 focus:ring-red-500">
+                <option value="">ALL CATEGORIES</option>
+                <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat }}</option>
+              </select>
 
-            <!-- First page -->
-            <button
-              @click="currentPage = 1"
-              :disabled="currentPage === 1"
-              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :class="textClass"
-              title="First page"
-            >
-              <ChevronsLeft class="w-5 h-5" />
-            </button>
-
-            <!-- Previous page -->
-            <button
-              @click="currentPage--"
-              :disabled="currentPage === 1"
-              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :class="textClass"
-              title="Previous page"
-            >
-              <ChevronLeft class="w-5 h-5" />
-            </button>
-
-            <!-- Page numbers -->
-            <div class="flex items-center gap-1">
-              <button
-                v-for="page in displayedPages"
-                :key="page"
-                @click="currentPage = page"
-                :class="[
-                  'px-3 py-1 text-sm rounded transition-colors',
-                  currentPage === page
-                    ? 'bg-green-600 text-white'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-700 ' + textClass
-                ]"
-              >
-                {{ page }}
-              </button>
+              <select v-model="selectedStatus" :class="inputClass" class="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none border focus:ring-2 focus:ring-red-500">
+                <option value="">ALL STATUSES</option>
+                <option v-for="status in availableStatuses" :key="status" :value="status">{{ status }}</option>
+              </select>
             </div>
 
-            <!-- Next page -->
-            <button
-              @click="currentPage++"
-              :disabled="currentPage === totalPages"
-              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :class="textClass"
-              title="Next page"
-            >
-              <ChevronRight class="w-5 h-5" />
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="relative export-menu-container">
+                <button @click="toggleExportMenu" class="flex items-center gap-2 bg-neutral-100 text-neutral-700 px-5 py-3 rounded-xl font-black text-[10px] uppercase border border-neutral-400 tracking-widest hover:bg-neutral-200 transition-all">
+                  <FileDown class="w-4 h-4" /> Export <ChevronDown class="w-3 h-3" />
+                </button>
+                <div v-if="showExportMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 py-2">
+                  <button @click="exportFilteredData" class="w-full text-left px-4 py-2 text-[10px] font-bold uppercase hover:bg-gray-50">Filtered Data</button>
+                  <button @click="exportAllData" class="w-full text-left px-4 py-2 text-[10px] font-bold uppercase hover:bg-gray-50 border-t">All Data</button>
+                </div>
+              </div>
 
-            <!-- Last page -->
-            <button
-              @click="currentPage = totalPages"
-              :disabled="currentPage === totalPages"
-              class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :class="textClass"
-              title="Last page"
-            >
-              <ChevronsRight class="w-5 h-5" />
-            </button>
+              <div class="relative print-menu-container">
+                <button @click="togglePrintMenu" class="flex items-center gap-2 bg-neutral-100 text-neutral-700 px-5 py-3 rounded-xl font-black text-[10px] uppercase border border-neutral-400 tracking-widest hover:bg-neutral-200 transition-all">
+                  <Printer class="w-4 h-4" /> Print <ChevronDown class="w-3 h-3" />
+                </button>
+                <div v-if="showPrintMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 py-2">
+                  <button @click="printFilteredData" class="w-full text-left px-4 py-2 text-[10px] font-bold uppercase hover:bg-gray-50">Print Filtered</button>
+                  <button @click="printAllData" class="w-full text-left px-4 py-2 text-[10px] font-bold uppercase hover:bg-gray-50 border-t">Print All</button>
+                </div>
+              </div>
+
+              <button @click="showImportModal = true" class="flex items-center gap-2 bg-blue-50 text-blue-600 px-5 py-3 rounded-xl font-black text-[10px] uppercase border border-blue-400 tracking-widest hover:bg-blue-600 hover:text-white transition-all">
+                <Upload class="w-4 h-4" /> Import Excel
+              </button>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-dashed border-gray-200 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+             <div class="space-y-1">
+                <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Date From</label>
+                <input v-model="startDate" type="date" :class="inputClass" class="w-full px-3 py-2 rounded-lg text-[10px] border" />
+             </div>
+             <div class="space-y-1">
+                <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Date To</label>
+                <input v-model="endDate" type="date" :class="inputClass" class="w-full px-3 py-2 rounded-lg text-[10px] border" />
+             </div>
+             <div class="space-y-1">
+                <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Min Price</label>
+                <input v-model="minPrice" type="number" placeholder="0.00" :class="inputClass" class="w-full px-3 py-2 rounded-lg text-[10px] border" />
+             </div>
+             <div class="space-y-1">
+                <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Max Price</label>
+                <input v-model="maxPrice" type="number" placeholder="MAX" :class="inputClass" class="w-full px-3 py-2 rounded-lg text-[10px] border" />
+             </div>
+             <div v-if="hasActiveFilters" class="lg:col-span-2 flex items-end">
+                <button @click="clearAllFilters" class="flex items-center gap-2 text-red-600 font-black text-[10px] uppercase hover:underline mb-2">
+                  <XCircle class="w-4 h-4" /> Clear All Filters
+                </button>
+             </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[1600px]">
+              <thead>
+                <tr class="bg-neutral-800 text-white text-[10px] uppercase tracking-widest isuzu-font">
+                  <th class="p-4 font-black">Control No</th>
+                  <th class="p-4 font-black">Transaction ID</th>
+                  <th class="p-4 font-black">Category</th>
+                  <th class="p-4 font-black">Part No.</th>
+                  <th class="p-4 font-black">Part Name</th>
+                  <th class="p-4 font-black">Model</th>
+                  <th class="p-4 font-black text-right">Qty</th>
+                  <th class="p-4 font-black text-right">Unit Price</th>
+                  <th class="p-4 font-black text-right">Total Price</th>
+                  <th class="p-4 font-black">Source</th>
+                  <th class="p-4 font-black">Received At</th>
+                  <th class="p-4 font-black text-center">Status</th>
+                  <th class="p-4 font-black text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <tr v-for="item in paginatedTransactions" :key="item.id" class="hover:bg-red-50/30 transition-colors text-[11px] font-bold uppercase tracking-tight">
+                  <td class="p-4 text-red-600 font-black">{{ item.controlNo }}</td>
+                  <td class="p-4 font-mono text-neutral-500">{{ item.transactionID }}</td>
+                  <td class="p-4">
+                    <span class="px-2 py-1 rounded bg-neutral-100 text-neutral-600">{{ item.category }}</span>
+                  </td>
+                  <td class="p-4">{{ item.partNo }}</td>
+                  <td class="p-4 text-neutral-800">{{ item.partName }}</td>
+                  <td class="p-4 text-neutral-500">{{ item.model }}</td>
+                  <td class="p-4 text-right font-black">{{ item.quantity.toLocaleString() }}</td>
+                  <td class="p-4 text-right">₱{{ item.unitPrice?.toLocaleString() }}</td>
+                  <td class="p-4 text-right text-red-600 font-black">₱{{ item.totalPrice?.toLocaleString() }}</td>
+                  <td class="p-4 max-w-[150px] truncate" :title="item.source">{{ item.source }}</td>
+                  <td class="p-4 text-neutral-400">{{ formatDate(item.receivedAt) }}</td>
+                  
+                  <td class="p-4 text-center">
+                    <span :class="getStatusBadgeClass(item.statusIN)" class="px-2 py-1 rounded text-[9px] font-black uppercase">
+                      {{ item.statusIN || 'To Review' }}
+                    </span>
+                  </td>
+
+                  <td class="p-4">
+                    <div class="flex items-center justify-center gap-2">
+                      <button 
+                        v-if="item.statusIN === 'To Review' || !item.statusIN"
+                        @click="processStockIn(item)" 
+                        :disabled="processingItems[item.id]"
+                        class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-neutral-800 transition-all flex items-center gap-1 disabled:opacity-50"
+                      >
+                        <Check class="w-3 h-3" /> {{ processingItems[item.id] ? '...' : 'Stock IN' }}
+                      </button>
+
+                      <div v-if="item.statusIN === 'Stock IN'" class="flex items-center gap-2">
+                        <button 
+                          v-if="isStockOutButtonEnabled(item)"
+                          @click="processStockOut(item)" 
+                          :disabled="processingItems[item.id]"
+                          class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-neutral-800 transition-all flex items-center gap-1"
+                        >
+                          <X class="w-3 h-3" /> {{ processingItems[item.id] ? '...' : 'Stock OUT' }}
+                          <span class="text-[8px] opacity-70">({{ getStockOutExpirationText(item) }})</span>
+                        </button>
+
+                        <span v-else class="text-neutral-400 text-[9px] font-black flex items-center gap-1">
+                          <Lock class="w-3 h-3" /> EXPIRED
+                        </span>
+                      </div>
+
+                      <span v-if="item.statusIN === 'Stock OUT'" class="text-red-600 flex items-center gap-1 text-[9px]">
+                        <XCircle class="w-4 h-4" /> RETURNED
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr v-if="paginatedTransactions.length === 0">
+                  <td colspan="13" class="p-20 text-center opacity-30">
+                    <div class="flex flex-col items-center">
+                      <Database class="w-16 h-16 mb-2" />
+                      <p class="font-black isuzu-font uppercase tracking-widest">No transaction records found</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="px-8 py-5 bg-gray-50 flex flex-col md:flex-row items-center justify-between border-t border-gray-200">
+             <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, resultCount) }} of {{ resultCount }} Records
+             </div>
+            
+            <div class="flex items-center gap-2">
+              <button @click="currentPage = 1" :disabled="currentPage === 1" class="p-2 rounded-lg bg-white border hover:text-red-600 disabled:opacity-30"><ChevronsLeft class="w-4 h-4" /></button>
+              <button @click="currentPage--" :disabled="currentPage === 1" class="p-2 rounded-lg bg-white border hover:text-red-600 disabled:opacity-30"><ChevronLeft class="w-4 h-4" /></button>
+              
+              <div class="flex gap-1 mx-2">
+                <button v-for="page in displayedPages" :key="page" @click="currentPage = page" 
+                  :class="currentPage === page ? 'bg-red-600 text-white shadow-lg' : 'bg-white text-neutral-600'"
+                  class="w-8 h-8 rounded-lg text-xs font-bold transition-all border">
+                  {{ page }}
+                </button>
+              </div>
+
+              <button @click="currentPage++" :disabled="currentPage === totalPages" class="p-2 rounded-lg bg-white border hover:text-red-600 disabled:opacity-30"><ChevronRight class="w-4 h-4" /></button>
+              <button @click="currentPage = totalPages" :disabled="currentPage === totalPages" class="p-2 rounded-lg bg-white border hover:text-red-600 disabled:opacity-30"><ChevronsRight class="w-4 h-4" /></button>
+            </div>
           </div>
         </div>
       </div>
     </main>
 
+    <Transition name="fade">
+      <div v-if="showTransactionInModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeTransactionInModal"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
+          <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
+            <h2 class="text-white isuzu-font font-black uppercase tracking-widest flex items-center gap-3">
+              <Plus class="w-5 h-5 text-red-600" /> Stock In Registration
+            </h2>
+            <button @click="closeTransactionInModal" class="text-gray-400 hover:text-white transition-colors"><X class="w-6 h-6" /></button>
+          </div>
 
-    <!-- Transaction IN Modal -->
-    <div v-if="showTransactionInModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div :class="modalClass" :style="modalStyle" class="rounded-lg shadow-xl p-6 w-full max-w-lg">
-        <h2 :class="textClass" class="text-2xl font-bold mb-4 flex items-center gap-2">
-          <ArrowDownCircle class="w-6 h-6 text-green-600" />
-          Add Incoming Record
-        </h2>
+          <div class="p-8 space-y-6">
+            <div class="space-y-2 relative inventory-selector">
+              <label class="text-[10px] font-black uppercase text-gray-400 ml-1">Search Catalog for Part</label>
+              <div class="relative">
+                <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input v-model="inventorySearchQuery" type="text" placeholder="TYPE PART NAME..." class="w-full pl-12 pr-4 py-3 bg-gray-50 border rounded-xl text-xs font-bold uppercase focus:ring-2 focus:ring-red-500 outline-none transition-all" />
+              </div>
 
-        <div class="space-y-4">
-          <!-- Inventory Item Search -->
-          <div class="inventory-selector relative">
-            <label :class="subTextClass" class="block mb-1 font-medium">Search Inventory Item *</label>
-            <div class="relative">
-              <Search class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                v-model="inventorySearchQuery"
-                type="text"
-                :class="inputClass"
-                class="w-full border rounded px-4 py-2 pl-10"
-                placeholder="Search by part number, name, model, or category..."
-
-                @focus="showInventoryDropdown = true"
-              />
-
-            </div>
-            
-            <!-- Inventory Dropdown -->
-            <div 
-              v-if="showInventoryDropdown && inventoryItems.length > 0" 
-              :class="cardClass"
-              :style="cardStyle"
-              class="absolute z-50 w-full mt-1 border rounded-lg shadow-lg max-h-60 overflow-y-auto"
-            >
-              <div
-                v-for="item in inventoryItems"
-                :key="item.controlNo"
-                @click="selectInventoryItem(item)"
-                class="p-3 cursor-pointer hover:bg-green-50 dark:hover:bg-green-900 border-b border-gray-200 dark:border-gray-700 last:border-0"
-              >
-                <div class="flex justify-between items-start">
-                  <div>
-                    <div :class="textClass" class="font-medium">{{ item.partNo }}</div>
-                    <div :class="subTextClass" class="text-sm">{{ item.partName }}</div>
-                    <div :class="subTextClass" class="text-xs mt-1">
-                      <span class="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase">{{ item.category }}</span>
-                      <span class="ml-1">Model: {{ item.model }}</span>
-                      <span class="ml-1">| Qty: {{ item.quantity }}</span>
-                    </div>
+              <div v-if="showInventoryDropdown && inventoryItems.length > 0" class="absolute z-50 w-full mt-2 bg-white border rounded-xl shadow-2xl overflow-hidden max-h-48 overflow-y-auto">
+                <div v-for="item in inventoryItems" :key="item.controlNo" @click="selectInventoryItem(item)" class="px-4 py-3 hover:bg-red-50 cursor-pointer flex justify-between items-center border-b last:border-0">
+                  <div class="flex flex-col">
+                    <span class="text-xs font-black uppercase text-neutral-800">{{ item.partName }}</span>
+                    <span class="text-[9px] font-bold text-gray-400">PN: {{ item.partNo }} | CAT: {{ item.category }}</span>
                   </div>
-                  <div class="text-right">
-                    <div :class="subTextClass" class="text-xs font-mono">{{ item.controlNo }}</div>
-                    <div class="text-green-600 font-medium text-sm">₱{{ item.unitPrice?.toLocaleString() }}</div>
-                  </div>
+                  <span class="text-[10px] font-mono bg-neutral-100 px-2 py-0.5 rounded text-neutral-500">{{ item.controlNo }}</span>
                 </div>
               </div>
             </div>
-            
-            <!-- No Results -->
-            <div 
-              v-if="showInventoryDropdown && inventoryItems.length === 0" 
-              :class="cardClass"
-              class="absolute z-50 w-full mt-1 border rounded-lg shadow-lg p-4 text-center"
-            >
-              <p :class="subTextClass">No inventory items found</p>
-            </div>
-          </div>
 
-          <!-- Selected Item Info -->
-          <div v-if="selectedInventoryItem" :class="cardClass" :style="cardStyle" class="p-3 rounded-lg border border-green-200 dark:border-green-800">
-            <div class="flex items-center gap-2 text-green-600 mb-2">
-              <Check class="w-4 h-4" />
-              <span class="font-medium text-sm">Selected Item</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <span :class="subTextClass">Control No:</span>
-                <span :class="textClass" class="font-mono ml-1">{{ selectedInventoryItem.controlNo }}</span>
+            <div class="grid grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase text-gray-400">Quantity</label>
+                <input v-model.number="transactionInForm.quantity" type="number" class="w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm font-bold outline-none" />
               </div>
-              <div>
-                <span :class="subTextClass">Part No:</span>
-                <span :class="textClass" class="font-medium ml-1">{{ selectedInventoryItem.partNo }}</span>
-              </div>
-              <div class="col-span-2">
-                <span :class="subTextClass">Part Name:</span>
-                <span :class="textClass" class="font-medium ml-1">{{ selectedInventoryItem.partName }}</span>
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase text-gray-400">Unit Price</label>
+                <input v-model.number="transactionInForm.unitPrice" type="number" readonly class="w-full bg-gray-100 border rounded-xl px-4 py-3 text-sm font-bold text-gray-500" />
               </div>
             </div>
-          </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label :class="subTextClass" class="block mb-1 font-medium">Quantity *</label>
-              <input
-                v-model.number="transactionInForm.quantity"
-                type="number"
-                min="1"
-                :class="inputClass"
-                class="w-full border rounded px-4 py-2"
-                placeholder="0"
-                required
-              />
+            <div class="p-5 bg-green-50 rounded-2xl border border-green-100 flex justify-between items-center">
+               <div class="flex items-center gap-3">
+                  <CheckCircle class="w-6 h-6 text-green-600" />
+                  <div>
+                    <p class="text-[10px] font-black text-green-600 uppercase">Calculated Valuation</p>
+                    <p class="text-lg font-black text-neutral-800">₱ {{ transactionInForm.totalPrice.toLocaleString('en-PH', { minimumFractionDigits: 2 }) }}</p>
+                  </div>
+               </div>
+               <div class="text-right">
+                  <p class="text-[10px] font-black text-neutral-400 uppercase">Control Reference</p>
+                  <p class="text-xs font-mono font-black text-neutral-600">{{ transactionInForm.controlNo || 'N/A' }}</p>
+               </div>
             </div>
 
-            <div>
-              <label :class="subTextClass" class="block mb-1 font-medium">Unit Price (₱)</label>
-              <input
-                v-model.number="transactionInForm.unitPrice"
-                type="number"
-                :class="inputClass"
-                class="w-full border rounded px-4 py-2 bg-gray-100 dark:bg-gray-700"
-                placeholder="0.00"
-                readonly
-              />
+            <div class="grid grid-cols-2 gap-6">
+              <input v-model="transactionInForm.source" type="text" placeholder="STOCK SOURCE..." class="w-full bg-gray-50 border rounded-xl px-4 py-3 text-xs font-bold uppercase outline-none" />
+              <input v-model="transactionInForm.note" type="text" placeholder="ADDITIONAL NOTES..." class="w-full bg-gray-50 border rounded-xl px-4 py-3 text-xs font-bold uppercase outline-none" />
             </div>
-          </div>
 
-          <div>
-            <label :class="subTextClass" class="block mb-1 font-medium">Total Price (₱) <span class="text-xs font-normal">(Auto-calculated)</span></label>
-            <input
-              v-model.number="transactionInForm.totalPrice"
-              type="number"
-              :class="inputClass"
-              class="w-full border rounded px-4 py-2 bg-green-50 dark:bg-green-900 font-medium text-green-700 dark:text-green-300"
-              placeholder="0.00"
-              readonly
-            />
-          </div>
-
-          <div>
-            <label :class="subTextClass" class="block mb-1 font-medium">Source *</label>
-            <input
-              v-model="transactionInForm.source"
-              type="text"
-              :class="inputClass"
-              class="w-full border rounded px-4 py-2"
-              placeholder="e.g., Supplier Name"
-              required
-            />
-          </div>
-
-          <div>
-            <label :class="subTextClass" class="block mb-1">Note</label>
-            <textarea
-              v-model="transactionInForm.note"
-              :class="inputClass"
-              class="w-full border rounded px-4 py-2"
-              rows="2"
-              placeholder="Enter notes..."
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-3 mt-6">
-          <button
-            @click="closeTransactionInModal"
-            class="px-4 py-2 border rounded hover:bg-gray-100 hover:shadow-md transition-all duration-200"
-            :class="isDarkMode ? 'border-gray-600 hover:bg-gray-800 text-white' : 'border-gray-300'"
-          >
-            Cancel
-          </button>
-          <button
-            @click="saveTransactionIn"
-            class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
-          >
-            Add Record
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Loading Screen -->
-  <div v-else class="min-h-screen flex items-center justify-center">
-    <Loaders />
-  </div>
-
-  <!-- Import Modal -->
-  <div v-if="showImportModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div :class="cardClass" :style="cardStyle" class="rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-      <div class="p-6 border-b-2 border-blue-600 flex justify-between items-center">
-        <h2 :class="textClass" class="text-xl font-bold flex items-center gap-2">
-          <FileSpreadsheet class="w-6 h-6 text-blue-600" />
-          Import Transaction In from Excel
-        </h2>
-        <button @click="closeImportModal" class="text-gray-500 hover:text-gray-700 transition-colors">
-          <X class="w-6 h-6" />
-        </button>
-      </div>
-
-      <div class="p-6 space-y-4">
-        <!-- File Upload -->
-        <div v-if="importPreview.validItems.length === 0 && importPreview.invalidItems.length === 0">
-          <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-            <input
-              type="file"
-              ref="fileInput"
-              @change="handleFileSelect"
-              accept=".xlsx,.xls"
-              class="hidden"
-            />
-            <FileSpreadsheet class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p :class="textClass" class="text-lg font-medium mb-2">Upload Excel File</p>
-            <p :class="subTextClass" class="text-sm mb-4">Supported formats: .xlsx, .xls</p>
-            <button
-              @click="$refs.fileInput.click()"
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Select File
-            </button>
-            <div class="mt-4 text-left" :class="subTextClass">
-              <p class="text-sm font-medium mb-2">Required columns:</p>
-              <ul class="text-xs space-y-1 list-disc list-inside">
-                <li>Category (required)</li>
-                <li>Part No. (required)</li>
-                <li>Quantity (required, number)</li>
-                <li>Unit Price (required, number)</li>
-                <li>Source (required)</li>
-                <li>Part Name (optional)</li>
-                <li>Model (optional)</li>
-                <li>Note (optional)</li>
-              </ul>
+            <div class="flex justify-end gap-3 pt-6 border-t">
+              <button @click="closeTransactionInModal" class="px-8 py-3 text-[10px] font-black uppercase text-gray-500 hover:bg-gray-100 rounded-full transition-all">Discard</button>
+              <button @click="saveTransactionIn" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl">
+                Register Record
+              </button>
             </div>
-          </div>
-        </div>
-
-        <!-- Preview Results -->
-        <div v-else>
-          <!-- Summary -->
-          <div class="flex gap-4 mb-4">
-            <div class="flex-1 bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg p-4">
-              <div class="flex items-center gap-2 text-green-700 dark:text-green-300">
-                <CheckCircle class="w-5 h-5" />
-                <span class="font-medium">{{ importPreview.validItems.length }} Valid Items</span>
-              </div>
-            </div>
-            <div v-if="importPreview.invalidItems.length > 0" class="flex-1 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-4">
-              <div class="flex items-center gap-2 text-red-700 dark:text-red-300">
-                <AlertTriangle class="w-5 h-5" />
-                <span class="font-medium">{{ importPreview.invalidItems.length }} Invalid Items</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Valid Items Table -->
-          <div v-if="importPreview.validItems.length > 0" class="mb-4">
-            <h3 :class="textClass" class="font-medium mb-2">Valid Items (Ready to Import)</h3>
-            <div class="overflow-x-auto max-h-60">
-              <table class="min-w-full divide-y border">
-                <thead :class="tableHeaderClass">
-                  <tr>
-                    <th class="px-3 py-2 text-left text-xs font-medium">Category</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium">Part No.</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium">Part Name</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium">Model</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium">Qty</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium">Unit Price</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium">Total Price</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium">Source</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in importPreview.validItems.slice(0, 10)" :key="index" :class="tableRowClass">
-                    <td :class="textClass" class="px-3 py-2 text-xs uppercase">{{ item.category }}</td>
-                    <td :class="textClass" class="px-3 py-2 text-xs uppercase">{{ item.partNo }}</td>
-                    <td :class="textClass" class="px-3 py-2 text-xs uppercase">{{ item.partName || '-' }}</td>
-                    <td :class="textClass" class="px-3 py-2 text-xs uppercase">{{ item.model || '-' }}</td>
-                    <td :class="textClass" class="px-3 py-2 text-xs">{{ item.quantity }}</td>
-                    <td :class="textClass" class="px-3 py-2 text-xs">₱{{ item.unitPrice.toLocaleString() }}</td>
-                    <td :class="textClass" class="px-3 py-2 text-xs text-green-600">₱{{ item.totalPrice.toLocaleString() }}</td>
-                    <td :class="textClass" class="px-3 py-2 text-xs uppercase">{{ item.source }}</td>
-                  </tr>
-                  <tr v-if="importPreview.validItems.length > 10">
-                    <td :class="subTextClass" class="px-3 py-2 text-xs text-center" colspan="8">
-                      ... and {{ importPreview.validItems.length - 10 }} more items
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Invalid Items Table -->
-          <div v-if="importPreview.invalidItems.length > 0" class="mb-4">
-            <h3 :class="textClass" class="font-medium mb-2 text-red-600">Invalid Items (Will be Skipped)</h3>
-            <div class="overflow-x-auto max-h-40">
-              <table class="min-w-full divide-y border border-red-200">
-                <thead class="bg-red-50 dark:bg-red-900">
-                  <tr>
-                    <th class="px-3 py-2 text-left text-xs font-medium text-red-700 dark:text-red-300">Row</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium text-red-700 dark:text-red-300">Part No.</th>
-                    <th class="px-3 py-2 text-left text-xs font-medium text-red-700 dark:text-red-300">Errors</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in importPreview.invalidItems" :key="index" class="bg-red-50/50 dark:bg-red-900/50">
-                    <td class="px-3 py-2 text-xs text-red-600">{{ item.rowNumber }}</td>
-                    <td :class="textClass" class="px-3 py-2 text-xs uppercase">{{ item.partNo || 'N/A' }}</td>
-                    <td class="px-3 py-2 text-xs text-red-600">{{ item.errors.join(', ') }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex justify-end gap-3 pt-4 border-t" :class="borderClass">
-            <button
-              @click="resetImport"
-              class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-            >
-              Select Different File
-            </button>
-            <button
-              v-if="importPreview.validItems.length > 0"
-              @click="confirmImport"
-              :disabled="isImporting"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              {{ isImporting ? 'Importing...' : `Import ${importPreview.validItems.length} Items` }}
-            </button>
           </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
-
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
@@ -2036,3 +1568,9 @@ const confirmImport = async () => {
 };
 
 </script>
+
+<style scoped>
+.isuzu-font {
+  font-family: 'IsuzuFont', sans-serif;
+}
+</style>

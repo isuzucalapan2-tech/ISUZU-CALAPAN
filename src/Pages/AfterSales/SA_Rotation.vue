@@ -726,9 +726,9 @@
 </template>
 
 <script>
-import { db } from "../Firebase/Firebase";
+import { db } from "../../Firebase/Firebase";
 import { doc, onSnapshot, updateDoc, getDoc, deleteField, setDoc } from "firebase/firestore";
-import { useSAFairness } from "../composables/useSAFairness";
+import { useSAFairness } from "../../composables/useSAFairness";
 
 export default {
 

@@ -11,9 +11,9 @@
       </svg>
     </div>
 
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center bg-white/10 backdrop-blur-none">
+    <header class="relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none">
       <div class="flex items-center gap-4">
-        <div class="bg-red-600 p-2 rounded-lg shadow-lg">
+        <div class="bg-red-600 p-2 rounded-lg">
           <UserPlus class="w-6 h-6 text-white" />
         </div>
         <div>
@@ -67,7 +67,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div class="bg-white rounded-2xl border border-neutral-600 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
@@ -79,7 +79,7 @@
                   <th class="px-6 py-5 font-black text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100">
+              <tbody class="divide-y divide-neutral-100">
                 <tr v-for="user in paginatedPendingUsers" :key="user.id" class="hover:bg-red-50/50 transition-colors group">
                   <td class="px-6 py-6">
                     <div class="flex flex-col">

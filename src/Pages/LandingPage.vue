@@ -84,65 +84,92 @@
       </section>
 
       <section id="promos" class="relative py-16 px-6 md:px-16 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
-          <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
-            <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Car Promos</h2>
-            <div class="h-[2px] flex-1 bg-red-600 hidden md:block ml-8"></div>
-          </div>
+        <section id="promos" class="relative py-16 px-6 md:px-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto">
+      
+      <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <h2 class="text-2xl md:text-3xl text-black uppercase tracking-widest isuzu-font font-black">
+          Car <span class="text-red-600">Promos</span>
+        </h2>
+        <div class="h-[2px] flex-1 bg-neutral-200 hidden md:block ml-8 relative">
+          <div class="absolute left-0 top-0 h-full w-24 bg-red-600"></div>
+        </div>
+      </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
-            <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all p-5 border border-gray-100">
-              <div class="aspect-video flex items-center justify-center bg-gray-200 rounded-xl mb-5">
-                <span class="text-gray-400 font-bold text-xs uppercase tracking-widest">Image Coming Soon</span>
-              </div>
-              <h3 class="text-lg isuzu-font mb-2">{{ car.name }}</h3>
-              <p class="text-xs text-neutral-500 mb-4">{{ car.description }}</p>
-              <p class="text-red-600 font-black text-lg">{{ car.promo }}</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
+        <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-3xl overflow-hidden border border-neutral-200 shadow-sm">
+          <div class="aspect-[16/10] bg-neutral-200 w-full overflow-hidden">
+            <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover" />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <span class="text-neutral-400 font-bold text-[10px] uppercase tracking-[0.3em]">Image Coming Soon</span>
             </div>
           </div>
-
-          <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-10 gap-4">
-            <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Parts Promos</h2>
-            <div class="h-[2px] flex-1 bg-red-600 hidden md:block mr-8"></div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-800 text-white rounded-2xl p-6 hover:bg-neutral-900 transition-all">
-              <div class="h-32 flex items-center justify-center bg-white/5 rounded-xl mb-5">
-                <span class="opacity-30 text-[10px] uppercase font-bold tracking-widest">Preview N/A</span>
-              </div>
-              <h3 class="font-bold text-base isuzu-font mb-2 text-red-500">{{ part.name }}</h3>
-              <p class="text-xs opacity-60 mb-4">{{ part.description }}</p>
-              <p class="text-lg font-black text-white">{{ part.promo }}</p>
+          
+          <div class="p-5">
+            <h3 class="text-sm font-black isuzu-font uppercase tracking-wider mb-1 text-neutral-900">{{ car.name }}</h3>
+            <p class="text-[10px] text-neutral-500 uppercase font-bold tracking-tight mb-3 line-clamp-1">{{ car.description }}</p>
+            <div class="flex items-center justify-between pt-3 border-t border-neutral-100">
+              <span class="text-[9px] font-black text-neutral-400 uppercase tracking-widest">Special Offer</span>
+              <p class="text-red-600 font-black text-base italic">{{ car.promo }}</p>
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-8 gap-4">
+        <h2 class="text-2xl md:text-3xl text-black uppercase tracking-widest isuzu-font font-black">
+          Parts <span class="text-red-600">Promos</span>
+        </h2>
+        <div class="h-[2px] flex-1 bg-neutral-200 hidden md:block mr-8 relative">
+          <div class="absolute right-0 top-0 h-full w-24 bg-red-600"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-900 rounded-3xl overflow-hidden border border-neutral-800 shadow-2xl">
+          <div class="aspect-[16/9] bg-neutral-800 w-full overflow-hidden">
+            <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover" />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <span class="opacity-20 text-white text-[10px] uppercase font-bold tracking-[0.3em]">No Preview</span>
+            </div>
+          </div>
+          
+          <div class="p-5">
+            <h3 class="text-sm font-black isuzu-font uppercase tracking-wider mb-1 text-red-500">{{ part.name }}</h3>
+            <p class="text-[10px] text-neutral-400 uppercase font-bold tracking-tight mb-3 line-clamp-1 opacity-60">{{ part.description }}</p>
+            <div class="flex items-center justify-between pt-3 border-t border-white/10">
+              <span class="text-[9px] font-black text-neutral-600 uppercase tracking-widest">Genuine Parts</span>
+              <p class="text-white font-black text-base italic">{{ part.promo }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
       </section>
 
       <section id="mission-vision" class="py-20 px-6 md:px-16 bg-white">
         <div class="max-w-7xl mx-auto">
           <div class="w-20 h-1 bg-red-600 mb-6"></div>
           <h2 class="text-2xl md:text-4xl text-left mb-12 text-black uppercase tracking-widest isuzu-font">Mission & Vision</h2>
-
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-gray-100 p-8 rounded-2xl hover:border-red-500 border-2 border-transparent transition-all">
               <h3 class="text-xl mb-4 text-red-600 font-black uppercase isuzu-font">Mission</h3>
               <p class="text-sm leading-relaxed text-gray-600">
-                Improve transportation of commodities in/out of mindoro province. Provide excellent sales, aftersales, genuine parts and accessories.
+                {{ brandIdentity.mission }}
               </p>
             </div>
-
             <div class="bg-gray-100 p-8 rounded-2xl hover:border-red-500 border-2 border-transparent transition-all">
               <h3 class="text-xl mb-4 text-red-600 font-black uppercase isuzu-font">Vision</h3>
               <p class="text-sm leading-relaxed text-gray-600">
-                Mina De Oro professes to bring Mindoro in becoming an 'ISUZU COUNTRY' and to contribute to the economic progress of the province.
+                {{ brandIdentity.vision }}
               </p>
             </div>
-
             <div class="bg-neutral-900 text-white p-8 rounded-2xl">
               <h3 class="text-xl mb-6 text-red-500 font-black uppercase isuzu-font">Core Values</h3>
               <div class="text-[10px] md:text-xs grid grid-cols-2 gap-3 font-bold tracking-wider">
-                <span v-for="val in coreValues" :key="val" class="flex items-center gap-2">
+                <span v-for="val in brandIdentity.coreValues" :key="val" class="flex items-center gap-2">
                   <span class="w-1 h-1 bg-red-500"></span> {{ val }}
                 </span>
               </div>
@@ -151,22 +178,15 @@
         </div>
       </section>
 
+      <!-- About Us Section -->
       <section id="about-us" class="py-20 px-6 md:px-16 bg-neutral-800 text-white">
         <div class="max-w-4xl mx-auto text-center space-y-10">
           <h2 class="text-2xl md:text-4xl uppercase tracking-widest isuzu-font">About Us</h2>
-          
           <div class="space-y-6 text-sm md:text-base text-gray-300 leading-loose">
-            <p>
-              Mina De Oro Motors has been serving Calapan City and the surrounding areas 
-              with quality vehicles and exceptional customer service for many years. 
-            </p>
-            <p>
-              Our Inventory Management System ensures that our vehicle parts and accessories 
-              are lways organized and available, making it easier for our customers to 
-              get what they need quickly and efficiently.
-            </p>
+            <p>{{ aboutUs.aboutTextLine1 }}</p>
+            <p>{{ aboutUs.aboutTextLine2 }}</p>
             <div class="pt-6">
-              <p class="isuzu-font text-red-500 tracking-widest text-lg md:text-xl">Power You Can Trust.</p>
+              <p class="isuzu-font text-red-500 tracking-widest text-lg md:text-xl">{{ aboutUs.slogan }}</p>
             </div>
           </div>
         </div>
@@ -181,7 +201,9 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../Firebase/Firebase";
 
 const navLinks = [
   { id: 'promos', label: 'Promos' },
@@ -196,22 +218,45 @@ const heroCards = [
   { title: "Mechanics", desc: "Skilled professionals ensuring top-notch maintenance." }
 ];
 
-const carPromos = [
-  { name: "D-MAX Special", description: "Extreme durability meets comfort.", promo: "Low Downpayment" },
-  { name: "mu-X Series", description: "Premium 7-seater family SUV.", promo: "Free 1yr Insurance" },
-  { name: "Traviz", description: "The ultimate business partner.", promo: "Cash Discount" },
-];
+const carPromos = ref([]);
+const partsPromos = ref([]);
+const brandIdentity = ref({ mission: "", vision: "", coreValues: [] });
+const aboutUs = ref({ aboutTextLine1: "", aboutTextLine2: "", slogan: "" });
 
-const partsPromos = [
-  { name: "Engine Oil", description: "Genuine Isuzu engine protection.", promo: "20% OFF" },
-  { name: "Brake Pads", description: "Reliable stopping power.", promo: "Buy 1 Get 1 50%" },
-  { name: "Filters", description: "Maintain air purity inside.", promo: "Bundle Deal" }
-];
+onMounted(async () => {
+  try {
+    const snap = await getDoc(doc(db, "settings", "landingPage"));
+    if (snap.exists()) {
+      const data = snap.data();
+      // Load all non-image fields from Firestore
+      carPromos.value = Array.isArray(data.carPromos) ? JSON.parse(JSON.stringify(data.carPromos)) : [];
+      partsPromos.value = Array.isArray(data.partsPromos) ? JSON.parse(JSON.stringify(data.partsPromos)) : [];
+      brandIdentity.value.mission = data.mission || "";
+      brandIdentity.value.vision = data.vision || "";
+      brandIdentity.value.coreValues = Array.isArray(data.values) ? data.values : (data.values ? data.values.split("\n").filter(v => v.trim() !== "") : []);
+      aboutUs.value.aboutTextLine1 = data.aboutUsTextLine1 || "";
+      aboutUs.value.aboutTextLine2 = data.aboutUsTextLine2 || "";
+      aboutUs.value.slogan = data.sloganText || "";
 
-const coreValues = [
-  'INNOVATION', 'PASSION', 'INTEGRITY', 'TRUST', 
-  'TEAMWORK', 'LOYALTY', 'LEADERSHIP', 'COMMITMENT'
-];
+      // Load base64 images from localStorage if present
+      const localCarPromos = JSON.parse(localStorage.getItem('carPromosImages') || '[]');
+      carPromos.value.forEach((car, idx) => {
+        if (localCarPromos[idx] && localCarPromos[idx].image) {
+          car.image = localCarPromos[idx].image;
+        }
+      });
+      // Ensure parts promos images are synced and shown
+      const localPartsPromos = JSON.parse(localStorage.getItem('partsPromosImages') || '[]');
+      partsPromos.value.forEach((part, idx) => {
+        if (localPartsPromos[idx] && localPartsPromos[idx].image) {
+          part.image = localPartsPromos[idx].image;
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching landing page data:", error);
+  }
+});
 
 function scrollToSection(sectionId) {
   const section = document.getElementById(sectionId)
