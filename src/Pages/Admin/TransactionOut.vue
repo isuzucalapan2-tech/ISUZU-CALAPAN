@@ -91,7 +91,7 @@
             </div>
           </div>
 
-          <div class="pt-4 border-t border-dashed border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="pt-4 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="flex items-center gap-4">
               <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Quantity Range:</span>
               <input v-model="minQty" type="number" placeholder="MIN" class="w-24 px-3 py-1.5 bg-gray-50 border rounded-lg text-[10px] font-black outline-none" />
@@ -103,6 +103,14 @@
               <input v-model="minPrice" type="number" placeholder="₱ MIN" class="w-32 px-3 py-1.5 bg-gray-50 border rounded-lg text-[10px] font-black outline-none" />
               <span class="text-gray-300">—</span>
               <input v-model="maxPrice" type="number" placeholder="₱ MAX" class="w-32 px-3 py-1.5 bg-gray-50 border rounded-lg text-[10px] font-black outline-none" />
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Start Date:</span>
+              <input v-model="startDate" type="date" class="w-56 px-3 py-1.5 bg-gray-50 border rounded-lg text-[10px] font-black outline-none" />
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">End Date:</span>
+              <input v-model="endDate" type="date" class="w-56 px-3 py-1.5 bg-gray-50 border rounded-lg text-[10px] font-black outline-none" />
             </div>
           </div>
         </div>
@@ -309,6 +317,8 @@ const minQty = ref('');
 const maxQty = ref('');
 const minPrice = ref('');
 const maxPrice = ref('');
+const startDate = ref('');
+const endDate = ref('');
 
 // Pagination state
 const currentPage = ref(1);
@@ -342,7 +352,17 @@ watch(tableSearchQuery, (newValue) => {
 
 
 // Reset to first page when filters change
-watch([debouncedSearchQuery, selectedCategory, selectedStatus, minQty, maxQty, minPrice, maxPrice], () => {
+watch([
+  debouncedSearchQuery,
+  selectedCategory,
+  selectedStatus,
+  minQty,
+  maxQty,
+  minPrice,
+  maxPrice,
+  startDate,
+  endDate
+], () => {
   currentPage.value = 1;
 });
 
@@ -403,6 +423,24 @@ const filteredTransactions = computed(() => {
     filtered = filtered.filter(item => (item.totalPrice || 0) <= maxP);
   }
 
+  // Date range filter (date only)
+  if (startDate.value) {
+    const start = new Date(startDate.value);
+    start.setHours(0, 0, 0, 0);
+    filtered = filtered.filter(item => {
+      const itemDate = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt || 0);
+      return itemDate >= start;
+    });
+  }
+  if (endDate.value) {
+    const end = new Date(endDate.value);
+    end.setHours(23, 59, 59, 999);
+    filtered = filtered.filter(item => {
+      const itemDate = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt || 0);
+      return itemDate <= end;
+    });
+  }
+
   return filtered.sort((a, b) => {
     const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
     const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
@@ -421,7 +459,9 @@ const hasActiveFilters = computed(() =>
   minQty.value ||
   maxQty.value ||
   minPrice.value ||
-  maxPrice.value
+  maxPrice.value ||
+  startDate.value ||
+  endDate.value
 );
 
 // Clear all filters
@@ -434,6 +474,8 @@ const clearAllFilters = () => {
   maxQty.value = '';
   minPrice.value = '';
   maxPrice.value = '';
+  startDate.value = '';
+  endDate.value = '';
   currentPage.value = 1;
 };
 
@@ -670,8 +712,8 @@ const loadTransactionOut = async () => {
     }
     
     transactionOutItems.value.sort((a, b) => {
-      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
-      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
       return dateB - dateA;
     });
     
