@@ -13,7 +13,7 @@
 
     <header :class="[headerClass, 'relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none']">
       <div class="flex items-center gap-4">
-        <div class="bg-red-600 p-2.5 rounded-xl text-white shadow-lg shadow-red-600/20">
+        <div class="bg-red-600 p-2.5 rounded-xl text-white">
           <Users class="w-6 h-6" />
         </div>
         <div>
@@ -34,14 +34,14 @@
     <main class="flex-1 relative z-10 overflow-auto p-8">
       <div class="max-w-7xl mx-auto space-y-6">
         
-        <div :class="[cardClass, 'rounded-2xl p-6 border flex flex-wrap items-center gap-4 shadow-sm']" :style="cardStyle">
+        <div :class="[cardClass, 'rounded-2xl p-6 border flex flex-wrap items-center gap-4']" :style="cardStyle">
           <div class="relative flex-1 min-w-[300px]">
             <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 opacity-40" />
             <input
               v-model="searchQuery"
               type="text"
               placeholder="SEARCH BY NAME, USERNAME, EMAIL..."
-              :class="['w-full pl-11 pr-4 py-3 border rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all', isDarkMode ? 'bg-neutral-800 border-neutral-700 text-white placeholder-neutral-500' : 'bg-neutral-50 border-neutral-200 text-neutral-800']"
+              :class="['w-full pl-11 pr-4 py-3 border border-neutral-600/40 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all', isDarkMode ? 'bg-neutral-800 border-neutral-700 text-white placeholder-neutral-500' : 'bg-neutral-50 border-neutral-200 text-neutral-800']"
             />
           </div>
 
@@ -67,7 +67,7 @@
           </div>
         </div>
 
-        <div :class="[cardClass, 'rounded-[2rem] border overflow-hidden relative shadow-xl']" :style="cardStyle">
+        <div :class="[cardClass, 'rounded-2xl border overflow-hidden relative']" :style="cardStyle">
           <div class="h-1.5 w-full bg-neutral-800 flex">
             <div class="h-full w-24 bg-red-600"></div>
           </div>

@@ -84,7 +84,7 @@
               </h2>
 
               <div class="relative z-10 space-y-8">
-                <div class="flex items-center justify-between p-6 rounded-2xl border border-neutral-100">
+                <div class="flex items-center justify-between p-6 rounded-2xl">
                   <div class="flex items-center gap-4">
                     <div class="p-3 bg-white rounded-full border border-neutral-500">
                       <SunIcon v-if="settings.general.theme === 'light'" class="w-6 h-6 text-yellow-500" />
@@ -108,7 +108,7 @@
                   </button>
                 </div>
 
-                <div class="pt-6 border-t border-gray-100">
+                <div class="pt-6">
                   <button @click="saveSettings" class="bg-red-600 text-white px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-3 isuzu-font text-sm">
                     <SaveIcon class="w-5 h-5" /> Save
                   </button>
