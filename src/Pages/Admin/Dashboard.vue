@@ -316,36 +316,79 @@
           <hr :class="['border-dashed', isDarkMode ? 'border-gray-700' : 'border-gray-200']" />
 
           <div class="space-y-6">
-            <h3 :class="['text-lg font-bold flex items-center gap-2', textClass, isDarkMode ? 'text-orange-400' : 'text-orange-600']">
-              <ArrowUpCircle class="w-5 h-5" />
-              Transaction Out / Sales
-            </h3>
-            
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div class="bg-neutral-900 rounded-3xl p-6 text-white relative overflow-hidden group shadow-xl">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 :class="['text-lg font-bold flex items-center gap-2', textClass, isDarkMode ? 'text-orange-400' : 'text-orange-600']">
+                  <ArrowUpCircle class="w-5 h-5" />
+                  Transaction Out / Sales
+                </h3>
+                <p :class="['text-[10px] font-black uppercase tracking-[0.2em]', subTextClass]">
+                  Status: {{ transactionOutFilter === 'today' ? 'Daily' : transactionOutFilter === 'week' ? 'Weekly' : transactionOutFilter === 'month' ? 'Monthly' : 'Custom' }} Report
+                </p>
+              </div>
+              <div :class="['flex p-1 rounded-xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-neutral-100 border-neutral-200 shadow-inner']">
+                <button 
+                  v-for="filter in ['today', 'week', 'month', 'year', 'custom']" 
+                  :key="filter"
+                  @click="transactionOutFilter = filter"
+                  :class="transactionOutFilter === filter 
+                    ? ['bg-white dark:bg-neutral-600 shadow-sm text-orange-600 scale-105'] 
+                    : [isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700']"
+                  class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-200"
+                >
+                  {{ filter }}
+                </button>
+                <input v-if="transactionOutFilter === 'custom'" type="datetime-local" v-model="customTransactionOutDate" class="ml-2 px-2 py-1 rounded border text-xs" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-6 xl:grid-cols-6 gap-3">
+              <div :class="[cardClass, 'relative overflow-hidden rounded-2xl p-4 border-l-4 border-orange-500 group transition-all shadow-sm']" :style="cardStyle">
                 <div class="relative z-10">
-                  <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 mb-2 isuzu-font">Today's Sales</h3>
-                  <p class="text-4xl font-black tracking-tighter text-orange-500 leading-none group-hover:scale-105 transition-transform">{{ todaysTransactionOutCount }}</p>
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Records</h3>
+                  <p :class="['text-2xl font-black leading-none', textClass]">{{ filteredTransactionOutCount }}</p>
                 </div>
-                <ArrowUpCircle class="absolute -right-4 -bottom-4 w-24 h-24 text-white/5 rotate-12" />
+                <ArrowUpCircle class="absolute -right-2 -bottom-2 w-12 h-12 text-orange-500/10 group-hover:scale-110 transition-transform" />
               </div>
 
-              <div :class="[cardClass, 'rounded-3xl p-6 border relative overflow-hidden group shadow-sm']" :style="cardStyle">
-                <h3 :class="['text-[10px] font-black uppercase tracking-[0.2em] mb-2 isuzu-font', subTextClass]">Total Qty Sold</h3>
-                <p :class="['text-4xl font-black tracking-tighter leading-none', textClass, isDarkMode ? 'text-blue-400' : 'text-blue-600']">{{ todaysTransactionOutQty.toLocaleString() }}</p>
-                <Package class="absolute -right-4 -bottom-4 w-24 h-24 text-blue-500/5 rotate-12" />
+              <div :class="[cardClass, 'relative overflow-hidden rounded-2xl p-4 border-l-4 border-blue-500 group transition-all shadow-sm']" :style="cardStyle">
+                <div class="relative z-10">
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Qty Sold</h3>
+                  <p :class="['text-2xl font-black leading-none', textClass, isDarkMode ? 'text-blue-400' : 'text-blue-600']">{{ filteredTransactionOutQty.toLocaleString() }}</p>
+                </div>
+                <Package class="absolute -right-2 -bottom-2 w-12 h-12 text-blue-500/10 group-hover:scale-110 transition-transform" />
               </div>
 
-              <div :class="[cardClass, 'rounded-3xl p-6 border relative overflow-hidden group shadow-sm']" :style="cardStyle">
-                <h3 :class="['text-[10px] font-black uppercase tracking-[0.2em] mb-2 isuzu-font', subTextClass]">Total Sales (₱)</h3>
-                <p :class="['text-3xl font-black tracking-tighter leading-none', textClass, isDarkMode ? 'text-green-400' : 'text-green-600']">₱{{ todaysTransactionOutValue.toLocaleString() }}</p>
-                <DollarSign class="absolute -right-4 -bottom-4 w-24 h-24 text-green-500/5 rotate-12" />
+              <div :class="[cardClass, 'relative overflow-hidden rounded-2xl p-4 border-l-4 border-purple-500 group transition-all shadow-sm']" :style="cardStyle">
+                <div class="relative z-10">
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Sales (₱)</h3>
+                  <p :class="['text-2xl font-black leading-none', textClass, isDarkMode ? 'text-purple-400' : 'text-purple-600']">₱{{ filteredTransactionOutValue.toLocaleString() }}</p>
+                </div>
+                <DollarSign class="absolute -right-2 -bottom-2 w-12 h-12 text-purple-500/10 group-hover:scale-110 transition-transform" />
               </div>
 
-              <div :class="[cardClass, 'rounded-3xl p-6 border relative overflow-hidden group shadow-sm']" :style="cardStyle">
-                <h3 :class="['text-[10px] font-black uppercase tracking-[0.2em] mb-2 isuzu-font', isDarkMode ? 'text-yellow-400' : 'text-yellow-600']">Pending Sales</h3>
-                <p :class="['text-4xl font-black tracking-tighter leading-none', isDarkMode ? 'text-yellow-400' : 'text-yellow-600']">{{ pendingTransactionOut }}</p>
-                <Clock class="absolute -right-4 -bottom-4 w-24 h-24 text-yellow-500/5 rotate-12" />
+              <div :class="[cardClass, 'relative overflow-hidden rounded-2xl p-4 border-l-4 border-yellow-500 group transition-all shadow-sm']" :style="cardStyle">
+                <div class="relative z-10">
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Pending Sales</h3>
+                  <p :class="['text-2xl font-black leading-none', isDarkMode ? 'text-yellow-400' : 'text-yellow-600']">{{ filteredPendingTransactionOut }}</p>
+                </div>
+                <Clock class="absolute -right-2 -bottom-2 w-12 h-12 text-yellow-500/10 group-hover:scale-110 transition-transform" />
+              </div>
+
+              <div :class="[cardClass, 'relative overflow-hidden rounded-2xl p-4 border-l-4 border-emerald-600 group transition-all shadow-sm']" :style="cardStyle">
+                <div class="relative z-10">
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Stock OUT</h3>
+                  <p :class="['text-2xl font-black leading-none', isDarkMode ? 'text-emerald-400' : 'text-emerald-600']">{{ filteredTransactionOutStockOut }}</p>
+                </div>
+                <CheckCircle class="absolute -right-2 -bottom-2 w-12 h-12 text-emerald-600/10 group-hover:scale-110 transition-transform" />
+              </div>
+
+              <div :class="[cardClass, 'relative overflow-hidden rounded-2xl p-4 border-l-4 border-red-500 group transition-all shadow-sm']" :style="cardStyle">
+                <div class="relative z-10">
+                  <h3 :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Cancelled</h3>
+                  <p :class="['text-2xl font-black leading-none text-red-500', textClass]">{{ filteredTransactionOutCancelled }}</p>
+                </div>
+                <XCircle class="absolute -right-2 -bottom-2 w-12 h-12 text-red-500/10 group-hover:scale-110 transition-transform" />
               </div>
             </div>
           </div>
@@ -413,18 +456,6 @@
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
         <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
       </svg>
-    </div>
-
-    <!-- Sync Button -->
-    <div class="mb-6 flex justify-end">
-      <button
-        @click="runSync"
-        :disabled="syncing"
-        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition disabled:opacity-50"
-      >
-        <span v-if="!syncing">Sync Firestore to MySQL</span>
-        <span v-else>Syncing...</span>
-      </button>
     </div>
 
   </div>
@@ -612,23 +643,52 @@ const formatTransactionDate = (timestamp) => {
 };
 
 
-// Transaction Out calculations
-const todaysTransactionOut = computed(() => {
+
+// Transaction Out Filter
+const transactionOutFilter = ref('today'); // 'today', 'week', 'month', 'custom'
+const customTransactionOutDate = ref('');
+
+const filteredTransactionOut = computed(() => {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfWeek = new Date(startOfDay);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+
   return transactionOutItems.value.filter(item => {
     const itemDate = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
-    return itemDate >= today;
+    if (transactionOutFilter.value === 'today') {
+      return itemDate >= startOfDay;
+    } else if (transactionOutFilter.value === 'week') {
+      return itemDate >= startOfWeek;
+    } else if (transactionOutFilter.value === 'month') {
+      return itemDate >= startOfMonth;
+    } else if (transactionOutFilter.value === 'year') {
+      return itemDate >= startOfYear;
+    } else if (transactionOutFilter.value === 'custom' && customTransactionOutDate.value) {
+      const customDate = new Date(customTransactionOutDate.value);
+      return itemDate >= customDate;
+    }
+    return true;
   });
 });
 
-const todaysTransactionOutCount = computed(() => todaysTransactionOut.value.length);
-const todaysTransactionOutQty = computed(() => {
-  return todaysTransactionOut.value.reduce((sum, item) => sum + (item.quantity || 0), 0);
+const filteredTransactionOutCount = computed(() => filteredTransactionOut.value.length);
+const filteredTransactionOutQty = computed(() => {
+  return filteredTransactionOut.value.reduce((sum, item) => sum + (item.quantity || 0), 0);
 });
-const todaysTransactionOutValue = computed(() => {
-  return todaysTransactionOut.value.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+const filteredTransactionOutValue = computed(() => {
+  return filteredTransactionOut.value.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
 });
-const pendingTransactionOut = computed(() => {
-  return transactionOutItems.value.filter(item => item.statusOUT === 'Pending' || !item.statusOUT).length;
+const filteredPendingTransactionOut = computed(() => {
+  return filteredTransactionOut.value.filter(item => item.statusOUT === 'Pending' || !item.statusOUT).length;
+});
+const filteredTransactionOutStockOut = computed(() => {
+  return filteredTransactionOut.value.filter(item => item.statusOUT === 'Stock OUT').length;
+});
+const filteredTransactionOutCancelled = computed(() => {
+  return filteredTransactionOut.value.filter(item => item.statusOUT === 'Cancelled').length;
 });
 
 const pendingUsersCount = computed(() => pendingUsers.value.length);
