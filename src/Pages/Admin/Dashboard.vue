@@ -323,7 +323,13 @@
                   Transaction Out / Sales
                 </h3>
                 <p :class="['text-[10px] font-black uppercase tracking-[0.2em]', subTextClass]">
-                  Status: {{ transactionOutFilter === 'today' ? 'Daily' : transactionOutFilter === 'week' ? 'Weekly' : transactionOutFilter === 'month' ? 'Monthly' : 'Custom' }} Report
+                    Status: {{
+                      transactionOutFilter === 'today' ? 'Daily'
+                      : transactionOutFilter === 'week' ? 'Weekly'
+                      : transactionOutFilter === 'month' ? 'Monthly'
+                      : transactionOutFilter === 'year' ? 'Yearly'
+                      : 'Custom'
+                    }} Report
                 </p>
               </div>
               <div :class="['flex p-1 rounded-xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-neutral-100 border-neutral-200 shadow-inner']">
