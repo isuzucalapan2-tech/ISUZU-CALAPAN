@@ -918,7 +918,7 @@ const editItem = (item) => {
    CRUD OPERATIONS
 ===================== */
 const saveItem = async () => {
-  if (!form.value.category || !form.value.partName || !form.value.partNo || !form.value.model) {
+  if (!form.value.category || !form.value.partName || !form.value.partNo) {
     alert("Please fill in all required fields");
     return;
   }
