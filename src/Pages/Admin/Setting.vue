@@ -103,7 +103,7 @@
                   >
                     <span
                       :class="settings.general.theme === 'dark' ? 'translate-x-7' : 'translate-x-1'"
-                      class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 shadow-md"
+                      class="inline-block h-6 w-6 transform rounded-full bg-white/80 transition-transform duration-300"
                     />
                   </button>
                 </div>
@@ -120,161 +120,83 @@
           <div v-if="activeTab === 'landing'" class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
 
-            <!-- Car Promos Section -->
-            <div class="bg-white rounded-3xl p-8 border border-gray-100">
+            <div class="bg-white rounded-3xl p-8 bg-white/10 backdrop-blur-none">
               <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
                 <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Car Promos</h2>
                 <div class="h-[2px] flex-1 bg-red-600 hidden md:block ml-8"></div>
               </div>
+
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                <div v-for="(car, idx) in landingCarPromos" :key="idx" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all p-5 border border-gray-100">
-                  <div class="aspect-video flex items-center justify-center bg-gray-200 rounded-xl mb-5 relative">
-                    <input type="file" accept="image/*" @change="e => handleCarImageUpload(e, idx)" class="absolute top-2 right-2 w-7 h-7 opacity-0 cursor-pointer" title="Upload Image" />
-                    <label class="absolute top-2 right-2 bg-white rounded-full p-1 shadow cursor-pointer" style="z-index:2;">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" /></svg>
-                      <input type="file" accept="image/*" @change="e => handleCarImageUpload(e, idx)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <div v-for="(car, idx) in landingCarPromos" :key="idx" class="bg-white rounded-2xl overflow-hidden border border-neutral-600/40">
+                  <div class="aspect-video flex items-center justify-center bg-gray-200 relative group">
+                    <label class="absolute top-2 right-2 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
+                      </svg>
+                      <input type="file" accept="image/*" @change="e => handleCarImageUpload(e, idx)" class="hidden" />
                     </label>
-
-                    <div class="absolute bottom-0 left-0 bg-red-600 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-tighter">
-                      Special Promo
-                    </div>
+                    
+                    <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover" />
+                    <span v-else class="text-gray-400 text-xs font-bold">IMAGE COMING SOON</span>
                   </div>
 
-                  <div class="p-5 flex flex-col flex-grow space-y-3">
-                    <div>
-                      <label class="text-[10px] uppercase font-bold text-gray-400 mb-1 block">Model Name</label>
-                      <input v-model="car.name" 
-                        class="isuzu-font text-lg font-bold w-full bg-neutral-50 border border-neutral-500/40 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-red-500 transition-all" 
-                        placeholder="Ex: ISUZU D-MAX" type="text" 
-                      />
-                    </div>
-
-                    <div>
-                      <label class="text-[10px] uppercase font-bold text-gray-400 mb-1 block">Details</label>
-                      <textarea v-model="car.description" 
-                        class="text-xs text-neutral-600 w-full bg-neutral-50 border border-neutral-500/40 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-red-500 resize-none h-20 transition-all" 
-                        placeholder="Add specifications or promo details..."
-                      ></textarea>
-                    </div>
-
-                    <div>
-                      <label class="text-[10px] uppercase font-bold text-gray-400 mb-1 block">Offer / Monthly</label>
-                      <input v-model="car.promo" 
-                        class="text-red-600 font-black text-xl w-full bg-red-50/50 border border-neutral-500/40 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-red-500 transition-all" 
-                        placeholder="₱ 15,000 / month" type="text" 
-                      />
-                    </div>
-
-                    <div class="pt-2 flex justify-between items-center">
-                      <button @click="removeCarPromo(idx)" class="text-[10px] font-bold text-gray-400 hover:text-red-500 uppercase tracking-widest transition-colors flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Delete Card
-                      </button>
-                    </div>
+                  <div class="p-5">
+                    <input v-model="car.name" class="isuzu-font text-lg mb-2 font-bold w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Car Name" type="text" />
+                    <textarea v-model="car.description" class="text-xs text-neutral-500 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
+                    <input v-model="car.promo" class="text-red-600 font-black text-lg w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
+                    <button @click="removeCarPromo(idx)" class="mt-3 text-xs text-red-500 hover:underline">Remove</button>
                   </div>
-                  <input v-model="car.name" class="isuzu-font text-lg mb-2 font-bold w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Car Name" type="text" />
-                  <textarea v-model="car.description" class="text-xs text-neutral-500 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
-                  <input v-model="car.promo" class="text-red-600 font-black text-lg w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
-                  <button @click="removeCarPromo(idx)" class="mt-2 text-xs text-red-500 hover:underline">Remove</button>
                 </div>
 
-                <div class="flex items-center justify-center min-h-[300px] border-2 border-dashed border-neutral-300 rounded-2xl hover:border-red-500 transition-colors group">
-                  <button @click="addCarPromo" class="flex flex-col items-center gap-3">
-                    <div class="p-4 bg-neutral-100 rounded-full group-hover:bg-red-100 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-neutral-400 group-hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                    </div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-neutral-500 group-hover:text-red-600">Add New Promo</span>
-                  </button>
+                <div class="flex items-center justify-center">
+                  <button @click="addCarPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition">+ Add Car Promo</button>
                 </div>
               </div>
             </div>
 
-            <!-- Parts Promos Section -->
             <div class="bg-white rounded-3xl p-8 bg-white/10 backdrop-blur-none">
               <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-10 gap-4">
                 <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Parts Promos</h2>
                 <div class="h-[2px] flex-1 bg-red-600 hidden md:block mr-8"></div>
               </div>
+
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                <div v-for="(part, idx) in landingPartsPromos" :key="idx" class="bg-neutral-800 text-white rounded-2xl p-6 hover:bg-neutral-900 transition-all">
-                  <div class="h-32 flex items-center justify-center bg-white/5 rounded-xl mb-5 relative">
-                    <input type="file" accept="image/*" @change="e => handlePartImageUpload(e, idx)" class="absolute top-2 right-2 w-7 h-7 opacity-0 cursor-pointer" title="Upload Image" />
-                    <label class="absolute top-2 right-2 bg-white rounded-full p-1 shadow cursor-pointer" style="z-index:2;">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" /></svg>
-                      <input type="file" accept="image/*" @change="e => handlePartImageUpload(e, idx)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <div v-for="(part, idx) in landingPartsPromos" :key="idx" class="bg-neutral-800 text-white rounded-2xl overflow-hidden hover:bg-neutral-900 transition-all">
+                  <div class="h-40 flex items-center justify-center bg-white/5 relative group">
+                    <label class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
+                      </svg>
+                      <input type="file" accept="image/*" @change="e => handlePartImageUpload(e, idx)" class="hidden" />
                     </label>
                     
-                    <div class="absolute bottom-0 left-0 bg-neutral-900 text-red-500 text-[10px] font-bold px-3 py-1 uppercase tracking-tighter border-tr border-neutral-700">
-                      Genuine Parts
-                    </div>
+                    <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover" />
+                    <span v-else class="text-gray-400 text-xs font-bold">PREVIEW N/A</span>
                   </div>
 
-                  <div class="p-6 flex flex-col flex-grow space-y-4">
-                    <div>
-                      <label class="text-[10px] uppercase font-bold text-neutral-500 mb-1 block">Item Name</label>
-                      <input v-model="part.name" 
-                        class="isuzu-font text-base font-bold w-full bg-neutral-900/50 border border-neutral-700 text-red-500 rounded-lg px-3 py-2 outline-none focus:border-red-600 transition-all" 
-                        placeholder="Part Name" type="text" 
-                      />
-                    </div>
-
-                    <div>
-                      <label class="text-[10px] uppercase font-bold text-neutral-500 mb-1 block">Specifications</label>
-                      <textarea v-model="part.description" 
-                        class="text-xs text-neutral-300 w-full bg-neutral-900/50 border border-neutral-700 rounded-lg px-3 py-2 outline-none focus:border-red-600 resize-none h-20 transition-all" 
-                        placeholder="Description"
-                      ></textarea>
-                    </div>
-
-                    <div>
-                      <label class="text-[10px] uppercase font-bold text-neutral-500 mb-1 block">Current Offer</label>
-                      <input v-model="part.promo" 
-                        class="text-lg font-black text-white w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 outline-none focus:border-red-600 transition-all" 
-                        placeholder="Promo Price" type="text" 
-                      />
-                    </div>
-
-                    <div class="pt-2">
-                      <button @click="removePartPromo(idx)" class="text-[10px] font-bold text-neutral-500 hover:text-red-400 uppercase tracking-widest transition-colors flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Remove Item
-                      </button>
-                    </div>
+                  <div class="p-6">
+                    <input v-model="part.name" class="font-bold text-base isuzu-font mb-2 text-red-500 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Part Name" type="text" />
+                    <textarea v-model="part.description" class="text-xs opacity-60 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
+                    <input v-model="part.promo" class="text-lg font-black text-white w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
+                    <button @click="removePartPromo(idx)" class="mt-3 text-xs text-red-400 hover:underline">Remove</button>
                   </div>
-                  <input v-model="part.name" class="font-bold text-base isuzu-font mb-2 text-red-500 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Part Name" type="text" />
-                  <textarea v-model="part.description" class="text-xs opacity-60 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
-                  <input v-model="part.promo" class="text-lg font-black text-white w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
-                  <button @click="removePartPromo(idx)" class="mt-2 text-xs text-red-400 hover:underline">Remove</button>
                 </div>
 
-                <div class="flex items-center justify-center min-h-[400px] border-2 border-dashed border-neutral-700 rounded-2xl hover:border-red-600 transition-all group cursor-pointer" @click="addPartPromo">
-                  <div class="flex flex-col items-center gap-3">
-                    <div class="p-4 bg-neutral-800 rounded-full group-hover:bg-red-600 transition-all">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-neutral-500 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                    </div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-neutral-500 group-hover:text-red-500">Add Part Promo</span>
-                  </div>
+                <div class="flex items-center justify-center">
+                  <button @click="addPartPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition">+ Add Part Promo</button>
                 </div>
               </div>
             </div>
 
             <!-- Save Promos Button -->
             <div class="flex justify-end mt-8">
-              <button @click="savePromos" :disabled="isSaving" class="bg-red-600 hover:bg-neutral-900 text-white px-8 py-3 rounded-full text-lg font-bold uppercase tracking-widest duration-300disabled:opacity-50">
-                <SaveIcon class="w-8 h-8 inline-block mr-2" />
+              <button @click="savePromos" :disabled="isSaving" class="bg-neutral-800 text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg disabled:opacity-50">
+                <SaveIcon class="w-4 h-4 inline-block mr-2" />
                 {{ isSaving ? 'Saving...' : 'Save Promos' }}
               </button>
             </div>
 
-            <div class="bg-neutral-700 rounded-3xl border border-neutral-800 p-8 text-white relative overflow-hidden">
+            <div class="bg-neutral-800 rounded-2xl p-8 text-white relative overflow-hidden">
                <div class="absolute -bottom-10 -right-10 opacity-10">
                 <TargetIcon class="w-64 h-64 text-white" />
               </div>
@@ -298,29 +220,29 @@
             </div>
 
             <!-- Editable About Us & Slogan Card -->
-            <div v-if="activeTab === 'landing'" class="bg-white rounded-3xl p-8 bg-white/10  backdrop-blur-none">
+            <div v-if="activeTab === 'landing'" class="bg-white rounded-3xl p-8 bg-white/10 backdrop-blur-none mt-8">
               <h2 class="text-2xl font-black mb-10 flex items-center gap-3 uppercase tracking-tighter text-neutral-800 isuzu-font">
                 <TagIcon class="w-7 h-7 text-red-600" /> 
                 About Us <span class="text-red-600">Editor</span>
               </h2>
               <div class="space-y-6">
                 <div>
-                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">About Us Text (Line 1)</label>
-                  <input v-model="aboutUsTextLine1" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400 mb-2" />
+                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-1">About Us Text (Line 1)</label>
+                  <input v-model="aboutUsTextLine1" class="w-full bg-gray-50 border border-neutral-400 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400 mb-2" />
                 </div>
                 <div>
-                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">About Us Text (Line 2)</label>
-                  <input v-model="aboutUsTextLine2" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400" />
+                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-1">About Us Text (Line 2)</label>
+                  <input v-model="aboutUsTextLine2" class="w-full bg-gray-50 border border-neutral-400 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400" />
                 </div>
                 <div>
-                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Slogan</label>
-                  <input v-model="sloganText" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold outline-none focus:border-red-400" />
+                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-1">Slogan</label>
+                  <input v-model="sloganText" class="w-full bg-gray-50 border border-neutral-400 rounded-lg px-4 py-2.5 text-sm font-bold outline-none focus:border-red-400" />
                   <div v-if="aboutUsSaveSuccess" class="mt-2 text-green-600 text-xs font-bold">Slogan updated!</div>
                   <div v-if="aboutUsSaveError" class="mt-2 text-red-600 text-xs font-bold">{{ aboutUsSaveError }}</div>
                 </div>
                 <div class="mt-8">
                   <h3 class="font-black text-sm uppercase tracking-widest text-neutral-700 mb-2">Preview:</h3>
-                  <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <div class="bg-gray-50 p-4 rounded-xl border border-neutral-400">
                     <p class="text-sm text-gray-700 mb-4 whitespace-pre-line">{{ aboutUsTextLine1 }}</p>
                     <p class="text-sm text-gray-700 mb-4 whitespace-pre-line">{{ aboutUsTextLine2 }}</p>
                     <p class="isuzu-font text-red-500 tracking-widest text-lg">{{ sloganText }}</p>
@@ -331,8 +253,8 @@
 
 
             <div class="flex justify-center pt-10">
-              <button @click="saveLandingContent" class="group bg-red-600 text-white px-16 py-5 rounded-full font-black text-xl flex items-center gap-4 isuzu-font">
-                <SaveIcon class="w-7 h-7" /> Save Changes
+              <button @click="saveLandingContent" class="group bg-red-600 text-white px-16 py-5 rounded-full font-black text-xl shadow-[0_20px_50px_rgba(204,0,0,0.3)] transition-all flex items-center gap-4 isuzu-font">
+                <SaveIcon class="w-7 h-7" /> UPDATE LIVE WEBSITE
               </button>
             </div>
           </div>

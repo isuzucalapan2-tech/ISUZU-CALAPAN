@@ -56,7 +56,7 @@
                   <span class="block text-5xl md:text-7xl lg:text-8xl tracking-tighter">ISUZU</span>
                   <span class="block text-base md:text-2xl tracking-[0.3em] text-gray-300">CALAPAN CITY</span>
                 </h1>
-                <div class="w-20 md:w-32 h-1 bg-red-600"></div>
+                <div class="w-20 md:w-70  h-1 bg-red-600"></div>
               </div>
               <p class="text-lg md:text-xl text-gray-300 font-medium max-w-sm leading-relaxed">
                 Power You Can Trust. Performance You Deserve.

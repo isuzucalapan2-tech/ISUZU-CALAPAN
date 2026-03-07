@@ -13,12 +13,12 @@
 
     <header class="relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none">
       <div class="flex items-center gap-4">
-        <div class="bg-red-600 p-2 rounded-lg">
+        <div class="bg-green-600 p-2 rounded-lg">
           <ArrowDownCircle class="w-6 h-6 text-white" />
         </div>
         <div>
           <h1 class="text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800">
-            Transaction <span class="text-red-600">IN</span>
+            Transaction <span class="text-green-600">IN</span>
           </h1>
           <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Incoming Stock & Reception Ledger</p>
         </div>
