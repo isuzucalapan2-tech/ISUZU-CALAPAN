@@ -241,6 +241,183 @@
         <path d="M0 15 H170 L220 45 H500" stroke="#cc0000" stroke-width="2" />
       </svg>
     </div>
+
+    <!-- Add New Sale Modal -->
+    <Transition name="fade">
+      <div v-if="showTransactionOutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeTransactionOutModal"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
+          <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
+            <h2 class="text-white isuzu-font font-black uppercase tracking-widest flex items-center gap-3">
+              <Plus class="w-5 h-5 text-red-600" /> New Sale Registration
+            </h2>
+            <button @click="closeTransactionOutModal" class="text-gray-400 hover:text-white transition-colors"><X class="w-6 h-6" /></button>
+          </div>
+
+          <div class="p-8 space-y-6">
+            <!-- Inventory Item Selector -->
+            <div class="space-y-2 relative inventory-selector">
+              <label class="text-[10px] font-black uppercase text-gray-400 ml-1">Search Catalog for Part</label>
+              <div class="relative">
+                <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input v-model="searchQuery" type="text" placeholder="TYPE PART NAME OR PART NUMBER..." class="w-full pl-12 pr-4 py-3 bg-gray-50 border rounded-xl text-xs font-bold uppercase focus:ring-2 focus:ring-red-500 outline-none transition-all" />
+              </div>
+
+              <div v-if="showInventoryDropdown && inventoryItems.length > 0" class="absolute z-50 w-full mt-2 bg-white border rounded-xl shadow-2xl overflow-hidden max-h-48 overflow-y-auto">
+                <div v-for="item in inventoryItems" :key="item.controlNo" @click="selectInventoryItem(item)" class="px-4 py-3 hover:bg-red-50 cursor-pointer flex justify-between items-center border-b last:border-0">
+                  <div class="flex flex-col">
+                    <span class="text-xs font-black uppercase text-neutral-800">{{ item.partName }}</span>
+                    <span class="text-[9px] font-bold text-gray-400">PN: {{ item.partNo }} | CAT: {{ item.category }}</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] font-mono bg-neutral-100 px-2 py-0.5 rounded text-neutral-500 block">{{ item.controlNo }}</span>
+                    <span class="text-[9px] font-bold text-green-600">STOCK: {{ item.quantity }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selected Item Info -->
+            <div v-if="selectedInventoryItem" class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+              <div class="grid grid-cols-2 gap-4 text-[10px] font-bold uppercase">
+                <div>
+                  <span class="text-gray-400">Part No:</span>
+                  <span class="ml-2 text-neutral-800">{{ selectedInventoryItem.partNo }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-400">Category:</span>
+                  <span class="ml-2 text-neutral-800">{{ selectedInventoryItem.category }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-400">Model:</span>
+                  <span class="ml-2 text-neutral-800">{{ selectedInventoryItem.model }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-400">Available Stock:</span>
+                  <span class="ml-2 text-green-600 font-black">{{ selectedInventoryItem.quantity }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quantity and Price -->
+            <div class="grid grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase text-gray-400">Quantity</label>
+                <input v-model.number="transactionOutForm.quantity" type="number" min="1" :max="selectedInventoryItem?.quantity || 999" class="w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-red-500" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase text-gray-400">Unit Price (₱)</label>
+                <input v-model.number="transactionOutForm.unitPrice" type="number" readonly class="w-full bg-gray-100 border rounded-xl px-4 py-3 text-sm font-bold text-gray-500" />
+              </div>
+            </div>
+
+            <!-- Total Price Display -->
+            <div class="p-5 bg-green-50 rounded-2xl border border-green-100 flex justify-between items-center">
+               <div class="flex items-center gap-3">
+                  <CheckCircle class="w-6 h-6 text-green-600" />
+                  <div>
+                    <p class="text-[10px] font-black text-green-600 uppercase">Total Sale Value</p>
+                    <p class="text-lg font-black text-neutral-800">₱ {{ transactionOutForm.totalPrice.toLocaleString('en-PH', { minimumFractionDigits: 2 }) }}</p>
+                  </div>
+               </div>
+               <div class="text-right">
+                  <p class="text-[10px] font-black text-neutral-400 uppercase">Control Reference</p>
+                  <p class="text-xs font-mono font-black text-neutral-600">{{ transactionOutForm.controlNo || 'N/A' }}</p>
+               </div>
+            </div>
+
+            <!-- Client and Notes -->
+            <div class="grid grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase text-gray-400">Client Name</label>
+                <input v-model="transactionOutForm.client" type="text" placeholder="ENTER CLIENT NAME..." class="w-full bg-gray-50 border rounded-xl px-4 py-3 text-xs font-bold uppercase outline-none focus:ring-2 focus:ring-red-500" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase text-gray-400">Notes</label>
+                <input v-model="transactionOutForm.note" type="text" placeholder="ADDITIONAL NOTES..." class="w-full bg-gray-50 border rounded-xl px-4 py-3 text-xs font-bold uppercase outline-none focus:ring-2 focus:ring-red-500" />
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-3 pt-6 border-t">
+              <button @click="closeTransactionOutModal" class="px-8 py-3 text-[10px] font-black uppercase text-gray-500 hover:bg-gray-100 rounded-full transition-all">Discard</button>
+              <button @click="saveTransactionOut" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl">
+                Record Sale
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Import Excel Modal -->
+    <Transition name="fade">
+      <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeImportModal"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 animate-in zoom-in-95 duration-300">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg">
+              <FileSpreadsheet class="w-8 h-8" />
+            </div>
+            <div>
+              <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter">Batch <span class="text-blue-600">Import</span></h3>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sales Data Excel Integration</p>
+            </div>
+          </div>
+
+          <!-- File Drop Zone -->
+          <div v-if="importPreview.validItems.length === 0" class="border-4 border-dashed border-gray-100 rounded-3xl p-12 text-center hover:border-blue-100 transition-all group">
+            <input type="file" ref="fileInput" @change="handleFileSelect" accept=".xlsx,.xls" class="hidden" />
+            <Upload class="w-16 h-16 text-gray-200 mx-auto mb-4 group-hover:text-blue-400 transition-colors" />
+            <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Drop Excel File Here or Click to Browse</p>
+            <button @click="$refs.fileInput.click()" class="bg-blue-600 text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-blue-100">Select Spreadsheet</button>
+          </div>
+
+          <!-- Preview Results -->
+          <div v-else class="space-y-6">
+            <div class="flex justify-between items-center bg-gray-50 p-6 rounded-2xl border border-gray-100">
+              <div class="text-xs font-black uppercase tracking-widest">
+                <span class="text-green-600">{{ importPreview.validItems.length }} VALID ENTRIES</span> / 
+                <span class="text-red-600">{{ importPreview.invalidItems.length }} ERRORS</span>
+              </div>
+              <div class="flex gap-2">
+                <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400">Cancel</button>
+                <button @click="confirmImport" :disabled="isImporting" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50">
+                  {{ isImporting ? 'Importing...' : 'Process Import' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Invalid Items Warning -->
+            <div v-if="importPreview.invalidItems.length > 0" class="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div class="flex items-center gap-2 text-red-600 mb-2">
+                <AlertTriangle class="w-5 h-5" />
+                <span class="text-xs font-black uppercase">Invalid Items Preview</span>
+              </div>
+              <div class="max-h-32 overflow-y-auto">
+                <table class="w-full text-[9px]">
+                  <thead>
+                    <tr class="text-left text-red-600">
+                      <th class="pb-2">Row</th>
+                      <th class="pb-2">Part No</th>
+                      <th class="pb-2">Issue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(item, idx) in importPreview.invalidItems.slice(0, 5)" :key="idx" class="border-t border-red-100">
+                      <td class="py-1">{{ item.row }}</td>
+                      <td class="py-1">{{ item.partNo || 'N/A' }}</td>
+                      <td class="py-1 text-red-500">{{ item.error }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p v-if="importPreview.invalidItems.length > 5" class="text-[9px] text-red-400 mt-2">...and {{ importPreview.invalidItems.length - 5 }} more errors</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 

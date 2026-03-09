@@ -294,9 +294,79 @@
         </div>
       </div>
     </Transition>
-  </div>
-</template>
 
+    <!-- Import Excel Modal -->
+    <Transition name="fade">
+      <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeImportModal"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 animate-in zoom-in-95 duration-300">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg">
+              <FileSpreadsheet class="w-8 h-8" />
+            </div>
+            <div>
+              <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter">Batch <span class="text-blue-600">Import</span></h3>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Stock In Data Excel Integration</p>
+            </div>
+           </div> 
+
+          <!-- File Drop Zone -->
+          <div v-if="importPreview.validItems.length === 0" class="border-4 border-dashed border-gray-100 rounded-3xl p-12 text-center hover:border-blue-100 transition-all group">
+            <input type="file" ref="fileInput" @change="handleFileSelect" accept=".xlsx,.xls" class="hidden" />
+            <Upload class="w-16 h-16 text-gray-200 mx-auto mb-4 group-hover:text-blue-400 transition-colors" />
+            <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Drop Excel File Here or Click to Browse</p>
+            <button @click="$refs.fileInput.click()" class="bg-blue-600 text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-blue-100">Select Spreadsheet</button>
+          </div>
+
+          <!-- Preview Results -->
+          <div v-else class="space-y-6">
+            <div class="flex justify-between items-center bg-gray-50 p-6 rounded-2xl border border-gray-100">
+              <div class="text-xs font-black uppercase tracking-widest">
+                <span class="text-green-600">{{ importPreview.validItems.length }} VALID ENTRIES</span> / 
+                <span class="text-red-600">{{ importPreview.invalidItems.length }} ERRORS</span>
+              </div>
+              <div class="flex gap-2">
+                <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400">Cancel</button>
+                <button @click="confirmImport" :disabled="isImporting" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50">
+                  {{ isImporting ? 'Importing...' : 'Process Import' }}
+                </button>
+              </div>
+
+            <!-- Invalid Items Warning -->
+            <div v-if="importPreview.invalidItems.length > 0" class="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div class="flex items-center gap-2 text-red-600 mb-2">
+                <AlertTriangle class="w-5 h-5" />
+                <span class="text-xs font-black uppercase">Invalid Items Preview</span>
+              </div>
+              <div class="max-h-32 overflow-y-auto">
+                <table class="w-full text-[9px]">
+                  <thead>
+                    <tr class="text-left text-red-600">
+                      <th class="pb-2">Row</th>
+                      <th class="pb-2">Part No</th>
+                      <th class="pb-2">Issue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(item, idx) in importPreview.invalidItems.slice(0, 5)" :key="idx" class="border-t border-red-100">
+                      <td class="py-1">{{ item.row }}</td>
+                      <td class="py-1">{{ item.partNo || 'N/A' }}</td>
+                      <td class="py-1 text-red-500">{{ item.error }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p v-if="importPreview.invalidItems.length > 5" class="text-[9px] text-red-400 mt-2">...and {{ importPreview.invalidItems.length - 5 }} more errors</p>
+              </div>
+              </div>
+              </div>
+          </div>
+      </div>
+      </div>
+    </Transition>
+    
+  </div>
+  </template>
+  
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { db } from '../../Firebase/Firebase';
