@@ -20,6 +20,9 @@ app.post('/api/sync', (req, res) => {
   });
 });
 
+// Log when cron job is scheduled
+console.log('Scheduling weekly sync: every Monday at 8:30 AM');
+
 // 🔄 Schedule sync every Monday at 8:30 AM
 cron.schedule('30 8 * * 1', () => {
   console.log('Weekly sync started...');
@@ -27,7 +30,7 @@ cron.schedule('30 8 * * 1', () => {
     if (error) {
       console.error('Weekly sync failed:', stderr || error.message);
     } else {
-      console.log('Weekly sync complete!');
+      console.log('Weekly sync complete! Output:', stdout);
     }
   });
 });

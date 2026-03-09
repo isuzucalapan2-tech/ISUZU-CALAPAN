@@ -96,11 +96,11 @@
                 <input v-model="endDate" type="date" :class="inputClass" class="w-full px-3 py-2 rounded-lg text-[10px] border" />
              </div>
              <div class="space-y-1">
-                <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Min Price</label>
+                <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Min Unit Price</label>
                 <input v-model="minPrice" type="number" placeholder="0.00" :class="inputClass" class="w-full px-3 py-2 rounded-lg text-[10px] border" />
              </div>
              <div class="space-y-1">
-                <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Max Price</label>
+                <label class="text-[9px] font-black text-gray-400 uppercase ml-1">Max Unit Price</label>
                 <input v-model="maxPrice" type="number" placeholder="MAX" :class="inputClass" class="w-full px-3 py-2 rounded-lg text-[10px] border" />
              </div>
              <div v-if="hasActiveFilters" class="lg:col-span-2 flex items-end">
@@ -349,9 +349,13 @@
                   </thead>
                   <tbody>
                     <tr v-for="(item, idx) in importPreview.invalidItems.slice(0, 5)" :key="idx" class="border-t border-red-100">
-                      <td class="py-1">{{ item.row }}</td>
+                      <td class="py-1">{{ item.rowNumber || item.row || 'N/A' }}</td>
                       <td class="py-1">{{ item.partNo || 'N/A' }}</td>
-                      <td class="py-1 text-red-500">{{ item.error }}</td>
+                      <td class="py-1 text-red-500">
+                        <ul>
+                          <li v-for="err in item.errors || [item.error]" :key="err">{{ err }}</li>
+                        </ul>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -613,14 +617,14 @@ const filteredTransactions = computed(() => {
     filtered = filtered.filter(item => (item.quantity || 0) <= maxQ);
   }
 
-  // Price range filter (totalPrice)
+  // Price range filter (unitPrice)
   const minP = parseFloat(minPrice.value);
   const maxP = parseFloat(maxPrice.value);
   if (!isNaN(minP)) {
-    filtered = filtered.filter(item => (item.totalPrice || 0) >= minP);
+    filtered = filtered.filter(item => (item.unitPrice || 0) >= minP);
   }
   if (!isNaN(maxP)) {
-    filtered = filtered.filter(item => (item.totalPrice || 0) <= maxP);
+    filtered = filtered.filter(item => (item.unitPrice || 0) <= maxP);
   }
 
   // Date range filter
@@ -1077,7 +1081,7 @@ const processStockOut = async (transaction) => {
 };
 
 // Open Transaction IN modal
-const openTransactionInModal = async () => {
+const openTransactionInModal = () => {
   transactionInForm.value = {
     partNo: '',
     partName: '',
@@ -1092,9 +1096,9 @@ const openTransactionInModal = async () => {
   inventorySearchQuery.value = '';
   selectedInventoryItem.value = null;
   showInventoryDropdown.value = false;
-  
-  await loadInventoryItems();
   showTransactionInModal.value = true;
+  // Load inventory in background
+  loadInventoryItems();
 };
 
 
