@@ -255,6 +255,11 @@
               </div>
 
               <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Model</label>
+                <input v-model="form.model" type="text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500 uppercase" required />
+              </div>
+
+              <div class="space-y-2">
                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Quantity</label>
                 <input v-model="form.quantity" type="number" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500" required />
               </div>
@@ -275,7 +280,7 @@
             <div class="flex justify-end gap-3 pt-4">
               <button type="button" @click="closeModal" class="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-gray-100 transition-all">Cancel</button>
               <button type="submit" :disabled="isSaving" class="bg-red-600 text-white px-10 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl shadow-red-100 disabled:opacity-50">
-                {{ isSaving ? 'Syncing...' : 'Confirm Registration' }}
+                {{ isSaving ? 'Syncing...' : 'Confirm' }}
               </button>
             </div>
           </form>
