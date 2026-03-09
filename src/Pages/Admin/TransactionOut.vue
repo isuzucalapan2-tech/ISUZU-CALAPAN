@@ -590,14 +590,14 @@ const filteredTransactions = computed(() => {
     filtered = filtered.filter(item => (item.quantity || 0) <= maxQ);
   }
 
-  // Price range filter (totalPrice)
+  // Price range filter (unitPrice)
   const minP = parseFloat(minPrice.value);
   const maxP = parseFloat(maxPrice.value);
   if (!isNaN(minP)) {
-    filtered = filtered.filter(item => (item.totalPrice || 0) >= minP);
+    filtered = filtered.filter(item => (item.unitPrice || 0) >= minP);
   }
   if (!isNaN(maxP)) {
-    filtered = filtered.filter(item => (item.totalPrice || 0) <= maxP);
+    filtered = filtered.filter(item => (item.unitPrice || 0) <= maxP);
   }
 
   // Date range filter (date only)
