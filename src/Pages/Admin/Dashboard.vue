@@ -37,8 +37,8 @@
             <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">Inventory <span class="text-red-600">Overview</span></h2>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-red-600 transition-all group relative overflow-hidden shadow-sm">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
+            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-red-600 transition-all group relative overflow-hidden shadow-sm">
                <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
                 <Package class="w-24 h-24 text-neutral-500" />
               </div>
@@ -56,7 +56,7 @@
               </div>
             </div>
 
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-orange-600 transition-all group relative overflow-hidden shadow-sm">
+            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-orange-600 transition-all group relative overflow-hidden shadow-sm">
               <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform text-orange-500">
                 <AlertTriangle class="w-24 h-24" />
               </div>
@@ -74,7 +74,7 @@
               </div>
             </div>
 
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-purple-600 transition-all group relative overflow-hidden shadow-sm">
+            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-purple-600 transition-all group relative overflow-hidden shadow-sm">
               <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Quantity</p>
               <p class="text-3xl font-black text-neutral-800">{{ totalInventoryQuantity.toLocaleString() }}</p>
               <div class="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
@@ -82,14 +82,14 @@
               </div>
             </div>
 
-            <div class="bg-neutral-900 rounded-3xl p-6 relative overflow-hidden group shadow-xl">
+            <div class="bg-neutral-900 rounded-2xl p-6 relative overflow-hidden group">
               <div class="absolute top-0 right-0 w-16 h-16 bg-green-500/10 rounded-bl-[4rem]"></div>
               <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Availability</p>
               <p class="text-3xl font-black text-green-500">{{ inStock }} <span class="text-xs text-white/50 font-medium">IN STOCK</span></p>
               <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">Optimal Levels</p>
             </div>
 
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border-b-4 border-red-600 hover:border-red-900 relative group overflow-hidden shadow-sm">
+            <div class="bg-neutral-600/10 rounded-2xl p-6 border-b-4 border-red-600 hover:border-red-900 relative group overflow-hidden shadow-sm">
               <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Critical Stock</p>
               <p class="text-3xl font-black text-red-600">{{ outOfStock }}</p>
               <p class="mt-4 text-[10px] font-bold text-red-600/50 uppercase tracking-widest flex items-center gap-1">
@@ -98,8 +98,8 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-400/20 xl:col-span-1 shadow-sm']" :style="cardStyle">
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-3">
+            <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40 xl:col-span-1']" :style="cardStyle">
               <h3 :class="['text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2', textClass]">
                 <PieChart class="w-4 h-4 text-red-600" /> Status Distribution
               </h3>
@@ -108,7 +108,7 @@
               </div>
             </div>
 
-            <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-400/20 xl:col-span-2 shadow-sm']" :style="cardStyle">
+            <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40 xl:col-span-2']" :style="cardStyle">
               <h3 :class="['text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2', textClass]">
                 <BarChart3 class="w-4 h-4 text-red-600" /> Stock by Category
               </h3>
@@ -182,27 +182,9 @@
           <h2 :class="['text-sm font-black uppercase tracking-widest isuzu-font', textClass]">Quick <span :class="isDarkMode ? 'text-yellow-400' : 'text-yellow-600'">Actions</span></h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button @click="$router.push('/admin/approve')" class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-yellow-500 transition-all group relative overflow-hidden shadow-sm text-left">
-            <div v-if="pendingUsersCount > 0" class="absolute top-4 right-4 flex h-3 w-3 z-20">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
-            </div>
-            <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
-              <UserX class="w-24 h-24 text-yellow-500" />
-            </div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Pending Approvals</p>
-            <p class="text-4xl font-black" :class="textClass">{{ pendingUsersCount }}</p>
-            
-            <div v-if="pendingUsersCount > 0" class="mt-4 pt-3 border-t border-neutral-200/50">
-              <div v-for="user in pendingUsers.slice(0, 2)" :key="user.id" class="text-[9px] py-1">
-                <p class="font-bold text-yellow-600 dark:text-yellow-400 truncate">{{ user.username }}</p>
-              </div>
-              <p v-if="pendingUsersCount > 2" class="text-[8px] font-bold text-yellow-600 uppercase italic mt-1">+{{ pendingUsersCount - 2 }} awaiting</p>
-            </div>
-          </button>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
 
-          <button @click="$router.push('/admin/inventory')" class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-red-600 transition-all group relative overflow-hidden shadow-sm text-left">
+          <button @click="$router.push('/admin/inventory')" class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-red-600 transition-all group relative overflow-hidden shadow-sm text-left">
             <div v-if="outOfStock > 0" class="absolute top-4 right-4 flex h-3 w-3 z-20">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
@@ -217,7 +199,7 @@
             </div>
           </button>
 
-          <button @click="$router.push('/admin/transaction-in')" class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-green-500 transition-all group relative overflow-hidden shadow-sm text-left">
+          <button @click="$router.push('/admin/transaction-in')" class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-green-500 transition-all group relative overflow-hidden shadow-sm text-left">
             <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
               <ArrowDownCircle class="w-24 h-24 text-green-500" />
             </div>
@@ -225,7 +207,7 @@
             <p class="text-4xl font-black" :class="isDarkMode ? 'text-green-400' : 'text-green-600'">{{ filteredTransactionInCount }}</p>
           </button>
 
-          <button @click="$router.push('/admin/transaction-out')" class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-orange-500 transition-all group relative overflow-hidden shadow-sm text-left">
+          <button @click="$router.push('/admin/transaction-out')" class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-orange-500 transition-all group relative overflow-hidden shadow-sm text-left">
             <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
               <ArrowUpCircle class="w-24 h-24 text-orange-500" />
             </div>
@@ -234,8 +216,8 @@
           </button>
         </div>
 
-        <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-400/20 shadow-sm']" :style="cardStyle">
-          <div class="flex items-center gap-3 mb-6">
+        <div :class="[cardClass, 'rounded-2xl p-5 border border-neutral-600/40']" :style="cardStyle">
+          <div class="flex items-center gap-2 mb-6">
             <div class="bg-blue-600 p-2 rounded-xl">
               <Activity class="w-5 h-5 text-white" />
             </div>
@@ -244,9 +226,9 @@
             </h2>
           </div>
 
-          <div class="space-y-3">
+          <div class="space-y-2">
             <div v-for="item in recentTransactionIn.slice(0,3)" :key="`in-${item.id}`" 
-                class="flex items-center gap-4 p-4 rounded-2xl border border-neutral-200/50 bg-neutral-600/5 transition-all">
+                class="flex items-center gap-4 p-4 rounded-2xl border border-neutral-600/40 bg-neutral-600/5 transition-all">
               <div :class="['p-2.5 rounded-xl', isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-600']">
                 <ArrowDownCircle class="w-5 h-5" />
               </div>
@@ -263,7 +245,7 @@
             </div>
 
             <div v-for="item in filteredTransactionOut.slice(0,3)" :key="`out-${item.id}`" 
-                class="flex items-center gap-4 p-4 rounded-2xl border border-neutral-200/50 bg-neutral-600/5 transition-all">
+                class="flex items-center gap-4 p-4 rounded-2xl border border-neutral-600/40 bg-neutral-600/5 transition-all">
               <div :class="['p-2.5 rounded-xl', isDarkMode ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-100 text-orange-600']">
                 <ArrowUpCircle class="w-5 h-5" />
               </div>
@@ -288,15 +270,15 @@
           <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">Financial <span class="text-green-600">Highlights</span></h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div class="bg-neutral-900 rounded-3xl p-6 relative overflow-hidden group shadow-xl">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-8">
+          <div class="bg-neutral-900 rounded-2xl p-6 relative overflow-hidden group">
             <div class="absolute top-0 right-0 w-16 h-16 bg-green-500/10 rounded-bl-[4rem]"></div>
             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Today's Revenue</p>
             <p class="text-3xl font-black text-green-500">₱{{ todaysRevenue.toLocaleString() }}</p>
             <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">{{ todaysTransactionCount }} Successful Sales</p>
           </div>
 
-          <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-blue-600 transition-all group relative overflow-hidden">
+          <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-blue-600 transition-all group relative overflow-hidden">
             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Avg Transaction</p>
             <p class="text-3xl font-black" :class="textClass">₱{{ averageTransactionValue.toLocaleString() }}</p>
             <div class="mt-4 h-1.5 w-full bg-gray-100 dark:bg-neutral-800 rounded-full overflow-hidden">
@@ -304,7 +286,7 @@
             </div>
           </div>
 
-          <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 hover:border-purple-600 transition-all group relative overflow-hidden">
+          <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-purple-600 transition-all group relative overflow-hidden">
             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Top Selling Part</p>
             <p class="text-2xl font-black truncate" :class="textClass">{{ topSellingPart.partNo }}</p>
             <p class="mt-2 text-[10px] font-bold text-purple-600 uppercase tracking-widest flex items-center gap-1">
@@ -313,8 +295,8 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-400/20 shadow-sm']" :style="cardStyle">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-3">
+          <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40']" :style="cardStyle">
             <h3 :class="['text-[11px] font-black uppercase tracking-widest mb-6 flex items-center gap-2', textClass]">
               <Activity class="w-4 h-4 text-emerald-500" /> Performance Trends
             </h3>
@@ -342,7 +324,7 @@
             </div>
           </div>
 
-          <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-400/20 xl:col-span-2 shadow-sm']" :style="cardStyle">
+          <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40 xl:col-span-2']" :style="cardStyle">
             <h3 :class="['text-[11px] font-black uppercase tracking-widest mb-6', textClass]">Daily Volume Comparison</h3>
             <div class="grid grid-cols-2 gap-8">
               <div class="bg-neutral-600/5 p-6 rounded-2xl border border-neutral-200/50">
@@ -371,8 +353,8 @@
 
         <div class="flex items-center gap-2 pb-1 border-b-2 border-neutral-600/40 mb-6"></div>
 
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-400/20 relative overflow-hidden group hover:shadow-md transition-all']" :style="cardStyle">
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
+          <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-600/40 relative overflow-hidden group']" :style="cardStyle">
             <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12 group-hover:scale-110 transition-transform duration-500">
               <UserCheck class="w-40 h-40" :class="isDarkMode ? 'text-white' : 'text-neutral-900'" />
             </div>
@@ -402,13 +384,23 @@
             </div>
           </div>
 
-          <div class="bg-neutral-900 rounded-3xl p-8 text-white relative overflow-hidden group shadow-xl hover:shadow-2xl transition-all">
-            <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12 group-hover:scale-110 transition-transform duration-500">
+          <div class="bg-neutral-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl">
+            <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12">
               <Users class="w-40 h-40" />
             </div>
 
+            <button 
+              @click="$router.push('/admin/approve')" 
+              class="absolute top-6 right-6 z-30 group flex items-center gap-2 bg-white/5 hover:bg-yellow-500 backdrop-blur-md border border-white/10 hover:border-yellow-500 p-2 pr-4 rounded-2xl transition-all duration-300"
+            >
+              <div class="bg-yellow-500 p-1.5 rounded-lg group-hover:bg-neutral-900 transition-colors">
+                <ExternalLink class="w-3 h-3 text-neutral-900 group-hover:text-yellow-500" />
+              </div>
+              <span class="text-[9px] font-black uppercase tracking-widest text-white group-hover:text-neutral-900">Review All</span>
+            </button>
+
             <div class="relative z-10 flex flex-col h-full">
-              <div class="flex items-center justify-between mb-10">
+              <div class="flex items-center gap-3 mb-10">
                 <div class="bg-yellow-500 p-3 rounded-2xl shadow-lg shadow-yellow-500/20">
                   <UserX class="w-6 h-6 text-neutral-900" />
                 </div>
@@ -425,12 +417,16 @@
                   </p>
                   <p class="text-xs font-bold text-yellow-500 uppercase tracking-tighter italic">Pending</p>
                 </div>
-                <p class="text-[9px] font-medium text-gray-500 uppercase tracking-widest mt-4">New registration requests in queue</p>
+                
+                <div class="flex items-center gap-2 mt-4">
+                  <div class="w-1 h-1 bg-yellow-500 rounded-full"></div>
+                  <p class="text-[9px] font-medium text-gray-500 uppercase tracking-widest">New registration requests in queue</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-400/20 flex flex-col relative group shadow-sm']" :style="cardStyle">
+          <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-600/40 flex flex-col relative group']" :style="cardStyle">
             <div class="flex items-center justify-between mb-6">
               <div>
                 <h3 :class="['text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2', subTextClass]">
@@ -468,8 +464,8 @@
             </router-link>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 relative overflow-hidden shadow-sm">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
               <div class="absolute -right-4 -bottom-2 opacity-10">
                 <Users class="w-24 h-24 text-purple-500" />
               </div>
@@ -480,7 +476,7 @@
               </div>
             </div>
 
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 relative overflow-hidden shadow-sm">
+            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
               <div class="absolute -right-4 -bottom-2 opacity-10">
                 <CheckCircle class="w-24 h-24 text-green-500" />
               </div>
@@ -491,7 +487,7 @@
               </div>
             </div>
 
-            <div class="bg-neutral-600/10 rounded-3xl p-6 border border-neutral-300/20 relative overflow-hidden shadow-sm">
+            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
               <div class="absolute -right-4 -bottom-2 opacity-10">
                 <Clock class="w-24 h-24 text-blue-500" />
               </div>
@@ -500,7 +496,7 @@
               <p class="mt-4 text-[10px] font-bold text-blue-500/60 uppercase tracking-tighter">In Progress</p>
             </div>
 
-            <div class="bg-neutral-900 rounded-3xl p-6 relative overflow-hidden shadow-xl">
+            <div class="bg-neutral-900 rounded-2xl p-6 relative overflow-hidden shadow-xl">
               <div class="absolute top-0 right-0 w-16 h-16 bg-yellow-500/10 rounded-bl-[4rem]"></div>
               <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Efficiency Rate</p>
               <p class="text-3xl font-black text-yellow-500">{{ efficiencyRate }}%</p>
@@ -508,7 +504,7 @@
             </div>
           </div>
 
-          <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-400/20 shadow-sm']" :style="cardStyle">
+          <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40']" :style="cardStyle">
             <div class="flex items-center justify-between mb-8">
               <h3 :class="['text-sm font-black uppercase tracking-widest flex items-center gap-2', textClass]">
                 <Activity class="w-4 h-4 text-purple-600" /> SA Workload Distribution
@@ -521,9 +517,9 @@
               </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
               <div v-for="sa in saWorkload" :key="sa.name" 
-                  class="bg-neutral-600/5 p-5 rounded-2xl border border-neutral-200/50 transition-all">
+                  class="bg-neutral-600/5 p-5 rounded-2xl border border-neutral-600/40 transition-all">
                 <div class="flex items-center justify-between mb-4">
                   <p :class="['text-[11px] font-black uppercase truncate tracking-wider', textClass]">{{ sa.name }}</p>
                   <span :class="['text-[8px] font-black px-2 py-0.5 rounded uppercase border', sa.statusClass]">
@@ -644,7 +640,7 @@
             </div>
           </div>
 
-            <div v-if="recentTransactionIn.length > 0" :class="[cardClass, 'overflow-hidden rounded-3xl border shadow-sm']" :style="isDarkMode ? { ...cardStyle, borderColor: '#374151' } : { ...cardStyle, borderColor: '#e5e7eb' }">
+            <div v-if="recentTransactionIn.length > 0" :class="[cardClass, 'overflow-hidden rounded-2xl border border-neutral-600/40']" :style="isDarkMode ? { ...cardStyle, borderColor: '#374151' } : { ...cardStyle, borderColor: '#e5e7eb' }">
               <div :class="['p-4 border-b flex items-center justify-between', isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-50 bg-gray-50/50']">
                 <h4 :class="['text-xs font-black uppercase tracking-widest flex items-center gap-2 isuzu-font', textClass]">
                   <TrendingUp class="w-4 h-4 text-green-600" />
