@@ -491,7 +491,7 @@
             <h2 :class="['text-2xl font-black uppercase tracking-tighter isuzu-font', textClass]">
               Service Advisor <span :class="isDarkMode ? 'text-purple-400' : 'text-purple-600'">Overview</span>
             </h2>
-            <router-link to="/aftersales/sa-rotation" class="ml-auto text-[10px] font-black uppercase bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:bg-purple-700 transition-colors">
+            <router-link to="/admin/sa-rotation" class="ml-auto text-[10px] font-black uppercase bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:bg-purple-700 transition-colors">
               Open SA Rotation →
             </router-link>
           </div>
