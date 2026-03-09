@@ -54,7 +54,11 @@
                 <DollarSign class="w-24 h-24" />
               </div>
               <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Stock Value</p>
-              <p class="text-3xl font-black text-neutral-800">₱{{ totalInventoryValue.toLocaleString() }}</p>
+              
+              <p class="text-3xl font-black text-neutral-800">
+                ₱{{ formatValue(totalInventoryValue) }}
+              </p>
+              
               <div class="mt-4 text-[10px] font-bold text-blue-600 uppercase tracking-widest">Market Valuation</div>
             </div>
 
@@ -521,6 +525,17 @@ const pendingUsers = ref([]);
 const transactionInItems = ref([]);
 const transactionOutItems = ref([]);
 const approvedUsers = ref([]);
+
+// Function to format the numbers to K, M, B, etc.
+const formatValue = (value) => {
+  if (value === null || value === undefined) return '0';
+  
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    compactDisplay: 'short',
+    maximumFractionDigits: 1 // Para may isang decimal point kung kailangan (e.g., 1.5K)
+  }).format(value);
+};
 
 // Transaction In Filter
 const transactionInFilter = ref('today'); // 'today', 'week', 'month'
