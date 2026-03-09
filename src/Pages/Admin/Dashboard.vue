@@ -323,7 +323,13 @@
                   Transaction Out / Sales
                 </h3>
                 <p :class="['text-[10px] font-black uppercase tracking-[0.2em]', subTextClass]">
-                  Status: {{ transactionOutFilter === 'today' ? 'Daily' : transactionOutFilter === 'week' ? 'Weekly' : transactionOutFilter === 'month' ? 'Monthly' : 'Custom' }} Report
+                    Status: {{
+                      transactionOutFilter === 'today' ? 'Daily'
+                      : transactionOutFilter === 'week' ? 'Weekly'
+                      : transactionOutFilter === 'month' ? 'Monthly'
+                      : transactionOutFilter === 'year' ? 'Yearly'
+                      : 'Custom'
+                    }} Report
                 </p>
               </div>
               <div :class="['flex p-1 rounded-xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-neutral-100 border-neutral-200 shadow-inner']">
@@ -933,23 +939,25 @@ const initCharts = () => {
   const last7Days = [];
   const transInData = [];
   const transOutData = [];
-  
+
+  // Use filteredTransactionOut for sales/transaction out data
+  // For the last 7 days, filter both transactionInItems and filteredTransactionOut
   for (let i = 6; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     date.setHours(0, 0, 0, 0);
     last7Days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
-    
+
     const dayTransIn = transactionInItems.value.filter(item => {
       const itemDate = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
       return itemDate.toDateString() === date.toDateString();
     }).reduce((sum, item) => sum + (item.quantity || 0), 0);
-    
-    const dayTransOut = transactionOutItems.value.filter(item => {
+
+    const dayTransOut = filteredTransactionOut.value.filter(item => {
       const itemDate = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
       return itemDate.toDateString() === date.toDateString();
     }).reduce((sum, item) => sum + (item.quantity || 0), 0);
-    
+
     transInData.push(dayTransIn);
     transOutData.push(dayTransOut);
   }
@@ -1003,7 +1011,7 @@ const initCharts = () => {
 
   // Sales Category Chart
   const salesByCategory = {};
-  transactionOutItems.value.forEach(item => {
+  filteredTransactionOut.value.forEach(item => {
     const cat = item.category || "Uncategorized";
     salesByCategory[cat] = (salesByCategory[cat] || 0) + (item.totalPrice || 0);
   });
@@ -1076,43 +1084,133 @@ watch(inventoryItems, () => {
   }
 }, { deep: true });
 
-// Watch transaction data and update transaction chart
-watch([transactionInItems, transactionOutItems], () => {
+// Watch transaction data and update transaction chart and sales by category chart with filter
+watch([transactionInItems, transactionOutItems, transactionOutFilter, customTransactionOutDate], () => {
   if (transactionChartInstance) {
-    const last7Days = [];
-    const transInData = [];
-    const transOutData = [];
-    
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      date.setHours(0, 0, 0, 0);
-      last7Days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
-      
-      const dayTransIn = transactionInItems.value.filter(item => {
-        const itemDate = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
-        return itemDate.toDateString() === date.toDateString();
-      }).reduce((sum, item) => sum + (item.quantity || 0), 0);
-      
-      const dayTransOut = transactionOutItems.value.filter(item => {
-        const itemDate = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
-        return itemDate.toDateString() === date.toDateString();
-      }).reduce((sum, item) => sum + (item.quantity || 0), 0);
-      
-      transInData.push(dayTransIn);
-      transOutData.push(dayTransOut);
+    // Dynamically adjust x-axis and data range based on transactionOutFilter
+    let labels = [];
+    let transInData = [];
+    let transOutData = [];
+    const now = new Date();
+
+    if (transactionOutFilter.value === 'today') {
+      labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+      for (let hour = 0; hour < 24; hour++) {
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, 0, 0, 0);
+        const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, 59, 59, 999);
+        const inSum = transactionInItems.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d >= start && d <= end;
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const outSum = filteredTransactionOut.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d >= start && d <= end;
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        transInData.push(inSum);
+        transOutData.push(outSum);
+      }
+    } else if (transactionOutFilter.value === 'week') {
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - now.getDay());
+      for (let i = 0; i < 7; i++) {
+        const day = new Date(startOfWeek);
+        day.setDate(startOfWeek.getDate() + i);
+        labels.push(day.toLocaleDateString('en-US', { weekday: 'short' }));
+        const inSum = transactionInItems.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d.toDateString() === day.toDateString();
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const outSum = filteredTransactionOut.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d.toDateString() === day.toDateString();
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        transInData.push(inSum);
+        transOutData.push(outSum);
+      }
+    } else if (transactionOutFilter.value === 'month') {
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (let day = 1; day <= daysInMonth; day++) {
+        labels.push(day.toString());
+        const start = new Date(year, month, day, 0, 0, 0, 0);
+        const end = new Date(year, month, day, 23, 59, 59, 999);
+        const inSum = transactionInItems.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d >= start && d <= end;
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const outSum = filteredTransactionOut.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d >= start && d <= end;
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        transInData.push(inSum);
+        transOutData.push(outSum);
+      }
+    } else if (transactionOutFilter.value === 'year') {
+      const year = now.getFullYear();
+      labels = Array.from({ length: 12 }, (_, i) => new Date(year, i, 1).toLocaleString('en-US', { month: 'short' }));
+      for (let month = 0; month < 12; month++) {
+        const start = new Date(year, month, 1, 0, 0, 0, 0);
+        const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
+        const inSum = transactionInItems.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d >= start && d <= end;
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const outSum = filteredTransactionOut.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d >= start && d <= end;
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        transInData.push(inSum);
+        transOutData.push(outSum);
+      }
+    } else if (transactionOutFilter.value === 'custom' && customTransactionOutDate.value) {
+      const start = new Date(customTransactionOutDate.value);
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      let current = new Date(start);
+      while (current <= end) {
+        labels.push(current.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const dayStart = new Date(current.getFullYear(), current.getMonth(), current.getDate(), 0, 0, 0, 0);
+        const dayEnd = new Date(current.getFullYear(), current.getMonth(), current.getDate(), 23, 59, 59, 999);
+        const inSum = transactionInItems.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d >= dayStart && d <= dayEnd;
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const outSum = filteredTransactionOut.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d >= dayStart && d <= dayEnd;
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        transInData.push(inSum);
+        transOutData.push(outSum);
+        current.setDate(current.getDate() + 1);
+      }
+    } else {
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(now.getDate() - i);
+        date.setHours(0, 0, 0, 0);
+        labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+        const inSum = transactionInItems.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d.toDateString() === date.toDateString();
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const outSum = filteredTransactionOut.value.filter(item => {
+          const d = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+          return d.toDateString() === date.toDateString();
+        }).reduce((sum, item) => sum + (item.quantity || 0), 0);
+        transInData.push(inSum);
+        transOutData.push(outSum);
+      }
     }
-    
-    transactionChartInstance.data.labels = last7Days;
+    transactionChartInstance.data.labels = labels;
     transactionChartInstance.data.datasets[0].data = transInData;
     transactionChartInstance.data.datasets[1].data = transOutData;
     transactionChartInstance.update('none');
   }
-  
-  // Update sales by category chart
+
+  // Update sales by category chart with filter
   if (salesCategoryChartInstance) {
     const salesByCategory = {};
-    transactionOutItems.value.forEach(item => {
+    filteredTransactionOut.value.forEach(item => {
       const cat = item.category || "Uncategorized";
       salesByCategory[cat] = (salesByCategory[cat] || 0) + (item.totalPrice || 0);
     });
