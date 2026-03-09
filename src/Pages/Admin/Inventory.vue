@@ -91,7 +91,7 @@
               </button>
 
               <div class="relative group/export">
-                <button @click="toggleExportMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-200 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all shadow-sm">
+                <button @click="toggleExportMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-600/40 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all ">
                   <FileDown class="w-4 h-4" /> Export <ChevronDown class="w-3 h-3" />
                 </button>
                 <div v-if="showExportMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 shadow-2xl rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -105,7 +105,7 @@
               </div>
 
               <div class="relative group/print">
-                <button @click="togglePrintMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-200 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all shadow-sm">
+                <button @click="togglePrintMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-600/40 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all">
                   <Printer class="w-4 h-4" /> Print <ChevronDown class="w-3 h-3" />
                 </button>
                 <div v-if="showPrintMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 shadow-2xl rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -216,8 +216,8 @@
 
     <Transition name="fade">
       <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
           <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
             <h2 class="text-white isuzu-font font-black uppercase tracking-widest flex items-center gap-3">
               <Package class="w-5 h-5 text-red-600" />
@@ -278,7 +278,7 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-4">
-              <button type="button" @click="closeModal" class="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-gray-100 transition-all">Cancel</button>
+              <button type="button" @click="closeModal" class="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-gray-100 border border-neutral-600/40 transition-all">Cancel</button>
               <button type="submit" :disabled="isSaving" class="bg-red-600 text-white px-10 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl shadow-red-100 disabled:opacity-50">
                 {{ isSaving ? 'Syncing...' : 'Confirm' }}
               </button>
@@ -290,8 +290,8 @@
 
     <Transition name="fade">
        <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeImportModal"></div>
-          <div class="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 animate-in zoom-in-95 duration-300">
+          <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
+          <div class="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-8 animate-in zoom-in-95 duration-300">
              <div class="flex items-center gap-4 mb-8">
                 <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg"><FileSpreadsheet class="w-8 h-8" /></div>
                 <div>

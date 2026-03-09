@@ -226,8 +226,8 @@
 
     <Transition name="fade">
       <div v-if="showTransactionInModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeTransactionInModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeTransactionInModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
           <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
             <h2 class="text-white isuzu-font font-black uppercase tracking-widest flex items-center gap-3">
               <Plus class="w-5 h-5 text-red-600" /> Stock In Registration
@@ -285,8 +285,8 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-6 border-t">
-              <button @click="closeTransactionInModal" class="px-8 py-3 text-[10px] font-black uppercase text-gray-500 hover:bg-gray-100 rounded-full transition-all">Discard</button>
-              <button @click="saveTransactionIn" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl">
+              <button @click="closeTransactionInModal" class="px-8 py-3 text-[10px] font-black uppercase border border-neutral-600/40 text-gray-500 hover:bg-gray-100 rounded-full transition-all">Discard</button>
+              <button @click="saveTransactionIn" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all">
                 Register Record
               </button>
             </div>
@@ -298,8 +298,8 @@
     <!-- Import Excel Modal -->
     <Transition name="fade">
       <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeImportModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 animate-in zoom-in-95 duration-300">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-8 animate-in zoom-in-95 duration-300">
           <div class="flex items-center gap-4 mb-8">
             <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg">
               <FileSpreadsheet class="w-8 h-8" />
