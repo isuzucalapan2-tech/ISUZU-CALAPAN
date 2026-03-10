@@ -160,196 +160,7 @@ export function useExcelExport() {
   };
 
   /**
-   * Validate inventory item for import with duplicate checking
-   * @param {Object} item - Item to validate
-   * @param {Set} existingPartNos - Set of existing Part No. in inventory (for duplicate check)
-   * @param {Set} importedPartNos - Set of Part No. already in this import batch (optional)
-   * @returns {Object} - Validation result { isValid: boolean, errors: string[] }
-   */
-  const validateInventoryImportItem = (item, existingPartNos, importedPartNos = new Set()) => {
-    const errors = [];
-    
-    // Required fields validation
-    if (!item.category || item.category.trim() === '') {
-      errors.push('Category is required');
-    }
-    
-    if (!item.partName || item.partName.trim() === '') {
-      errors.push('Part Name is required');
-    }
-    
-    if (!item.partNo || item.partNo.trim() === '') {
-      errors.push('Part Number is required');
-    }
-    
-    if (!item.model || item.model.trim() === '') {
-      errors.push('Model is required');
-    }
-    
-    // Quantity validation
-    if (item.quantity === undefined || item.quantity === null || isNaN(item.quantity)) {
-      errors.push('Quantity is required');
-    } else if (item.quantity < 0) {
-      errors.push('Quantity must be 0 or greater');
-    }
-    
-    // Unit Price validation
-    if (item.unitPrice === undefined || item.unitPrice === null || isNaN(item.unitPrice)) {
-      errors.push('Unit Price is required');
-    } else if (item.unitPrice < 0) {
-      errors.push('Unit Price must be 0 or greater');
-    }
-    
-    // Duplicate check - Part No must NOT exist in current inventory
-    if (item.partNo && existingPartNos && existingPartNos.has(item.partNo.toUpperCase())) {
-      errors.push(`Part No. "${item.partNo}" already exists in inventory`);
-    }
-    
-    // Duplicate check - Part No must NOT be duplicated within the import file
-    if (item.partNo && importedPartNos && importedPartNos.has(item.partNo.toUpperCase())) {
-      errors.push(`Duplicate Part No. "${item.partNo}" in import file`);
-    }
-    
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
-  };
-
-  /**
-   * Process inventory items for import with validation and duplicate checking
-   * @param {Array} items - Parsed items from Excel
-   * @param {Array} existingInventory - Current inventory items for duplicate check
-   * @returns {Object} - { validItems: Array, invalidItems: Array }
-   */
-  const processInventoryImportItems = (items, existingInventory = []) => {
-    const validItems = [];
-    const invalidItems = [];
-    
-    // Create a set of existing Part No. from inventory for O(1) lookup
-    const existingPartNos = new Set();
-    existingInventory.forEach(inv => {
-      if (inv.partNo) {
-        existingPartNos.add(inv.partNo.toUpperCase());
-      }
-    });
-    
-    // Track Part No. in current import batch to detect duplicates within file
-    const importedPartNos = new Set();
-    
-    items.forEach((item, index) => {
-      // Validate with duplicate checking
-      const validation = validateInventoryImportItem(item, existingPartNos, importedPartNos);
-      
-      if (validation.isValid) {
-        // Calculate total value
-        const qty = parseInt(item.quantity) || 0;
-        const price = parseFloat(item.unitPrice) || 0;
-        
-        // Add to imported Part No. set for duplicate detection within file
-        importedPartNos.add(item.partNo.toUpperCase());
-        
-        validItems.push({
-          ...item,
-          quantity: qty,
-          unitPrice: price,
-          totalValue: qty * price,
-          // These will be set during actual save
-          category: item.category.toLowerCase(),
-          partName: item.partName.toUpperCase(),
-          partNo: item.partNo.toUpperCase(),
-          model: item.model.toUpperCase(),
-          description: (item.description || '').toUpperCase()
-        });
-      } else {
-        invalidItems.push({
-          ...item,
-          rowNumber: item.rowNumber || index + 2,
-          errors: validation.errors
-        });
-      }
-    });
-    
-    return { validItems, invalidItems };
-  };
-
-  /**
-   * Generate a template Excel file for Inventory import
-   * @returns {void} - Downloads a template file
-   */
-  const downloadInventoryTemplate = () => {
-    const templateData = [
-      {
-        'Category': 'ENGINE',
-        'Part Name': 'SAMPLE PART NAME',
-        'Part No': 'PART-001',
-        'Model': 'MODEL-X',
-        'Quantity': 10,
-        'Unit Price': 1000.00,
-        'Description': 'SAMPLE DESCRIPTION'
-      },
-      {
-        'Category': 'TRANSMISSION',
-        'Part Name': 'ANOTHER PART NAME',
-        'Part No': 'PART-002',
-        'Model': 'MODEL-Y',
-        'Quantity': 5,
-        'Unit Price': 2500.00,
-        'Description': 'ANOTHER DESCRIPTION'
-      }
-    ];
-    
-    const worksheet = XLSX.utils.json_to_sheet(templateData);
-    
-    // Set column widths for better readability
-    worksheet['!cols'] = [
-      { wch: 15 }, // Category
-      { wch: 25 }, // Part Name
-      { wch: 15 }, // Part No
-      { wch: 12 }, // Model
-      { wch: 10 }, // Quantity
-      { wch: 15 }, // Unit Price
-      { wch: 25 }  // Description
-    ];
-    
-    // Create a workbook with the worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Import Template');
-    
-    // Add a second sheet with instructions
-    const instructionData = [
-      { 'INSTRUCTIONS': 'INVENTORY IMPORT TEMPLATE GUIDE' },
-      { 'INSTRUCTIONS': '' },
-      { 'INSTRUCTIONS': 'COLUMNS (ALL REQUIRED):' },
-      { 'INSTRUCTIONS': '• Category - Product category (e.g., ENGINE, TRANSMISSION, BODY, etc.)' },
-      { 'INSTRUCTIONS': '• Part Name - Full part name (e.g., PISTON ASSEMBLY, OIL FILTER, etc.)' },
-      { 'INSTRUCTIONS': '• Part No - Unique part number (e.g., PART-001, ISZ-1234, etc.)' },
-      { 'INSTRUCTIONS': '• Model - Vehicle/model compatibility (e.g., D-MAX, MU-X, etc.)' },
-      { 'INSTRUCTIONS': '• Quantity - Stock quantity (must be 0 or greater)' },
-      { 'INSTRUCTIONS': '• Unit Price - Price per unit in PHP (must be 0 or greater)' },
-      { 'INSTRUCTIONS': '• Description - Optional description/notes' },
-      { 'INSTRUCTIONS': '' },
-      { 'INSTRUCTIONS': 'VALIDATION RULES:' },
-      { 'INSTRUCTIONS': '• All fields except Description are required' },
-      { 'INSTRUCTIONS': '• Quantity and Unit Price must be 0 or greater' },
-      { 'INSTRUCTIONS': '• Part No. must NOT exist in current inventory (new items only)' },
-      { 'INSTRUCTIONS': '• Duplicate Part No. within the same import file is not allowed' },
-      { 'INSTRUCTIONS': '' },
-      { 'INSTRUCTIONS': 'TIPS:' },
-      { 'INSTRUCTIONS': '• Use consistent category names for better organization' },
-      { 'INSTRUCTIONS': '• Part No. should be unique identifiers for each part' },
-      { 'INSTRUCTIONS': '• You can add new categories - they will be created automatically' }
-    ];
-    
-    const instructionSheet = XLSX.utils.json_to_sheet(instructionData);
-    instructionSheet['!cols'] = [{ wch: 60 }];
-    XLSX.utils.book_append_sheet(workbook, instructionSheet, 'Instructions');
-    
-    XLSX.writeFile(workbook, 'Inventory_Import_Template.xlsx');
-  };
-
-  /**
-   * Validate inventory item
+   * Validate inventory item (legacy function - used for manual add validation)
    * @param {Object} item - Item to validate
    * @returns {Object} - Validation result { isValid: boolean, errors: string[] }
    */
@@ -390,6 +201,79 @@ export function useExcelExport() {
     return {
       isValid: errors.length === 0,
       errors
+    };
+  };
+
+  /**
+   * Validate inventory item for batch import with duplicate Part No checking
+   * @param {Object} item - Item to validate
+   * @param {Array} existingInventory - Array of existing inventory items for duplicate check
+   * @returns {Object} - Validation result { isValid: boolean, errors: string[], warnings: string[], existingItem: Object|null }
+   */
+  const validateInventoryImportItem = (item, existingInventory = []) => {
+    const errors = [];
+    const warnings = [];
+    let existingItem = null;
+    
+    // Create inventory map for fast lookup (by Part No - case insensitive)
+    const inventoryMap = {};
+    existingInventory.forEach(inv => {
+      const key = inv.partNo?.toUpperCase();
+      if (key) {
+        inventoryMap[key] = inv;
+      }
+    });
+    
+    // Required fields validation
+    if (!item.category || item.category.trim() === '') {
+      errors.push('Category is required');
+    }
+    
+    if (!item.partName || item.partName.trim() === '') {
+      errors.push('Part Name is required');
+    }
+    
+    if (!item.partNo || item.partNo.trim() === '') {
+      errors.push('Part Number is required');
+    }
+    
+    if (!item.model || item.model.trim() === '') {
+      errors.push('Model is required');
+    }
+    
+    // Quantity validation
+    if (item.quantity === undefined || item.quantity === null || isNaN(item.quantity)) {
+      errors.push('Quantity is required');
+    } else if (item.quantity < 0) {
+      errors.push('Quantity must be 0 or greater');
+    }
+    
+    // Unit Price validation
+    if (item.unitPrice === undefined || item.unitPrice === null || isNaN(item.unitPrice)) {
+      errors.push('Unit Price is required');
+    } else if (item.unitPrice < 0) {
+      errors.push('Unit Price must be 0 or greater');
+    }
+    
+    // DUPLICATE CHECK - Part No must not exist in current inventory
+    if (item.partNo && item.partNo.trim() !== '') {
+      const partNoKey = item.partNo.toUpperCase();
+      if (inventoryMap[partNoKey]) {
+        existingItem = inventoryMap[partNoKey];
+        errors.push(`Part No "${item.partNo}" already exists in inventory (Control No: ${existingItem.controlNo})`);
+      }
+    }
+    
+    // Check for duplicates within the same import file
+    if (item.partNo && item.partNo.trim() !== '') {
+      // This will be handled in processInventoryImportItems
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings,
+      existingItem
     };
   };
 
@@ -1068,14 +952,11 @@ export function useExcelExport() {
     parseTransactionInExcelFile,
     parseTransactionOutExcelFile,
     validateInventoryItem,
-    validateInventoryImportItem,
     validateTransactionInItem,
     validateTransactionOutItem,
     processImportItems,
-    processInventoryImportItems,
     processTransactionInImportItems,
     processTransactionOutImportItems,
-    downloadInventoryTemplate,
     downloadTransactionOutTemplate,
     downloadTransactionInTemplate
   };

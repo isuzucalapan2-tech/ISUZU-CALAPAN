@@ -299,68 +299,132 @@
     <Transition name="fade">
       <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeImportModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 animate-in zoom-in-95 duration-300">
-          <div class="flex items-center gap-4 mb-8">
-            <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg">
-              <FileSpreadsheet class="w-8 h-8" />
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+              <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg">
+                <FileSpreadsheet class="w-8 h-8" />
+              </div>
+              <div>
+                <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter flex items-center gap-2">
+                  Batch <span class="text-blue-600">Import</span>
+                  <!-- Info Icon with Tooltip -->
+                  <div class="relative group">
+                    <button class="w-6 h-6 bg-neutral-200 hover:bg-neutral-300 rounded-full flex items-center justify-center transition-colors">
+                      <Info class="w-4 h-4 text-neutral-600" />
+                    </button>
+                    <!-- Tooltip -->
+                    <div class="absolute left-full top-0 ml-3 w-80 bg-neutral-800 text-white p-4 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50" style="font-family: Arial, sans-serif;">
+                      <div class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2" style="font-family: Arial, sans-serif;">📋 Import Validation Requirements</div>
+                      <div class="text-[9px] space-y-2" style="font-family: Arial, sans-serif;">
+                        <div class="font-bold text-green-400" style="font-family: Arial, sans-serif;">✓ REQUIRED FIELDS (ALL must be filled):</div>
+                        <div style="font-family: Arial, sans-serif;">• Control No. - Must match inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Part No. - Must exist in inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Category - Must match inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Part Name - Must match inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Model - Must match inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Quantity - Must be greater than 0</div>
+                        <div style="font-family: Arial, sans-serif;">• Source - Cannot be empty</div>
+                        <div class="font-bold text-yellow-400 mt-2" style="font-family: Arial, sans-serif;">✓ STOCK VALIDATION:</div>
+                        <div style="font-family: Arial, sans-serif;">• After import, click "Stock IN" to add to inventory</div>
+                        <div class="font-bold text-blue-400 mt-2" style="font-family: Arial, sans-serif;">✓ OPTIONAL FIELDS:</div>
+                        <div style="font-family: Arial, sans-serif;">• Note - Optional notes/remarks</div>
+                      </div>
+                      <div class="absolute top-4 -left-2 w-4 h-4 bg-neutral-800 transform rotate-45"></div>
+                    </div>
+                  </div>
+                </h3>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Stock In Data Excel Integration</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter">Batch <span class="text-blue-600">Import</span></h3>
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Stock In Data Excel Integration</p>
-            </div>
-           </div> 
+            <button @click="downloadTemplate" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-[10px] font-black uppercase tracking-widest">
+              <Download class="w-4 h-4" /> Download Template
+            </button>
+          </div>
 
           <!-- File Drop Zone -->
-          <div v-if="importPreview.validItems.length === 0" class="border-4 border-dashed border-gray-100 rounded-3xl p-12 text-center hover:border-blue-100 transition-all group">
+          <div v-if="importPreview.validItems.length === 0 && importPreview.invalidItems.length === 0" class="border-4 border-dashed border-gray-100 rounded-3xl p-12 text-center hover:border-blue-100 transition-all group flex-1 flex flex-col justify-center">
             <input type="file" ref="fileInput" @change="handleFileSelect" accept=".xlsx,.xls" class="hidden" />
             <Upload class="w-16 h-16 text-gray-200 mx-auto mb-4 group-hover:text-blue-400 transition-colors" />
             <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Drop Excel File Here or Click to Browse</p>
-            <button @click="$refs.fileInput.click()" class="bg-blue-600 text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-blue-100">Select Spreadsheet</button>
+            <button @click="$refs.fileInput.click()" class="bg-blue-600 text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-blue-100 mx-auto">Select Spreadsheet</button>
           </div>
 
           <!-- Preview Results -->
-          <div v-else class="space-y-6">
-            <div class="flex justify-between items-center bg-gray-50 p-6 rounded-2xl border border-gray-100">
-              <div class="text-xs font-black uppercase tracking-widest">
-                <span class="text-green-600">{{ importPreview.validItems.length }} VALID ENTRIES</span> / 
-                <span class="text-red-600">{{ importPreview.invalidItems.length }} ERRORS</span>
+          <div v-else class="space-y-4 flex-1 overflow-hidden flex flex-col">
+            <!-- Summary Header -->
+            <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+              <div class="text-xs font-black uppercase tracking-widest flex items-center gap-4">
+                <span class="text-green-600">✓ {{ importPreview.validItems.length }} Valid</span>
+                <span v-if="importPreview.invalidItems.length > 0" class="text-red-600">✗ {{ importPreview.invalidItems.length }} Errors</span>
+                <span v-if="totalImportValue > 0" class="text-blue-600 ml-4">Total Value: ₱{{ totalImportValue.toLocaleString('en-PH', { minimumFractionDigits: 2 }) }}</span>
               </div>
               <div class="flex gap-2">
-                <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400">Cancel</button>
-                <button @click="confirmImport" :disabled="isImporting" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50">
-                  {{ isImporting ? 'Importing...' : 'Process Import' }}
+                <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-gray-100 rounded-full transition-all">Cancel</button>
+                <button @click="confirmImport" :disabled="isImporting || importPreview.validItems.length === 0" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50 hover:bg-blue-700 transition-all flex items-center gap-2">
+                  <Loader2 v-if="isImporting" class="w-4 h-4 animate-spin" />
+                  {{ isImporting ? 'Importing...' : 'Import ' + importPreview.validItems.length + ' Records' }}
                 </button>
               </div>
+            </div>
 
-            <!-- Invalid Items Warning -->
-            <div v-if="importPreview.invalidItems.length > 0" class="bg-red-50 border border-red-200 rounded-xl p-4">
-              <div class="flex items-center gap-2 text-red-600 mb-2">
-                <AlertTriangle class="w-5 h-5" />
-                <span class="text-xs font-black uppercase">Invalid Items Preview</span>
-              </div>
-              <div class="max-h-32 overflow-y-auto">
-                <table class="w-full text-[9px]">
-                  <thead>
-                    <tr class="text-left text-red-600">
-                      <th class="pb-2">Row</th>
-                      <th class="pb-2">Part No</th>
-                      <th class="pb-2">Issue</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(item, idx) in importPreview.invalidItems.slice(0, 5)" :key="idx" class="border-t border-red-100">
-                      <td class="py-1">{{ item.row }}</td>
-                      <td class="py-1">{{ item.partNo || 'N/A' }}</td>
-                      <td class="py-1 text-red-500">{{ item.error }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <p v-if="importPreview.invalidItems.length > 5" class="text-[9px] text-red-400 mt-2">...and {{ importPreview.invalidItems.length - 5 }} more errors</p>
-              </div>
-              </div>
-              </div>
+            <!-- Preview Table -->
+            <div class="flex-1 overflow-auto border border-gray-200 rounded-xl">
+              <table class="w-full text-[10px]">
+                <thead class="bg-neutral-800 text-white sticky top-0">
+                  <tr>
+                    <th class="p-3 text-left font-black uppercase">Status</th>
+                    <th class="p-3 text-left font-black uppercase">Row</th>
+                    <th class="p-3 text-left font-black uppercase">Part No.</th>
+                    <th class="p-3 text-left font-black uppercase">Part Name</th>
+                    <th class="p-3 text-right font-black uppercase">Qty</th>
+                    <th class="p-3 text-right font-black uppercase">Unit Price</th>
+                    <th class="p-3 text-right font-black uppercase">Total</th>
+                    <th class="p-3 text-left font-black uppercase">Source</th>
+                    <th class="p-3 text-left font-black uppercase">Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Valid Items -->
+                  <tr v-for="(item, idx) in importPreview.validItems" :key="'valid-' + idx" class="border-b border-green-100 bg-green-50/30">
+                    <td class="p-3">
+                      <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[9px] font-black uppercase">Valid</span>
+                    </td>
+                    <td class="p-3 text-gray-400">{{ item.rowNumber }}</td>
+                    <td class="p-3 font-bold">{{ item.partNo }}</td>
+                    <td class="p-3 text-neutral-600">{{ item.partName }}</td>
+                    <td class="p-3 text-right font-black">{{ item.quantity }}</td>
+                    <td class="p-3 text-right">₱{{ item.unitPrice?.toLocaleString() }}</td>
+                    <td class="p-3 text-right font-black text-green-600">₱{{ item.totalPrice?.toLocaleString() }}</td>
+                    <td class="p-3">{{ item.source }}</td>
+                    <td class="p-3 text-gray-500">{{ item.note || '-' }}</td>
+                  </tr>
+                  
+                  <!-- Invalid Items -->
+                  <tr v-for="(item, idx) in importPreview.invalidItems" :key="'invalid-' + idx" class="border-b border-red-100 bg-red-50/30">
+                    <td class="p-3">
+                      <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-[9px] font-black uppercase">Invalid</span>
+                    </td>
+                    <td class="p-3 text-gray-400">{{ item.rowNumber }}</td>
+                    <td class="p-3 font-bold">{{ item.partNo || '-' }}</td>
+                    <td class="p-3 text-neutral-600">{{ item.partName || 'Not found in inventory' }}</td>
+                    <td class="p-3 text-right">{{ item.quantity || 0 }}</td>
+                    <td class="p-3 text-right">₱{{ item.unitPrice?.toLocaleString() || 0 }}</td>
+                    <td class="p-3 text-right">-</td>
+                    <td class="p-3">{{ item.source || '-' }}</td>
+                    <td class="p-3">
+                      <div class="text-red-500 text-[9px]">
+                        <div v-for="(err, eIdx) in item.errors.slice(0, 2)" :key="eIdx">{{ err }}</div>
+                        <div v-if="item.errors.length > 2" class="text-red-400">+{{ item.errors.length - 2 }} more</div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-      </div>
+        </div>
       </div>
     </Transition>
     
@@ -403,13 +467,16 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  Info,
+  Download,
+  Loader2
 } from 'lucide-vue-next';
 
 
 // Toast notification
 const toast = useToast();
-const { exportTransactionIn, parseTransactionInExcelFile, processTransactionInImportItems } = useExcelExport();
+const { exportTransactionIn, parseTransactionInExcelFile, processTransactionInImportItems, downloadTransactionInTemplate } = useExcelExport();
 
 
 // Loading state
@@ -648,6 +715,11 @@ const filteredTransactions = computed(() => {
     const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
     return dateB - dateA;
   });
+});
+
+// Total import value
+const totalImportValue = computed(() => {
+  return importPreview.value.validItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
 });
 
 // Result count
@@ -1137,7 +1209,7 @@ const saveTransactionIn = async () => {
       quantity: parseInt(transactionInForm.value.quantity) || 0,
       unitPrice: parseFloat(transactionInForm.value.unitPrice) || 0,
       totalPrice: parseFloat(transactionInForm.value.totalPrice) || 0,
-      source: transactionInForm.value.source || '',
+      source: transactionInForm.value.source || 'N/A',
       note: transactionInForm.value.note || '',
       statusIN: 'To Review', // Default status
       receivedAt: now,
@@ -1518,6 +1590,47 @@ const resetImport = () => {
   importPreview.value = { validItems: [], invalidItems: [] };
   if (fileInput.value) {
     fileInput.value.value = '';
+  }
+};
+
+// Download template function
+const downloadTemplate = async () => {
+  try {
+    toast.info('Loading inventory items...', 'Template');
+    
+    // Load inventory items to pre-fill template
+    const inventory = await loadAllInventoryItems();
+    
+    if (downloadTransactionInTemplate) {
+      await downloadTransactionInTemplate(inventory);
+      toast.success('Template downloaded successfully!', 'Template');
+    } else {
+      // Fallback: create a simple template
+      toast.info('Generating template...', 'Template');
+      
+      // Create sample data from inventory
+      const sampleData = inventory.slice(0, 10).map(item => ({
+        controlNo: item.controlNo || '',
+        transactionID: '', // Auto-generated on import
+        category: item.category || '',
+        partNo: item.partNo || '',
+        partName: item.partName || '',
+        model: item.model || '',
+        quantity: '', // User fills this - EDITABLE (required, must be > 0)
+        unitPrice: item.unitPrice || 0,
+        totalPrice: '', // Auto-calculated on import
+        source: '', // User fills this - EDITABLE (required)
+        note: '', // User fills this - EDITABLE (optional)
+        status: '', // Auto-filled as 'To Review'
+        receivedAt: '' // Auto-filled with timestamp
+      }));
+      
+      exportTransactionIn(sampleData, 'TransactionIn_Template_With_Inventory');
+      toast.success('Template downloaded successfully!', 'Template');
+    }
+  } catch (error) {
+    console.error('Error downloading template:', error);
+    toast.error('Failed to download template: ' + error.message, 'Error');
   }
 };
 
