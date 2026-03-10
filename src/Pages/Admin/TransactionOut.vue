@@ -1348,33 +1348,54 @@ const printTransactionOut = (data, title) => {
           color: #000;
           background: #fff;
         }
-        .header {
-          text-align: center;
-          margin-bottom: 12px;
-          padding-bottom: 8px;
-          border-bottom: 2px solid #ea580c;
+        
+        /* NEW HEADER STYLES */
+        .header-container {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 10px;
+          margin-bottom: 15px;
+          border-bottom: 3px solid #ea580c;
         }
-        .company-name {
-          font-size: 16pt;
+        .header-left img {
+          height: 60px; /* Adjusted for Isuzu Logo */
+          width: auto;
+        }
+        .header-center img {
+          height: 60px; /* Adjusted for MDO Logo */
+          width: auto;
+        }
+        .header-right {
+          text-align: left;
+          flex: 0 0 400px;
+        }
+        .company-full-name {
+          font-size: 14pt;
           font-weight: bold;
-          color: #ea580c;
-          margin-bottom: 3px;
+          text-transform: uppercase;
         }
-        .company-address {
-          font-size: 8pt;
-          color: #666;
-          margin-bottom: 6px;
+        .address-line {
+          font-size: 10pt;
+          color: #333;
+        }
+        
+        /* REPORT INFO STYLES */
+        .report-header-info {
+          text-align: center;
+          margin-bottom: 15px;
         }
         .report-title {
-          font-size: 12pt;
+          font-size: 14pt;
           font-weight: bold;
-          margin-bottom: 4px;
+          text-transform: uppercase;
+          color: #333;
         }
         .report-meta {
-          font-size: 8pt;
+          font-size: 9pt;
           color: #666;
-          margin-bottom: 8px;
         }
+
         .summary {
           display: flex;
           justify-content: space-between;
@@ -1442,20 +1463,12 @@ const printTransactionOut = (data, title) => {
           font-weight: bold;
           text-transform: uppercase;
         }
-        .status-pending {
-          background: #fef3c7;
-          color: #92400e;
-        }
-        .status-completed {
-          background: #d1fae5;
-          color: #065f46;
-        }
-        .status-cancelled {
-          background: #fee2e2;
-          color: #991b1b;
-        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+        
         .footer {
-          margin-top: 12px;
+          margin-top: 20px;
           padding-top: 8px;
           border-top: 1px solid #d1d5db;
           font-size: 7pt;
@@ -1463,16 +1476,26 @@ const printTransactionOut = (data, title) => {
           text-align: center;
         }
         @media print {
-          .no-print {
-            display: none;
-          }
+          .no-print { display: none; }
         }
       </style>
     </head>
     <body>
-      <div class="header">
-        <div class="company-name">ISUZU CALAPAN</div>
-        <div class="company-address">Transaction Out / Sales Management System</div>
+      <div class="header-container">
+        <div class="header-left">
+          <img src="/isuzucalapanHeader.png" alt="ISUZU Calapan City">
+        </div>
+        <div class="header-center">
+          <img src="/mdoLogo.png" alt="MDO Motors">
+        </div>
+        <div class="header-right">
+          <div class="company-full-name">MINA DE ORO MOTORS INCORPORATED</div>
+          <div class="address-line">Km. 9 Nautical Highway, Puting Tubig, Calapan City</div>
+          <div class="address-line">Oriental Mindoro, 5200</div>
+        </div>
+      </div>
+
+      <div class="report-header-info">
         <div class="report-title">${title}</div>
         <div class="report-meta">Generated on ${dateStr} at ${timeStr}</div>
       </div>
@@ -1546,20 +1569,20 @@ const printTransactionOut = (data, title) => {
           setTimeout(function() {
             window.print();
             window.close();
-          }, 500);
+          }, 700);
         };
       <\/script>
     </body>
     </html>
   `;
   
-  // Open print window
   const printWindow = window.open('', '_blank', 'width=1200,height=800');
   if (printWindow) {
     printWindow.document.write(printContent);
     printWindow.document.close();
   } else {
-    toast.error('Unable to open print window. Please check your popup blocker settings.', 'Print Error');
+    // Note: ensure 'toast' is available in your scope
+    console.error('Print window blocked');
   }
   
   isPrinting.value = false;

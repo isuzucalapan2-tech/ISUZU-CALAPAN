@@ -37,7 +37,7 @@
             <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">Inventory <span class="text-red-600">Overview</span></h2>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-red-600 transition-all group relative overflow-hidden shadow-sm">
                <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
                 <Package class="w-24 h-24 text-neutral-500" />
@@ -182,44 +182,69 @@
           <h2 :class="['text-sm font-black uppercase tracking-widest isuzu-font', textClass]">Quick <span :class="isDarkMode ? 'text-yellow-400' : 'text-yellow-600'">Actions</span></h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-
-          <button @click="$router.push('/admin/inventory')" class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-red-600 transition-all group relative overflow-hidden shadow-sm text-left">
-            <div v-if="outOfStock > 0" class="absolute top-4 right-4 flex h-3 w-3 z-20">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <button 
+            @click="$router.push('/admin/inventory')" 
+            class="group relative flex flex-col p-5 bg-white dark:bg-neutral-800 border border-red-200 dark:border-red-900/50 rounded-xl active:scale-95 cursor-pointer text-left"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg group-hover:bg-red-200 dark:group-hover:bg-red-800 transition-colors">
+                  <AlertTriangle class="w-5 h-5 text-red-600" />
+                </div>
+                <span class="font-bold text-sm text-gray-600 dark:text-gray-300">Critical Stock</span>
+              </div>
+              <span class="text-3xl font-black text-red-600">{{ outOfStock }}</span>
             </div>
-            <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
-              <AlertTriangle class="w-24 h-24 text-red-600" />
-            </div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Critical Stock</p>
-            <p class="text-4xl font-black text-red-600">{{ outOfStock }}</p>
-            <div class="mt-4 flex items-center text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/30 w-fit px-2 py-1 rounded-lg">
-              <AlertTriangle class="w-3 h-3 mr-1" /> ACTION REQUIRED
+            <div class="mt-auto pt-2 border-t border-gray-50 dark:border-neutral-700 flex justify-between items-center">
+              <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-red-500 transition-colors">Go to Inventory</span>
+              <ChevronRight class="w-3 h-3 text-gray-300 group-hover:text-red-500 transition-transform group-hover:translate-x-1" />
             </div>
           </button>
 
-          <button @click="$router.push('/admin/transaction-in')" class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-green-500 transition-all group relative overflow-hidden shadow-sm text-left">
-            <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
-              <ArrowDownCircle class="w-24 h-24 text-green-500" />
+          <button 
+            @click="$router.push('/admin/transaction-in')" 
+            class="group relative flex flex-col p-5 bg-white dark:bg-neutral-800 border border-green-200 dark:border-green-900/50 rounded-xl active:scale-95 cursor-pointer text-left"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg group-hover:bg-green-200 dark:group-hover:bg-green-800 transition-colors">
+                  <ArrowDownCircle class="w-5 h-5 text-green-600" />
+                </div>
+                <span class="font-bold text-sm text-gray-600 dark:text-gray-300">Trans In (Today)</span>
+              </div>
+              <span class="text-3xl font-black text-green-600 dark:text-green-400">{{ filteredTransactionInCount }}</span>
             </div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Trans In (Today)</p>
-            <p class="text-4xl font-black" :class="isDarkMode ? 'text-green-400' : 'text-green-600'">{{ filteredTransactionInCount }}</p>
+            <div class="mt-auto pt-2 border-t border-gray-50 dark:border-neutral-700 flex justify-between items-center">
+              <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-green-500 transition-colors">Go to Transaction In</span>
+              <ChevronRight class="w-3 h-3 text-gray-300 group-hover:text-green-500 transition-transform group-hover:translate-x-1" />
+            </div>
           </button>
 
-          <button @click="$router.push('/admin/transaction-out')" class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-orange-500 transition-all group relative overflow-hidden shadow-sm text-left">
-            <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
-              <ArrowUpCircle class="w-24 h-24 text-orange-500" />
+          <button 
+            @click="$router.push('/admin/transaction-out')" 
+            class="group relative flex flex-col p-5 bg-white dark:bg-neutral-800 border border-orange-200 dark:border-orange-900/50 rounded-xl active:scale-95 cursor-pointer text-left"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-orange-100 dark:bg-orange-900/50 rounded-lg group-hover:bg-orange-200 dark:group-hover:bg-orange-800 transition-colors">
+                  <ArrowUpCircle class="w-5 h-5 text-orange-600" />
+                </div>
+                <span class="font-bold text-sm text-gray-600 dark:text-gray-300">Trans Out (Today)</span>
+              </div>
+              <span class="text-3xl font-black text-orange-600 dark:text-orange-400">{{ filteredTransactionOutCount }}</span>
             </div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Trans Out (Today)</p>
-            <p class="text-4xl font-black" :class="isDarkMode ? 'text-orange-400' : 'text-orange-600'">{{ filteredTransactionOutCount }}</p>
+            <div class="mt-auto pt-2 border-t border-gray-50 dark:border-neutral-700 flex justify-between items-center">
+              <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-orange-500 transition-colors">Go to Transaction Out</span>
+              <ChevronRight class="w-3 h-3 text-gray-300 group-hover:text-orange-500 transition-transform group-hover:translate-x-1" />
+            </div>
           </button>
         </div>
 
         <div :class="[cardClass, 'rounded-2xl p-5 border border-neutral-600/40']" :style="cardStyle">
           <div class="flex items-center gap-2 mb-6">
-            <div class="bg-blue-600 p-2 rounded-xl">
-              <Activity class="w-5 h-5 text-white" />
+            <div class=" p-2">
+              <Activity class="w-5 h-5 text-blue-600" />
             </div>
             <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">
               Recent <span class="text-blue-600">Activity</span>
@@ -295,7 +320,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
           <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40']" :style="cardStyle">
             <h3 :class="['text-[11px] font-black uppercase tracking-widest mb-6 flex items-center gap-2', textClass]">
               <Activity class="w-4 h-4 text-emerald-500" /> Performance Trends
@@ -353,7 +378,7 @@
 
         <div class="flex items-center gap-2 pb-1 border-b-2 border-neutral-600/40 mb-6"></div>
 
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
           <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-600/40 relative overflow-hidden group']" :style="cardStyle">
             <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12 group-hover:scale-110 transition-transform duration-500">
               <UserCheck class="w-40 h-40" :class="isDarkMode ? 'text-white' : 'text-neutral-900'" />
@@ -571,7 +596,7 @@
                   :key="filter"
                   @click="transactionInFilter = filter"
                   :class="transactionInFilter === filter 
-                    ? ['bg-white dark:bg-neutral-600 shadow-sm text-green-600 scale-105'] 
+                    ? ['bg-white dark:bg-neutral-600 shadow-sm text-white scale-105'] 
                     : [isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700']"
                   class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-200"
                 >
@@ -580,7 +605,7 @@
               </div>
             </div>
 
-           <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2">
+           <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
               <div class="absolute -right-4 -bottom-2 opacity-10">
                 <ArrowDownCircle class="w-20 h-20 text-green-500" />
@@ -677,7 +702,7 @@
             </div>
           </div>
 
-          <hr :class="['border-dashed', isDarkMode ? 'border-gray-700' : 'border-gray-200']" />
+          <hr :class="['border-dashed', isDarkMode ? 'border-gray-700' : 'border-neutral-600/40']" />
 
           <div class="space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -712,7 +737,7 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2">
+            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
                 <div class="absolute -right-4 -bottom-2 opacity-10">
                   <ArrowUpCircle class="w-24 h-24 text-orange-500" />

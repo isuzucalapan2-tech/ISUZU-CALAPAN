@@ -1292,33 +1292,68 @@ const printTransactions = (data, title) => {
           color: #000;
           background: #fff;
         }
-        .header {
+
+        /* --- Updated Header Styles --- */
+        .header-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-bottom: 10px;
+          margin-bottom: 10px;
+          border-bottom: 4px solid #f87171; /* Matching the red bar in the image */
+        }
+        .header-left {
+          flex: 1;
+          text-align: left;
+        }
+        .header-left img {
+          height: 60px; /* Adjust based on your image aspect ratio */
+          object-fit: contain;
+        }
+        .header-center {
+          flex: 1;
           text-align: center;
-          margin-bottom: 12px;
-          padding-bottom: 8px;
-          border-bottom: 2px solid #16a34a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 15px;
         }
-        .company-name {
-          font-size: 16pt;
+        .header-center img {
+          height: 50px;
+        }
+        .header-right {
+          flex: 2;
+          text-align: left;
+          font-family: "Arial Narrow", Arial, sans-serif;
+        }
+        .company-title {
+          font-size: 14pt;
           font-weight: bold;
-          color: #16a34a;
-          margin-bottom: 3px;
+          color: #000;
+          margin-bottom: 2px;
         }
-        .company-address {
-          font-size: 8pt;
-          color: #666;
-          margin-bottom: 6px;
+        .company-info {
+          font-size: 10pt;
+          color: #000;
+          line-height: 1.2;
+        }
+        /* ----------------------------- */
+
+        .report-sub-header {
+          text-align: center;
+          margin-bottom: 15px;
         }
         .report-title {
           font-size: 12pt;
           font-weight: bold;
-          margin-bottom: 4px;
+          text-transform: uppercase;
+          margin-bottom: 2px;
         }
         .report-meta {
           font-size: 8pt;
           color: #666;
-          margin-bottom: 8px;
         }
+
         .summary {
           display: flex;
           justify-content: space-between;
@@ -1351,7 +1386,6 @@ const printTransactions = (data, title) => {
           color: white;
           padding: 6px 4px;
           text-align: left;
-          font-size: 8pt;
           font-weight: bold;
           border: 1px solid #16a34a;
         }
@@ -1363,12 +1397,9 @@ const printTransactions = (data, title) => {
         tr:nth-child(even) {
           background: #f9fafb;
         }
-        .text-right {
-          text-align: right;
-        }
-        .text-center {
-          text-align: center;
-        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        
         .status-badge {
           padding: 1px 4px;
           border-radius: 3px;
@@ -1376,24 +1407,16 @@ const printTransactions = (data, title) => {
           font-weight: bold;
           text-transform: uppercase;
         }
-        .status-to-review {
-          background: #fef3c7;
-          color: #92400e;
-        }
-        .status-stock-in {
-          background: #d1fae5;
-          color: #065f46;
-        }
-        .status-stock-out {
-          background: #fee2e2;
-          color: #991b1b;
-        }
+        .status-to-review { background: #fef3c7; color: #92400e; }
+        .status-stock-in { background: #d1fae5; color: #065f46; }
+        .status-stock-out { background: #fee2e2; color: #991b1b; }
+        
         .total-value {
           color: #059669;
           font-weight: bold;
         }
         .footer {
-          margin-top: 12px;
+          margin-top: 20px;
           padding-top: 8px;
           border-top: 1px solid #d1d5db;
           font-size: 7pt;
@@ -1401,16 +1424,28 @@ const printTransactions = (data, title) => {
           text-align: center;
         }
         @media print {
-          .no-print {
-            display: none;
-          }
+          .no-print { display: none; }
         }
       </style>
     </head>
     <body>
-      <div class="header">
-        <div class="company-name">ISUZU CALAPAN</div>
-        <div class="company-address">Transaction In Management System</div>
+      <div class="header-container">
+        <div class="header-left">
+          <img src="/isuzucalapanHeader.png" alt="Isuzu Calapan City">
+        </div>
+        <div class="header-center">
+          <img src="/mdoLogo.png" alt="MDO Logo">
+        </div>
+        <div class="header-right">
+          <div class="company-title">MINA DE ORO MOTORS INCORPORATED</div>
+          <div class="company-info">
+            Km. 9 Nautical Highway, Puting Tubig, Calapan City,<br>
+            Oriental Mindoro, 5200
+          </div>
+        </div>
+      </div>
+
+      <div class="report-sub-header">
         <div class="report-title">${title}</div>
         <div class="report-meta">Generated on ${dateStr} at ${timeStr}</div>
       </div>
@@ -1474,7 +1509,7 @@ const printTransactions = (data, title) => {
       </table>
       
       <div class="footer">
-        <p>ISUZU Calapan Transaction In Management System &copy; ${now.getFullYear()}</p>
+        <p>ISUZU Calapan Transaction Management System &copy; ${now.getFullYear()}</p>
         <p>This is a computer-generated report. No signature required.</p>
       </div>
       
@@ -1483,14 +1518,13 @@ const printTransactions = (data, title) => {
           setTimeout(function() {
             window.print();
             window.close();
-          }, 500);
+          }, 700);
         };
       <\/script>
     </body>
     </html>
   `;
   
-  // Open print window
   const printWindow = window.open('', '_blank', 'width=1200,height=800');
   if (printWindow) {
     printWindow.document.write(printContent);

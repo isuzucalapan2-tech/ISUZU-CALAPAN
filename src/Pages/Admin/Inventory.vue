@@ -1141,44 +1141,73 @@ const printInventory = (data, title) => {
           color: #000;
           background: #fff;
         }
-        .header {
-          text-align: center;
-          margin-bottom: 15px;
+
+        /* NEW HEADER STYLES */
+        .header-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           padding-bottom: 10px;
-          border-bottom: 2px solid #dc2626;
+          margin-bottom: 15px;
+          border-bottom: 3px solid #dc2626; /* The red line from the image */
         }
-        .logo {
-          max-height: 50px;
-          margin-bottom: 8px;
+        .header-left {
+          flex: 1;
         }
-        .company-name {
-          font-size: 18pt;
-          font-weight: bold;
-          color: #dc2626;
-          margin-bottom: 3px;
+        .header-center {
+          flex: 1;
+          text-align: center;
         }
-        .company-address {
-          font-size: 9pt;
-          color: #666;
-          margin-bottom: 8px;
+        .header-right {
+          flex: 2;
+          text-align: left;
+          padding-left: 20px;
         }
-        .report-title {
+        .header-logo-isuzu {
+          height: 60px;
+          object-fit: contain;
+        }
+        .header-logo-mdo {
+          height: 60px;
+          object-fit: contain;
+        }
+        .comp-name-bold {
           font-size: 14pt;
           font-weight: bold;
-          margin-bottom: 5px;
+          color: #000;
+          display: block;
+          margin-bottom: 2px;
+        }
+        .comp-details {
+          font-size: 10pt;
+          color: #000;
+          line-height: 1.2;
+        }
+
+        /* REPORT TITLE SECTION */
+        .report-info {
+          text-align: center;
+          margin-bottom: 15px;
+        }
+        .report-title {
+          font-size: 16pt;
+          font-weight: bold;
+          text-transform: uppercase;
+          margin-bottom: 4px;
         }
         .report-meta {
           font-size: 9pt;
           color: #666;
-          margin-bottom: 10px;
         }
+
         .summary {
           display: flex;
-          justify-content: space-between;
+          justify-content: space-around;
           margin-bottom: 15px;
-          padding: 10px;
-          background: #f3f4f6;
-          border-radius: 5px;
+          padding: 12px;
+          background: #f8f9fa;
+          border: 1px solid #e5e7eb;
+          border-radius: 4px;
         }
         .summary-item {
           text-align: center;
@@ -1187,9 +1216,10 @@ const printInventory = (data, title) => {
           font-size: 8pt;
           color: #666;
           text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
         .summary-value {
-          font-size: 14pt;
+          font-size: 13pt;
           font-weight: bold;
           color: #dc2626;
         }
@@ -1203,75 +1233,82 @@ const printInventory = (data, title) => {
           color: white;
           padding: 8px 6px;
           text-align: left;
-          font-size: 9pt;
+          font-size: 8.5pt;
           font-weight: bold;
           border: 1px solid #dc2626;
+          text-transform: uppercase;
         }
         td {
           padding: 6px;
           border: 1px solid #d1d5db;
-          font-size: 9pt;
-          vertical-align: top;
+          font-size: 8.5pt;
+          vertical-align: middle;
         }
         tr:nth-child(even) {
           background: #f9fafb;
         }
-        .text-right {
-          text-align: right;
-        }
-        .text-center {
-          text-align: center;
-        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        
         .category-badge {
           background: #fee2e2;
           color: #991b1b;
-          padding: 2px 6px;
+          padding: 2px 5px;
           border-radius: 3px;
-          font-size: 8pt;
+          font-size: 7.5pt;
           font-weight: bold;
-          text-transform: uppercase;
         }
         .total-value {
           color: #059669;
           font-weight: bold;
         }
         .footer {
-          margin-top: 15px;
+          margin-top: 20px;
           padding-top: 10px;
-          border-top: 1px solid #d1d5db;
+          border-top: 1px solid #eeeeee;
           font-size: 8pt;
-          color: #666;
+          color: #999;
           text-align: center;
         }
-        .page-break {
-          page-break-after: always;
-        }
         @media print {
-          .no-print {
-            display: none;
-          }
+          .no-print { display: none; }
+          body { -webkit-print-color-adjust: exact; }
         }
       </style>
     </head>
     <body>
-      <div class="header">
-        <div class="company-name">ISUZU CALAPAN</div>
-        <div class="company-address">Inventory Management System</div>
+      <div class="header-container">
+        <div class="header-left">
+          <img src="/isuzucalapanHeader.png" alt="ISUZU Calapan City" class="header-logo-isuzu">
+        </div>
+        <div class="header-center">
+          <img src="/mdoLogo.png" alt="MDO Motors" class="header-logo-mdo">
+        </div>
+        <div class="header-right">
+          <span class="comp-name-bold">MINA DE ORO MOTORS INCORPORATED</span>
+          <div class="comp-details">
+            Km. 9 Nautical Highway, Puting Tubig, Calapan City,<br>
+            Oriental Mindoro, 5200
+          </div>
+        </div>
+      </div>
+
+      <div class="report-info">
         <div class="report-title">${title}</div>
         <div class="report-meta">Generated on ${dateStr} at ${timeStr}</div>
       </div>
       
       <div class="summary">
         <div class="summary-item">
-          <div class="summary-label">Total Items</div>
+          <div class="summary-label">Total Line Items</div>
           <div class="summary-value">${totalItems.toLocaleString()}</div>
         </div>
         <div class="summary-item">
-          <div class="summary-label">Total Quantity</div>
+          <div class="summary-label">Total Stock Quantity</div>
           <div class="summary-value">${totalQuantity.toLocaleString()}</div>
         </div>
         <div class="summary-item">
-          <div class="summary-label">Total Value</div>
+          <div class="summary-label">Total Inventory Value</div>
           <div class="summary-value">₱${totalValue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
         </div>
       </div>
@@ -1279,12 +1316,12 @@ const printInventory = (data, title) => {
       <table>
         <thead>
           <tr>
-            <th>Control No.</th>
-            <th>Category</th>
+            <th width="8%">Control No.</th>
+            <th width="10%">Category</th>
             <th>Part Name</th>
             <th>Part No.</th>
             <th>Model</th>
-            <th>Description</th>
+            <th width="15%">Description</th>
             <th class="text-center">Qty</th>
             <th class="text-right">Unit Price</th>
             <th class="text-right">Total Value</th>
@@ -1309,7 +1346,7 @@ const printInventory = (data, title) => {
       
       <div class="footer">
         <p>ISUZU Calapan Inventory Management System &copy; ${now.getFullYear()}</p>
-        <p>This is a computer-generated report. No signature required.</p>
+        <p>System Generated Report | Confidental</p>
       </div>
       
       <script>
@@ -1317,20 +1354,19 @@ const printInventory = (data, title) => {
           setTimeout(function() {
             window.print();
             window.close();
-          }, 500);
+          }, 700);
         };
       <\/script>
     </body>
     </html>
   `;
   
-  // Open print window
   const printWindow = window.open('', '_blank', 'width=1200,height=800');
   if (printWindow) {
     printWindow.document.write(printContent);
     printWindow.document.close();
   } else {
-    toast.error('Unable to open print window. Please check your popup blocker settings.', 'Print Error');
+    alert('Please disable your popup blocker to print the report.');
   }
   
   isPrinting.value = false;
