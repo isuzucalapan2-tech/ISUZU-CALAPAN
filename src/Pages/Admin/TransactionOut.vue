@@ -25,10 +25,10 @@
       </div>
 
       <div class="hidden md:flex items-center gap-4">
-        <button @click="openImportModal" class="flex items-center gap-2 bg-blue-50 text-blue-600 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+        <button @click="openImportModal" class="flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-600/40 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all">
           <Upload class="w-4 h-4" /> Import Excel
         </button>
-        <button @click="openTransactionOutModal" class="group bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg flex items-center gap-2">
+        <button @click="openTransactionOutModal" class="group bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 flex items-center gap-2">
           <Plus class="w-4 h-4" /> Add New Sale
         </button>
       </div>
@@ -115,7 +115,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[1600px]">
               <thead>
@@ -245,8 +245,8 @@
     <!-- Add New Sale Modal -->
     <Transition name="fade">
       <div v-if="showTransactionOutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeTransactionOutModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeTransactionOutModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
           <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
             <h2 class="text-white isuzu-font font-black uppercase tracking-widest flex items-center gap-3">
               <Plus class="w-5 h-5 text-red-600" /> New Sale Registration
@@ -340,8 +340,8 @@
 
             <!-- Action Buttons -->
             <div class="flex justify-end gap-3 pt-6 border-t">
-              <button @click="closeTransactionOutModal" class="px-8 py-3 text-[10px] font-black uppercase text-gray-500 hover:bg-gray-100 rounded-full transition-all">Discard</button>
-              <button @click="saveTransactionOut" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl">
+              <button @click="closeTransactionOutModal" class="px-8 py-3 text-[10px] font-black uppercase text-gray-500 hover:bg-gray-100 border border-neutral-600/40 rounded-full transition-all">Discard</button>
+              <button @click="saveTransactionOut" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all">
                 Record Sale
               </button>
             </div>
@@ -353,66 +353,134 @@
     <!-- Import Excel Modal -->
     <Transition name="fade">
       <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeImportModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 animate-in zoom-in-95 duration-300">
-          <div class="flex items-center gap-4 mb-8">
-            <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg">
-              <FileSpreadsheet class="w-8 h-8" />
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+              <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg">
+                <FileSpreadsheet class="w-8 h-8" />
+              </div>
+              <div>
+                <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter flex items-center gap-2">
+                  Batch <span class="text-blue-600">Import</span>
+                  <!-- Info Icon with Tooltip -->
+                  <div class="relative group">
+                    <button class="w-6 h-6 bg-neutral-200 hover:bg-neutral-300 rounded-full flex items-center justify-center transition-colors">
+                      <Info class="w-4 h-4 text-neutral-600" />
+                    </button>
+                    <!-- Tooltip -->
+                    <div class="absolute left-full top-0 ml-3 w-80 bg-neutral-800 text-white p-4 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50" style="font-family: Arial, sans-serif;">
+                      <div class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2" style="font-family: Arial, sans-serif;">📋 Import Validation Requirements</div>
+                      <div class="text-[9px] space-y-2" style="font-family: Arial, sans-serif;">
+                        <div class="font-bold text-green-400" style="font-family: Arial, sans-serif;">✓ REQUIRED FIELDS (ALL must be filled):</div>
+                        <div style="font-family: Arial, sans-serif;">• Control No. - Must match inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Part No. - Must exist in inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Category - Must match inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Part Name - Must match inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Model - Must match inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Quantity - Must be greater than 0</div>
+                        <div style="font-family: Arial, sans-serif;">• Client Name - Cannot be empty</div>
+                        <div class="font-bold text-yellow-400 mt-2" style="font-family: Arial, sans-serif;">✓ STOCK VALIDATION:</div>
+                        <div style="font-family: Arial, sans-serif;">• Quantity cannot exceed available stock</div>
+                        <div style="font-family: Arial, sans-serif;">• System checks real-time inventory</div>
+                        <div class="font-bold text-blue-400 mt-2" style="font-family: Arial, sans-serif;">✓ OPTIONAL FIELDS:</div>
+                        <div style="font-family: Arial, sans-serif;">• Note - Optional notes/remarks</div>
+                      </div>
+                      <div class="absolute top-4 -left-2 w-4 h-4 bg-neutral-800 transform rotate-45"></div>
+                    </div>
+                  </div>
+                </h3>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sales Data Excel Integration</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter">Batch <span class="text-blue-600">Import</span></h3>
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sales Data Excel Integration</p>
-            </div>
+            <button @click="downloadTemplate" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-[10px] font-black uppercase tracking-widest">
+              <Download class="w-4 h-4" /> Download Template
+            </button>
           </div>
 
           <!-- File Drop Zone -->
-          <div v-if="importPreview.validItems.length === 0" class="border-4 border-dashed border-gray-100 rounded-3xl p-12 text-center hover:border-blue-100 transition-all group">
+          <div v-if="importPreview.validItems.length === 0 && importPreview.invalidItems.length === 0" class="border-4 border-dashed border-gray-100 rounded-3xl p-12 text-center hover:border-blue-100 transition-all group flex-1 flex flex-col justify-center">
             <input type="file" ref="fileInput" @change="handleFileSelect" accept=".xlsx,.xls" class="hidden" />
             <Upload class="w-16 h-16 text-gray-200 mx-auto mb-4 group-hover:text-blue-400 transition-colors" />
             <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Drop Excel File Here or Click to Browse</p>
-            <button @click="$refs.fileInput.click()" class="bg-blue-600 text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-blue-100">Select Spreadsheet</button>
+            <button @click="$refs.fileInput.click()" class="bg-blue-600 text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-blue-100 mx-auto">Select Spreadsheet</button>
           </div>
 
           <!-- Preview Results -->
-          <div v-else class="space-y-6">
-            <div class="flex justify-between items-center bg-gray-50 p-6 rounded-2xl border border-gray-100">
-              <div class="text-xs font-black uppercase tracking-widest">
-                <span class="text-green-600">{{ importPreview.validItems.length }} VALID ENTRIES</span> / 
-                <span class="text-red-600">{{ importPreview.invalidItems.length }} ERRORS</span>
+          <div v-else class="space-y-4 flex-1 overflow-hidden flex flex-col">
+            <!-- Summary Header -->
+            <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+              <div class="text-xs font-black uppercase tracking-widest flex items-center gap-4">
+                <span class="text-green-600">✓ {{ importPreview.validItems.length }} Valid</span>
+                <span v-if="importPreview.invalidItems.length > 0" class="text-red-600">✗ {{ importPreview.invalidItems.length }} Errors</span>
+                <span v-if="totalImportValue > 0" class="text-blue-600 ml-4">Total Value: ₱{{ totalImportValue.toLocaleString('en-PH', { minimumFractionDigits: 2 }) }}</span>
               </div>
               <div class="flex gap-2">
-                <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400">Cancel</button>
-                <button @click="confirmImport" :disabled="isImporting" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50">
-                  {{ isImporting ? 'Importing...' : 'Process Import' }}
+                <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-gray-100 rounded-full transition-all">Cancel</button>
+                <button @click="confirmBatchImport" :disabled="isImporting || importPreview.validItems.length === 0" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50 hover:bg-blue-700 transition-all flex items-center gap-2">
+                  <Loader2 v-if="isImporting" class="w-4 h-4 animate-spin" />
+                  {{ isImporting ? 'Importing...' : 'Import ' + importPreview.validItems.length + ' Sales' }}
                 </button>
               </div>
             </div>
 
-            <!-- Invalid Items Warning -->
-            <div v-if="importPreview.invalidItems.length > 0" class="bg-red-50 border border-red-200 rounded-xl p-4">
-              <div class="flex items-center gap-2 text-red-600 mb-2">
-                <AlertTriangle class="w-5 h-5" />
-                <span class="text-xs font-black uppercase">Invalid Items Preview</span>
-              </div>
-              <div class="max-h-32 overflow-y-auto">
-                <table class="w-full text-[9px]">
-                  <thead>
-                    <tr class="text-left text-red-600">
-                      <th class="pb-2">Row</th>
-                      <th class="pb-2">Part No</th>
-                      <th class="pb-2">Issue</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(item, idx) in importPreview.invalidItems.slice(0, 5)" :key="idx" class="border-t border-red-100">
-                      <td class="py-1">{{ item.row }}</td>
-                      <td class="py-1">{{ item.partNo || 'N/A' }}</td>
-                      <td class="py-1 text-red-500">{{ item.error }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <p v-if="importPreview.invalidItems.length > 5" class="text-[9px] text-red-400 mt-2">...and {{ importPreview.invalidItems.length - 5 }} more errors</p>
-              </div>
+            <!-- Preview Table -->
+            <div class="flex-1 overflow-auto border border-gray-200 rounded-xl">
+              <table class="w-full text-[10px]">
+                <thead class="bg-neutral-800 text-white sticky top-0">
+                  <tr>
+                    <th class="p-3 text-left font-black uppercase">Status</th>
+                    <th class="p-3 text-left font-black uppercase">Row</th>
+                    <th class="p-3 text-left font-black uppercase">Part No.</th>
+                    <th class="p-3 text-left font-black uppercase">Part Name</th>
+                    <th class="p-3 text-right font-black uppercase">Qty</th>
+                    <th class="p-3 text-right font-black uppercase">Available</th>
+                    <th class="p-3 text-right font-black uppercase">Unit Price</th>
+                    <th class="p-3 text-right font-black uppercase">Total</th>
+                    <th class="p-3 text-left font-black uppercase">Client</th>
+                    <th class="p-3 text-left font-black uppercase">Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Valid Items -->
+                  <tr v-for="(item, idx) in importPreview.validItems" :key="'valid-' + idx" class="border-b border-green-100 bg-green-50/30">
+                    <td class="p-3">
+                      <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[9px] font-black uppercase">Valid</span>
+                    </td>
+                    <td class="p-3 text-gray-400">{{ item.rowNumber }}</td>
+                    <td class="p-3 font-bold">{{ item.partNo }}</td>
+                    <td class="p-3 text-neutral-600">{{ item.partName }}</td>
+                    <td class="p-3 text-right font-black">{{ item.quantity }}</td>
+                    <td class="p-3 text-right text-green-600 font-bold">{{ item.availableStock }}</td>
+                    <td class="p-3 text-right">₱{{ item.unitPrice?.toLocaleString() }}</td>
+                    <td class="p-3 text-right font-black text-green-600">₱{{ item.totalPrice?.toLocaleString() }}</td>
+                    <td class="p-3">{{ item.client }}</td>
+                    <td class="p-3 text-gray-500">{{ item.note || '-' }}</td>
+                  </tr>
+                  
+                  <!-- Invalid Items -->
+                  <tr v-for="(item, idx) in importPreview.invalidItems" :key="'invalid-' + idx" class="border-b border-red-100 bg-red-50/30">
+                    <td class="p-3">
+                      <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-[9px] font-black uppercase">Invalid</span>
+                    </td>
+                    <td class="p-3 text-gray-400">{{ item.rowNumber }}</td>
+                    <td class="p-3 font-bold">{{ item.partNo || '-' }}</td>
+                    <td class="p-3 text-neutral-600">{{ item.availableStock > 0 ? 'Found in inventory' : 'Not found' }}</td>
+                    <td class="p-3 text-right">{{ item.quantity || 0 }}</td>
+                    <td class="p-3 text-right text-gray-400">{{ item.availableStock || 0 }}</td>
+                    <td class="p-3 text-right">-</td>
+                    <td class="p-3 text-right">-</td>
+                    <td class="p-3">{{ item.client || '-' }}</td>
+                    <td class="p-3">
+                      <div class="text-red-500 text-[9px]">
+                        <div v-for="(err, eIdx) in item.errors.slice(0, 2)" :key="eIdx">{{ err }}</div>
+                        <div v-if="item.errors.length > 2" class="text-red-400">+{{ item.errors.length - 2 }} more</div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -434,7 +502,7 @@ import {
 import { useToast } from '../../composables/useToast';
 import { useExcelExport } from '../../composables/useExcelExport';
 import Loaders from '../../components/Loaders.vue';
-import { Plus, ArrowUpCircle, Search, Check, X, CheckCircle, XCircle, FileDown, ChevronDown, Filter, Database, Upload, FileSpreadsheet, Printer, AlertTriangle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-vue-next';
+import { Plus, ArrowUpCircle, Search, Check, X, CheckCircle, XCircle, FileDown, ChevronDown, Filter, Database, Upload, FileSpreadsheet, Printer, AlertTriangle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Info, Download, Loader2 } from 'lucide-vue-next';
 
 
 // Toast notification
@@ -551,6 +619,11 @@ const availableCategories = computed(() => {
 
 // Available statuses
 const availableStatuses = ['Pending', 'Completed', 'Cancelled'];
+
+// Total import value for preview
+const totalImportValue = computed(() => {
+  return importPreview.value.validItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+});
 
 // Filtered transactions
 const filteredTransactions = computed(() => {
@@ -1235,8 +1308,8 @@ const saveTransactionOut = async () => {
   }
 };
 
-// Excel Export functions
-const { exportTransactionOut } = useExcelExport();
+// Excel Export and Import functions
+const { exportTransactionOut, parseTransactionOutExcelFile, processTransactionOutImportItems, downloadTransactionOutTemplate } = useExcelExport();
 
 const toggleExportMenu = () => {
   showExportMenu.value = !showExportMenu.value;
@@ -1348,33 +1421,54 @@ const printTransactionOut = (data, title) => {
           color: #000;
           background: #fff;
         }
-        .header {
-          text-align: center;
-          margin-bottom: 12px;
-          padding-bottom: 8px;
-          border-bottom: 2px solid #ea580c;
+        
+        /* NEW HEADER STYLES */
+        .header-container {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 10px;
+          margin-bottom: 15px;
+          border-bottom: 3px solid #ea580c;
         }
-        .company-name {
-          font-size: 16pt;
+        .header-left img {
+          height: 60px; /* Adjusted for Isuzu Logo */
+          width: auto;
+        }
+        .header-center img {
+          height: 60px; /* Adjusted for MDO Logo */
+          width: auto;
+        }
+        .header-right {
+          text-align: left;
+          flex: 0 0 400px;
+        }
+        .company-full-name {
+          font-size: 14pt;
           font-weight: bold;
-          color: #ea580c;
-          margin-bottom: 3px;
+          text-transform: uppercase;
         }
-        .company-address {
-          font-size: 8pt;
-          color: #666;
-          margin-bottom: 6px;
+        .address-line {
+          font-size: 10pt;
+          color: #333;
+        }
+        
+        /* REPORT INFO STYLES */
+        .report-header-info {
+          text-align: center;
+          margin-bottom: 15px;
         }
         .report-title {
-          font-size: 12pt;
+          font-size: 14pt;
           font-weight: bold;
-          margin-bottom: 4px;
+          text-transform: uppercase;
+          color: #333;
         }
         .report-meta {
-          font-size: 8pt;
+          font-size: 9pt;
           color: #666;
-          margin-bottom: 8px;
         }
+
         .summary {
           display: flex;
           justify-content: space-between;
@@ -1442,20 +1536,12 @@ const printTransactionOut = (data, title) => {
           font-weight: bold;
           text-transform: uppercase;
         }
-        .status-pending {
-          background: #fef3c7;
-          color: #92400e;
-        }
-        .status-completed {
-          background: #d1fae5;
-          color: #065f46;
-        }
-        .status-cancelled {
-          background: #fee2e2;
-          color: #991b1b;
-        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+        
         .footer {
-          margin-top: 12px;
+          margin-top: 20px;
           padding-top: 8px;
           border-top: 1px solid #d1d5db;
           font-size: 7pt;
@@ -1463,16 +1549,26 @@ const printTransactionOut = (data, title) => {
           text-align: center;
         }
         @media print {
-          .no-print {
-            display: none;
-          }
+          .no-print { display: none; }
         }
       </style>
     </head>
     <body>
-      <div class="header">
-        <div class="company-name">ISUZU CALAPAN</div>
-        <div class="company-address">Transaction Out / Sales Management System</div>
+      <div class="header-container">
+        <div class="header-left">
+          <img src="/isuzucalapanHeader.png" alt="ISUZU Calapan City">
+        </div>
+        <div class="header-center">
+          <img src="/mdoLogo.png" alt="MDO Motors">
+        </div>
+        <div class="header-right">
+          <div class="company-full-name">MINA DE ORO MOTORS INCORPORATED</div>
+          <div class="address-line">Km. 9 Nautical Highway, Puting Tubig, Calapan City</div>
+          <div class="address-line">Oriental Mindoro, 5200</div>
+        </div>
+      </div>
+
+      <div class="report-header-info">
         <div class="report-title">${title}</div>
         <div class="report-meta">Generated on ${dateStr} at ${timeStr}</div>
       </div>
@@ -1546,20 +1642,20 @@ const printTransactionOut = (data, title) => {
           setTimeout(function() {
             window.print();
             window.close();
-          }, 500);
+          }, 700);
         };
       <\/script>
     </body>
     </html>
   `;
   
-  // Open print window
   const printWindow = window.open('', '_blank', 'width=1200,height=800');
   if (printWindow) {
     printWindow.document.write(printContent);
     printWindow.document.close();
   } else {
-    toast.error('Unable to open print window. Please check your popup blocker settings.', 'Print Error');
+    // Note: ensure 'toast' is available in your scope
+    console.error('Print window blocked');
   }
   
   isPrinting.value = false;
@@ -1595,14 +1691,150 @@ const handleFileSelect = async (event) => {
   }
   
   try {
-    toast.info('Reading file...', 'Processing');
-    // For now, we'll just show a message that import is not fully implemented
-    // as it requires inventory lookup for each item
-    toast.info('Import feature requires inventory validation. Please add sales manually for now.', 'Import Info');
-    closeImportModal();
+    toast.info('Reading and parsing Excel file...', 'Processing');
+    
+    // First, parse the Excel file to get items
+    const parsedItems = await parseTransactionOutExcelFile(file);
+    
+    if (!parsedItems || parsedItems.length === 0) {
+      toast.warning('No data found in the Excel file', 'Empty File');
+      return;
+    }
+    
+    // Load inventory items for validation
+    toast.info('Validating against inventory...', 'Processing');
+    const allInventory = await loadAllInventoryItems();
+    
+    // Process items to separate valid from invalid
+    const { validItems, invalidItems } = processTransactionOutImportItems(parsedItems, allInventory);
+    
+    // Set the preview
+    importPreview.value = { validItems, invalidItems };
+    
+    if (validItems.length === 0 && invalidItems.length === 0) {
+      toast.warning('No valid data found in the Excel file', 'Empty File');
+      return;
+    }
+    
+    if (validItems.length > 0) {
+      toast.success(`Found ${validItems.length} valid entries`, 'Preview Ready');
+    }
+    if (invalidItems.length > 0) {
+      toast.warning(`${invalidItems.length} entries have validation errors`, 'Validation Warnings');
+    }
   } catch (error) {
     console.error('Error parsing file:', error);
     toast.error('Failed to read Excel file. Please check the format.', 'Parse Error');
+  }
+};
+
+// Download template function - loads inventory and generates pre-filled template
+const downloadTemplate = async () => {
+  try {
+    toast.info('Loading inventory for template...', 'Preparing Template');
+    
+    // Load inventory items
+    const allInventory = await loadAllInventoryItems();
+    
+    if (downloadTransactionOutTemplate) {
+      downloadTransactionOutTemplate(allInventory);
+      toast.success('Template downloaded successfully!', 'Download Complete');
+    } else {
+      // Create a simple CSV template as fallback
+      const csvContent = "Part No,Quantity,Client,Note\nDEMO-PART-001,5,John Doe,Sample order\nDEMO-PART-002,3,Jane Smith,Another order";
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'transaction_out_template.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('Template downloaded successfully!', 'Download Complete');
+    }
+  } catch (error) {
+    console.error('Error downloading template:', error);
+    toast.error('Failed to download template', 'Download Error');
+  }
+};
+
+// Confirm batch import function
+const confirmBatchImport = async () => {
+  if (importPreview.value.validItems.length === 0) {
+    toast.warning('No valid items to import', 'Import');
+    return;
+  }
+  
+  isImporting.value = true;
+  
+  try {
+    toast.info(`Importing ${importPreview.value.validItems.length} transactions...`, 'Batch Import');
+    
+    // Process each valid item
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const item of importPreview.value.validItems) {
+      try {
+        // Create the transaction
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
+        const dateTimeStr = `${dateStr}_${timeStr}`;
+        
+        const cleanPartNo = item.partNo.replace(/[\/\.\#\$\[\]\&]/g, '-');
+        const documentId = `TransactionOUT&${cleanPartNo}&${dateTimeStr}&${Date.now()}`;
+        const transactionID = generateTransactionID();
+        
+        const transactionData = {
+          transactionID: transactionID,
+          partNo: item.partNo,
+          partName: item.partName,
+          controlNo: item.controlNo,
+          category: item.category,
+          model: item.model || '',
+          quantity: parseInt(item.quantity) || 0,
+          unitPrice: parseFloat(item.unitPrice) || 0,
+          totalPrice: parseFloat(item.totalPrice) || 0,
+          client: item.client || '',
+          note: item.note || '',
+          statusOUT: 'Pending',
+          soldAt: now,
+          createdAt: now
+        };
+        
+        await setDoc(
+          doc(db, TRANSACTION_COLLECTION, cleanPartNo, TRANSACTION_OUT_SUBCOLLECTION, documentId),
+          transactionData
+        );
+        
+        // Note: Inventory stock is NOT decremented here
+        // It will be decremented when user clicks "Process Sale" on each transaction
+        
+        successCount++;
+      } catch (error) {
+        console.error('Error importing item:', error);
+        failCount++;
+      }
+    }
+    
+    // Refresh the transaction list
+    await loadTransactionOut();
+    
+    if (successCount > 0) {
+      toast.success(`Successfully imported ${successCount} transactions! Status: Pending - Click "Process Sale" to complete.`, 'Import Complete');
+    }
+    if (failCount > 0) {
+      toast.warning(`${failCount} transactions failed to import`, 'Import Partial');
+    }
+    
+    closeImportModal();
+  } catch (error) {
+    console.error('Error in batch import:', error);
+    toast.error('Failed to complete batch import: ' + error.message, 'Import Error');
+  } finally {
+    isImporting.value = false;
   }
 };
 

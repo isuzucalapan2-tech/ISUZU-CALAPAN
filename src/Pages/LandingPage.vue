@@ -34,7 +34,8 @@
     <div class="pt-14 md:pt-16">
 
       <section
-        class="relative min-h-screen flex flex-col justify-center bg-cover bg-center overflow-hidden px-6 md:px-12 py-20"
+        id="hero"
+        class="relative min-h-screen flex flex-col justify-center bg-cover bg-center overflow-hidden"
         style="background-image: url('/LDbg.webp');"
       >
         <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/40"></div>
@@ -45,79 +46,112 @@
           </svg>
         </div>
 
-        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-          <div class="text-white space-y-6">
-            <div class="space-y-2">
-              <h1 class="uppercase leading-none isuzu-font">
-                <span class="block text-5xl md:text-7xl lg:text-8xl tracking-tighter">ISUZU</span>
-                <span class="block text-base md:text-2xl tracking-[0.3em] text-gray-300">CALAPAN CITY</span>
-              </h1>
-              <div class="w-20 md:w-32 h-1 bg-red-600"></div>
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 flex-grow flex flex-col justify-center py-12 md:py-20">
+          
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            <div class="text-white space-y-6">
+              <div class="space-y-2">
+                <h1 class="uppercase leading-none isuzu-font">
+                  <span class="block text-5xl md:text-7xl lg:text-8xl tracking-tighter">ISUZU</span>
+                  <span class="block text-base md:text-2xl tracking-[0.3em] text-gray-300">CALAPAN CITY</span>
+                </h1>
+                <div class="w-20 md:w-70  h-1 bg-red-600"></div>
+              </div>
+              <p class="text-lg md:text-xl text-gray-300 font-medium max-w-sm leading-relaxed">
+                Power You Can Trust. Performance You Deserve.
+              </p>
             </div>
-            <p class="text-lg md:text-xl text-gray-300 font-medium max-w-sm leading-relaxed">
-              Power You Can Trust. Performance You Deserve.
-            </p>
-          </div>
 
-          <div class="flex flex-col lg:items-end space-y-4 md:space-y-6">
-            <button v-for="link in navLinks" :key="link.id" 
-              @click="scrollToSection(link.id)" 
-              class="group flex items-center lg:flex-row-reverse gap-4"
-            >
-              <div class="w-12 h-[1px] bg-red-600 group-hover:w-20 transition-all duration-300"></div>
-              <span class="text-white uppercase tracking-[0.2em] text-xs md:text-sm font-bold group-hover:text-red-500 transition-colors isuzu-font">
-                {{ link.label }}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div class="mt-20 md:mt-auto max-w-7xl mx-auto w-full relative z-10 pb-10">
-          <div class="grid gap-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-            <div v-for="card in heroCards" :key="card.title" class="bg-black/40 backdrop-blur-md p-5 rounded-xl border border-white/10 text-white hover:bg-black/60 transition-all">
-              <h3 class="text-sm font-bold mb-3 uppercase tracking-wider text-red-500">{{ card.title }}</h3>
-              <div class="w-10 h-[2px] bg-neutral-600 mb-4"></div>
-              <p class="text-xs opacity-70 leading-relaxed">{{ card.desc }}</p>
+            <div class="flex flex-wrap lg:flex-col lg:items-end gap-4 md:gap-6">
+              <button v-for="link in navLinks" :key="link.id" 
+                @click="scrollToSection(link.id)" 
+                class="group flex items-center lg:flex-row-reverse gap-4"
+              >
+                <div class="hidden md:block w-12 h-[1px] bg-red-600 group-hover:w-20 transition-all duration-300"></div>
+                <span class="text-white uppercase tracking-[0.2em] text-xs md:text-sm font-bold group-hover:text-red-500 transition-colors isuzu-font border-b border-red-600 md:border-none pb-1 md:pb-0">
+                  {{ link.label }}
+                </span>
+              </button>
             </div>
           </div>
+
+          <div class="mt-16 md:mt-24 w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div v-for="card in heroCards" :key="card.title" 
+                class="bg-black/40 backdrop-blur-md p-5 rounded-xl border border-white/10 text-white hover:bg-black/60 transition-all"
+              >
+                <h3 class="text-sm font-bold mb-3 uppercase tracking-wider text-red-500">{{ card.title }}</h3>
+                <div class="w-10 h-[2px] bg-neutral-600 mb-4"></div>
+                <p class="text-xs opacity-70 leading-relaxed">{{ card.desc }}</p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
-      <section id="promos" class="relative py-16 px-6 md:px-16 bg-gray-50">
+       <section id="promos" class="relative py-16 px-6 md:px-16 bg-gray-50">
         <div class="max-w-7xl mx-auto">
-          <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
-            <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Car Promos</h2>
-            <div class="h-[2px] flex-1 bg-red-600 hidden md:block ml-8"></div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
-            <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all p-5 border border-gray-100">
-              <div class="aspect-video flex items-center justify-center bg-gray-200 rounded-xl mb-5">
-                <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover rounded-xl" />
-                <span v-else class="text-gray-400 font-bold text-xs uppercase tracking-widest">Image Coming Soon</span>
-              </div>
-              <h3 class="text-lg isuzu-font mb-2">{{ car.name }}</h3>
-              <p class="text-xs text-neutral-500 mb-4">{{ car.description }}</p>
-              <p class="text-red-600 font-black text-lg">{{ car.promo }}</p>
+          
+          <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <h2 class="text-2xl md:text-3xl text-black uppercase tracking-widest isuzu-font font-black">
+              Car <span class="text-red-600">Promos</span>
+            </h2>
+            <div class="h-[2px] flex-1 bg-neutral-200 hidden md:block ml-8 relative">
+              <div class="absolute left-0 top-0 h-full w-24 bg-red-600"></div>
             </div>
           </div>
 
-          <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-10 gap-4">
-            <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Parts Promos</h2>
-            <div class="h-[2px] flex-1 bg-red-600 hidden md:block mr-8"></div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-800 text-white rounded-2xl p-6 hover:bg-neutral-900 transition-all">
-              <div class="h-32 flex items-center justify-center bg-white/5 rounded-xl mb-5">
-                <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover rounded-xl" />
-                <span v-else class="opacity-30 text-[10px] uppercase font-bold tracking-widest">Preview N/A</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
+            <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-3xl overflow-hidden border border-neutral-200 shadow-sm">
+              <div class="aspect-[16/10] bg-neutral-200 w-full overflow-hidden">
+                <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover" />
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <span class="text-neutral-400 font-bold text-[10px] uppercase tracking-[0.3em]">Image Coming Soon</span>
+                </div>
               </div>
-              <h3 class="font-bold text-base isuzu-font mb-2 text-red-500">{{ part.name }}</h3>
-              <p class="text-xs opacity-60 mb-4">{{ part.description }}</p>
-              <p class="text-lg font-black text-white">{{ part.promo }}</p>
+              
+              <div class="p-5">
+                <h3 class="text-sm font-black isuzu-font uppercase tracking-wider mb-1 text-neutral-900">{{ car.name }}</h3>
+                <p class="text-[10px] text-neutral-500 uppercase font-bold tracking-tight mb-3 line-clamp-1">{{ car.description }}</p>
+                <div class="flex items-center justify-between pt-3 border-t border-neutral-100">
+                  <span class="text-[9px] font-black text-neutral-400 uppercase tracking-widest">Special Offer</span>
+                  <p class="text-red-600 font-black text-base italic">{{ car.promo }}</p>
+                </div>
+              </div>
             </div>
           </div>
+
+          <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-8 gap-4">
+            <h2 class="text-2xl md:text-3xl text-black uppercase tracking-widest isuzu-font font-black">
+              Parts <span class="text-red-600">Promos</span>
+            </h2>
+            <div class="h-[2px] flex-1 bg-neutral-200 hidden md:block mr-8 relative">
+              <div class="absolute right-0 top-0 h-full w-24 bg-red-600"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-900 rounded-3xl overflow-hidden border border-neutral-800">
+              <div class="aspect-[16/9] bg-neutral-800 w-full overflow-hidden">
+                <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover" />
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <span class="opacity-20 text-white text-[10px] uppercase font-bold tracking-[0.3em]">No Preview</span>
+                </div>
+              </div>
+              
+              <div class="p-5">
+                <h3 class="text-sm font-black isuzu-font uppercase tracking-wider mb-1 text-red-500">{{ part.name }}</h3>
+                <p class="text-[10px] text-neutral-400 uppercase font-bold tracking-tight mb-3 line-clamp-1 opacity-60">{{ part.description }}</p>
+                <div class="flex items-center justify-between pt-3 border-t border-white/10">
+                  <span class="text-[9px] font-black text-neutral-600 uppercase tracking-widest">Genuine Parts</span>
+                  <p class="text-white font-black text-base italic">{{ part.promo }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -126,13 +160,13 @@
           <div class="w-20 h-1 bg-red-600 mb-6"></div>
           <h2 class="text-2xl md:text-4xl text-left mb-12 text-black uppercase tracking-widest isuzu-font">Mission & Vision</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-gray-100 p-8 rounded-2xl hover:border-red-500 border-2 border-transparent transition-all">
+            <div class="bg-gray-100 p-8 rounded-2xl border-2 border-neutral-600/40 transition-all">
               <h3 class="text-xl mb-4 text-red-600 font-black uppercase isuzu-font">Mission</h3>
               <p class="text-sm leading-relaxed text-gray-600">
                 {{ brandIdentity.mission }}
               </p>
             </div>
-            <div class="bg-gray-100 p-8 rounded-2xl hover:border-red-500 border-2 border-transparent transition-all">
+            <div class="bg-gray-100 p-8 rounded-2xl border-2 border-neutral-600/40 transition-all">
               <h3 class="text-xl mb-4 text-red-600 font-black uppercase isuzu-font">Vision</h3>
               <p class="text-sm leading-relaxed text-gray-600">
                 {{ brandIdentity.vision }}
@@ -151,7 +185,7 @@
       </section>
 
       <!-- About Us Section -->
-      <section id="about-us" class="py-20 px-6 md:px-16 bg-neutral-800 text-white">
+      <section id="about-us" class="relative py-20 px-6 md:px-16 bg-neutral-800 text-white min-h-[60vh] flex items-center">
         <div class="max-w-4xl mx-auto text-center space-y-10">
           <h2 class="text-2xl md:text-4xl uppercase tracking-widest isuzu-font">About Us</h2>
           <div class="space-y-6 text-sm md:text-base text-gray-300 leading-loose">
@@ -161,6 +195,16 @@
               <p class="isuzu-font text-red-500 tracking-widest text-lg md:text-xl">{{ aboutUs.slogan }}</p>
             </div>
           </div>
+        </div>
+
+        <div class="absolute bottom-8 right-8 md:right-16">
+          <button 
+            @click="scrollToSection('hero')" 
+            class="group p-3 md:p-4 bg-red-600 text-white rounded-full transition-all duration-300 shadow-lg flex items-center justify-center border border-red-600"
+            aria-label="Back to Top"
+          >
+            <ChevronUp class="w-6 h-6 group-hover:-translate-y-1 transition-transform duration-300" />
+          </button>
         </div>
       </section>
 
@@ -173,9 +217,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { ref, onMounted } from "vue";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../Firebase/Firebase";
+import { ChevronUp } from "lucide-vue-next";
 
 const navLinks = [
   { id: 'promos', label: 'Promos' },
@@ -190,19 +235,17 @@ const heroCards = [
   { title: "Mechanics", desc: "Skilled professionals ensuring top-notch maintenance." }
 ];
 
-
 const carPromos = ref([]);
 const partsPromos = ref([]);
 const brandIdentity = ref({ mission: "", vision: "", coreValues: [] });
 const aboutUs = ref({ aboutTextLine1: "", aboutTextLine2: "", slogan: "" });
 
-let unsubscribe = null;
-
-onMounted(() => {
-  const landingDoc = doc(db, "settings", "landingPage");
-  unsubscribe = onSnapshot(landingDoc, (snap) => {
+onMounted(async () => {
+  try {
+    const snap = await getDoc(doc(db, "settings", "landingPage"));
     if (snap.exists()) {
       const data = snap.data();
+      // Load all non-image fields from Firestore
       carPromos.value = Array.isArray(data.carPromos) ? JSON.parse(JSON.stringify(data.carPromos)) : [];
       partsPromos.value = Array.isArray(data.partsPromos) ? JSON.parse(JSON.stringify(data.partsPromos)) : [];
       brandIdentity.value.mission = data.mission || "";
@@ -227,11 +270,9 @@ onMounted(() => {
         }
       });
     }
-  });
-});
-
-onUnmounted(() => {
-  if (unsubscribe) unsubscribe();
+  } catch (error) {
+    console.error("Error fetching landing page data:", error);
+  }
 });
 
 function scrollToSection(sectionId) {

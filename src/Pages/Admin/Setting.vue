@@ -84,7 +84,7 @@
               </h2>
 
               <div class="relative z-10 space-y-8">
-                <div class="flex items-center justify-between p-6 rounded-2xl border border-neutral-100">
+                <div class="flex items-center justify-between p-6 rounded-2xl">
                   <div class="flex items-center gap-4">
                     <div class="p-3 bg-white rounded-full border border-neutral-500">
                       <SunIcon v-if="settings.general.theme === 'light'" class="w-6 h-6 text-yellow-500" />
@@ -103,12 +103,12 @@
                   >
                     <span
                       :class="settings.general.theme === 'dark' ? 'translate-x-7' : 'translate-x-1'"
-                      class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 shadow-md"
+                      class="inline-block h-6 w-6 transform rounded-full bg-white/80 transition-transform duration-300"
                     />
                   </button>
                 </div>
 
-                <div class="pt-6 border-t border-gray-100">
+                <div class="pt-6">
                   <button @click="saveSettings" class="bg-red-600 text-white px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-3 isuzu-font text-sm">
                     <SaveIcon class="w-5 h-5" /> Save
                   </button>
@@ -120,58 +120,68 @@
           <div v-if="activeTab === 'landing'" class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
 
-            <!-- Car Promos Section -->
-            <div class="bg-white rounded-3xl p-8 border border-gray-100">
+            <div class="bg-white rounded-3xl p-8 bg-white/10 backdrop-blur-none">
               <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
                 <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Car Promos</h2>
                 <div class="h-[2px] flex-1 bg-red-600 hidden md:block ml-8"></div>
               </div>
+
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                <div v-for="(car, idx) in landingCarPromos" :key="idx" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all p-5 border border-gray-100">
-                  <div class="aspect-video flex items-center justify-center bg-gray-200 rounded-xl mb-5 relative">
-                    <input type="file" accept="image/*" @change="e => handleCarImageUpload(e, idx)" class="absolute top-2 right-2 w-7 h-7 opacity-0 cursor-pointer" title="Upload Image" />
-                    <label class="absolute top-2 right-2 bg-white rounded-full p-1 shadow cursor-pointer" style="z-index:2;">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" /></svg>
-                      <input type="file" accept="image/*" @change="e => handleCarImageUpload(e, idx)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <div v-for="(car, idx) in landingCarPromos" :key="idx" class="bg-white rounded-2xl overflow-hidden border border-neutral-600/40">
+                  <div class="aspect-video flex items-center justify-center bg-gray-200 relative group">
+                    <label class="absolute top-2 right-2 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
+                      </svg>
+                      <input type="file" accept="image/*" @change="e => handleCarImageUpload(e, idx)" class="hidden" />
                     </label>
-                    <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover rounded-xl" />
+                    
+                    <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover" />
                     <span v-else class="text-gray-400 text-xs font-bold">IMAGE COMING SOON</span>
                   </div>
-                  <input v-model="car.name" class="isuzu-font text-lg mb-2 font-bold w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Car Name" type="text" />
-                  <textarea v-model="car.description" class="text-xs text-neutral-500 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
-                  <input v-model="car.promo" class="text-red-600 font-black text-lg w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
-                  <button @click="removeCarPromo(idx)" class="mt-2 text-xs text-red-500 hover:underline">Remove</button>
+
+                  <div class="p-5">
+                    <input v-model="car.name" class="isuzu-font text-lg mb-2 font-bold w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Car Name" type="text" />
+                    <textarea v-model="car.description" class="text-xs text-neutral-500 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
+                    <input v-model="car.promo" class="text-red-600 font-black text-lg w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
+                    <button @click="removeCarPromo(idx)" class="mt-3 text-xs text-red-500 hover:underline">Remove</button>
+                  </div>
                 </div>
+
                 <div class="flex items-center justify-center">
                   <button @click="addCarPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition">+ Add Car Promo</button>
                 </div>
               </div>
             </div>
 
-            <hr class="my-8 border-red-600" />
-
-            <!-- Parts Promos Section -->
-            <div class="bg-white rounded-3xl p-8 border border-gray-100">
+            <div class="bg-white rounded-3xl p-8 bg-white/10 backdrop-blur-none">
               <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-10 gap-4">
                 <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Parts Promos</h2>
                 <div class="h-[2px] flex-1 bg-red-600 hidden md:block mr-8"></div>
               </div>
+
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                <div v-for="(part, idx) in landingPartsPromos" :key="idx" class="bg-neutral-800 text-white rounded-2xl p-6 hover:bg-neutral-900 transition-all">
-                  <div class="h-32 flex items-center justify-center bg-white/5 rounded-xl mb-5 relative">
-                    <input type="file" accept="image/*" @change="e => handlePartImageUpload(e, idx)" class="absolute top-2 right-2 w-7 h-7 opacity-0 cursor-pointer" title="Upload Image" />
-                    <label class="absolute top-2 right-2 bg-white rounded-full p-1 shadow cursor-pointer" style="z-index:2;">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" /></svg>
-                      <input type="file" accept="image/*" @change="e => handlePartImageUpload(e, idx)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <div v-for="(part, idx) in landingPartsPromos" :key="idx" class="bg-neutral-800 text-white rounded-2xl overflow-hidden hover:bg-neutral-900 transition-all">
+                  <div class="h-40 flex items-center justify-center bg-white/5 relative group">
+                    <label class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
+                      </svg>
+                      <input type="file" accept="image/*" @change="e => handlePartImageUpload(e, idx)" class="hidden" />
                     </label>
-                    <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover rounded-xl" />
+                    
+                    <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover" />
                     <span v-else class="text-gray-400 text-xs font-bold">PREVIEW N/A</span>
                   </div>
-                  <input v-model="part.name" class="font-bold text-base isuzu-font mb-2 text-red-500 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Part Name" type="text" />
-                  <textarea v-model="part.description" class="text-xs opacity-60 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
-                  <input v-model="part.promo" class="text-lg font-black text-white w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
-                  <button @click="removePartPromo(idx)" class="mt-2 text-xs text-red-400 hover:underline">Remove</button>
+
+                  <div class="p-6">
+                    <input v-model="part.name" class="font-bold text-base isuzu-font mb-2 text-red-500 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Part Name" type="text" />
+                    <textarea v-model="part.description" class="text-xs opacity-60 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
+                    <input v-model="part.promo" class="text-lg font-black text-white w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
+                    <button @click="removePartPromo(idx)" class="mt-3 text-xs text-red-400 hover:underline">Remove</button>
+                  </div>
                 </div>
+
                 <div class="flex items-center justify-center">
                   <button @click="addPartPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition">+ Add Part Promo</button>
                 </div>
@@ -186,7 +196,7 @@
               </button>
             </div>
 
-            <div class="bg-neutral-800 rounded-3xl p-8 shadow-2xl text-white relative overflow-hidden">
+            <div class="bg-neutral-800 rounded-2xl p-8 text-white relative overflow-hidden">
                <div class="absolute -bottom-10 -right-10 opacity-10">
                 <TargetIcon class="w-64 h-64 text-white" />
               </div>
@@ -210,29 +220,29 @@
             </div>
 
             <!-- Editable About Us & Slogan Card -->
-            <div v-if="activeTab === 'landing'" class="bg-white rounded-3xl p-8 border border-gray-100 mt-8">
+            <div v-if="activeTab === 'landing'" class="bg-white rounded-3xl p-8 bg-white/10 backdrop-blur-none mt-8">
               <h2 class="text-2xl font-black mb-10 flex items-center gap-3 uppercase tracking-tighter text-neutral-800 isuzu-font">
                 <TagIcon class="w-7 h-7 text-red-600" /> 
                 About Us <span class="text-red-600">Editor</span>
               </h2>
               <div class="space-y-6">
                 <div>
-                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">About Us Text (Line 1)</label>
-                  <input v-model="aboutUsTextLine1" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400 mb-2" />
+                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-1">About Us Text (Line 1)</label>
+                  <input v-model="aboutUsTextLine1" class="w-full bg-gray-50 border border-neutral-400 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400 mb-2" />
                 </div>
                 <div>
-                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">About Us Text (Line 2)</label>
-                  <input v-model="aboutUsTextLine2" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400" />
+                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-1">About Us Text (Line 2)</label>
+                  <input v-model="aboutUsTextLine2" class="w-full bg-gray-50 border border-neutral-400 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400" />
                 </div>
                 <div>
-                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Slogan</label>
-                  <input v-model="sloganText" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold outline-none focus:border-red-400" />
+                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-1">Slogan</label>
+                  <input v-model="sloganText" class="w-full bg-gray-50 border border-neutral-400 rounded-lg px-4 py-2.5 text-sm font-bold outline-none focus:border-red-400" />
                   <div v-if="aboutUsSaveSuccess" class="mt-2 text-green-600 text-xs font-bold">Slogan updated!</div>
                   <div v-if="aboutUsSaveError" class="mt-2 text-red-600 text-xs font-bold">{{ aboutUsSaveError }}</div>
                 </div>
                 <div class="mt-8">
                   <h3 class="font-black text-sm uppercase tracking-widest text-neutral-700 mb-2">Preview:</h3>
-                  <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <div class="bg-gray-50 p-4 rounded-xl border border-neutral-400">
                     <p class="text-sm text-gray-700 mb-4 whitespace-pre-line">{{ aboutUsTextLine1 }}</p>
                     <p class="text-sm text-gray-700 mb-4 whitespace-pre-line">{{ aboutUsTextLine2 }}</p>
                     <p class="isuzu-font text-red-500 tracking-widest text-lg">{{ sloganText }}</p>
@@ -271,7 +281,7 @@ import {
   SettingsIcon, LogOutIcon, UserIcon,
   UserCogIcon, SaveIcon,
   Loader2Icon, CheckCircleIcon, XCircleIcon,
-  MoonIcon, SunIcon
+  MoonIcon, SunIcon, LayoutIcon
 } from "lucide-vue-next";
 
 // Add/Remove Car and Part Promo handlers
