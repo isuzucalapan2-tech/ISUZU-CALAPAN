@@ -897,23 +897,23 @@
 
     <!-- Access Matrix Modal -->
     <div v-if="showMatrixModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showMatrixModal = false"></div>
-      <div :class="[cardClass, 'relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-3xl shadow-2xl border']" :style="cardStyle">
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-none" @click="showMatrixModal = false"></div>
+      <div :class="[cardClass, 'relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl border']" :style="cardStyle">
         <!-- Modal Header -->
-        <div class="flex items-center justify-between p-6 border-b" :class="isDarkMode ? 'border-gray-700' : 'border-gray-200'">
+        <div class="flex items-center justify-between p-4 border-b" :class="isDarkMode ? 'border-gray-700' : 'border-gray-200'">
           <div class="flex items-center gap-3">
             <div class="bg-red-600 p-2 rounded-xl">
               <PieChart class="w-5 h-5 text-white" />
             </div>
             <h2 :class="['text-xl font-black uppercase tracking-tighter isuzu-font', textClass]">Access <span class="text-red-600">Matrix</span></h2>
           </div>
-          <button @click="showMatrixModal = false" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <button @click="showMatrixModal = false" class="p-2 transition-colors">
             <X class="w-5 h-5" :class="subTextClass" />
           </button>
         </div>
 
         <!-- Modal Content -->
-        <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <div class="p-6 overflow-y-auto max-h-[calc(90vh-\80px)]">
           <!-- Legend -->
           <div class="flex flex-wrap gap-4 mb-6">
             <div class="flex items-center gap-2">
