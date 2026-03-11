@@ -119,56 +119,86 @@
           </div>
 
           <!-- Alerts & Notifications in Inventory -->
-          <div v-if="outOfStock > 0 || lowStock > 0 || pendingUsersCount > 0" :class="[cardClass, 'rounded-3xl p-6 border border-neutral-400/20 shadow-sm']" :style="cardStyle">
-            <h3 :class="['text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-2', textClass]">
+          <div v-if="outOfStock > 0 || lowStock > 0 || pendingUsersCount > 0" :class="[cardClass, 'rounded-2xl p-6 border border-neutral-600/40 shadow-sm']" :style="cardStyle">
+            <h3 :class="['text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-2 isuzu-font', textClass]">
               <AlertTriangle class="w-4 h-4 text-red-600" /> Active <span :class="isDarkMode ? 'text-red-400' : 'text-red-600'">Alerts</span>
             </h3>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <!-- Critical Warnings Panel -->
-              <div v-if="outOfStock > 0" :class="['p-4 rounded-2xl border-l-4 border-red-600', isDarkMode ? 'bg-red-900/20' : 'bg-red-50']">
-                <h4 :class="['text-xs font-black uppercase tracking-wider mb-3 flex items-center gap-2', isDarkMode ? 'text-red-400' : 'text-red-600']">
-                  <AlertTriangle class="w-4 h-4" /> Critical Warnings ({{ outOfStock }})
-                </h4>
-                <div class="space-y-2 max-h-[200px] overflow-y-auto">
-                  <div v-for="item in inventoryItems.filter(i => i.quantity === 0).slice(0, 5)" :key="item.id" class="text-[9px]">
-                    <p :class="['font-bold', textClass]">{{ item.partNo }}</p>
-                    <p :class="['text-[8px]', subTextClass]">{{ item.partName }}</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div v-if="outOfStock > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-red-900/50' : 'bg-white border-neutral-200 shadow-sm']">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></div>
+                    <h4 :class="['text-[10px] font-black uppercase tracking-[0.15em]', isDarkMode ? 'text-red-400' : 'text-red-600']">
+                      Critical Stock
+                    </h4>
+                  </div>
+                  <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-md', isDarkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-50 text-red-700']">{{ outOfStock }}</span>
+                </div>
+                
+                <div class="space-y-3">
+                  <div v-for="item in inventoryItems.filter(i => i.quantity === 0).slice(0, 4)" :key="item.id" class="group">
+                    <p :class="['text-[11px] font-bold leading-none mb-1', textClass]">{{ item.partNo }}</p>
+                    <p :class="['text-[9px] truncate opacity-60 uppercase tracking-tighter', subTextClass]">{{ item.partName }}</p>
                   </div>
                 </div>
-                <p v-if="outOfStock > 5" :class="['text-[8px] font-black uppercase mt-2', subTextClass]">+{{ outOfStock - 5 }} more items</p>
+                
+                <p v-if="outOfStock > 4" :class="['text-[9px] font-bold uppercase mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800', subTextClass]">
+                  + {{ outOfStock - 4 }} More Items
+                </p>
               </div>
 
-              <!-- Low Stock Panel -->
-              <div v-if="lowStock > 0" :class="['p-4 rounded-2xl border-l-4 border-orange-500', isDarkMode ? 'bg-orange-900/20' : 'bg-orange-50']">
-                <h4 :class="['text-xs font-black uppercase tracking-wider mb-3 flex items-center gap-2', isDarkMode ? 'text-orange-400' : 'text-orange-600']">
-                  <AlertTriangle class="w-4 h-4" /> Low Stock Alert ({{ lowStock }})
-                </h4>
-                <div class="space-y-2 max-h-[200px] overflow-y-auto">
-                  <div v-for="item in inventoryItems.filter(i => i.quantity > 0 && i.quantity <= 10).slice(0, 5)" :key="item.id" class="text-[9px]">
-                    <p :class="['font-bold', textClass]">{{ item.partNo }}<span class="font-normal"> ({{ item.quantity }})</span></p>
-                    <p :class="['text-[8px]', subTextClass]">{{ item.partName }}</p>
+              <div v-if="lowStock > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-orange-900/50' : 'bg-white border-neutral-200 shadow-sm']">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                    <h4 :class="['text-[10px] font-black uppercase tracking-[0.15em]', isDarkMode ? 'text-orange-400' : 'text-orange-600']">
+                      Low Inventory
+                    </h4>
+                  </div>
+                  <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-md', isDarkMode ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-50 text-orange-700']">{{ lowStock }}</span>
+                </div>
+
+                <div class="space-y-3">
+                  <div v-for="item in inventoryItems.filter(i => i.quantity > 0 && i.quantity <= 10).slice(0, 4)" :key="item.id">
+                    <div class="flex justify-between items-start">
+                      <p :class="['text-[11px] font-bold leading-none mb-1', textClass]">{{ item.partNo }}</p>
+                      <span class="text-[9px] font-black text-orange-600">{{ item.quantity }} QTY</span>
+                    </div>
+                    <p :class="['text-[9px] truncate opacity-60 uppercase tracking-tighter', subTextClass]">{{ item.partName }}</p>
                   </div>
                 </div>
-                <p v-if="lowStock > 5" :class="['text-[8px] font-black uppercase mt-2', subTextClass]">+{{ lowStock - 5 }} more items</p>
+
+                <p v-if="lowStock > 4" :class="['text-[9px] font-bold uppercase mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800', subTextClass]">
+                  + {{ lowStock - 4 }} More Items
+                </p>
               </div>
 
-              <!-- Pending Approvals Panel -->
-              <div v-if="pendingUsersCount > 0" :class="['p-4 rounded-2xl border-l-4 border-yellow-500', isDarkMode ? 'bg-yellow-900/20' : 'bg-yellow-50']">
-                <h4 :class="['text-xs font-black uppercase tracking-wider mb-3 flex items-center gap-2', isDarkMode ? 'text-yellow-400' : 'text-yellow-600']">
-                  <UserX class="w-4 h-4" /> Pending Approvals ({{ pendingUsersCount }})
-                </h4>
-                <div class="space-y-2 max-h-[200px] overflow-y-auto">
-                  <div v-for="user in pendingUsers.slice(0, 5)" :key="user.id" class="text-[9px]">
-                    <p :class="['font-bold', textClass]">{{ user.username }}</p>
-                    <p :class="['text-[8px]', subTextClass]">{{ user.email }}</p>
+              <div v-if="pendingUsersCount > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-yellow-900/50' : 'bg-white border-neutral-200 shadow-sm']">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+                    <h4 :class="['text-[10px] font-black uppercase tracking-[0.15em]', isDarkMode ? 'text-yellow-500' : 'text-yellow-700']">
+                      User Requests
+                    </h4>
+                  </div>
+                  <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-md', isDarkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-50 text-yellow-700']">{{ pendingUsersCount }}</span>
+                </div>
+
+                <div class="space-y-3 mb-4">
+                  <div v-for="user in pendingUsers.slice(0, 3)" :key="user.id">
+                    <p :class="['text-[11px] font-bold leading-none mb-1', textClass]">{{ user.username }}</p>
+                    <p :class="['text-[9px] truncate opacity-60', subTextClass]">{{ user.email }}</p>
                   </div>
                 </div>
-                <div class="mt-3">
-                  <button @click="$router.push('/admin/approve')" :class="['w-full text-[8px] font-black uppercase px-2 py-1.5 rounded transition-colors', isDarkMode ? 'bg-yellow-900 text-yellow-200 hover:bg-yellow-800' : 'bg-yellow-200 text-yellow-700 hover:bg-yellow-300']">
-                    Review Now
-                  </button>
-                </div>
+
+                <button 
+                  @click="$router.push('/admin/approve')" 
+                  :class="['w-full text-[9px] font-black uppercase py-2 rounded-lg border transition-all active:scale-95', 
+                  isDarkMode ? 'bg-yellow-500 text-neutral-900 border-yellow-500 hover:bg-yellow-400' : 'bg-neutral-900 text-white border-neutral-900 hover:bg-neutral-800']"
+                >
+                  Review Applications
+                </button>
               </div>
             </div>
           </div>

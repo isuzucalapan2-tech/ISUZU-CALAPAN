@@ -281,7 +281,7 @@ import {
   SettingsIcon, LogOutIcon, UserIcon,
   UserCogIcon, SaveIcon,
   Loader2Icon, CheckCircleIcon, XCircleIcon,
-  MoonIcon, SunIcon
+  MoonIcon, SunIcon, LayoutIcon
 } from "lucide-vue-next";
 
 // Add/Remove Car and Part Promo handlers
