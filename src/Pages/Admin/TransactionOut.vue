@@ -25,10 +25,10 @@
       </div>
 
       <div class="hidden md:flex items-center gap-4">
-        <button @click="openImportModal" class="flex items-center gap-2 bg-blue-50 text-blue-600 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+        <button @click="openImportModal" class="flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-600/40 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all">
           <Upload class="w-4 h-4" /> Import Excel
         </button>
-        <button @click="openTransactionOutModal" class="group bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg flex items-center gap-2">
+        <button @click="openTransactionOutModal" class="group bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 flex items-center gap-2">
           <Plus class="w-4 h-4" /> Add New Sale
         </button>
       </div>
@@ -115,7 +115,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[1600px]">
               <thead>
@@ -245,8 +245,8 @@
     <!-- Add New Sale Modal -->
     <Transition name="fade">
       <div v-if="showTransactionOutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeTransactionOutModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeTransactionOutModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
           <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
             <h2 class="text-white isuzu-font font-black uppercase tracking-widest flex items-center gap-3">
               <Plus class="w-5 h-5 text-red-600" /> New Sale Registration
@@ -340,8 +340,8 @@
 
             <!-- Action Buttons -->
             <div class="flex justify-end gap-3 pt-6 border-t">
-              <button @click="closeTransactionOutModal" class="px-8 py-3 text-[10px] font-black uppercase text-gray-500 hover:bg-gray-100 rounded-full transition-all">Discard</button>
-              <button @click="saveTransactionOut" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl">
+              <button @click="closeTransactionOutModal" class="px-8 py-3 text-[10px] font-black uppercase text-gray-500 hover:bg-gray-100 border border-neutral-600/40 rounded-full transition-all">Discard</button>
+              <button @click="saveTransactionOut" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all">
                 Record Sale
               </button>
             </div>
@@ -353,8 +353,8 @@
     <!-- Import Excel Modal -->
     <Transition name="fade">
       <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeImportModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
           <!-- Header -->
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-4">
@@ -1421,33 +1421,54 @@ const printTransactionOut = (data, title) => {
           color: #000;
           background: #fff;
         }
-        .header {
-          text-align: center;
-          margin-bottom: 12px;
-          padding-bottom: 8px;
-          border-bottom: 2px solid #ea580c;
+        
+        /* NEW HEADER STYLES */
+        .header-container {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 10px;
+          margin-bottom: 15px;
+          border-bottom: 3px solid #ea580c;
         }
-        .company-name {
-          font-size: 16pt;
+        .header-left img {
+          height: 60px; /* Adjusted for Isuzu Logo */
+          width: auto;
+        }
+        .header-center img {
+          height: 60px; /* Adjusted for MDO Logo */
+          width: auto;
+        }
+        .header-right {
+          text-align: left;
+          flex: 0 0 400px;
+        }
+        .company-full-name {
+          font-size: 14pt;
           font-weight: bold;
-          color: #ea580c;
-          margin-bottom: 3px;
+          text-transform: uppercase;
         }
-        .company-address {
-          font-size: 8pt;
-          color: #666;
-          margin-bottom: 6px;
+        .address-line {
+          font-size: 10pt;
+          color: #333;
+        }
+        
+        /* REPORT INFO STYLES */
+        .report-header-info {
+          text-align: center;
+          margin-bottom: 15px;
         }
         .report-title {
-          font-size: 12pt;
+          font-size: 14pt;
           font-weight: bold;
-          margin-bottom: 4px;
+          text-transform: uppercase;
+          color: #333;
         }
         .report-meta {
-          font-size: 8pt;
+          font-size: 9pt;
           color: #666;
-          margin-bottom: 8px;
         }
+
         .summary {
           display: flex;
           justify-content: space-between;
@@ -1515,20 +1536,12 @@ const printTransactionOut = (data, title) => {
           font-weight: bold;
           text-transform: uppercase;
         }
-        .status-pending {
-          background: #fef3c7;
-          color: #92400e;
-        }
-        .status-completed {
-          background: #d1fae5;
-          color: #065f46;
-        }
-        .status-cancelled {
-          background: #fee2e2;
-          color: #991b1b;
-        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+        
         .footer {
-          margin-top: 12px;
+          margin-top: 20px;
           padding-top: 8px;
           border-top: 1px solid #d1d5db;
           font-size: 7pt;
@@ -1536,16 +1549,26 @@ const printTransactionOut = (data, title) => {
           text-align: center;
         }
         @media print {
-          .no-print {
-            display: none;
-          }
+          .no-print { display: none; }
         }
       </style>
     </head>
     <body>
-      <div class="header">
-        <div class="company-name">ISUZU CALAPAN</div>
-        <div class="company-address">Transaction Out / Sales Management System</div>
+      <div class="header-container">
+        <div class="header-left">
+          <img src="/isuzucalapanHeader.png" alt="ISUZU Calapan City">
+        </div>
+        <div class="header-center">
+          <img src="/mdoLogo.png" alt="MDO Motors">
+        </div>
+        <div class="header-right">
+          <div class="company-full-name">MINA DE ORO MOTORS INCORPORATED</div>
+          <div class="address-line">Km. 9 Nautical Highway, Puting Tubig, Calapan City</div>
+          <div class="address-line">Oriental Mindoro, 5200</div>
+        </div>
+      </div>
+
+      <div class="report-header-info">
         <div class="report-title">${title}</div>
         <div class="report-meta">Generated on ${dateStr} at ${timeStr}</div>
       </div>
@@ -1619,20 +1642,20 @@ const printTransactionOut = (data, title) => {
           setTimeout(function() {
             window.print();
             window.close();
-          }, 500);
+          }, 700);
         };
       <\/script>
     </body>
     </html>
   `;
   
-  // Open print window
   const printWindow = window.open('', '_blank', 'width=1200,height=800');
   if (printWindow) {
     printWindow.document.write(printContent);
     printWindow.document.close();
   } else {
-    toast.error('Unable to open print window. Please check your popup blocker settings.', 'Print Error');
+    // Note: ensure 'toast' is available in your scope
+    console.error('Print window blocked');
   }
   
   isPrinting.value = false;

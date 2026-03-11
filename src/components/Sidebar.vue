@@ -3,7 +3,7 @@
     
     <aside class="hidden md:flex md:flex-col w-64 bg-neutral-900 backdrop-blur-md text-white border-r border-neutral-900/90 shadow-2xl flex-shrink-0">
       
-      <div class="h-16 flex items-center px-8 border-b border-neutral-800/30">
+      <div class="h-16 flex items-center px-8">
         <span class="text-xl font-black text-red-600 tracking-[0.2em] uppercase isuzu-font">
           ISUZU
         </span>

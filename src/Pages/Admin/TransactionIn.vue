@@ -13,12 +13,12 @@
 
     <header class="relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none">
       <div class="flex items-center gap-4">
-        <div class="bg-red-600 p-2 rounded-lg">
+        <div class="bg-green-600 p-2 rounded-lg">
           <ArrowDownCircle class="w-6 h-6 text-white" />
         </div>
         <div>
           <h1 class="text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800">
-            Transaction <span class="text-red-600">IN</span>
+            Transaction <span class="text-green-600">IN</span>
           </h1>
           <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Incoming Stock & Reception Ledger</p>
         </div>
@@ -226,8 +226,8 @@
 
     <Transition name="fade">
       <div v-if="showTransactionInModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeTransactionInModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeTransactionInModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
           <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
             <h2 class="text-white isuzu-font font-black uppercase tracking-widest flex items-center gap-3">
               <Plus class="w-5 h-5 text-red-600" /> Stock In Registration
@@ -285,8 +285,8 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-6 border-t">
-              <button @click="closeTransactionInModal" class="px-8 py-3 text-[10px] font-black uppercase text-gray-500 hover:bg-gray-100 rounded-full transition-all">Discard</button>
-              <button @click="saveTransactionIn" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl">
+              <button @click="closeTransactionInModal" class="px-8 py-3 text-[10px] font-black uppercase border border-neutral-600/40 text-gray-500 hover:bg-gray-100 rounded-full transition-all">Discard</button>
+              <button @click="saveTransactionIn" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all">
                 Register Record
               </button>
             </div>
@@ -298,8 +298,8 @@
     <!-- Import Excel Modal -->
     <Transition name="fade">
       <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeImportModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
           <!-- Header -->
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-4">
@@ -1364,33 +1364,68 @@ const printTransactions = (data, title) => {
           color: #000;
           background: #fff;
         }
-        .header {
+
+        /* --- Updated Header Styles --- */
+        .header-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-bottom: 10px;
+          margin-bottom: 10px;
+          border-bottom: 4px solid #f87171; /* Matching the red bar in the image */
+        }
+        .header-left {
+          flex: 1;
+          text-align: left;
+        }
+        .header-left img {
+          height: 60px; /* Adjust based on your image aspect ratio */
+          object-fit: contain;
+        }
+        .header-center {
+          flex: 1;
           text-align: center;
-          margin-bottom: 12px;
-          padding-bottom: 8px;
-          border-bottom: 2px solid #16a34a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 15px;
         }
-        .company-name {
-          font-size: 16pt;
+        .header-center img {
+          height: 50px;
+        }
+        .header-right {
+          flex: 2;
+          text-align: left;
+          font-family: "Arial Narrow", Arial, sans-serif;
+        }
+        .company-title {
+          font-size: 14pt;
           font-weight: bold;
-          color: #16a34a;
-          margin-bottom: 3px;
+          color: #000;
+          margin-bottom: 2px;
         }
-        .company-address {
-          font-size: 8pt;
-          color: #666;
-          margin-bottom: 6px;
+        .company-info {
+          font-size: 10pt;
+          color: #000;
+          line-height: 1.2;
+        }
+        /* ----------------------------- */
+
+        .report-sub-header {
+          text-align: center;
+          margin-bottom: 15px;
         }
         .report-title {
           font-size: 12pt;
           font-weight: bold;
-          margin-bottom: 4px;
+          text-transform: uppercase;
+          margin-bottom: 2px;
         }
         .report-meta {
           font-size: 8pt;
           color: #666;
-          margin-bottom: 8px;
         }
+
         .summary {
           display: flex;
           justify-content: space-between;
@@ -1423,7 +1458,6 @@ const printTransactions = (data, title) => {
           color: white;
           padding: 6px 4px;
           text-align: left;
-          font-size: 8pt;
           font-weight: bold;
           border: 1px solid #16a34a;
         }
@@ -1435,12 +1469,9 @@ const printTransactions = (data, title) => {
         tr:nth-child(even) {
           background: #f9fafb;
         }
-        .text-right {
-          text-align: right;
-        }
-        .text-center {
-          text-align: center;
-        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        
         .status-badge {
           padding: 1px 4px;
           border-radius: 3px;
@@ -1448,24 +1479,16 @@ const printTransactions = (data, title) => {
           font-weight: bold;
           text-transform: uppercase;
         }
-        .status-to-review {
-          background: #fef3c7;
-          color: #92400e;
-        }
-        .status-stock-in {
-          background: #d1fae5;
-          color: #065f46;
-        }
-        .status-stock-out {
-          background: #fee2e2;
-          color: #991b1b;
-        }
+        .status-to-review { background: #fef3c7; color: #92400e; }
+        .status-stock-in { background: #d1fae5; color: #065f46; }
+        .status-stock-out { background: #fee2e2; color: #991b1b; }
+        
         .total-value {
           color: #059669;
           font-weight: bold;
         }
         .footer {
-          margin-top: 12px;
+          margin-top: 20px;
           padding-top: 8px;
           border-top: 1px solid #d1d5db;
           font-size: 7pt;
@@ -1473,16 +1496,28 @@ const printTransactions = (data, title) => {
           text-align: center;
         }
         @media print {
-          .no-print {
-            display: none;
-          }
+          .no-print { display: none; }
         }
       </style>
     </head>
     <body>
-      <div class="header">
-        <div class="company-name">ISUZU CALAPAN</div>
-        <div class="company-address">Transaction In Management System</div>
+      <div class="header-container">
+        <div class="header-left">
+          <img src="/isuzucalapanHeader.png" alt="Isuzu Calapan City">
+        </div>
+        <div class="header-center">
+          <img src="/mdoLogo.png" alt="MDO Logo">
+        </div>
+        <div class="header-right">
+          <div class="company-title">MINA DE ORO MOTORS INCORPORATED</div>
+          <div class="company-info">
+            Km. 9 Nautical Highway, Puting Tubig, Calapan City,<br>
+            Oriental Mindoro, 5200
+          </div>
+        </div>
+      </div>
+
+      <div class="report-sub-header">
         <div class="report-title">${title}</div>
         <div class="report-meta">Generated on ${dateStr} at ${timeStr}</div>
       </div>
@@ -1546,7 +1581,7 @@ const printTransactions = (data, title) => {
       </table>
       
       <div class="footer">
-        <p>ISUZU Calapan Transaction In Management System &copy; ${now.getFullYear()}</p>
+        <p>ISUZU Calapan Transaction Management System &copy; ${now.getFullYear()}</p>
         <p>This is a computer-generated report. No signature required.</p>
       </div>
       
@@ -1555,14 +1590,13 @@ const printTransactions = (data, title) => {
           setTimeout(function() {
             window.print();
             window.close();
-          }, 500);
+          }, 700);
         };
       <\/script>
     </body>
     </html>
   `;
   
-  // Open print window
   const printWindow = window.open('', '_blank', 'width=1200,height=800');
   if (printWindow) {
     printWindow.document.write(printContent);

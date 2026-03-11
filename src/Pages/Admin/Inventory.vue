@@ -91,7 +91,7 @@
               </button>
 
               <div class="relative group/export">
-                <button @click="toggleExportMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-200 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all shadow-sm">
+                <button @click="toggleExportMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-600/40 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all ">
                   <FileDown class="w-4 h-4" /> Export <ChevronDown class="w-3 h-3" />
                 </button>
                 <div v-if="showExportMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 shadow-2xl rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -105,7 +105,7 @@
               </div>
 
               <div class="relative group/print">
-                <button @click="togglePrintMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-200 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all shadow-sm">
+                <button @click="togglePrintMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-600/40 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all">
                   <Printer class="w-4 h-4" /> Print <ChevronDown class="w-3 h-3" />
                 </button>
                 <div v-if="showPrintMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 shadow-2xl rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -220,8 +220,8 @@
 
     <Transition name="fade">
       <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
           <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
             <h2 class="text-white isuzu-font font-black uppercase tracking-widest flex items-center gap-3">
               <Package class="w-5 h-5 text-red-600" />
@@ -287,7 +287,7 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-4">
-              <button type="button" @click="closeModal" class="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-gray-100 transition-all">Cancel</button>
+              <button type="button" @click="closeModal" class="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-gray-100 border border-neutral-600/40 transition-all">Cancel</button>
               <button type="submit" :disabled="isSaving" class="bg-red-600 text-white px-10 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl shadow-red-100 disabled:opacity-50">
                 {{ isSaving ? 'Syncing...' : 'Confirm' }}
               </button>
@@ -299,8 +299,8 @@
 
     <Transition name="fade">
       <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="closeImportModal"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
           <!-- Header -->
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-4">
@@ -1256,44 +1256,73 @@ const printInventory = (data, title) => {
           color: #000;
           background: #fff;
         }
-        .header {
-          text-align: center;
-          margin-bottom: 15px;
+
+        /* NEW HEADER STYLES */
+        .header-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           padding-bottom: 10px;
-          border-bottom: 2px solid #dc2626;
+          margin-bottom: 15px;
+          border-bottom: 3px solid #dc2626; /* The red line from the image */
         }
-        .logo {
-          max-height: 50px;
-          margin-bottom: 8px;
+        .header-left {
+          flex: 1;
         }
-        .company-name {
-          font-size: 18pt;
-          font-weight: bold;
-          color: #dc2626;
-          margin-bottom: 3px;
+        .header-center {
+          flex: 1;
+          text-align: center;
         }
-        .company-address {
-          font-size: 9pt;
-          color: #666;
-          margin-bottom: 8px;
+        .header-right {
+          flex: 2;
+          text-align: left;
+          padding-left: 20px;
         }
-        .report-title {
+        .header-logo-isuzu {
+          height: 60px;
+          object-fit: contain;
+        }
+        .header-logo-mdo {
+          height: 60px;
+          object-fit: contain;
+        }
+        .comp-name-bold {
           font-size: 14pt;
           font-weight: bold;
-          margin-bottom: 5px;
+          color: #000;
+          display: block;
+          margin-bottom: 2px;
+        }
+        .comp-details {
+          font-size: 10pt;
+          color: #000;
+          line-height: 1.2;
+        }
+
+        /* REPORT TITLE SECTION */
+        .report-info {
+          text-align: center;
+          margin-bottom: 15px;
+        }
+        .report-title {
+          font-size: 16pt;
+          font-weight: bold;
+          text-transform: uppercase;
+          margin-bottom: 4px;
         }
         .report-meta {
           font-size: 9pt;
           color: #666;
-          margin-bottom: 10px;
         }
+
         .summary {
           display: flex;
-          justify-content: space-between;
+          justify-content: space-around;
           margin-bottom: 15px;
-          padding: 10px;
-          background: #f3f4f6;
-          border-radius: 5px;
+          padding: 12px;
+          background: #f8f9fa;
+          border: 1px solid #e5e7eb;
+          border-radius: 4px;
         }
         .summary-item {
           text-align: center;
@@ -1302,9 +1331,10 @@ const printInventory = (data, title) => {
           font-size: 8pt;
           color: #666;
           text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
         .summary-value {
-          font-size: 14pt;
+          font-size: 13pt;
           font-weight: bold;
           color: #dc2626;
         }
@@ -1318,75 +1348,82 @@ const printInventory = (data, title) => {
           color: white;
           padding: 8px 6px;
           text-align: left;
-          font-size: 9pt;
+          font-size: 8.5pt;
           font-weight: bold;
           border: 1px solid #dc2626;
+          text-transform: uppercase;
         }
         td {
           padding: 6px;
           border: 1px solid #d1d5db;
-          font-size: 9pt;
-          vertical-align: top;
+          font-size: 8.5pt;
+          vertical-align: middle;
         }
         tr:nth-child(even) {
           background: #f9fafb;
         }
-        .text-right {
-          text-align: right;
-        }
-        .text-center {
-          text-align: center;
-        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        
         .category-badge {
           background: #fee2e2;
           color: #991b1b;
-          padding: 2px 6px;
+          padding: 2px 5px;
           border-radius: 3px;
-          font-size: 8pt;
+          font-size: 7.5pt;
           font-weight: bold;
-          text-transform: uppercase;
         }
         .total-value {
           color: #059669;
           font-weight: bold;
         }
         .footer {
-          margin-top: 15px;
+          margin-top: 20px;
           padding-top: 10px;
-          border-top: 1px solid #d1d5db;
+          border-top: 1px solid #eeeeee;
           font-size: 8pt;
-          color: #666;
+          color: #999;
           text-align: center;
         }
-        .page-break {
-          page-break-after: always;
-        }
         @media print {
-          .no-print {
-            display: none;
-          }
+          .no-print { display: none; }
+          body { -webkit-print-color-adjust: exact; }
         }
       </style>
     </head>
     <body>
-      <div class="header">
-        <div class="company-name">ISUZU CALAPAN</div>
-        <div class="company-address">Inventory Management System</div>
+      <div class="header-container">
+        <div class="header-left">
+          <img src="/isuzucalapanHeader.png" alt="ISUZU Calapan City" class="header-logo-isuzu">
+        </div>
+        <div class="header-center">
+          <img src="/mdoLogo.png" alt="MDO Motors" class="header-logo-mdo">
+        </div>
+        <div class="header-right">
+          <span class="comp-name-bold">MINA DE ORO MOTORS INCORPORATED</span>
+          <div class="comp-details">
+            Km. 9 Nautical Highway, Puting Tubig, Calapan City,<br>
+            Oriental Mindoro, 5200
+          </div>
+        </div>
+      </div>
+
+      <div class="report-info">
         <div class="report-title">${title}</div>
         <div class="report-meta">Generated on ${dateStr} at ${timeStr}</div>
       </div>
       
       <div class="summary">
         <div class="summary-item">
-          <div class="summary-label">Total Items</div>
+          <div class="summary-label">Total Line Items</div>
           <div class="summary-value">${totalItems.toLocaleString()}</div>
         </div>
         <div class="summary-item">
-          <div class="summary-label">Total Quantity</div>
+          <div class="summary-label">Total Stock Quantity</div>
           <div class="summary-value">${totalQuantity.toLocaleString()}</div>
         </div>
         <div class="summary-item">
-          <div class="summary-label">Total Value</div>
+          <div class="summary-label">Total Inventory Value</div>
           <div class="summary-value">₱${totalValue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
         </div>
       </div>
@@ -1394,12 +1431,12 @@ const printInventory = (data, title) => {
       <table>
         <thead>
           <tr>
-            <th>Control No.</th>
-            <th>Category</th>
+            <th width="8%">Control No.</th>
+            <th width="10%">Category</th>
             <th>Part Name</th>
             <th>Part No.</th>
             <th>Model</th>
-            <th>Description</th>
+            <th width="15%">Description</th>
             <th class="text-center">Qty</th>
             <th class="text-right">Unit Price</th>
             <th class="text-right">Total Value</th>
@@ -1424,7 +1461,7 @@ const printInventory = (data, title) => {
       
       <div class="footer">
         <p>ISUZU Calapan Inventory Management System &copy; ${now.getFullYear()}</p>
-        <p>This is a computer-generated report. No signature required.</p>
+        <p>System Generated Report | Confidental</p>
       </div>
       
       <script>
@@ -1432,20 +1469,19 @@ const printInventory = (data, title) => {
           setTimeout(function() {
             window.print();
             window.close();
-          }, 500);
+          }, 700);
         };
       <\/script>
     </body>
     </html>
   `;
   
-  // Open print window
   const printWindow = window.open('', '_blank', 'width=1200,height=800');
   if (printWindow) {
     printWindow.document.write(printContent);
     printWindow.document.close();
   } else {
-    toast.error('Unable to open print window. Please check your popup blocker settings.', 'Print Error');
+    alert('Please disable your popup blocker to print the report.');
   }
   
   isPrinting.value = false;
