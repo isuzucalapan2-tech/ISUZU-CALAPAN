@@ -1433,6 +1433,7 @@ const printTransactions = (data, title) => {
           padding: 8px;
           background: #f0fdf4;
           border-radius: 4px;
+          border: 1px solid #86efac;
         }
         .summary-item {
           text-align: center;
