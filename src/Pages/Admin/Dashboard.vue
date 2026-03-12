@@ -2073,27 +2073,3 @@ canvas { width: 100% !important; height: 100% !important; }
 }
 </style>
 
-
-
-<!-- Enhancements Added:
- 
-
-1. Service Advisor (SA) Integration
-Link to your SA_Rotation system
-SA workload summary cards
-SA efficiency metrics (jobs completed today)
-2. Financial Highlights
-Today's revenue
-Average transaction value
-Top selling parts/categories
-3. Alerts & Notifications
-Low stock alerts panel
-Pending approval quick actions
-Critical inventory warnings
-4. Quick Actions Panel
-Quick access to pending approvals
-Recent activity feed
-Shortcut buttons
-5. Trend Indicators
-Comparison with yesterday/last week (↑↓ arrows)
-Growth percentages -->

@@ -128,6 +128,7 @@
                 <tr class="bg-neutral-900/90 text-white text-[10px] uppercase tracking-[0.2em] isuzu-font">
                   <th class="px-6 py-5 font-black">Control No.</th>
                   <th class="px-6 py-5 font-black">Part Specification</th>
+                  <th class="px-6 py-5 font-black">Description</th>
                   <th class="px-6 py-5 font-black text-center">Stock</th>
                   <th class="px-6 py-5 font-black">Price Info</th>
                   <th class="px-6 py-5 font-black">Total Value</th>
@@ -147,6 +148,9 @@
                       <span class="text-sm font-black text-neutral-800 uppercase tracking-tight">{{ item.partName }}</span>
                       <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">PN: {{ item.partNo }} | MODEL: {{ item.model }}</span>
                     </div>
+                  </td>
+                  <td class="px-6 py-6">
+                    <span class="text-xs text-gray-500">{{ item.description || '-' }}</span>
                   </td>
                   <td class="px-6 py-6 text-center">
                     <span :class="item.quantity < 5 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'" 
@@ -173,7 +177,7 @@
                 </tr>
 
                 <tr v-if="paginatedInventory.length === 0">
-                  <td colspan="6" class="px-6 py-24 text-center">
+                  <td colspan="7" class="px-6 py-24 text-center">
                     <div class="flex flex-col items-center opacity-20">
                       <PackageX class="w-20 h-20 mb-4" />
                       <p class="text-xl font-black isuzu-font uppercase tracking-widest">No Items Found</p>
@@ -260,6 +264,11 @@
               </div>
 
               <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Description</label>
+                <input v-model="form.description" type="text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500 uppercase" placeholder="OPTIONAL NOTES/REMARKS" />
+              </div>
+
+              <div class="space-y-2">
                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Quantity</label>
                 <input v-model="form.quantity" type="number" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500" required />
               </div>
@@ -271,7 +280,7 @@
             </div>
 
             <div class="bg-gray-50 p-4 rounded-2xl border border-dashed border-gray-200">
-               <div class="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
+                 <div class="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
                   <span class="text-gray-400">Total Valuation Preview:</span>
                   <span class="text-green-600 text-lg">₱{{ formatPrice(calculatedTotalValue) }}</span>
                </div>
@@ -289,38 +298,135 @@
     </Transition>
 
     <Transition name="fade">
-       <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
-          <div class="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-8 animate-in zoom-in-95 duration-300">
-             <div class="flex items-center gap-4 mb-8">
-                <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg"><FileSpreadsheet class="w-8 h-8" /></div>
-                <div>
-                   <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter">Batch <span class="text-blue-600">Import</span></h3>
-                   <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Excel Data Integration</p>
-                </div>
-             </div>
-
-             <div v-if="importPreview.validItems.length === 0" class="border-4 border-dashed border-gray-100 rounded-3xl p-12 text-center hover:border-blue-100 transition-all group">
-                <input type="file" ref="fileInput" @change="handleFileSelect" accept=".xlsx,.xls" class="hidden" />
-                <Upload class="w-16 h-16 text-gray-200 mx-auto mb-4 group-hover:text-blue-400 transition-colors" />
-                <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Drop Excel File Here or Click to Browse</p>
-                <button @click="$refs.fileInput.click()" class="bg-blue-600 text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-blue-100">Select Spreadsheet</button>
-             </div>
-
-             <div v-else class="space-y-6">
-                <div class="flex justify-between items-center bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                   <div class="text-xs font-black uppercase tracking-widest">
-                      <span class="text-green-600">{{ importPreview.validItems.length }} VALID ENTRIES</span> / 
-                      <span class="text-red-600">{{ importPreview.invalidItems.length }} ERRORS</span>
-                   </div>
-                   <div class="flex gap-2">
-                      <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400">Cancel</button>
-                      <button @click="confirmImport" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100">Process Import</button>
-                   </div>
-                </div>
-             </div>
+      <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+              <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg">
+                <FileSpreadsheet class="w-8 h-8" />
+              </div>
+              <div>
+                <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter flex items-center gap-2">
+                  Batch <span class="text-blue-600">Import</span>
+                  <!-- Info Icon with Tooltip -->
+                  <div class="relative group">
+                    <button class="w-6 h-6 bg-neutral-200 hover:bg-neutral-300 rounded-full flex items-center justify-center transition-colors">
+                      <Info class="w-4 h-4 text-neutral-600" />
+                    </button>
+                    <!-- Tooltip -->
+                    <div class="absolute left-full top-0 ml-3 w-80 bg-neutral-800 text-white p-4 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50" style="font-family: Arial, sans-serif;">
+                      <div class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2" style="font-family: Arial, sans-serif;">📋 Import Validation Requirements</div>
+                      <div class="text-[9px] space-y-2" style="font-family: Arial, sans-serif;">
+                        <div class="font-bold text-green-400" style="font-family: Arial, sans-serif;">✓ REQUIRED FIELDS (ALL must be filled):</div>
+                        <div style="font-family: Arial, sans-serif;">• Category - Product category</div>
+                        <div style="font-family: Arial, sans-serif;">• Part Name - Full part name</div>
+                        <div style="font-family: Arial, sans-serif;">• Part No. - Unique part number</div>
+                        <div style="font-family: Arial, sans-serif;">• Model - Vehicle/model compatibility</div>
+                        <div style="font-family: Arial, sans-serif;">• Quantity - Stock quantity (0 or greater)</div>
+                        <div style="font-family: Arial, sans-serif;">• Unit Price - Price per unit (0 or greater)</div>
+                        <div class="font-bold text-red-400 mt-2" style="font-family: Arial, sans-serif;">✗ DUPLICATE CHECK (New items only):</div>
+                        <div style="font-family: Arial, sans-serif;">• Part No. must NOT exist in current inventory</div>
+                        <div style="font-family: Arial, sans-serif;">• Duplicate Part No. within import file not allowed</div>
+                        <div class="font-bold text-blue-400 mt-2" style="font-family: Arial, sans-serif;">✓ OPTIONAL FIELDS:</div>
+                        <div style="font-family: Arial, sans-serif;">• Description - Optional notes/remarks</div>
+                      </div>
+                      <div class="absolute top-4 -left-2 w-4 h-4 bg-neutral-800 transform rotate-45"></div>
+                    </div>
+                  </div>
+                </h3>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Inventory Data Excel Integration</p>
+              </div>
+            </div>
+            <button @click="downloadTemplate" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-[10px] font-black uppercase tracking-widest">
+              <Download class="w-4 h-4" /> Download Template
+            </button>
           </div>
-       </div>
+
+          <!-- File Drop Zone -->
+          <div v-if="importPreview.validItems.length === 0 && importPreview.invalidItems.length === 0" class="border-4 border-dashed border-gray-100 rounded-3xl p-12 text-center hover:border-blue-100 transition-all group flex-1 flex flex-col justify-center">
+            <input type="file" ref="fileInput" @change="handleFileSelect" accept=".xlsx,.xls" class="hidden" />
+            <Upload class="w-16 h-16 text-gray-200 mx-auto mb-4 group-hover:text-blue-400 transition-colors" />
+            <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Drop Excel File Here or Click to Browse</p>
+            <button @click="$refs.fileInput.click()" class="bg-blue-600 text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-blue-100 mx-auto">Select Spreadsheet</button>
+          </div>
+
+          <!-- Preview Results -->
+          <div v-else class="space-y-4 flex-1 overflow-hidden flex flex-col">
+            <!-- Summary Header -->
+            <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+              <div class="text-xs font-black uppercase tracking-widest flex items-center gap-4">
+                <span class="text-green-600">✓ {{ importPreview.validItems.length }} Valid</span>
+                <span v-if="importPreview.invalidItems.length > 0" class="text-red-600">✗ {{ importPreview.invalidItems.length }} Errors</span>
+                <span v-if="totalImportValue > 0" class="text-blue-600 ml-4">Total Value: ₱{{ totalImportValue.toLocaleString('en-PH', { minimumFractionDigits: 2 }) }}</span>
+              </div>
+              <div class="flex gap-2">
+                <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-gray-100 rounded-full transition-all">Cancel</button>
+                <button @click="confirmImport" :disabled="isImporting || importPreview.validItems.length === 0" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50 hover:bg-blue-700 transition-all flex items-center gap-2">
+                  <Loader2 v-if="isImporting" class="w-4 h-4 animate-spin" />
+                  {{ isImporting ? 'Importing...' : 'Import ' + importPreview.validItems.length + ' Items' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Preview Table -->
+            <div class="flex-1 overflow-auto border border-gray-200 rounded-xl">
+              <table class="w-full text-[10px]">
+                <thead class="bg-neutral-800 text-white sticky top-0">
+                  <tr>
+                    <th class="p-3 text-left font-black uppercase">Status</th>
+                    <th class="p-3 text-left font-black uppercase">Row</th>
+                    <th class="p-3 text-left font-black uppercase">Category</th>
+                    <th class="p-3 text-left font-black uppercase">Part No.</th>
+                    <th class="p-3 text-left font-black uppercase">Part Name</th>
+                    <th class="p-3 text-left font-black uppercase">Model</th>
+                    <th class="p-3 text-right font-black uppercase">Qty</th>
+                    <th class="p-3 text-right font-black uppercase">Unit Price</th>
+                    <th class="p-3 text-right font-black uppercase">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Valid Items -->
+                  <tr v-for="(item, idx) in importPreview.validItems" :key="'valid-' + idx" class="border-b border-green-100 bg-green-50/30">
+                    <td class="p-3">
+                      <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[9px] font-black uppercase">Valid</span>
+                    </td>
+                    <td class="p-3 text-gray-400">{{ item.rowNumber }}</td>
+                    <td class="p-3 font-bold">{{ item.category }}</td>
+                    <td class="p-3 font-bold">{{ item.partNo }}</td>
+                    <td class="p-3 text-neutral-600">{{ item.partName }}</td>
+                    <td class="p-3 text-neutral-500">{{ item.model }}</td>
+                    <td class="p-3 text-right font-black">{{ item.quantity }}</td>
+                    <td class="p-3 text-right">₱{{ item.unitPrice?.toLocaleString() }}</td>
+                    <td class="p-3 text-right font-black text-green-600">₱{{ item.totalValue?.toLocaleString() }}</td>
+                  </tr>
+                  
+                  <!-- Invalid Items -->
+                  <tr v-for="(item, idx) in importPreview.invalidItems" :key="'invalid-' + idx" class="border-b border-red-100 bg-red-50/30">
+                    <td class="p-3">
+                      <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-[9px] font-black uppercase">Invalid</span>
+                    </td>
+                    <td class="p-3 text-gray-400">{{ item.rowNumber }}</td>
+                    <td class="p-3 font-bold">{{ item.category || '-' }}</td>
+                    <td class="p-3 font-bold">{{ item.partNo || '-' }}</td>
+                    <td class="p-3 text-neutral-600">{{ item.partName || '-' }}</td>
+                    <td class="p-3 text-neutral-500">{{ item.model || '-' }}</td>
+                    <td class="p-3 text-right">{{ item.quantity || 0 }}</td>
+                    <td class="p-3 text-right">₱{{ item.unitPrice?.toLocaleString() || 0 }}</td>
+                    <td class="p-3">
+                      <div class="text-red-500 text-[9px]">
+                        <div v-for="(err, eIdx) in item.errors.slice(0, 2)" :key="eIdx">{{ err }}</div>
+                        <div v-if="item.errors.length > 2" class="text-red-400">+{{ item.errors.length - 2 }} more</div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </Transition>
 
     <div class="absolute bottom-0 left-0 w-full z-0 opacity-10 pointer-events-none transform rotate-180">
@@ -379,7 +485,9 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Printer
+  Printer,
+  Info,
+  Download
 } from "lucide-vue-next";
 
 
@@ -613,6 +721,13 @@ const calculatedTotalValue = computed(() => {
   const qty = parseInt(form.value.quantity) || 0;
   const price = parseFloat(form.value.unitPrice) || 0;
   return qty * price;
+});
+
+// Total import value for preview
+const totalImportValue = computed(() => {
+  return importPreview.value.validItems.reduce((sum, item) => {
+    return sum + (item.totalValue || 0);
+  }, 0);
 });
 
 /* =====================
@@ -860,7 +975,7 @@ const closeModal = () => {
 };
 
 const toast = useToast();
-const { exportInventory, parseExcelFile, processImportItems } = useExcelExport();
+const { exportInventory, parseExcelFile, processImportItems, processInventoryImportItems, downloadInventoryTemplate } = useExcelExport();
 
 
 
@@ -1420,6 +1535,12 @@ const resetImport = () => {
 
 const fileInput = ref(null);
 
+// Download template function
+const downloadTemplate = () => {
+  downloadInventoryTemplate();
+  toast.info('Template downloaded!', 'Template');
+};
+
 const handleFileSelect = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
@@ -1440,8 +1561,8 @@ const handleFileSelect = async (event) => {
       return;
     }
     
-    // Process and validate items
-    const { validItems, invalidItems } = processImportItems(items);
+    // Process and validate items with duplicate checking against current inventory
+    const { validItems, invalidItems } = processInventoryImportItems(items, inventoryItems.value);
     importPreview.value = { validItems, invalidItems };
     
     if (validItems.length === 0) {
