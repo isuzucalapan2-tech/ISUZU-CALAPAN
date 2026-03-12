@@ -1022,6 +1022,7 @@ import {
   X,
   RefreshCw,
   Zap,
+  ExternalLink,
   Activity,
   Activity as ActivityIcon
 } from "lucide-vue-next";
