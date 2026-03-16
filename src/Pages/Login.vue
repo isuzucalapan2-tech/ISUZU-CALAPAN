@@ -116,6 +116,12 @@
             Register
           </router-link>
         </p>
+        <p class="text-center text-[11px] text-neutral-600 mt-8">
+            Forgot your
+          <router-link to="/forgot-password" class="text-red-600 font-bold hover:underline ml-1">
+            Password ?
+          </router-link>
+        </p>
       </div>
 
       <!-- BOTTOM SVG -->

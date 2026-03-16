@@ -6,6 +6,7 @@ import { db } from '../Firebase/Firebase'
 import LandingPage from '../Pages/LandingPage.vue'
 import Login from '../Pages/Login.vue'
 import Register from '../Pages/Register.vue'
+import ForgotPassword from '../Pages/ForgotPassword.vue'
 import AdminParent from '../Pages/Admin/AdminParent.vue'
 import Dashboard from '../Pages/Admin/Dashboard.vue'
 import Approve from '../Pages/Admin/Approve.vue'
@@ -35,6 +36,12 @@ const routes = [
     path: '/register', 
     name: 'Register', 
     component: Register,
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword,
     meta: { requiresGuest: true }
   },
   { 

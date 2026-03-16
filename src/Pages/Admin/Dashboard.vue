@@ -757,7 +757,7 @@
                   :key="filter"
                   @click="transactionOutFilter = filter"
                   :class="transactionOutFilter === filter 
-                    ? ['bg-white dark:bg-neutral-600 shadow-sm text-orange-600 scale-105'] 
+                    ? ['bg-white dark:bg-neutral-600 shadow-sm text-white scale-105'] 
                     : [isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700']"
                   class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-200"
                 >
