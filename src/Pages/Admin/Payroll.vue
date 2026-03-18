@@ -108,10 +108,10 @@
       </div>
     </main>
 
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-white backdrop-blur-sm p-4 md:p-12">
-      <div class="bg-white border border-neutral-200 w-full max-w-7xl h-full flex flex-col rounded-3xl overflow-hidden">
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-white p-4 md:p-12">
+      <div class="bg-white w-full max-w-7xl h-full flex flex-col overflow-hidden">
         
-        <div class="px-10 py-8 border-b border-neutral-100 flex justify-between items-center bg-neutral-50/50">
+        <div class="px-10 py-4 border-b border-neutral-100 flex justify-between items-center">
           <div>
             <h2 class="text-2xl font-black uppercase tracking-tight">Executive Dashboard</h2>
             <p class="text-xs text-neutral-400 font-medium tracking-widest mt-1">REAL-TIME PAYROLL ANALYTICS — {{ currentDateTime }}</p>
@@ -121,7 +121,7 @@
           </button>
         </div>
         
-        <div class="flex-1 p-10 overflow-y-auto space-y-10">
+        <div class="flex-1 p-6 overflow-y-auto space-y-10">
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="p-6 border border-neutral-100 rounded-2xl bg-white">
