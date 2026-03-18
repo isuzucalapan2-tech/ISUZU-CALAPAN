@@ -29,6 +29,11 @@
           <span class="nav-text">Approvals</span>
         </router-link>
 
+        <router-link v-if="accessiblePages.payroll" to="/admin/payroll" class="nav-link group" active-class="nav-link-active">
+          <CreditCard class="nav-icon" /> 
+          <span class="nav-text">Payroll</span>
+        </router-link>
+
         <div class="pt-6 pb-2">
           <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] text-left">Logistics & Sales</p>
         </div>
@@ -108,21 +113,23 @@ import { usePermissions } from "../composables/usePermissions";
 import { 
   LayoutDashboard, Users, CheckSquare, Package, 
   ArrowDownLeft, ArrowUpRight, ShoppingCart, Settings, 
-  ShieldAlert, Menu, X, ChevronRight
+  ShieldAlert, Menu, X, ChevronRight, CreditCard
 } from "lucide-vue-next";
 
 const isOpen = ref(false);
 const { canAccessPage, isMasterAdmin, fetchUserRoles } = usePermissions();
 
+// Added 'payroll' to the initial state
 const accessiblePages = ref({
-  dashboard: true, "user-management": true, approve: true, 
+  dashboard: true, "user-management": true, approve: true, payroll: true,
   inventory: true, "transaction-in": true, "transaction-out": true, 
   "sa-rotation": true, settings: true
 });
 
 onMounted(async () => {
   await fetchUserRoles();
-  const pages = ["dashboard", "user-management", "approve", "inventory", "transaction-in", "transaction-out", "sa-rotation", "settings"];
+  // Added 'payroll' to the check loop
+  const pages = ["dashboard", "user-management", "approve", "payroll", "inventory", "transaction-in", "transaction-out", "sa-rotation", "settings"];
   for (const page of pages) {
     accessiblePages.value[page] = await canAccessPage(page);
   }

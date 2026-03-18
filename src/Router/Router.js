@@ -17,6 +17,8 @@ import SA_Rotation from '../Pages/AfterSales/SA_Rotation.vue'
 import PageControl from '../Pages/Admin/PageControl.vue'
 import TransactionIn from '../Pages/Admin/TransactionIn.vue'
 import TransactionOut from '../Pages/Admin/TransactionOut.vue'
+import Payroll from '../Pages/Admin/Payroll.vue'
+import NotFound from '../Pages/404Page.vue'
 import Test from '../Pages/Test.vue'
 
 const routes = [
@@ -102,7 +104,12 @@ const routes = [
         component: TransactionOut,
         meta: { requiresAuth: true, pageId: 'transaction-out' }
       },
-
+      {
+        path: 'payroll',
+        name: 'Payroll',
+        component: Payroll,
+        meta: { requiresAuth: true, pageId: 'payroll' }
+      },
       { 
         path: 'page-control', 
         name: 'PageControl', 
@@ -115,6 +122,13 @@ const routes = [
       },
     ]
   },
+  // --- 404 CATCH-ALL ROUTE ---
+  // Siguraduhin na ito ay laging nasa pinaka-baba ng routes array
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound
+  }
 ]
 
 const router = createRouter({
@@ -126,7 +140,6 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
-  // Wait for auth to initialize
   if (authStore.isLoading) {
     const checkAuth = setInterval(() => {
       if (!authStore.isLoading) {
@@ -140,37 +153,24 @@ router.beforeEach((to, from, next) => {
   handleNavigation(to, from, next, authStore)
 })
 
-// Helper function to check page access from Page_Control
-// BOTH role AND position must match (AND logic)
 async function checkPageAccess(pageId, userId) {
   try {
-    // Fetch user's roles
     const roleDoc = await getDoc(doc(db, 'Administrator', userId, 'Roles', 'Default_Roles'))
     if (!roleDoc.exists()) return false
     
     const userRoles = roleDoc.data()
-    
-    // Fetch page access config
     const pageDoc = await getDoc(doc(db, 'Page_Control', pageId))
-    if (!pageDoc.exists()) {
-      // If no config exists, allow access by default
-      return true
-    }
+    
+    if (!pageDoc.exists()) return true
     
     const config = pageDoc.data()
     const { allowedRoles = [], allowedPositions = [] } = config
     
-    // If "All" is in allowed roles, grant access
     if (allowedRoles.includes('All')) return true
     
-    // Check role match
     const roleMatch = allowedRoles.includes(userRoles.role)
-    
-    // Check position match
     const positionMatch = allowedPositions.includes(userRoles.position)
     
-    // BOTH role AND position must match (AND logic)
-    // User must have both the allowed role AND the allowed position
     return roleMatch && positionMatch
   } catch (err) {
     console.error('Error checking page access:', err)
@@ -182,7 +182,12 @@ async function handleNavigation(to, from, next, authStore) {
   const isAuthenticated = authStore.isAuthenticated
   const userRole = authStore.userRole
   
-  // Check if route requires authentication
+  // 1. Kung ang route ay hindi nage-exist (NotFound), hayaan lang siyang dumeretso
+  if (to.name === 'NotFound') {
+    return next()
+  }
+
+  // 2. Auth Check
   if (to.meta.requiresAuth && !isAuthenticated) {
     return next({ 
       name: 'Login', 
@@ -190,15 +195,7 @@ async function handleNavigation(to, from, next, authStore) {
     })
   }
   
-  // Check if route requires specific roles (legacy support)
-  if (to.meta.allowedRoles && isAuthenticated) {
-    const allowedRoles = to.meta.allowedRoles
-    if (!allowedRoles.includes(userRole)) {
-      return next({ name: 'Dashboard' })
-    }
-  }
-  
-  // RBAC Check: Check page access from Page_Control collection
+  // 3. RBAC Check
   if (to.meta.requiresAuth && isAuthenticated && to.meta.pageId) {
     const hasAccess = await checkPageAccess(to.meta.pageId, authStore.user.uid)
     if (!hasAccess) {
@@ -206,7 +203,7 @@ async function handleNavigation(to, from, next, authStore) {
     }
   }
   
-  // Special check for Master Admin only pages
+  // 4. Master Admin Check
   if (to.meta.requiresMasterAdmin && isAuthenticated) {
     const roleDoc = await getDoc(doc(db, 'Administrator', authStore.user.uid, 'Roles', 'Default_Roles'))
     if (!roleDoc.exists()) {
@@ -222,12 +219,12 @@ async function handleNavigation(to, from, next, authStore) {
     }
   }
   
-  // Check if route requires guest (non-authenticated) access
+  // 5. Guest Route Check (prevent logged in users from seeing login/register)
   if (to.meta.requiresGuest && isAuthenticated) {
     return next({ name: 'Dashboard' })
   }
   
-  // Check session validity
+  // 6. Session Timeout Check
   if (isAuthenticated && !authStore.isSessionValid) {
     authStore.logout()
     return next({ 
