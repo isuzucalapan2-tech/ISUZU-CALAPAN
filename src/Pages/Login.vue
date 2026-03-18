@@ -110,17 +110,18 @@
           </button>
         </form>
 
-        <p class="text-center text-[11px] text-neutral-600 mt-8">
+        <p class="text-center text-[11px] text-neutral-600 mt-5">
           Don't have an account?
           <router-link to="/register" class="text-red-600 font-bold hover:underline ml-1">
             Register
           </router-link>
         </p>
-        <p class="text-center text-[11px] text-neutral-600 mt-8">
+        <p class="text-center text-[11px] text-neutral-600 mt-2">
             Forgot your
-          <router-link to="/forgot-password" class="text-red-600 font-bold hover:underline ml-1">
-            Password ?
+          <router-link to="/forgot-password" class="text-red-600 font-bold hover:underline ml-0">
+            Password 
           </router-link>
+          ?
         </p>
       </div>
 
@@ -143,7 +144,7 @@
       <div class="absolute top-8 left-8 z-10 flex items-center gap-6">
 
          <!-- MDO -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 uppercase">
           <div class="text-white">
             <h1 class="text-lg font-semibold tracking-wide">
               <span class="text-blue-600">Mina</span>
@@ -151,9 +152,9 @@
               <span class="text-red-700">Oro</span>
             </h1>
 
-            <div class="w-25 h-0.5 bg-neutral-800 my-1"></div>
+            <div class="w-30 h-0.5 bg-neutral-800 my-1"></div>
 
-            <p class="text-[10px] text-center tracking-[0.2em] opacity-80 text-white font-bold">Motors</p>
+            <p class="text-[10px] text-center tracking-[0.2em] opacity-80 text-white font-bold">Motors <span> inc.</span></p>
           </div>
         </div>
 

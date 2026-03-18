@@ -59,7 +59,7 @@
           <p class="text-[11px] text-neutral-600">
             Remembered your password?
             <router-link to="/login" class="text-red-600 font-bold hover:underline ml-1">
-              Login here
+              Login
             </router-link>
           </p>
         </div>
@@ -79,15 +79,15 @@
       <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/60 to-black/50"></div>
 
       <div class="absolute top-8 left-8 z-10 flex items-center gap-6">
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 uppercase">
           <div class="text-white">
             <h1 class="text-lg font-semibold tracking-wide">
               <span class="text-blue-600">Mina</span>
               <span class="text-yellow-500 mx-1">de</span>
               <span class="text-red-700">Oro</span>
             </h1>
-            <div class="w-25 h-0.5 bg-neutral-800 my-1"></div>
-            <p class="text-[10px] text-center tracking-[0.2em] opacity-80 text-white font-bold">Motors</p>
+            <div class="w-30 h-0.5 bg-neutral-800 my-1"></div>
+            <p class="text-[10px] text-center tracking-[0.2em] opacity-80 text-white font-bold">Motors <span> inc.</span></p>
           </div>
         </div>
         <div class="h-10 w-px bg-white/40"></div>

@@ -1,188 +1,260 @@
 <template>
   <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white">
-    <div class="flex flex-col items-center gap-4">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-red-600 border-t-transparent"></div>
-      <p class="isuzu-font text-xs font-black uppercase tracking-[0.3em] text-gray-500">Calculating Ledger...</p>
+    <div class="flex flex-col items-center gap-3">
+      <div class="w-8 h-8 border-2 border-neutral-100 border-t-neutral-900 rounded-full animate-spin"></div>
+      <p class="text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-400">Loading Ledger</p>
     </div>
   </div>
 
-  <div v-else class="min-h-screen flex flex-col font-sans relative overflow-hidden bg-neutral-50">
-    <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
-      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
-        <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
-      </svg>
-    </div>
-
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center">
-      <div class="flex items-center gap-4">
-        <div class="bg-neutral-900 p-2 rounded-lg">
-          <Wallet class="w-6 h-6 text-red-600" />
-        </div>
-        <div>
-          <h1 class="text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800">
-            Payroll <span class="text-red-600">Disbursement</span>
-          </h1>
-          <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Financial Operations Console</p>
-        </div>
+  <div v-else class="min-h-screen flex flex-col bg-white text-neutral-900 font-sans selection:bg-neutral-100">
+    
+    <header class="px-8 py-6 flex justify-between items-center border-b border-neutral-100">
+      <div>
+        <h1 class="text-lg font-bold tracking-tight uppercase isuzu-font">Payroll <span class="text-red-600">Register</span></h1>
+        <p class="text-[10px] text-neutral-400 uppercase tracking-widest mt-0.5">
+          {{ currentDateTime }} • Status: <span class="text-emerald-600">Finalized</span>
+        </p>
       </div>
 
-      <div class="hidden md:flex items-center gap-6">
-        <div class="text-right">
-          <p class="text-[9px] font-black uppercase text-gray-400 tracking-widest">Pay Period</p>
-          <p class="text-xs font-black text-neutral-800">MAR 01 - MAR 15, 2026</p>
-        </div>
-        <div class="h-10 w-[1px] bg-neutral-200"></div>
-        <button class="bg-red-600 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-red-100">
-          Process Batch
+      <div class="flex items-center gap-4">
+        <button 
+          @click="showModal = true"
+          class="flex items-center gap-2 px-4 py-2 border border-neutral-200 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors active:bg-neutral-50"
+        >
+          <BarChart3 class="w-4 h-4" /> View Analytics
+        </button>
+        
+        <button class="bg-neutral-900 text-white px-5 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-wider active:bg-black">
+          Export Bank File
         </button>
       </div>
     </header>
 
-    <main class="flex-1 relative z-10 overflow-auto">
-      <div class="max-w-[1600px] mx-auto p-6 space-y-6">
+    <main class="flex-1 flex flex-col overflow-hidden">
+      <div class="flex-1 overflow-hidden flex flex-col p-6">
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-          <div v-for="stat in payrollStats" :key="stat.label" class="bg-white border border-neutral-200 p-5 rounded-2xl">
-            <p class="text-[9px] font-black uppercase text-gray-400 tracking-[0.2em] mb-1">{{ stat.label }}</p>
-            <p class="text-xl font-black" :class="stat.color">₱{{ stat.value }}</p>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-3xl p-6 border border-neutral-200 shadow-sm">
-          <div class="flex flex-col lg:flex-row gap-4 justify-between items-center">
-            <div class="relative flex-1 w-full max-w-md">
-              <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="SEARCH EMPLOYEE NAME OR ID..."
-                class="w-full pl-12 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold uppercase tracking-widest focus:ring-2 focus:ring-red-500 outline-none transition-all"
-              />
-            </div>
-            <div class="flex gap-2 w-full lg:w-auto">
-              <select class="bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none">
-                <option>ALL DEPARTMENTS</option>
-                <option>LOGISTICS</option>
-                <option>MAINTENANCE</option>
-                <option>ADMINISTRATION</option>
-              </select>
-              <button class="flex items-center gap-2 bg-neutral-900 text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all">
-                <FileText class="w-4 h-4" /> Reports
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+        <div class="flex-1 border border-neutral-600 rounded-xl overflow-hidden flex flex-col">
+          <div class="overflow-x-auto overflow-y-auto flex-1 bg-white">
+            <table class="w-full text-[11px] border-separate border-spacing-0 min-w-[2000px]">
               <thead>
-                <tr class="bg-neutral-900 text-white text-[10px] uppercase tracking-[0.2em] isuzu-font">
-                  <th class="px-6 py-5 font-black">Employee Details</th>
-                  <th class="px-6 py-5 font-black">Position</th>
-                  <th class="px-6 py-5 font-black text-right">Basic Pay</th>
-                  <th class="px-6 py-5 font-black text-right">Overtime</th>
-                  <th class="px-6 py-5 font-black text-right">Deductions</th>
-                  <th class="px-6 py-5 font-black text-right">Net Pay</th>
-                  <th class="px-6 py-5 font-black text-center">Status</th>
-                  <th class="px-6 py-5 font-black text-center">Actions</th>
+                <tr class="bg-neutral-50 text-neutral-500 uppercase tracking-tighter">
+                  <th rowspan="2" class="px-6 py-4 font-bold border-b border-r border-neutral-600 sticky left-0 bg-neutral-50 z-30 text-neutral-900">Employee</th>
+                  <th rowspan="2" class="px-4 py-4 font-bold border-b border-r border-neutral-600 text-center">Days</th>
+                  <th colspan="2" class="px-4 py-2 font-bold border-b border-r border-neutral-600 text-center">Monthly Rates</th>
+                  <th colspan="2" class="px-4 py-2 font-bold border-b border-r border-neutral-600 text-center text-emerald-600">Earnings</th>
+                  <th colspan="5" class="px-4 py-2 font-bold border-b border-r border-neutral-600 text-center">Adjustments</th>
+                  <th rowspan="2" class="px-6 py-4 font-bold border-b border-r border-neutral-600 text-right bg-neutral-100 text-neutral-900">Gross Salary</th>
+                  <th colspan="12" class="px-4 py-2 font-bold border-b border-r border-neutral-600 text-center text-red-600">Deductions</th>
+                  <th rowspan="2" class="px-6 py-4 font-bold border-b border-r border-neutral-600 text-right bg-neutral-100 text-neutral-900">Total Ded.</th>
+                  <th rowspan="2" class="px-6 py-4 font-bold border-b border-neutral-600 text-right bg-emerald-600 text-white">Net Pay</th>
+                </tr>
+                <tr class="bg-neutral-50 text-[10px] text-neutral-400">
+                  <th class="px-4 py-2 border-b border-r border-neutral-600 text-right">Basic</th>
+                  <th class="px-4 py-2 border-b border-r border-neutral-600 text-right">Allow.</th>
+                  <th class="px-4 py-2 border-b border-r border-neutral-600 text-right text-emerald-600">Basic</th>
+                  <th class="px-4 py-2 border-b border-r border-neutral-600 text-right text-emerald-600">Allow.</th>
+                  <th class="px-4 py-2 border-b border-r border-neutral-600 text-right">OT</th>
+                  <th class="px-4 py-2 border-b border-r border-neutral-600 text-right">RD</th>
+                  <th class="px-4 py-2 border-b border-r border-neutral-600 text-right">Hol</th>
+                  <th class="px-4 py-2 border-b border-r border-neutral-600 text-right">Rice</th>
+                  <th class="px-4 py-2 border-b border-r border-neutral-600 text-right font-bold text-neutral-700">Add</th>
+                  <th v-for="label in deductionLabels" :key="label" class="px-3 py-2 border-b border-r border-neutral-600 text-right text-red-400">
+                    {{ label }}
+                  </th>
                 </tr>
               </thead>
+              
               <tbody class="divide-y divide-neutral-100">
-                <tr v-for="emp in payrollData" :key="emp.id" class="hover:bg-red-50/30 transition-colors group">
-                  <td class="px-6 py-4">
-                    <div class="flex flex-col">
-                      <span class="text-sm font-black text-neutral-800 uppercase">{{ emp.name }}</span>
-                      <span class="text-[10px] font-mono text-red-600 font-bold uppercase">{{ emp.idNumber }}</span>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4">
-                    <span class="text-[10px] font-black bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded uppercase">{{ emp.position }}</span>
-                  </td>
-                  <td class="px-6 py-4 text-right text-xs font-bold text-neutral-700">₱{{ emp.basic.toLocaleString() }}</td>
-                  <td class="px-6 py-4 text-right text-xs font-bold text-blue-600">+₱{{ emp.ot.toLocaleString() }}</td>
-                  <td class="px-6 py-4 text-right text-xs font-bold text-red-500">-₱{{ emp.deductions.toLocaleString() }}</td>
-                  <td class="px-6 py-4 text-right">
-                    <span class="text-sm font-black text-neutral-900">₱{{ emp.net.toLocaleString() }}</span>
-                  </td>
-                  <td class="px-6 py-4 text-center">
-                    <span :class="emp.status === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'" 
-                          class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter">
-                      {{ emp.status }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 text-center">
-                    <div class="flex items-center justify-center gap-2">
-                      <button title="View Payslip" class="bg-neutral-100 hover:bg-neutral-800 hover:text-white text-neutral-500 p-2 rounded-lg transition-all">
-                        <Eye class="w-4 h-4" />
-                      </button>
-                      <button title="Edit Adjustment" class="bg-neutral-100 hover:bg-blue-600 hover:text-white text-neutral-500 p-2 rounded-lg transition-all">
-                        <Edit3 class="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+                <tr v-for="row in payrollRows" :key="row.name">
+                  <td class="px-6 py-4 border-r border-neutral-600 font-bold sticky left-0 bg-white z-20">{{ row.name }}</td>
+                  <td class="px-4 py-4 border-r border-neutral-600 text-center text-neutral-400 font-medium">{{ row.days }}</td>
+                  <td class="px-4 py-4 border-r border-neutral-600 text-right font-medium">{{ format(row.basicRate) }}</td>
+                  <td class="px-4 py-4 border-r border-neutral-600 text-right font-medium">{{ format(row.allowanceRate) }}</td>
+                  <td class="px-4 py-4 border-r border-neutral-600 text-right text-emerald-600 font-bold bg-emerald-50/30">{{ format(row.basicPeriod) }}</td>
+                  <td class="px-4 py-4 border-r border-neutral-600 text-right text-emerald-600 font-bold bg-emerald-50/30">{{ format(row.allowancePeriod) }}</td>
+                  <td class="px-4 py-4 border-r border-neutral-600 text-right">{{ format(row.ot) }}</td>
+                  <td class="px-4 py-4 border-r border-neutral-600 text-right">{{ format(row.restDay) }}</td>
+                  <td class="px-4 py-4 border-r border-neutral-600 text-right">{{ format(row.legalHol) }}</td>
+                  <td class="px-4 py-4 border-r border-neutral-600 text-right">{{ format(row.rice) }}</td>
+                  <td class="px-4 py-4 border-r border-neutral-600 text-right font-bold bg-neutral-50">{{ format(row.totalAdd) }}</td>
+                  <td class="px-6 py-4 border-r border-neutral-600 text-right font-bold bg-neutral-50">{{ format(row.gross) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.sss) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.phic) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.hdmf) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.tax) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-600 font-bold italic">{{ format(row.absences) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.tardiness) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.undertime) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.mp2) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.sssLoan) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.pagibigLoan) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.coop) }}</td>
+                  <td class="px-3 py-4 border-r border-neutral-600 text-right text-red-500">{{ format(row.others) }}</td>
+                  <td class="px-6 py-4 border-r border-neutral-600 text-right font-bold text-red-600 bg-red-50/50">{{ format(row.totalDeduct) }}</td>
+                  <td class="px-6 py-4 text-right font-bold text-emerald-700 bg-emerald-50">₱{{ format(row.net) }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
+
+        <div class="mt-8 grid grid-cols-3 gap-12 max-w-5xl">
+          <div v-for="sign in signatures" :key="sign.name" class="flex flex-col">
+            <div class="h-px bg-neutral-200 w-full mb-3"></div>
+            <span class="text-[10px] font-bold text-neutral-900 uppercase tracking-wider">{{ sign.name }}</span>
+            <span class="text-[9px] text-neutral-400 uppercase font-medium">{{ sign.role }}</span>
+          </div>
+        </div>
       </div>
     </main>
 
-    <div class="absolute bottom-0 left-0 w-full z-0 opacity-10 pointer-events-none transform rotate-180">
-      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
-        <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
-      </svg>
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-white backdrop-blur-sm p-4 md:p-12">
+      <div class="bg-white border border-neutral-200 w-full max-w-7xl h-full flex flex-col rounded-3xl overflow-hidden">
+        
+        <div class="px-10 py-8 border-b border-neutral-100 flex justify-between items-center bg-neutral-50/50">
+          <div>
+            <h2 class="text-2xl font-black uppercase tracking-tight">Executive Dashboard</h2>
+            <p class="text-xs text-neutral-400 font-medium tracking-widest mt-1">REAL-TIME PAYROLL ANALYTICS — {{ currentDateTime }}</p>
+          </div>
+          <button @click="showModal = false" class="p-3 border border-neutral-200 rounded-full bg-white active:bg-neutral-50 transition-colors">
+            <X class="w-6 h-6" />
+          </button>
+        </div>
+        
+        <div class="flex-1 p-10 overflow-y-auto space-y-10">
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="p-6 border border-neutral-100 rounded-2xl bg-white">
+              <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2">Total Gross Pay</p>
+              <h3 class="text-3xl font-bold">₱100,000.00</h3>
+              <div class="mt-4 h-1 w-full bg-neutral-100 rounded-full overflow-hidden">
+                <div class="h-full bg-neutral-900 w-[100%]"></div>
+              </div>
+            </div>
+            <div class="p-6 border border-neutral-100 rounded-2xl bg-white">
+              <p class="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-2">Total Deductions</p>
+              <h3 class="text-3xl font-bold text-red-600">₱17,259.49</h3>
+              <div class="mt-4 h-1 w-full bg-neutral-100 rounded-full overflow-hidden">
+                <div class="h-full bg-red-500 w-[17%]"></div>
+              </div>
+            </div>
+            <div class="p-6 border border-neutral-100 rounded-2xl bg-emerald-600 text-white">
+              <p class="text-[10px] font-bold text-emerald-100 uppercase tracking-widest mb-2">Total Net Disbursement</p>
+              <h3 class="text-3xl font-bold">₱82,740.51</h3>
+              <p class="text-[9px] mt-4 opacity-80 uppercase tracking-widest">Ready for bank transfer</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div class="space-y-6">
+               <h4 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Salary Breakdown by Employee</h4>
+               <div class="space-y-4">
+                 <div v-for="row in payrollRows" :key="row.name" class="space-y-2">
+                    <div class="flex justify-between text-[11px] font-bold uppercase">
+                      <span>{{ row.name }}</span>
+                      <span>₱{{ format(row.net) }}</span>
+                    </div>
+                    <div class="h-3 bg-neutral-50 rounded-sm overflow-hidden border border-neutral-100">
+                      <div class="h-full bg-emerald-500" :style="{ width: (row.net / 35000 * 100) + '%' }"></div>
+                    </div>
+                 </div>
+               </div>
+            </div>
+
+            <div class="bg-neutral-50 rounded-2xl border border-neutral-200 flex flex-col p-8 items-center justify-center text-center">
+               <div class="relative w-48 h-48 flex items-center justify-center mb-6">
+                  <svg class="w-full h-full transform -rotate-90">
+                    <circle cx="96" cy="96" r="80" stroke="currentColor" stroke-width="24" fill="transparent" class="text-neutral-200" />
+                    <circle cx="96" cy="96" r="80" stroke="currentColor" stroke-width="24" fill="transparent" stroke-dasharray="502" stroke-dashoffset="85" class="text-emerald-500" />
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-2xl font-black">83%</span>
+                    <span class="text-[8px] uppercase font-bold text-neutral-400 tracking-tighter">Retention Rate</span>
+                  </div>
+               </div>
+               <p class="text-[11px] font-medium text-neutral-500 max-w-xs">
+                 Net pay represents 82.7% of the total gross expenditure for this period. 
+                 Tax and Mandatory contributions account for 17.3%.
+               </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { 
-  Wallet, Search, FileText, Eye, Edit3, 
-  ChevronRight, TrendingUp, Users, AlertCircle 
-} from 'lucide-vue-next';
+import { ref, onMounted, computed } from 'vue';
+import { BarChart3, X } from 'lucide-vue-next';
 
 const isLoading = ref(true);
+const showModal = ref(false);
+const timestamp = ref(new Date());
 
-const payrollStats = [
-  { label: 'Total Gross Pay', value: '1,240,500.00', color: 'text-neutral-800' },
-  { label: 'Total Deductions', value: '85,200.50', color: 'text-red-600' },
-  { label: 'Net Disbursement', value: '1,155,299.50', color: 'text-green-600' },
-  { label: 'Active Employees', value: '142', color: 'text-neutral-800' }
+const deductionLabels = ['SSS','PHIC','HDMF','Tax','Abs','Tard','UT','MP2','SSS Ln','P-Ib Ln','Coop','Other'];
+
+// Dynamic Date Logic
+const currentDateTime = computed(() => {
+  return timestamp.value.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  }).toUpperCase();
+});
+
+const format = (num) => {
+  if (num === 0 || !num) return '—';
+  return num.toLocaleString('en-US', { minimumFractionDigits: 2 });
+};
+
+const signatures = [
+  { name: 'VANESSA KYLA A. BARQUILLA', role: 'HR & Admin Officer' },
+  { name: 'MARITES L. BERNALES', role: 'Accounting Supervisor' },
+  { name: 'GENARO RHON D. CLEOFE JR.', role: 'Operations Manager' }
 ];
 
-const payrollData = ref([
-  { id: 1, name: 'RODRIGUEZ, ANTONIO', idNumber: 'EMP-2024-001', position: 'Logistics Manager', basic: 45000, ot: 5200, deductions: 2100, net: 48100, status: 'Paid' },
-  { id: 2, name: 'SANTOS, MARIA CLARA', idNumber: 'EMP-2024-042', position: 'Inventory Specialist', basic: 32000, ot: 1500, deductions: 1800, net: 31700, status: 'Pending' },
-  { id: 3, name: 'DELA CRUZ, JUAN', idNumber: 'EMP-2024-089', position: 'Warehouse Lead', basic: 28000, ot: 8400, deductions: 1200, net: 35200, status: 'Paid' },
-  { id: 4, name: 'BAUTISTA, ELENA', idNumber: 'EMP-2024-102', position: 'Fleet Coordinator', basic: 35000, ot: 0, deductions: 1950, net: 33050, status: 'Pending' },
+const payrollRows = ref([
+  {
+    name: 'BERNALES, Marites L.',
+    days: 15, basicRate: 60000, allowanceRate: 10000, basicPeriod: 30000, allowancePeriod: 5000,
+    ot: 0, restDay: 0, legalHol: 0, rice: 0, totalAdd: 5000, gross: 35000,
+    sss: 1025, phic: 517.50, hdmf: 200, tax: 689.93, absences: 0, tardiness: 215.65, undertime: 0,
+    mp2: 0, sssLoan: 0, pagibigLoan: 0, coop: 1000, others: 0, totalDeduct: 3648.08, net: 31351.92
+  },
+  {
+    name: 'DE JARO, Kimberly D.',
+    days: 15, basicRate: 60000, allowanceRate: 5000, basicPeriod: 30000, allowancePeriod: 2500,
+    ot: 0, restDay: 0, legalHol: 0, rice: 0, totalAdd: 2500, gross: 32500,
+    sss: 900, phic: 450, hdmf: 200, tax: 313.80, absences: 3738.02, tardiness: 0, undertime: 0,
+    mp2: 0, sssLoan: 0, pagibigLoan: 0, coop: 1000, others: 0, totalDeduct: 6601.82, net: 25898.18
+  },
+  {
+    name: 'VELASQUEZ, Kathleene M.',
+    days: 15, basicRate: 60000, allowanceRate: 5000, basicPeriod: 30000, allowancePeriod: 2500,
+    ot: 0, restDay: 0, legalHol: 0, rice: 0, totalAdd: 2500, gross: 32500,
+    sss: 900, phic: 450, hdmf: 200, tax: 313.80, absences: 1246.01, tardiness: 2966.45, undertime: 0,
+    mp2: 0, sssLoan: 0, pagibigLoan: 0, coop: 0, others: 933.33, totalDeduct: 7009.59, net: 25490.41
+  }
 ]);
 
 onMounted(() => {
-  setTimeout(() => {
-    isLoading.value = false;
-  }, 1000);
+  // Update date every minute to keep it fresh
+  setInterval(() => {
+    timestamp.value = new Date();
+  }, 60000);
+
+  setTimeout(() => isLoading.value = false, 600);
 });
 </script>
 
-<style>
+<style scoped>
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e5e5e5; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #d4d4d4; }
 .isuzu-font {
   font-family: 'IsuzuFont', sans-serif;
-}
-
-/* Animations matching your previous setup */
-.animate-in {
-  animation-duration: 0.5s;
-  animation-fill-mode: forwards;
-}
-
-@keyframes slideInFromTop {
-  from { transform: translateY(-1rem); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.slide-in-from-top-4 {
-  animation-name: slideInFromTop;
 }
 </style>

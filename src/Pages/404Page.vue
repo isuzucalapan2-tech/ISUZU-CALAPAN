@@ -8,10 +8,10 @@
       </div>
 
       <h1 class="text-9xl font-extrabold text-gray-900 tracking-widest isuzu-font">
-        404
+        4<span class="text-red-600">o</span>4
       </h1>
       
-      <div class="bg-orange-600 px-2 text-sm rounded rotate-12 absolute -mt-20 ml-32 hidden sm:block">
+      <div class="bg-indigo-600 px-4 text-sm text-white rounded rotate-12 absolute -mt-20 ml-32 hidden sm:block">
         Page Not Found
       </div>
       
