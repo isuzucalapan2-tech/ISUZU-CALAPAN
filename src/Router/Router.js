@@ -6,6 +6,7 @@ import { db } from '../Firebase/Firebase'
 import LandingPage from '../Pages/LandingPage.vue'
 import Login from '../Pages/Login.vue'
 import Register from '../Pages/Register.vue'
+import ForgotPassword from '../Pages/ForgotPassword.vue'
 import AdminParent from '../Pages/Admin/AdminParent.vue'
 import Dashboard from '../Pages/Admin/Dashboard.vue'
 import Approve from '../Pages/Admin/Approve.vue'
@@ -16,6 +17,10 @@ import SA_Rotation from '../Pages/AfterSales/SA_Rotation.vue'
 import PageControl from '../Pages/Admin/PageControl.vue'
 import TransactionIn from '../Pages/Admin/TransactionIn.vue'
 import TransactionOut from '../Pages/Admin/TransactionOut.vue'
+import Payroll from '../Pages/Admin/Payroll.vue'
+import Unauthorized from '../Pages/401Page.vue'
+import Forbidden from '../Pages/403Page.vue'
+import NotFound from '../Pages/404Page.vue'
 import Test from '../Pages/Test.vue'
 
 const routes = [
@@ -35,6 +40,12 @@ const routes = [
     path: '/register', 
     name: 'Register', 
     component: Register,
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword,
     meta: { requiresGuest: true }
   },
   { 
@@ -95,7 +106,12 @@ const routes = [
         component: TransactionOut,
         meta: { requiresAuth: true, pageId: 'transaction-out' }
       },
-
+      {
+        path: 'payroll',
+        name: 'Payroll',
+        component: Payroll,
+        meta: { requiresAuth: true, pageId: 'payroll' }
+      },
       { 
         path: 'page-control', 
         name: 'PageControl', 
@@ -108,6 +124,23 @@ const routes = [
       },
     ]
   },
+  // --- Error Routes ---
+  {
+    path: '/unauthorized',
+    name: 'Unauthorized',
+    component: Unauthorized
+  },
+  {
+    path: '/forbidden',
+    name: 'Forbidden',
+    component: Forbidden
+  },
+  // --- 404 CATCH-ALL ---
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound
+  }
 ]
 
 const router = createRouter({
@@ -115,11 +148,9 @@ const router = createRouter({
   routes
 })
 
-// Navigation Guard for Authentication
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
-  // Wait for auth to initialize
   if (authStore.isLoading) {
     const checkAuth = setInterval(() => {
       if (!authStore.isLoading) {
@@ -133,37 +164,24 @@ router.beforeEach((to, from, next) => {
   handleNavigation(to, from, next, authStore)
 })
 
-// Helper function to check page access from Page_Control
-// BOTH role AND position must match (AND logic)
 async function checkPageAccess(pageId, userId) {
   try {
-    // Fetch user's roles
     const roleDoc = await getDoc(doc(db, 'Administrator', userId, 'Roles', 'Default_Roles'))
     if (!roleDoc.exists()) return false
     
     const userRoles = roleDoc.data()
-    
-    // Fetch page access config
     const pageDoc = await getDoc(doc(db, 'Page_Control', pageId))
-    if (!pageDoc.exists()) {
-      // If no config exists, allow access by default
-      return true
-    }
+    
+    if (!pageDoc.exists()) return true
     
     const config = pageDoc.data()
     const { allowedRoles = [], allowedPositions = [] } = config
     
-    // If "All" is in allowed roles, grant access
     if (allowedRoles.includes('All')) return true
     
-    // Check role match
     const roleMatch = allowedRoles.includes(userRoles.role)
-    
-    // Check position match
     const positionMatch = allowedPositions.includes(userRoles.position)
     
-    // BOTH role AND position must match (AND logic)
-    // User must have both the allowed role AND the allowed position
     return roleMatch && positionMatch
   } catch (err) {
     console.error('Error checking page access:', err)
@@ -173,37 +191,37 @@ async function checkPageAccess(pageId, userId) {
 
 async function handleNavigation(to, from, next, authStore) {
   const isAuthenticated = authStore.isAuthenticated
-  const userRole = authStore.userRole
-  
-  // Check if route requires authentication
+
+  // 1. Skip checks for Error Pages and NotFound
+  if (['NotFound', 'Unauthorized', 'Forbidden'].includes(to.name)) {
+    return next()
+  }
+
+  // 2. 401 Unauthorized Check
+  // Kung kailangan ng auth pero hindi logged in
   if (to.meta.requiresAuth && !isAuthenticated) {
-    return next({ 
-      name: 'Login', 
-      query: { redirect: to.fullPath, session: 'expired' } 
-    })
+    return next({ name: 'Unauthorized' }) 
+    // Note: Pwede ring redirect sa Login, pero since hiningi mo ang 401, dito natin sila itatapon.
+  }
+
+  // 3. Guest Route Check (prevent logged in users from seeing login/register)
+  if (to.meta.requiresGuest && isAuthenticated) {
+    return next({ name: 'Dashboard' })
   }
   
-  // Check if route requires specific roles (legacy support)
-  if (to.meta.allowedRoles && isAuthenticated) {
-    const allowedRoles = to.meta.allowedRoles
-    if (!allowedRoles.includes(userRole)) {
-      return next({ name: 'Dashboard' })
-    }
-  }
-  
-  // RBAC Check: Check page access from Page_Control collection
+  // 4. RBAC Check (403 Forbidden)
   if (to.meta.requiresAuth && isAuthenticated && to.meta.pageId) {
     const hasAccess = await checkPageAccess(to.meta.pageId, authStore.user.uid)
     if (!hasAccess) {
-      return next({ name: 'Dashboard' })
+      return next({ name: 'Forbidden' })
     }
   }
   
-  // Special check for Master Admin only pages
+  // 5. Master Admin Check (403 Forbidden)
   if (to.meta.requiresMasterAdmin && isAuthenticated) {
     const roleDoc = await getDoc(doc(db, 'Administrator', authStore.user.uid, 'Roles', 'Default_Roles'))
     if (!roleDoc.exists()) {
-      return next({ name: 'Dashboard' })
+      return next({ name: 'Forbidden' })
     }
     
     const userRoles = roleDoc.data()
@@ -211,16 +229,11 @@ async function handleNavigation(to, from, next, authStore) {
                      userRoles.role === 'isuzu&calapan&master&admin101'
     
     if (!isMaster) {
-      return next({ name: 'Dashboard' })
+      return next({ name: 'Forbidden' })
     }
   }
   
-  // Check if route requires guest (non-authenticated) access
-  if (to.meta.requiresGuest && isAuthenticated) {
-    return next({ name: 'Dashboard' })
-  }
-  
-  // Check session validity
+  // 6. Session Timeout Check
   if (isAuthenticated && !authStore.isSessionValid) {
     authStore.logout()
     return next({ 

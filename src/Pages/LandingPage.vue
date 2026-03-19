@@ -19,8 +19,9 @@
             </h1>
             <div class="w-full h-[1px] bg-neutral-300 my-0.5 md:my-1"></div>
             <p class="text-[8px] md:text-[10px] text-center font-bold text-neutral-900 uppercase tracking-[0.2em]">
-              Motors
+              Motors <span> inc.</span>
             </p>
+            
           </div>
         </div>
 

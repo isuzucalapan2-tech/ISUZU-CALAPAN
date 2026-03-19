@@ -135,36 +135,36 @@
                   <th class="px-6 py-5 font-black text-center">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100">
+              <tbody class="divide-y divide-neutral-100">
                 <tr v-for="item in paginatedInventory" :key="item.id" class="hover:bg-red-50/50 transition-colors group">
-                  <td class="px-6 py-6">
+                  <td class="px-6 py-2">
                     <div class="flex flex-col">
-                      <span class="text-xs font-mono font-black text-red-600">{{ item.controlNo }}</span>
+                      <span class="text-sm font-mono font-black text-red-600">{{ item.controlNo }}</span>
                       <span class="text-[9px] font-black bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded mt-1 w-fit uppercase">{{ item.category }}</span>
                     </div>
                   </td>
-                  <td class="px-6 py-6">
+                  <td class="px-6 py-2">
                     <div class="flex flex-col">
-                      <span class="text-sm font-black text-neutral-800 uppercase tracking-tight">{{ item.partName }}</span>
+                      <span class="text-[12px] font-black text-neutral-800 uppercase tracking-tight">{{ item.partName }}</span>
                       <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">PN: {{ item.partNo }} | MODEL: {{ item.model }}</span>
                     </div>
                   </td>
-                  <td class="px-6 py-6">
+                  <td class="px-6 py-2">
                     <span class="text-xs text-gray-500">{{ item.description || '-' }}</span>
                   </td>
-                  <td class="px-6 py-6 text-center">
+                  <td class="px-6 py-2 text-center">
                     <span :class="item.quantity < 5 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'" 
                           class="px-3 py-1 rounded-full text-xs font-black">
                       {{ item.quantity || 0 }}
                     </span>
                   </td>
-                  <td class="px-6 py-6">
+                  <td class="px-6 py-2">
                     <span class="text-sm font-bold text-neutral-700">₱{{ formatPrice(item.unitPrice) }}</span>
                   </td>
-                  <td class="px-6 py-6">
+                  <td class="px-6 py-2">
                     <span class="text-sm font-black text-green-600">₱{{ formatPrice(item.totalValue) }}</span>
                   </td>
-                  <td class="px-6 py-6 text-center">
+                  <td class="px-6 py-2 text-center">
                     <div class="flex items-center justify-center gap-2">
                       <button @click="editItem(item)" class="bg-neutral-100 hover:bg-blue-600 hover:text-white text-neutral-500 p-2 rounded-lg transition-all">
                         <Edit class="w-4 h-4" />
@@ -490,16 +490,7 @@ import {
   Download
 } from "lucide-vue-next";
 
-
-
-
-
-
-
-
-/* =====================
-   STATE
-===================== */
+/*  STATE*/
 const isLoading = ref(true);
 const isSaving = ref(false);
 const showModal = ref(false);
@@ -516,14 +507,10 @@ const importPreview = ref({ validItems: [], invalidItems: [] });
 const isImporting = ref(false);
 const isPrinting = ref(false);
 
-
 // Pagination state
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const itemsPerPageOptions = [10, 25, 50, 100];
-
-
-
 
 // Range filter states
 const minQty = ref("");
@@ -536,7 +523,6 @@ const inventoryListeners = ref([]);
 
 const inventoryItems = ref([]);
 const availableCategories = ref([]);
-
 
 const form = ref({
   id: null,
