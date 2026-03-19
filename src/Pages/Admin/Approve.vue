@@ -5,54 +5,53 @@
 
   <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
     
-    <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
+    <div class="absolute top-0 left-0 w-full z-0 opacity-5 pointer-events-none">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
-        <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
+        <path d="M0 15 H280 L330 45 H500" stroke="currentColor" stroke-width="1" />
       </svg>
     </div>
 
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none">
+    <header class="relative z-10 px-8 py-8 flex justify-between items-center">
       <div class="flex items-center gap-4">
         <div class="bg-red-600 p-2 rounded-lg">
-          <UserPlus class="w-6 h-6 text-white" />
+          <UserPlus class="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 class="text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800">
+          <h1 class="text-xl font-bold tracking-tight uppercase text-neutral-800 isuzu-font">
             User <span class="text-red-600">Approval</span>
           </h1>
-          <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Pending Registrations</p>
+          <p class="text-[10px] text-neutral-500 uppercase tracking-widest font-medium">Pending Registrations</p>
         </div>
       </div>
 
-      <div class="hidden md:flex items-center bg-neutral-100 px-4 py-2 rounded-full border border-neutral-200">
-        <span class="text-[10px] font-black uppercase tracking-widest text-neutral-600">
-          Total Pending: <span class="text-red-600 text-sm ml-1">{{ resultCount }}</span>
+      <div class="hidden md:flex items-center">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+          Total Pending: <span class="text-red-600 ml-1">{{ resultCount }}</span>
         </span>
       </div>
     </header>
 
-    <main class="flex-1 relative z-10 overflow-auto">
-      <div class="max-w-7xl mx-auto p-8">
+    <main class="flex-1 relative z-10 overflow-auto px-8 pb-12">
+      <div class="max-w-7xl mx-auto space-y-6">
         
-        <div class="bg-white rounded-2xl p-6 border border-neutral-300 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            
-            <div class="lg:col-span-3 relative">
-              <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="SEARCH BY USERNAME OR EMAIL..."
-                class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold uppercase tracking-widest focus:ring-2 focus:ring-red-500 outline-none transition-all"
-              />
-            </div>
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="relative flex-1 min-w-[300px]">
+            <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search by username or email..."
+              class="w-full pl-11 pr-4 py-2.5 rounded-xl text-sm border border-neutral-200 bg-white focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none transition-all"
+            />
+          </div>
 
-            <select v-model="selectedRole" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-red-500">
+          <div class="flex items-center gap-2">
+            <select v-model="selectedRole" class="px-4 py-2.5 border border-neutral-200 rounded-xl text-xs font-bold outline-none cursor-pointer bg-white">
               <option value="">ALL ROLES</option>
               <option v-for="role in roleOptions" :key="role" :value="role">{{ role.toUpperCase() }}</option>
             </select>
 
-            <select v-model="selectedPosition" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-red-500">
+            <select v-model="selectedPosition" class="px-4 py-2.5 border border-neutral-200 rounded-xl text-xs font-bold outline-none cursor-pointer bg-white">
               <option value="">ALL POSITIONS</option>
               <option v-for="pos in positionOptions" :key="pos" :value="pos">{{ pos.toUpperCase() }}</option>
             </select>
@@ -60,61 +59,61 @@
             <button 
               v-if="hasActiveFilters"
               @click="clearAllFilters"
-              class="flex items-center justify-center gap-2 bg-neutral-800 text-white rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all"
+              class="p-2.5 text-neutral-500 hover:text-red-600 transition-colors"
             >
-              <X class="w-4 h-4" /> Clear Filters
+              <X class="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-neutral-600 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div class="bg-white rounded-xl border border-neutral-300 overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-neutral-800 text-white text-[11px] uppercase tracking-[0.2em] isuzu-font">
-                  <th class="px-6 py-5 font-black">User Info</th>
-                  <th class="px-6 py-5 font-black">Assign Role</th>
-                  <th class="px-6 py-5 font-black">Assign Position</th>
-                  <th class="px-6 py-5 font-black">Assign Permission</th>
-                  <th class="px-6 py-5 font-black text-center">Actions</th>
+                <tr class="border-b border-neutral-100">
+                  <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider opacity-40">User Info</th>
+                  <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider opacity-40">Assign Role</th>
+                  <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider opacity-40">Assign Position</th>
+                  <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider opacity-40">Assign Permission</th>
+                  <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-right opacity-40">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-neutral-100">
-                <tr v-for="user in paginatedPendingUsers" :key="user.id" class="hover:bg-red-50/50 transition-colors group">
-                  <td class="px-6 py-6">
+              <tbody class="divide-y divide-neutral-50">
+                <tr v-for="user in paginatedPendingUsers" :key="user.id" class="transition-colors hover:bg-neutral-50/50">
+                  <td class="px-6 py-4">
                     <div class="flex flex-col">
-                      <span class="text-sm font-black text-neutral-800 uppercase tracking-tight">{{ user.username }}</span>
-                      <span class="text-xs text-gray-500 font-medium">{{ user.email }}</span>
+                      <span class="text-sm font-semibold text-neutral-800">{{ user.username }}</span>
+                      <span class="text-[11px] text-neutral-500 font-medium">{{ user.email }}</span>
                     </div>
                   </td>
 
-                  <td class="px-6 py-6">
-                    <select v-model="user.selectedRole" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[10px] font-black text-neutral-700 focus:border-red-500 outline-none uppercase">
+                  <td class="px-6 py-4">
+                    <select v-model="user.selectedRole" class="bg-transparent border border-neutral-200 rounded px-2 py-1.5 text-[10px] font-bold outline-none focus:border-red-500 transition-colors uppercase">
                       <option disabled value="">Select Role</option>
                       <option v-for="role in roleOptions" :key="role" :value="role">{{ role }}</option>
                     </select>
                   </td>
 
-                  <td class="px-6 py-6">
-                    <select v-model="user.selectedPosition" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[10px] font-black text-neutral-700 focus:border-red-500 outline-none uppercase">
+                  <td class="px-6 py-4">
+                    <select v-model="user.selectedPosition" class="bg-transparent border border-neutral-200 rounded px-2 py-1.5 text-[10px] font-bold outline-none focus:border-red-500 transition-colors uppercase">
                       <option disabled value="">Select Position</option>
                       <option v-for="pos in positionOptions" :key="pos" :value="pos">{{ pos }}</option>
                     </select>
                   </td>
 
-                  <td class="px-6 py-6">
-                    <select v-model="user.selectedPermission" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[10px] font-black text-neutral-700 focus:border-red-500 outline-none uppercase">
+                  <td class="px-6 py-4">
+                    <select v-model="user.selectedPermission" class="bg-transparent border border-neutral-200 rounded px-2 py-1.5 text-[10px] font-bold outline-none focus:border-red-500 transition-colors uppercase">
                       <option disabled value="">Select Permission</option>
                       <option v-for="perm in permissionOptions" :key="perm" :value="perm">{{ perm }}</option>
                     </select>
                   </td>
 
-                  <td class="px-6 py-6 text-center">
-                    <div class="flex items-center justify-center gap-2">
-                      <button @click="approveUser(user)" class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg transition-all hover:shadow-lg active:scale-95" title="Approve">
+                  <td class="px-6 py-4">
+                    <div class="flex justify-end items-center gap-1">
+                      <button @click="approveUser(user)" class="p-2 text-neutral-400 hover:text-green-600 transition-colors" title="Approve">
                         <Check class="w-4 h-4" />
                       </button>
-                      <button @click="denyUser(user)" class="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition-all hover:shadow-lg active:scale-95" title="Deny">
+                      <button @click="denyUser(user)" class="p-2 text-neutral-400 hover:text-red-600 transition-colors" title="Deny">
                         <Trash2 class="w-4 h-4" />
                       </button>
                     </div>
@@ -123,9 +122,9 @@
 
                 <tr v-if="paginatedPendingUsers.length === 0">
                   <td colspan="5" class="px-6 py-20 text-center">
-                    <div class="flex flex-col items-center opacity-20">
-                      <Users class="w-20 h-20 mb-4" />
-                      <p class="text-xl font-black isuzu-font uppercase tracking-widest">No Pending Requests</p>
+                    <div class="flex flex-col items-center opacity-10">
+                      <Users class="w-16 h-16 mb-4" />
+                      <p class="text-lg font-bold uppercase tracking-widest">No Pending Requests</p>
                     </div>
                   </td>
                 </tr>
@@ -133,36 +132,38 @@
             </table>
           </div>
 
-          <div class="px-8 py-5 bg-gray-50 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-              Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredPendingUsers.length) }} of {{ resultCount }}
-            </div>
+          <div class="px-6 py-4 border-t border-neutral-50 flex flex-col md:flex-row items-center justify-between gap-4 bg-neutral-50/30">
+            <p class="text-[11px] font-medium text-neutral-500">
+              Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, filteredPendingUsers.length) }} of {{ resultCount }}
+            </p>
             
-            <div class="flex items-center gap-2">
-              <button @click="currentPage--" :disabled="currentPage === 1" class="p-2 rounded-lg bg-white border border-gray-200 disabled:opacity-30 hover:text-red-600 transition-colors">
-                <ChevronLeft class="w-4 h-4" />
-              </button>
-              
-              <div class="flex gap-1">
-                <button v-for="page in displayedPages" :key="page" @click="currentPage = page" 
-                  :class="currentPage === page ? 'bg-red-600 text-white shadow-lg shadow-red-200' : 'bg-white text-neutral-600 hover:bg-gray-100'"
-                  class="w-8 h-8 rounded-lg text-xs font-bold transition-all">
-                  {{ page }}
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-1">
+                <button @click="currentPage--" :disabled="currentPage === 1" class="p-2 disabled:opacity-20 hover:text-red-600 transition-all">
+                  <ChevronLeft class="w-4 h-4" />
+                </button>
+                
+                <div class="flex gap-1 px-2">
+                  <button v-for="page in displayedPages" :key="page" @click="currentPage = page" 
+                    :class="currentPage === page ? 'text-red-600 font-black' : 'text-neutral-400 font-bold'"
+                    class="w-6 h-6 text-[11px] transition-all">
+                    {{ page }}
+                  </button>
+                </div>
+
+                <button @click="currentPage++" :disabled="currentPage === totalPages" class="p-2 disabled:opacity-20 hover:text-red-600 transition-all">
+                  <ChevronRight class="w-4 h-4" />
                 </button>
               </div>
-
-              <button @click="currentPage++" :disabled="currentPage === totalPages" class="p-2 rounded-lg bg-white border border-gray-200 disabled:opacity-30 hover:text-red-600 transition-colors">
-                <ChevronRight class="w-4 h-4" />
-              </button>
             </div>
           </div>
         </div>
       </div>
     </main>
 
-    <div class="absolute bottom-0 left-0 w-full z-0 opacity-10 pointer-events-none transform rotate-180">
+    <div class="absolute bottom-0 left-0 w-full z-0 opacity-5 pointer-events-none transform rotate-180">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
-        <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
+        <path d="M0 45 H170 L220 15 H500" stroke="currentColor" stroke-width="1" />
       </svg>
     </div>
   </div>

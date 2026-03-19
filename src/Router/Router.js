@@ -18,6 +18,8 @@ import PageControl from '../Pages/Admin/PageControl.vue'
 import TransactionIn from '../Pages/Admin/TransactionIn.vue'
 import TransactionOut from '../Pages/Admin/TransactionOut.vue'
 import Payroll from '../Pages/Admin/Payroll.vue'
+import Unauthorized from '../Pages/401Page.vue'
+import Forbidden from '../Pages/403Page.vue'
 import NotFound from '../Pages/404Page.vue'
 import Test from '../Pages/Test.vue'
 
@@ -122,8 +124,18 @@ const routes = [
       },
     ]
   },
-  // --- 404 CATCH-ALL ROUTE ---
-  // Siguraduhin na ito ay laging nasa pinaka-baba ng routes array
+  // --- Error Routes ---
+  {
+    path: '/unauthorized',
+    name: 'Unauthorized',
+    component: Unauthorized
+  },
+  {
+    path: '/forbidden',
+    name: 'Forbidden',
+    component: Forbidden
+  },
+  // --- 404 CATCH-ALL ---
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
@@ -136,7 +148,6 @@ const router = createRouter({
   routes
 })
 
-// Navigation Guard for Authentication
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
@@ -180,34 +191,37 @@ async function checkPageAccess(pageId, userId) {
 
 async function handleNavigation(to, from, next, authStore) {
   const isAuthenticated = authStore.isAuthenticated
-  const userRole = authStore.userRole
-  
-  // 1. Kung ang route ay hindi nage-exist (NotFound), hayaan lang siyang dumeretso
-  if (to.name === 'NotFound') {
+
+  // 1. Skip checks for Error Pages and NotFound
+  if (['NotFound', 'Unauthorized', 'Forbidden'].includes(to.name)) {
     return next()
   }
 
-  // 2. Auth Check
+  // 2. 401 Unauthorized Check
+  // Kung kailangan ng auth pero hindi logged in
   if (to.meta.requiresAuth && !isAuthenticated) {
-    return next({ 
-      name: 'Login', 
-      query: { redirect: to.fullPath, session: 'expired' } 
-    })
+    return next({ name: 'Unauthorized' }) 
+    // Note: Pwede ring redirect sa Login, pero since hiningi mo ang 401, dito natin sila itatapon.
+  }
+
+  // 3. Guest Route Check (prevent logged in users from seeing login/register)
+  if (to.meta.requiresGuest && isAuthenticated) {
+    return next({ name: 'Dashboard' })
   }
   
-  // 3. RBAC Check
+  // 4. RBAC Check (403 Forbidden)
   if (to.meta.requiresAuth && isAuthenticated && to.meta.pageId) {
     const hasAccess = await checkPageAccess(to.meta.pageId, authStore.user.uid)
     if (!hasAccess) {
-      return next({ name: 'Dashboard' })
+      return next({ name: 'Forbidden' })
     }
   }
   
-  // 4. Master Admin Check
+  // 5. Master Admin Check (403 Forbidden)
   if (to.meta.requiresMasterAdmin && isAuthenticated) {
     const roleDoc = await getDoc(doc(db, 'Administrator', authStore.user.uid, 'Roles', 'Default_Roles'))
     if (!roleDoc.exists()) {
-      return next({ name: 'Dashboard' })
+      return next({ name: 'Forbidden' })
     }
     
     const userRoles = roleDoc.data()
@@ -215,13 +229,8 @@ async function handleNavigation(to, from, next, authStore) {
                      userRoles.role === 'isuzu&calapan&master&admin101'
     
     if (!isMaster) {
-      return next({ name: 'Dashboard' })
+      return next({ name: 'Forbidden' })
     }
-  }
-  
-  // 5. Guest Route Check (prevent logged in users from seeing login/register)
-  if (to.meta.requiresGuest && isAuthenticated) {
-    return next({ name: 'Dashboard' })
   }
   
   // 6. Session Timeout Check
