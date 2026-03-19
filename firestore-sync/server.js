@@ -20,17 +20,22 @@ app.post('/api/sync', (req, res) => {
   });
 });
 
-// Log when cron job is scheduled
-console.log('Scheduling weekly sync: every Monday at 8:30 AM');
+// Log when cron job is scheduled (FALLBACK - Task Scheduler primary)
+console.log('Scheduling Saturday backup fallback: every Saturday at 4:30 PM');
 
-// 🔄 Schedule sync every Monday at 8:30 AM
-cron.schedule('30 8 * * 1', () => {
-  console.log('Weekly sync started...');
+const logBackup = (msg) => {
+  const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
+  console.log(`[BACKUP ${timestamp}] ${msg}`);
+};
+
+// 🔄 Schedule backup every Saturday at 4:30 PM (fallback)
+cron.schedule('30 16 * * 6', () => {
+  logBackup('Fallback cron backup started...');
   exec('node firestore-sync/syncFirestoreToMySQL.js', { cwd: process.cwd() }, (error, stdout, stderr) => {
     if (error) {
-      console.error('Weekly sync failed:', stderr || error.message);
+      logBackup('Fallback backup FAILED: ' + (stderr || error.message));
     } else {
-      console.log('Weekly sync complete! Output:', stdout);
+      logBackup('Fallback backup SUCCESS: ' + stdout);
     }
   });
 });

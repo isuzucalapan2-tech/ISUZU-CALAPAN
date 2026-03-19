@@ -179,9 +179,58 @@ node firestore-sync/server.js
 ```
 - Runs on: http://localhost:3001
 
-### Option 2: PM2 Auto-Start (Recommended for Network Hosting) 
+### Option 2: PM2 Auto-Start (Recommended for Network Hosting)
 
-### !!! Must cd to the project directory !!!
+**Important**: Always run from the project root directory (where `ecosystem.config.cjs` is located).
+
+```
+cd /d "c:\Users\admin\Downloads\ISUZU-APP"
+```
+
+Simply run:
+```
+start.bat
+```
+
+#### Switching from Legacy Project (e.g., ISUZU-CALAPAN → ISUZU-APP)
+
+If PM2 shows old paths (check `pm2 desc 0` or logs):
+
+```
+pm2 delete all          # Remove ALL old processes
+pm2 start ecosystem.config.cjs  # Start from current dir
+pm2 save                # Persist
+```
+
+Verify:
+```
+pm2 status
+pm2 desc 0  # Should show cwd: ISUZU-APP
+```
+
+#### Updating from GitHub
+
+After `git pull`:
+
+```
+git pull
+npm install              # Update dependencies if changed
+pm2 restart all          # Reload with new code (zero-downtime)
+pm2 save
+```
+
+Or full refresh:
+```
+pm2 delete all
+npm install
+pm2 start ecosystem.config.cjs
+pm2 save
+```
+
+This will:
+1. Start the frontend (Vite) on port 5173
+2. Start the backend (Express) on port 3001
+3. Save the PM2 process list for auto-restart
 
 This is the recommended method for production/network hosting.
 
@@ -208,6 +257,9 @@ This will:
 | `pm2 stop all` | Stop all processes |
 | `pm2 restart all` | Restart all processes |
 | `pm2 save` | Save process list for restart |
+| `pm2 delete all` | **CRITICAL**: Delete ALL processes (use when switching projects or after git pull) |
+| `pm2 delete isuzu-frontend` | Delete specific process by name |
+| `pm2 desc 0` | Show process details (cwd, script path, logs) |
 
 ---
 
@@ -447,14 +499,30 @@ PM2 log files are stored in the `logs/` directory:
 
 ## Troubleshooting
 
-### Port Already in Use
+### Port Already in Use or Wrong Project Directory
+
+PM2 using legacy paths (e.g., ISUZU-CALAPAN in logs/`pm2 desc`)?
 
 ```
-bash
-pm2 stop all
 pm2 delete all
-# Then restart with start.bat
+start.bat  # Or: pm2 start ecosystem.config.cjs
 ```
+
+Port 5173/3001 conflict:
+```
+netstat -ano | findstr :5173
+taskkill /PID <PID> /F
+```
+
+### After GitHub Update Not Reflected
+
+```
+git pull
+npm install
+pm2 restart all
+```
+
+### Cannot Access from Network
 
 ### Cannot Access from Network
 
@@ -560,6 +628,40 @@ git pull
 # Restart PM2
 pm2 restart all
 ```
+
+## Automatic Backup System (Saturday 4PM)
+
+**How it works:**
+1. **4:00 PM Saturdays** - Windows Task "ISUZU-Backup" runs `backup-manager.ps1` as SYSTEM
+2. **XAMPP** → Apache (`httpd.exe`) → MySQL (`mysqld.exe`) with **3x retries** (5/10/20s exp backoff)
+3. **30min buffer** → Backup starts ~4:30PM
+4. **`node firestore-sync/syncFirestoreToMySQL.js`** syncs Firestore → `isuzu_inventory_backup` DB (3x retries)
+5. **Logs** → `logs/backup.log` with timestamps
+
+**Setup (Admin):**
+```cmd
+install-backup-task.bat
+```
+
+**Test:**
+```cmd
+schtasks /run /tn "ISUZU-Backup"
+powershell "Get-Content logs/backup.log -Wait"
+# Verify DB: "C:\xampp\mysql\bin\mysql.exe" -u root -e "USE isuzu_inventory_backup; SHOW TABLES;"
+```
+
+**Status/Logs:**
+```
+schtasks /query /tn "ISUZU-Backup"
+type logs\backup.log
+```
+
+**Uninstall:** `uninstall-backup.bat`
+
+**Troubleshooting:**
+- XAMPP path: Edit `$XamppPath` in PS1
+- Node deps: `cd firestore-sync && npm i firebase-admin mysql2`
+- Prerequisites: C:\xampp, Node.js, service account JSON
 
 ---
 
