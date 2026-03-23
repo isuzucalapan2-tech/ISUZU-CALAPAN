@@ -92,9 +92,28 @@
                     <span class="text-sm font-bold text-neutral-800">{{ sa.saName }}</span>
                     <span :class="sa.saStatus === 'Available' ? 'text-green-600' : 'text-orange-500'" class="text-[10px] font-bold uppercase">{{ sa.saStatus }}</span>
                   </div>
-                  <button @click.stop="toggleDropdown(index, 'serviceAdvisors')" class="p-1 text-neutral-400 hover:text-neutral-900">
-                    <MoreVertical class="w-4 h-4" />
-                  </button>
+                  <div class="relative">
+                    <button @click.stop="toggleDropdown(index, 'serviceAdvisors')" class="p-1 text-neutral-400 hover:text-neutral-900">
+                      <MoreVertical class="w-4 h-4" />
+                    </button>
+                    <div
+                      v-if="dropdownIndex === index && dropdownType === 'serviceAdvisors'"
+                      class="absolute right-0 mt-1 w-32 bg-white border border-neutral-200 shadow-xl rounded-lg z-50 py-1"
+                    >
+                      <button
+                        @click.stop="openSAEditModal(index, sa.saName, sa.saStatus)"
+                        class="w-full text-left px-4 py-2 text-xs font-bold hover:bg-neutral-50 flex items-center gap-2"
+                      >
+                        <Edit2 class="w-3 h-3 text-blue-500" /> Edit
+                      </button>
+                      <button
+                        @click.stop="openSADeleteModal(index, sa.saName)"
+                        class="w-full text-left px-4 py-2 text-xs font-bold hover:bg-neutral-50 text-red-600 flex items-center gap-2"
+                      >
+                        <Trash2 class="w-3 h-3" /> Delete
+                      </button>
+                    </div>
+                  </div>
                 </li>
                 <li v-if="serviceAdvisors.length === 0" class="py-8 text-center text-neutral-400 text-xs italic">No advisors registered</li>
               </ul>
@@ -233,11 +252,11 @@
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="relative">
                   <Calendar class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-                  <input v-model="historyFromDate" type="date" class="w-full pl-9 pr-4 py-2 border border-neutral-200 rounded-xl text-xs font-bold outline-none" />
+                  <input v-model="historyFromDate" @change="onDateFilterChange" type="date" class="w-full pl-9 pr-4 py-2 border border-neutral-200 rounded-xl text-xs font-bold outline-none" />
                 </div>
                 <div class="relative">
                   <Calendar class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-                  <input v-model="historyToDate" type="date" class="w-full pl-9 pr-4 py-2 border border-neutral-200 rounded-xl text-xs font-bold outline-none" />
+                  <input v-model="historyToDate" @change="onDateFilterChange" type="date" class="w-full pl-9 pr-4 py-2 border border-neutral-200 rounded-xl text-xs font-bold outline-none" />
                 </div>
                 <div class="relative">
                   <Search class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
@@ -280,6 +299,115 @@
         </div>
       </div>
     </main>
+
+    <div v-if="showEditPRModal" class="fixed inset-0 z-70 flex items-center justify-center bg-black/40 p-4" @click="closePREditModal">
+      <div class="w-full max-w-md rounded-xl border border-neutral-200 bg-white shadow-2xl" @click.stop>
+        <div class="flex items-center justify-between border-b border-neutral-100 px-5 py-4">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-800">Edit Retail Order</h3>
+          <button @click="closePREditModal" class="rounded-md p-1 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-800">
+            <X class="h-4 w-4" />
+          </button>
+        </div>
+        <div class="space-y-3 px-5 py-4">
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-neutral-500">Retail Order</label>
+          <input
+            v-model="editingPROrder"
+            type="text"
+            class="w-full rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-medium outline-none transition-all focus:border-red-500 focus:ring-2 focus:ring-red-500/10"
+            placeholder="Enter order name"
+          />
+        </div>
+        <div class="flex justify-end gap-2 border-t border-neutral-100 px-5 py-4">
+          <button @click="closePREditModal" class="rounded-lg bg-neutral-100 px-4 py-2 text-xs font-bold uppercase tracking-wider text-neutral-700 transition-colors hover:bg-neutral-200">
+            Cancel
+          </button>
+          <button @click="savePROrderEdit" class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-red-700">
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showDeletePRModal" class="fixed inset-0 z-70 flex items-center justify-center bg-black/40 p-4" @click="closePRDeleteModal">
+      <div class="w-full max-w-md rounded-xl border border-neutral-200 bg-white shadow-2xl" @click.stop>
+        <div class="border-b border-neutral-100 px-5 py-4">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-800">Delete Retail Order</h3>
+        </div>
+        <div class="px-5 py-4">
+          <p class="text-sm text-neutral-600">
+            Delete <span class="font-bold text-neutral-900">{{ deletingPROrder }}</span>? This action cannot be undone.
+          </p>
+        </div>
+        <div class="flex justify-end gap-2 border-t border-neutral-100 px-5 py-4">
+          <button @click="closePRDeleteModal" class="rounded-lg bg-neutral-100 px-4 py-2 text-xs font-bold uppercase tracking-wider text-neutral-700 transition-colors hover:bg-neutral-200">
+            Cancel
+          </button>
+          <button @click="confirmDeletePROrder" class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-red-700">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showEditSAModal" class="fixed inset-0 z-70 flex items-center justify-center bg-black/40 p-4" @click="closeSAEditModal">
+      <div class="w-full max-w-md rounded-xl border border-neutral-200 bg-white shadow-2xl" @click.stop>
+        <div class="flex items-center justify-between border-b border-neutral-100 px-5 py-4">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-800">Edit Service Advisor</h3>
+          <button @click="closeSAEditModal" class="rounded-md p-1 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-800">
+            <X class="h-4 w-4" />
+          </button>
+        </div>
+        <div class="space-y-3 px-5 py-4">
+          <div>
+            <label class="mb-1 block text-[11px] font-bold uppercase tracking-wider text-neutral-500">Advisor Name</label>
+            <input
+              v-model="editingSAName"
+              type="text"
+              class="w-full rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-medium outline-none transition-all focus:border-red-500 focus:ring-2 focus:ring-red-500/10"
+              placeholder="Enter advisor name"
+            />
+          </div>
+          <div>
+            <label class="mb-1 block text-[11px] font-bold uppercase tracking-wider text-neutral-500">Status</label>
+            <select
+              v-model="editingSAStatus"
+              class="w-full rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-medium outline-none transition-all focus:border-red-500 focus:ring-2 focus:ring-red-500/10"
+            >
+              <option v-for="status in statuses" :key="status" :value="status">{{ status }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 border-t border-neutral-100 px-5 py-4">
+          <button @click="closeSAEditModal" class="rounded-lg bg-neutral-100 px-4 py-2 text-xs font-bold uppercase tracking-wider text-neutral-700 transition-colors hover:bg-neutral-200">
+            Cancel
+          </button>
+          <button @click="saveSAEdit" class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-red-700">
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showDeleteSAModal" class="fixed inset-0 z-70 flex items-center justify-center bg-black/40 p-4" @click="closeSADeleteModal">
+      <div class="w-full max-w-md rounded-xl border border-neutral-200 bg-white shadow-2xl" @click.stop>
+        <div class="border-b border-neutral-100 px-5 py-4">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-800">Delete Service Advisor</h3>
+        </div>
+        <div class="px-5 py-4">
+          <p class="text-sm text-neutral-600">
+            Delete <span class="font-bold text-neutral-900">{{ deletingSAName }}</span>? This action cannot be undone.
+          </p>
+        </div>
+        <div class="flex justify-end gap-2 border-t border-neutral-100 px-5 py-4">
+          <button @click="closeSADeleteModal" class="rounded-lg bg-neutral-100 px-4 py-2 text-xs font-bold uppercase tracking-wider text-neutral-700 transition-colors hover:bg-neutral-200">
+            Cancel
+          </button>
+          <button @click="confirmDeleteSA" class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-red-700">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div class="absolute bottom-0 left-0 w-full z-0 opacity-5 pointer-events-none transform rotate-180">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
