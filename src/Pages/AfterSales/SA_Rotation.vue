@@ -233,9 +233,9 @@
                     </td>
                     <td class="px-6 py-4 text-[11px] text-neutral-400 font-medium">{{ assignment.date }}</td>
                     <td class="px-6 py-4 text-right space-x-1">
-                      <button @click="openEditModal(getOriginalIndex(assignment), assignment)" class="p-1.5 text-neutral-400 hover:text-blue-600 transition-colors" title="Edit"><Edit2 class="w-4 h-4" /></button>
-                      <button @click="markAsDone(getOriginalIndex(assignment))" class="p-1.5 text-neutral-400 hover:text-green-600 transition-colors" title="Mark Done"><CheckCircle2 class="w-4 h-4" /></button>
-                      <button @click="cancelAssignment(getOriginalIndex(assignment))" class="p-1.5 text-neutral-400 hover:text-red-600 transition-colors" title="Cancel"><XCircle class="w-4 h-4" /></button>
+                      <!-- Edit button removed as requested -->
+                      <button @click="markAsDone(getOriginalIndex(assignment))" class="p-3 text-neutral-400 hover:text-green-600 transition-colors text-lg" style="font-size: 1.5rem;" title="Mark Done"><CheckCircle2 class="w-7 h-7" /></button>
+                      <button @click="cancelAssignment(getOriginalIndex(assignment))" class="p-3 text-neutral-400 hover:text-red-600 transition-colors text-lg" style="font-size: 1.5rem;" title="Cancel"><XCircle class="w-7 h-7" /></button>
                     </td>
                   </tr>
                   <tr v-if="paginatedActiveAssignments.length === 0">
