@@ -1,608 +1,291 @@
 <template>
-  <div class="h-screen w-screen bg-slate-100 p-4 font-sans overflow-hidden flex flex-col gap-4" @click="closeDropdown">
+  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white">
+    <div class="animate-spin rounded-full h-12 w-12 border-4 border-red-600 border-t-transparent"></div>
+  </div>
+
+  <div v-else :class="themeClass" class="min-h-screen flex flex-col font-sans relative overflow-hidden" @click="closeDropdown">
     
-    <!-- View Mode Indicator -->
-    <div v-if="viewMode !== 'TODAY'" class="bg-amber-100 border border-amber-300 text-amber-800 px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span>📖</span>
-        <span>Viewing {{ viewMode === 'RANGE' ? `Range: ${historyFromDate} to ${historyToDate}` : `History: ${historyFromDate}` }}</span>
+    <div class="absolute top-0 left-0 w-full z-0 opacity-5 pointer-events-none">
+      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+        <path d="M0 15 H280 L330 45 H500" stroke="currentColor" stroke-width="1" />
+      </svg>
+    </div>
+
+    <header class="relative z-10 px-8 py-8 flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <div class="bg-red-600 p-2 rounded-lg text-white">
+          <ClipboardList class="w-5 h-5" />
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight uppercase isuzu-font">
+            Order <span class="text-red-600">Assignments</span>
+          </h1>
+          <div class="flex items-center gap-2 mt-1">
+            <span v-if="viewMode === 'TODAY'" class="flex items-center gap-1 text-[10px] text-green-600 font-bold uppercase tracking-widest">
+              <span class="w-1.5 h-1.5 bg-green-600 rounded-full animate-pulse"></span> Live Mode
+            </span>
+            <span v-else class="text-[10px] text-orange-500 font-bold uppercase tracking-widest">
+              History Mode: {{ historyFromDate }} {{ historyToDate ? 'to ' + historyToDate : '' }}
+            </span>
+          </div>
+        </div>
       </div>
-      <button @click="resetToToday" class="text-xs bg-amber-200 hover:bg-amber-300 px-3 py-1 rounded transition-colors">
-        Back to Today
+
+      <button v-if="viewMode !== 'TODAY'" @click="resetToToday" 
+        class="flex items-center gap-2 px-4 py-2 bg-neutral-800 text-white text-[11px] font-bold rounded-lg hover:bg-red-600 transition-all uppercase tracking-wider">
+        <RotateCcw class="w-3.5 h-3.5" /> Back to Today
       </button>
-    </div>
-    <div v-else class="bg-green-100 border border-green-300 text-green-800 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
-      <span class="relative flex h-3 w-3">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-      </span>
-      <span>Live Mode - Today's Assignments</span>
-    </div>
+    </header>
 
-    <!-- Top Row -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 h-[50%] shrink-0">
-      
-      <!-- Retail Orders Card -->
-      <div class="bg-white rounded-xl shadow-md border border-slate-200 flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300">
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 text-white flex items-center gap-2 shadow-sm shrink-0 z-10">
-          <span class="text-xl">📦</span>
-          <h2 class="font-bold text-sm tracking-wide uppercase">Retail Orders</h2>
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-3 relative">
-          <ul class="space-y-2">
-            <li v-for="(pr, index) in prOrders" :key="index" 
-                class="group flex justify-between items-center p-2.5 bg-slate-50 hover:bg-indigo-50 hover:shadow-md rounded-lg border border-slate-100 transition-all duration-200 relative">
-              <span class="text-xs font-semibold text-slate-700 truncate pr-2">{{ pr }}</span>
-              <div class="relative">
-                <button 
-                  class="p-1 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-sm rounded-md transition-all duration-200"
-                  @click.stop="toggleDropdown(index, 'prOrders')"
-                >
-                  <span class="text-lg leading-none font-bold">⋮</span>
-                </button>
-                <div v-if="dropdownIndex === index && dropdownType === 'prOrders'" 
-                     class="absolute right-0 top-full mt-1 w-32 bg-white rounded-lg shadow-xl border border-slate-100 z-50 overflow-hidden animate-fade-in-down">
-                  <button class="w-full text-left px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:pl-5 transition-all duration-200 flex items-center gap-2" @click.stop="openPREditModal(index, pr)">
-                    <span>✎</span> Edit
-                  </button>
-                  <button class="w-full text-left px-4 py-2 text-xs font-medium text-red-500 hover:bg-red-50 hover:pl-5 transition-all duration-200 flex items-center gap-2 border-t border-slate-100" @click.stop="openPRDeleteModal(index, pr)">
-                    <span>🗑</span> Delete
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-          <div v-if="prOrders.length === 0" class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
-            <span class="text-4xl mb-2">📭</span>
-            <span class="text-xs">No items added</span>
-          </div>
-        </div>
-
-        <div class="p-3 bg-white border-t border-slate-100 shrink-0 z-10">
-          <form @submit.prevent="addPROrder" class="flex gap-2">
-            <input 
-              v-model="newPROrder" 
-              @input="newPROrder = newPROrder.toUpperCase()" 
-              type="text"
-              class="flex-1 rounded-lg border-slate-300 bg-slate-50 text-xs px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none hover:bg-white hover:border-indigo-300 transition-all duration-200"
-              placeholder="Enter order..." 
-              required
-            />
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 shadow-md">
-              Add
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <!-- Service Advisors Card -->
-      <div class="bg-white rounded-xl shadow-md border border-slate-200 flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300">
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 text-white flex items-center gap-2 shadow-sm shrink-0">
-          <span class="text-xl">👤</span>
-          <h2 class="font-bold text-sm tracking-wide uppercase">Service Advisors</h2>
-        </div>
-
-        <!-- Assignment Stats Panel -->
-        <div class="bg-slate-50 border-b border-slate-200 p-2">
-          <div class="text-[10px] font-bold text-slate-600 uppercase mb-1">Assignment Stats</div>
-          <div class="grid grid-cols-3 gap-1 text-center">
-            <div class="bg-white rounded p-1">
-              <div class="text-[9px] text-slate-400">Total</div>
-              <div class="text-xs font-bold text-indigo-600">{{ getTotalAssignedAll() }}</div>
-            </div>
-            <div class="bg-white rounded p-1">
-              <div class="text-[9px] text-slate-400">Active</div>
-              <div class="text-xs font-bold text-green-600">{{ getTotalActiveAll() }}</div>
-            </div>
-            <div class="bg-white rounded p-1">
-              <div class="text-[9px] text-slate-400">Capacity</div>
-              <div class="text-xs font-bold text-amber-600">{{ getCapacityPercentage() }}%</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex-1 p-3 overflow-y-auto">
-          <ul class="space-y-2">
-            <li v-for="(sa, index) in serviceAdvisors" :key="index" 
-                class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-                :class="{ 'opacity-50': !isSAAvailable(sa) }">
-              <div class="flex flex-col min-w-0 flex-1 mr-2">
-                <span class="text-sm font-bold text-slate-700 truncate">{{ sa.saName }}</span>
-                <span 
-                  class="text-[10px] font-bold px-2 py-0.5 rounded-full w-fit mt-1 uppercase"
-                  :class="getSAStatusColor(sa.saStatus)"
-                >
-                  {{ sa.saStatus }}
-                </span>
-                <div class="mt-1.5 flex items-center gap-1">
-                  <div class="flex-1 bg-slate-200 rounded-full h-1">
-                    <div 
-                      class="h-1 rounded-full transition-all duration-300"
-                      :class="getWorkloadColor(getCurrentActive(sa.saName))"
-                      :style="{ width: Math.min(100, (getCurrentActive(sa.saName) / 5) * 100) + '%' }"
-                    ></div>
-                  </div>
-                  <span class="text-[8px] text-slate-400 w-3">{{ getCurrentActive(sa.saName) }}/5</span>
-                </div>
-              </div>
-
-              <div class="flex gap-1">
-                <div class="flex flex-col items-center bg-white border border-slate-200 rounded px-2 py-1">
-                  <span class="text-xs font-black text-indigo-600 leading-none">{{ getTotalAssigned(sa.saName) }}</span>
-                  <span class="text-[8px] text-slate-400 uppercase">Total</span>
-                </div>
-
-                <div class="relative group" @mouseenter="hoveringSAIndex = index" @mouseleave="hoveringSAIndex = null">
-                  <div class="flex flex-col items-center bg-white border border-indigo-100 shadow-sm rounded px-2 py-1 cursor-help hover:border-indigo-400 transition-all duration-200">
-                    <span class="text-xs font-black text-indigo-600 leading-none">{{ getCurrentActive(sa.saName) }}</span>
-                    <span class="text-[8px] text-slate-400 uppercase">Active</span>
-                  </div>
-                  <div v-if="hoveringSAIndex === index" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden animate-fade-in-up">
-                    <div class="bg-indigo-600 text-white text-[10px] font-bold px-2 py-1 text-center">Active PROs</div>
-                    <ul class="max-h-32 overflow-y-auto py-1">
-                      <li v-if="getActiveProsList(sa.saName).length === 0" class="text-center text-[10px] text-slate-400 py-2 italic">No active PROs</li>
-                      <li v-for="pro in getActiveProsList(sa.saName)" :key="pro" class="px-2 py-1 text-[10px] text-slate-700 border-b border-slate-50 last:border-0 truncate">
-                        {{ pro }}
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div class="relative">
-                  <button class="h-full px-1 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 hover:shadow-sm rounded transition-all duration-200"
-                     @click.stop="toggleDropdown(index, 'serviceAdvisors')">
-                    ⋮
-                  </button>
-                  <div v-if="dropdownIndex === index && dropdownType === 'serviceAdvisors'" 
-                       class="absolute right-0 bottom-full mb-1 w-32 bg-white rounded-lg shadow-xl border border-slate-100 z-[60] overflow-hidden animate-fade-in-up">
-                    <button class="w-full text-left px-3 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:pl-4 transition-all duration-200" @click.stop="openSAEditModal(index, sa.saName, sa.saStatus)">✎ Edit</button>
-                    <button class="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-red-50 hover:pl-4 border-t border-slate-100 transition-all duration-200" @click.stop="openSADeleteModal(index, sa.saName)">🗑 Delete</button>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-          <div v-if="serviceAdvisors.length === 0" class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
-            <span class="text-4xl mb-2">📭</span>
-            <span class="text-xs">No advisors</span>
-          </div>
-        </div>
-
-        <div class="p-3 bg-white border-t border-slate-100 shrink-0 z-10">
-          <form @submit.prevent="addServiceAdvisor" class="flex gap-2">
-            <input 
-              v-model="newServiceAdvisor" 
-              @input="newServiceAdvisor = newServiceAdvisor.toUpperCase()" 
-              type="text"
-              class="flex-1 rounded-lg border-slate-300 bg-slate-50 text-xs px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all hover:bg-white hover:border-indigo-300"
-              placeholder="Enter name..." 
-              required
-            />
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 shadow-md">
-              Add
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <!-- Assignment Card -->
-      <div class="bg-white rounded-xl shadow-md border border-slate-200 flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300"
-           :class="{ 'opacity-75': !canCreateAssignments }">
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 text-white flex items-center gap-2 shadow-sm shrink-0 z-10">
-          <span class="text-xl">🎯</span>
-          <h2 class="font-bold text-sm tracking-wide uppercase">Auto Assign Order</h2>
-        </div>
-
-        <div v-if="!canCreateAssignments && viewMode !== 'TODAY'" class="bg-amber-50 border-b border-amber-200 p-2 text-center">
-          <p class="text-[10px] text-amber-700 font-medium">⚠️ Switch to Today's view to create assignments</p>
-        </div>
-
-        <!-- Discontinued Orders Warning -->
-        <div v-if="hasDiscontinuedOrders" class="bg-red-50 border-b border-red-200 p-2 text-center">
-          <p class="text-[10px] text-red-700 font-bold">
-            ⚠️ {{ discontinuedAssignments.length }} Discontinued Order(s) from Previous Day
-          </p>
-          <p class="text-[9px] text-red-600 mt-0.5">
-            Delete or reassign all discontinued orders to enable new assignments
-          </p>
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-2 bg-slate-50/50">
-          <div class="space-y-2">
-            <div>
-              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Select Retail Order</label>
-              <select v-model="assignmentForm.selectedPRO" @change="onPROSelected" class="w-full rounded-lg border-slate-300 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 hover:border-indigo-400 transition-colors duration-200"
-                      :disabled="!canCreateAssignments">
-                <option value="">Choose a Retail Order</option>
-                <option v-for="pro in availablePROs" :key="pro" :value="pro">{{ pro }}</option>
-              </select>
-            </div>
-
-            <!-- Auto-Assigned Display -->
-            <div v-if="assignmentForm.selectedPRO && autoAssignedSA" class="bg-indigo-50 border border-indigo-100 rounded-lg p-2 text-center transition-all">
-              <div class="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Auto-Assigned</div>
-              <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-sm font-bold py-1 px-3 rounded-lg shadow-lg inline-block mb-1">
-                {{ autoAssignedSA.saName }}
-              </div>
-              <div class="text-[9px] text-indigo-600 font-medium">
-                {{ getAssignmentReasonText(autoAssignedSA) }}
-              </div>
-            </div>
-
-            <div v-if="assignmentForm.selectedPRO && !autoAssignedSA && !assignmentForm.selectedSA" class="text-red-500 text-[10px] font-bold bg-red-50 p-2 rounded text-center">
-              {{ noAssignmentReason || 'No available advisors' }}
-            </div>
-
-            <!-- Manual Override -->
-            <button 
-              @click="showManualSelection = !showManualSelection"
-              class="w-full py-1 text-[10px] font-medium text-slate-500 bg-white border border-slate-200 rounded-md hover:text-indigo-600 hover:border-indigo-300 hover:shadow-md transition-all duration-200"
-              :disabled="!canCreateAssignments || !assignmentForm.selectedPRO"
-            >
-              {{ showManualSelection ? 'Close Manual Selection' : 'Manual Override' }}
-            </button>
-
-            <div v-if="showManualSelection" class="bg-white p-2 rounded-lg border border-slate-200">
-              <div class="text-[10px] font-bold text-slate-500 uppercase mb-1">Select Advisor</div>
-              <div class="grid grid-cols-2 gap-1">
-                <button 
-                  v-for="sa in rankedSAsForManual" 
-                  :key="sa.saName"
-                  type="button"
-                  :class="[
-                    'flex flex-col items-center p-1.5 rounded-md border text-[10px] transition-all duration-200',
-                    assignmentForm.selectedSA === sa.saName 
-                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-bold ring-1 ring-indigo-500' 
-                      : 'border-slate-100 hover:bg-indigo-50 hover:border-indigo-300 text-slate-600',
-                    !sa.isAvailable && 'opacity-50 cursor-not-allowed'
-                  ]"
-                  @click="sa.isAvailable && selectManualSA(sa.saName)"
-                  :disabled="!sa.isAvailable"
-                >
-                  <span class="flex items-center gap-1">
-                    {{ sa.saName }}
-                    <span v-if="sa.isNewHandler" class="text-green-500">●</span>
-                    <span v-else-if="!sa.isAvailable" class="text-red-500">✕</span>
-                    <span v-else class="text-amber-500">↻</span>
-                  </span>
-                  <span class="text-[8px] opacity-70">{{ getSAQuickStatus(sa) }}</span>
-                </button>
-              </div>
-              <button @click="resetToAutoAssignment" class="w-full mt-1 text-[9px] text-green-600 font-bold uppercase tracking-wide py-1 hover:underline hover:text-green-700 transition-colors duration-200">
-                ↻ Reset to Auto
-              </button>
-            </div>
-
-            <!-- Manual Override Warning -->
-            <div v-if="manualOverrideWarning" class="bg-amber-50 border border-amber-200 rounded-lg p-2">
-              <p class="text-[10px] text-amber-800 font-medium">{{ manualOverrideWarning }}</p>
-            </div>
-
-            <div>
-              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Note (Optional)</label>
-              <textarea 
-                v-model="assignmentForm.note" 
-                class="w-full rounded-lg border-slate-300 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-1 min-h-12 hover:border-indigo-400 hover:bg-white transition-all duration-200"
-                placeholder="Add notes..."
-                rows="2"
-                :disabled="!canCreateAssignments"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-3 bg-white border-t border-slate-100 shrink-0 z-10 space-y-2">
-            <button 
-              @click="proceedAssignment"
-              :disabled="!canCreateAssignments || !assignmentForm.selectedPRO || !assignmentForm.selectedSA"
-              class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-2.5 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-            >
-              {{ canCreateAssignments ? 'Assign Order' : 'View Mode Only' }}
-            </button>
-            <button 
-              @click="clearAssignmentForm"
-              :disabled="!canCreateAssignments || (!assignmentForm.selectedPRO && !assignmentForm.selectedSA && !assignmentForm.note)"
-              class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2 rounded-lg border border-slate-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
-            >
-              ✕ Clear Fields
-            </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom Row -->
-    <div class="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4 min-h-0">
-      <!-- Performed Retail Orders Table -->
-      <div class="md:col-span-3 bg-white rounded-xl shadow-md border border-slate-200 flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300">
-        <div class="bg-slate-50 border-b border-slate-200 p-3 flex justify-between items-center shrink-0">
-          <div class="flex items-center gap-2 text-indigo-700">
-            <span class="text-xl">📋</span>
-            <h2 class="font-bold text-sm tracking-wide uppercase">Active Orders</h2>
-            <span v-if="viewMode === 'TODAY'" class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Live</span>
-          </div>
-          <input 
-              v-model="searchQuery"
-              type="text"
-              class="bg-white border border-slate-300 text-xs rounded-md px-3 py-1.5 w-64 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-400 transition-colors duration-200"
-              placeholder="Search PRO or SA..."
-          />
-        </div>
+    <main class="flex-1 relative z-10 overflow-auto px-8 pb-12">
+      <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <div class="flex-1 overflow-auto">
-          <table class="min-w-full divide-y divide-slate-200">
-            <thead class="bg-slate-50 sticky top-0 z-10">
-              <tr>
-                <th class="px-2 py-1 text-left text-[13px] font-bold text-slate-500 uppercase tracking-wider">PRO</th>
-                <th class="px-2 py-1 text-left text-[13px] font-bold text-slate-500 uppercase tracking-wider">Advisor</th>
-                <th class="px-2 py-1 text-left text-[13px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                <th class="px-2 py-1 text-left text-[13px] font-bold text-slate-500 uppercase tracking-wider">Date</th>
-                <th class="px-2 py-1 text-right text-[13px] font-bold text-slate-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-slate-100">
-              <tr v-for="(assignment, index) in paginatedActiveAssignments" :key="index" class="hover:bg-indigo-50/50 hover:shadow-sm transition-all duration-200">
-                <td class="px-3 py-2 whitespace-nowrap text-[12px] font-medium text-slate-900">{{ assignment.pro }}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-[12px] text-slate-600">{{ assignment.saName }}</td>
-                <td class="px-3 py-2 whitespace-nowrap">
-                  <span 
-                    :class="[
-                      'px-1.5 inline-flex text-[10px] leading-4 font-semibold rounded-full uppercase',
-                      isAssignmentCutOff(assignment) 
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-blue-100 text-blue-800'
-                    ]"
-                  >
-                    {{ isAssignmentCutOff(assignment) ? 'CUT OFF' : assignment.status }}
-                  </span>
-                </td>
-                <td class="px-3 py-2 whitespace-nowrap text-[12px] text-slate-400">{{ formatDate(assignment.date) }}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-right text-sm font-medium space-x-1">
-                  <template v-if="isAssignmentCutOff(assignment)">
-                    <button class="text-red-600 hover:text-red-900" title="Delete" @click="deleteAssignmentDirect(getOriginalIndex(assignment))">🗑</button>
-                    <button class="text-amber-600 hover:text-amber-900" title="Reassign" @click="reassignAssignment(getOriginalIndex(assignment))">🔄</button>
-                  </template>
-                  <template v-else>
-                    <button class="text-indigo-600 hover:text-indigo-900 hover:bg-indigo-100 rounded px-1 transition-all duration-200" title="Edit" @click="openEditModal(getOriginalIndex(assignment), assignment)">✎</button>
-                    <button class="text-green-600 hover:text-green-900 hover:bg-green-100 rounded px-1 transition-all duration-200" title="Done" @click="markAsDone(getOriginalIndex(assignment))">✓</button>
-                    <button class="text-orange-500 hover:text-orange-900 hover:bg-orange-100 rounded px-1 transition-all duration-200" title="Cancel" @click="cancelAssignment(getOriginalIndex(assignment))">✕</button>
-                  </template>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div v-if="filteredActiveAssignments.length === 0" class="p-8 text-center text-slate-400 text-sm">
-            No active assignments found.
-          </div>
-        </div>
-
-        <div class="p-2 border-t border-slate-200 bg-slate-50 flex justify-center gap-2 shrink-0">
-          <button @click="currentPage--" :disabled="currentPage === 1" class="px-2 py-1 text-xs border rounded hover:bg-white hover:shadow-sm transition-all duration-200 disabled:opacity-50">← Prev</button>
-          <span class="text-xs self-center font-medium text-slate-600">Page {{ currentPage }}</span>
-          <button @click="currentPage++" :disabled="currentPage === totalActivePages" class="px-2 py-1 text-xs border rounded hover:bg-white hover:shadow-sm transition-all duration-200 disabled:opacity-50">Next →</button>
-        </div>
-      </div>
-
-      <!-- History Table -->
-      <div class="md:col-span-2 bg-white rounded-xl shadow-md border border-slate-200 flex flex-col overflow-hidden opacity-90 hover:opacity-100 hover:shadow-xl transition-all duration-300">
-        <div class="bg-slate-50 border-b border-slate-200 p-3 flex justify-between items-center gap-2 shrink-0 flex-wrap">
-          <div class="flex items-center gap-2 text-slate-600">
-            <span class="text-xl">📊</span>
-            <h2 class="font-bold text-sm tracking-wide uppercase">History</h2>
-          </div>
-          <div class="flex gap-2 items-center flex-wrap">
-            <input 
-              v-model="historyFromDate"
-              @change="onDateFilterChange"
-              type="date"
-              :max="todayDate"
-              class="bg-white border border-slate-300 text-xs rounded-md px-3 py-1.5 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-400 transition-colors duration-200"
-            />
-            <span class="text-xs text-slate-400">to</span>
-            <input 
-              v-model="historyToDate"
-              @change="onDateFilterChange"
-              type="date"
-              :max="todayDate"
-              class="bg-white border border-slate-300 text-xs rounded-md px-3 py-1.5 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-400 transition-colors duration-200"
-            />
-            <input 
-              v-model="historySearchQuery"
-              type="text"
-              class="bg-white border border-slate-300 text-xs rounded-md px-3 py-1.5 w-32 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-400 hover:shadow-sm transition-all duration-200"
-              placeholder="Search..."
-            />
-            <select v-model="historyStatusFilter" @change="historyPage = 1" class="bg-white border border-slate-300 text-xs rounded-md px-2 py-1.5 focus:ring-indigo-500 hover:border-indigo-400 transition-colors duration-200">
-              <option value="">All</option>
-              <option value="JOB DONE">Done</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
-          </div>
-        </div>
-
-        <div v-if="viewMode === 'RANGE'" class="bg-indigo-50 border-b border-indigo-100 p-1 text-center">
-          <span class="text-[10px] text-indigo-600 font-medium">
-            {{ filteredHistoryAssignments.length }} records across {{ dateRangeDays }} days
-          </span>
-        </div>
-
-        <div class="flex-1 overflow-auto">
-          <table class="min-w-full divide-y divide-slate-200">
-            <thead class="bg-slate-50 sticky top-0 z-10">
-              <tr>
-                <th class="px-2 py-1 text-left text-[13px] font-bold text-slate-500 uppercase">PRO</th>
-                <th class="px-2 py-1 text-left text-[13px] font-bold text-slate-500 uppercase">Status</th>
-                <th class="px-2 py-1 text-right text-[13px] font-bold text-slate-500 uppercase">Action</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-slate-100">
-              <tr v-for="(assignment, index) in paginatedHistoryAssignments" :key="index" class="hover:bg-slate-100 hover:shadow-sm transition-all duration-200">
-                <td class="px-2 py-1 whitespace-nowrap text-[10px]">
-                  <div class="font-bold text-slate-700">{{ assignment.pro }}</div>
-                  <div class="text-[9px] text-slate-400">{{ assignment.saName }}</div>
-                </td>
-                <td class="px-2 py-1 whitespace-nowrap">
-                  <span 
-                    class="px-1.5 py-0.5 inline-flex text-[8px] leading-3 font-bold rounded-full uppercase tracking-wider"
-                    :class="assignment.status === 'JOB DONE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                  >
-                    {{ assignment.status }}
-                  </span>
-                </td>
-                <td class="px-3 py-2 whitespace-nowrap text-right text-sm">
-                  <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded px-1 transition-all duration-200" @click="deleteAssignment(getOriginalIndex(assignment))">🗑</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div v-if="filteredHistoryAssignments.length === 0" class="p-8 text-center text-slate-400 text-sm">
-            No history records found.
-          </div>
-        </div>
-
-        <div class="p-2 border-t border-slate-200 bg-slate-50 flex justify-center gap-2 shrink-0">
-          <button @click="historyPage--" :disabled="historyPage === 1" class="px-2 py-1 text-xs border rounded hover:bg-white hover:shadow-sm transition-all duration-200 disabled:opacity-50">← Prev</button>
-          <span class="text-xs self-center font-medium text-slate-600">Page {{ historyPage }}</span>
-          <button @click="historyPage++" :disabled="historyPage === totalHistoryPages" class="px-2 py-1 text-xs border rounded hover:bg-white hover:shadow-sm transition-all duration-200 disabled:opacity-50">Next →</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modals (Edit Assignment, Edit PR, Delete PR, Edit SA, Delete SA) -->
-    <!-- Edit Assignment Modal -->
-    <div v-if="showEditModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in" @click="closeEditModal">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100" @click.stop>
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center text-white">
-          <h3 class="font-bold">Edit Assignment</h3>
-          <button @click="closeEditModal" class="text-white/80 hover:text-white hover:scale-110 font-bold text-xl transition-transform duration-200">✕</button>
-        </div>
-        <div class="p-6 space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase mb-1">PRO</label>
-              <input v-model="editingAssignment.pro" disabled class="w-full bg-slate-100 border border-slate-200 rounded px-3 py-2 text-sm text-slate-500" />
+        <div class="lg:col-span-4 space-y-6">
+          
+          <section class="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-neutral-100 flex justify-between items-center bg-neutral-50/50">
+              <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-800">Retail Orders</h2>
+              <span class="text-[10px] font-bold text-neutral-400">{{ prOrders.length }} Items</span>
             </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Advisor</label>
-              <input v-model="editingAssignment.saName" disabled class="w-full bg-slate-100 border border-slate-200 rounded px-3 py-2 text-sm text-slate-500" />
+            <div class="p-4">
+              <ul class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-1">
+                <li v-for="(pr, index) in prOrders" :key="index" 
+                  class="group flex items-center justify-between p-3 bg-neutral-50 border border-neutral-100 rounded-lg hover:border-red-200 transition-all">
+                  <span class="text-sm font-medium text-neutral-700">{{ pr }}</span>
+                  <div class="relative">
+                    <button @click.stop="toggleDropdown(index, 'prOrders')" class="p-1 text-neutral-400 hover:text-neutral-900">
+                      <MoreVertical class="w-4 h-4" />
+                    </button>
+                    <div v-if="dropdownIndex === index && dropdownType === 'prOrders'" 
+                      class="absolute right-0 mt-1 w-32 bg-white border border-neutral-200 shadow-xl rounded-lg z-50 py-1">
+                      <button @click.stop="openPREditModal(index, pr)" class="w-full text-left px-4 py-2 text-xs font-bold hover:bg-neutral-50 flex items-center gap-2">
+                        <Edit2 class="w-3 h-3 text-blue-500" /> Edit
+                      </button>
+                      <button @click.stop="openPRDeleteModal(index, pr)" class="w-full text-left px-4 py-2 text-xs font-bold hover:bg-neutral-50 text-red-600 flex items-center gap-2">
+                        <Trash2 class="w-3 h-3" /> Delete
+                      </button>
+                    </div>
+                  </div>
+                </li>
+                <li v-if="prOrders.length === 0" class="py-8 text-center text-neutral-400 text-xs italic">No items added</li>
+              </ul>
+              <form @submit.prevent="addPROrder" class="relative">
+                <input v-model="newPROrder" type="text" placeholder="Add new order..." 
+                  class="w-full pl-4 pr-12 py-2.5 bg-white border border-neutral-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none transition-all" />
+                <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-neutral-900 text-white rounded-lg hover:bg-red-600 transition-colors">
+                  <Plus class="w-4 h-4" />
+                </button>
+              </form>
             </div>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status</label>
-            <select v-model="editingAssignment.status" class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:ring-indigo-500">
-              <option value="ON GOING">ON GOING</option>
-              <option value="IN PROGRESS">IN PROGRESS</option>
-              <option value="JOB DONE">JOB DONE</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Note</label>
-            <textarea v-model="editingAssignment.note" rows="3" class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:ring-indigo-500"></textarea>
-          </div>
+          </section>
+
+          <section class="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-neutral-100 flex justify-between items-center bg-neutral-50/50">
+              <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-800">Service Advisors</h2>
+              <span class="text-[10px] font-bold text-neutral-400">{{ serviceAdvisors.length }} Active</span>
+            </div>
+            <div class="p-4">
+              <ul class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-1">
+                <li v-for="(sa, index) in serviceAdvisors" :key="index" 
+                  class="flex items-center justify-between p-3 bg-neutral-50 border border-neutral-100 rounded-lg">
+                  <div class="flex flex-col">
+                    <span class="text-sm font-bold text-neutral-800">{{ sa.saName }}</span>
+                    <span :class="sa.saStatus === 'Available' ? 'text-green-600' : 'text-orange-500'" class="text-[10px] font-bold uppercase">{{ sa.saStatus }}</span>
+                  </div>
+                  <button @click.stop="toggleDropdown(index, 'serviceAdvisors')" class="p-1 text-neutral-400 hover:text-neutral-900">
+                    <MoreVertical class="w-4 h-4" />
+                  </button>
+                </li>
+                <li v-if="serviceAdvisors.length === 0" class="py-8 text-center text-neutral-400 text-xs italic">No advisors registered</li>
+              </ul>
+              <form @submit.prevent="addServiceAdvisor" class="relative">
+                <input v-model="newServiceAdvisor" type="text" placeholder="Advisor name..." 
+                  class="w-full pl-4 pr-12 py-2.5 bg-white border border-neutral-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none transition-all" />
+                <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-neutral-900 text-white rounded-lg hover:bg-red-600 transition-colors">
+                  <Plus class="w-4 h-4" />
+                </button>
+              </form>
+            </div>
+          </section>
         </div>
-        <div class="bg-slate-50 p-4 flex justify-end gap-3 border-t border-slate-100">
-          <button @click="closeEditModal" class="px-4 py-2 rounded text-slate-600 font-bold text-xs hover:bg-slate-200 hover:shadow-sm transition-all duration-200">Cancel</button>
-          <button @click="saveEditedAssignment" class="px-4 py-2 rounded bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 shadow-md transition-all duration-200">Save Changes</button>
+
+        <div class="lg:col-span-8 space-y-6">
+          
+          <section class="bg-white rounded-xl border-2 border-red-100 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 bg-red-600 flex justify-between items-center text-white">
+              <h2 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                <Zap class="w-4 h-4" /> Auto Assign Order
+              </h2>
+              <div v-if="hasDiscontinuedOrders" class="px-2 py-1 bg-white/20 rounded text-[10px] font-bold">
+                {{ discontinuedAssignments.length }} DISCONTINUED ORDERS
+              </div>
+            </div>
+            
+            <div class="p-6">
+              <div v-if="!canCreateAssignments && viewMode !== 'TODAY'" class="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-center gap-3 text-orange-700">
+                <AlertCircle class="w-5 h-5" />
+                <p class="text-xs font-bold uppercase">Switch to "Today's View" to create new assignments.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-[11px] font-bold text-neutral-400 uppercase mb-2">Select Retail Order</label>
+                    <select v-model="assignmentForm.selectedPRO" @change="onPROSelected"
+                      class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-bold focus:border-red-500 outline-none transition-all appearance-none cursor-pointer">
+                      <option value="">CHOOSE AN ORDER</option>
+                      <option v-for="pro in availablePROs" :key="pro" :value="pro">{{ pro }}</option>
+                    </select>
+                  </div>
+
+                  <div v-if="assignmentForm.selectedPRO" class="p-4 rounded-xl border-2 border-dashed border-neutral-200 bg-neutral-50/50">
+                    <p class="text-[10px] font-bold text-neutral-400 uppercase mb-1">Target Advisor</p>
+                    <div v-if="autoAssignedSA" class="flex items-center gap-2 text-green-700">
+                      <UserCheck class="w-5 h-5" />
+                      <span class="text-lg font-bold">{{ autoAssignedSA.saName }}</span>
+                    </div>
+                    <div v-else class="text-red-500 font-bold text-sm">No available advisors</div>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-[11px] font-bold text-neutral-400 uppercase mb-2">Internal Note (Optional)</label>
+                    <textarea v-model="assignmentForm.note" rows="3" placeholder="Add instructions..."
+                      class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:border-red-500 outline-none transition-all resize-none"></textarea>
+                  </div>
+                  
+                  <div class="flex gap-2">
+                    <button @click="proceedAssignment" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-200">
+                      Assign Now
+                    </button>
+                    <button @click="clearAssignmentForm" class="px-4 py-3 bg-neutral-100 text-neutral-600 rounded-xl font-bold text-xs hover:bg-neutral-200 transition-all">
+                      <X class="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 pt-6 border-t border-neutral-100">
+                <button @click="showManualSelection = !showManualSelection" 
+                  class="text-[11px] font-bold text-neutral-400 hover:text-red-600 transition-colors uppercase flex items-center gap-2">
+                  <SlidersHorizontal class="w-3.5 h-3.5" /> Manual Override {{ showManualSelection ? '▲' : '▼' }}
+                </button>
+                
+                <div v-if="showManualSelection" class="mt-4 flex flex-wrap gap-2">
+                  <button v-for="sa in rankedSAsForManual" :key="sa.saName" @click="selectManualSA(sa.saName)"
+                    class="px-4 py-2 border border-neutral-200 rounded-lg text-xs font-bold hover:border-red-600 hover:text-red-600 transition-all">
+                    {{ sa.saName }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-neutral-100 flex flex-wrap justify-between items-center gap-4 bg-neutral-50/50">
+              <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-800">Active Assignments</h2>
+              <div class="relative w-full md:w-64">
+                <Search class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <input v-model="searchQuery" type="text" placeholder="Search orders..." 
+                  class="w-full pl-9 pr-4 py-1.5 bg-white border border-neutral-200 rounded-lg text-[11px] focus:border-red-500 outline-none transition-all" />
+              </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="bg-neutral-50/50 border-b border-neutral-100">
+                    <th class="px-6 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Order (PRO)</th>
+                    <th class="px-6 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Advisor</th>
+                    <th class="px-6 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Status</th>
+                    <th class="px-6 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Date</th>
+                    <th class="px-6 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-50">
+                  <tr v-for="(assignment, index) in paginatedActiveAssignments" :key="index" class="hover:bg-neutral-50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-bold text-neutral-800">{{ assignment.pro }}</td>
+                    <td class="px-6 py-4 text-sm text-neutral-600">{{ assignment.saName }}</td>
+                    <td class="px-6 py-4">
+                      <span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-md uppercase">
+                        {{ assignment.status }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-[11px] text-neutral-400 font-medium">{{ assignment.date }}</td>
+                    <td class="px-6 py-4 text-right space-x-1">
+                      <button @click="openEditModal(getOriginalIndex(assignment), assignment)" class="p-1.5 text-neutral-400 hover:text-blue-600 transition-colors" title="Edit"><Edit2 class="w-4 h-4" /></button>
+                      <button @click="markAsDone(getOriginalIndex(assignment))" class="p-1.5 text-neutral-400 hover:text-green-600 transition-colors" title="Mark Done"><CheckCircle2 class="w-4 h-4" /></button>
+                      <button @click="cancelAssignment(getOriginalIndex(assignment))" class="p-1.5 text-neutral-400 hover:text-red-600 transition-colors" title="Cancel"><XCircle class="w-4 h-4" /></button>
+                    </td>
+                  </tr>
+                  <tr v-if="paginatedActiveAssignments.length === 0">
+                    <td colspan="5" class="px-6 py-12 text-center text-neutral-400 text-xs italic">No active assignments found</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-neutral-100 bg-neutral-50/50">
+              <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-800 mb-4">Historical Records</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="relative">
+                  <Calendar class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <input v-model="historyFromDate" type="date" class="w-full pl-9 pr-4 py-2 border border-neutral-200 rounded-xl text-xs font-bold outline-none" />
+                </div>
+                <div class="relative">
+                  <Calendar class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <input v-model="historyToDate" type="date" class="w-full pl-9 pr-4 py-2 border border-neutral-200 rounded-xl text-xs font-bold outline-none" />
+                </div>
+                <div class="relative">
+                  <Search class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <input v-model="historySearchQuery" type="text" placeholder="Filter history..." class="w-full pl-9 pr-4 py-2 border border-neutral-200 rounded-xl text-xs font-bold outline-none" />
+                </div>
+              </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="bg-neutral-50/50 border-b border-neutral-100">
+                    <th class="px-6 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Order (PRO)</th>
+                    <th class="px-6 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Final Status</th>
+                    <th class="px-6 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-50">
+                  <tr v-for="(assignment, index) in paginatedHistoryAssignments" :key="index" class="hover:bg-neutral-50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-bold text-neutral-800">{{ assignment.pro }}</td>
+                    <td class="px-6 py-4">
+                      <span :class="assignment.status === 'DONE' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'" 
+                        class="px-2 py-1 text-[10px] font-black rounded-md uppercase">
+                        {{ assignment.status }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                      <button @click="deleteAssignment(getOriginalIndex(assignment))" class="p-1.5 text-neutral-400 hover:text-red-600 transition-colors">
+                        <Trash2 class="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                  <tr v-if="paginatedHistoryAssignments.length === 0">
+                    <td colspan="3" class="px-6 py-12 text-center text-neutral-400 text-xs italic">No historical records for this criteria</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
       </div>
-    </div>
+    </main>
 
-    <!-- Edit PR Order Modal -->
-    <div v-if="showEditPRModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in" @click="closePREditModal">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100" @click.stop>
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center text-white">
-          <h3 class="font-bold">Edit Retail Order</h3>
-          <button @click="closePREditModal" class="text-white/80 hover:text-white hover:scale-110 font-bold text-xl transition-transform duration-200">✕</button>
-        </div>
-        <div class="p-6 space-y-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">PR Order Name</label>
-            <input 
-              v-model="editingPROrder" 
-              @input="editingPROrder = editingPROrder.toUpperCase()"
-              class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter PR Order name..."
-            />
-          </div>
-        </div>
-        <div class="bg-slate-50 p-4 flex justify-end gap-3 border-t border-slate-100">
-          <button @click="closePREditModal" class="px-4 py-2 rounded text-slate-600 font-bold text-xs hover:bg-slate-200 hover:shadow-sm transition-all duration-200">Cancel</button>
-          <button @click="savePROrderEdit" class="px-4 py-2 rounded bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 shadow-md transition-all duration-200">Save Changes</button>
-        </div>
-      </div>
+    <div class="absolute bottom-0 left-0 w-full z-0 opacity-5 pointer-events-none transform rotate-180">
+      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+        <path d="M0 45 H170 L220 15 H500" stroke="currentColor" stroke-width="1" />
+      </svg>
     </div>
-
-    <!-- Delete PR Order Modal -->
-    <div v-if="showDeletePRModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in" @click="closePRDeleteModal">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100" @click.stop>
-        <div class="bg-gradient-to-r from-red-600 to-red-700 p-4 flex justify-between items-center text-white">
-          <h3 class="font-bold">Delete Retail Order</h3>
-          <button @click="closePRDeleteModal" class="text-white/80 hover:text-white hover:scale-110 font-bold text-xl transition-transform duration-200">✕</button>
-        </div>
-        <div class="p-6 space-y-4">
-          <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-            <p class="text-sm text-slate-700"><span class="font-bold">PR Order:</span> {{ deletingPROrder }}</p>
-          </div>
-          <p class="text-sm text-slate-600">Are you sure you want to delete this retail order? This action cannot be undone.</p>
-        </div>
-        <div class="bg-slate-50 p-4 flex justify-end gap-3 border-t border-slate-100">
-          <button @click="closePRDeleteModal" class="px-4 py-2 rounded text-slate-600 font-bold text-xs hover:bg-slate-200 hover:shadow-sm transition-all duration-200">Cancel</button>
-          <button @click="confirmDeletePROrder" class="px-4 py-2 rounded bg-red-600 text-white font-bold text-xs hover:bg-red-700 hover:shadow-lg hover:-translate-y-0.5 shadow-md transition-all duration-200">Delete</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Edit Service Advisor Modal -->
-    <div v-if="showEditSAModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in" @click="closeSAEditModal">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100" @click.stop>
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center text-white">
-          <h3 class="font-bold">Edit Service Advisor</h3>
-          <button @click="closeSAEditModal" class="text-white/80 hover:text-white hover:scale-110 font-bold text-xl transition-transform duration-200">✕</button>
-        </div>
-        <div class="p-6 space-y-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Service Advisor Name</label>
-            <input 
-              v-model="editingSAName" 
-              @input="editingSAName = editingSAName.toUpperCase()"
-              class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter Service Advisor name..."
-            />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Status</label>
-            <select v-model="editingSAStatus" class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500">
-              <option v-for="status in statuses" :key="status" :value="status">{{ status }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="bg-slate-50 p-4 flex justify-end gap-3 border-t border-slate-100">
-          <button @click="closeSAEditModal" class="px-4 py-2 rounded text-slate-600 font-bold text-xs hover:bg-slate-200 hover:shadow-sm transition-all duration-200">Cancel</button>
-          <button @click="saveSAEdit" class="px-4 py-2 rounded bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 shadow-md transition-all duration-200">Save Changes</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Delete Service Advisor Modal -->
-    <div v-if="showDeleteSAModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in" @click="closeSADeleteModal">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100" @click.stop>
-        <div class="bg-gradient-to-r from-red-600 to-red-700 p-4 flex justify-between items-center text-white">
-          <h3 class="font-bold">Delete Service Advisor</h3>
-          <button @click="closeSADeleteModal" class="text-white/80 hover:text-white hover:scale-110 font-bold text-xl transition-transform duration-200">✕</button>
-        </div>
-        <div class="p-6 space-y-4">
-          <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-            <p class="text-sm text-slate-700"><span class="font-bold">Service Advisor:</span> {{ deletingSAName }}</p>
-          </div>
-          <p class="text-sm text-slate-600">Are you sure you want to delete this service advisor? This action cannot be undone.</p>
-        </div>
-        <div class="bg-slate-50 p-4 flex justify-end gap-3 border-t border-slate-100">
-          <button @click="closeSADeleteModal" class="px-4 py-2 rounded text-slate-600 font-bold text-xs hover:bg-slate-200 hover:shadow-sm transition-all duration-200">Cancel</button>
-          <button @click="confirmDeleteSA" class="px-4 py-2 rounded bg-red-600 text-white font-bold text-xs hover:bg-red-700 hover:shadow-lg hover:-translate-y-0.5 shadow-md transition-all duration-200">Delete</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -611,6 +294,11 @@ import { ref, computed, onMounted, watch, onUnmounted } from 'vue';
 import { db } from "../../Firebase/Firebase";
 import { doc, onSnapshot, updateDoc, getDoc, deleteField, setDoc, collection, getDocs } from "firebase/firestore";
 import { useToast } from "../../composables/useToast";
+import { 
+  ClipboardList, Search, Plus, MoreVertical, Edit2, Trash2, 
+  RotateCcw, Zap, UserCheck, SlidersHorizontal, AlertCircle, X, 
+  CheckCircle2, XCircle, Calendar 
+} from "lucide-vue-next";
 
 // Initialize toast notifications
 const toast = useToast();
@@ -2093,132 +1781,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* ==========================================
-   ANIMATIONS
-   ========================================== */
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-fade-in { 
-  animation: fadeIn 0.2s ease-out; 
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in-up { 
-  animation: fadeInUp 0.2s ease-out; 
-}
-
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in-down { 
-  animation: fadeInDown 0.2s ease-out; 
-}
-
-@keyframes pulse-ring {
-  0% { transform: scale(0.8); opacity: 0.5; }
-  100% { transform: scale(1.2); opacity: 0; }
-}
-
-.animate-ping {
-  animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-}
-
-/* ==========================================
-   SCROLLBAR STYLING
-   ========================================== */
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent; 
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1; 
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; 
-}
-
-/* ==========================================
-   UTILITY CLASSES
-   ========================================== */
-
-.truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ==========================================
-   COMPONENT SPECIFIC STYLES
-   ========================================== */
-
-/* View mode indicator transitions */
-.bg-amber-100, .bg-green-100 {
-  transition: all 0.3s ease;
-}
-
-/* Table row hover enhancement */
-tr.hover\:bg-indigo-50\/50:hover {
-  background-color: rgba(238, 242, 255, 0.5);
-}
-
-/* Status badge transitions */
-span[class*="bg-"] {
-  transition: all 0.2s ease;
-}
-
-/* Button active states */
-button:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-/* Modal backdrop blur support */
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px);
-}
-
-/* Assignment card disabled state */
-.opacity-75 {
-  filter: grayscale(0.3);
-}
-
-/* Workload bar animation */
-.rounded-full > div {
-  transition: width 0.5s ease, background-color 0.3s ease;
-}
-
-/* Dropdown menu animation */
-.animate-fade-in-up,
-.animate-fade-in-down {
-  transform-origin: center bottom;
-}
-
-/* Focus ring consistency */
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  ring: 2px;
-  ring-color: rgb(99 102 241);
-}
-
-/* Smooth height transitions for expanding sections */
-.space-y-2 > * {
-  transition: all 0.2s ease;
+.isuzu-font {
+  font-family: 'IsuzuFont', sans-serif;
 }
 </style>

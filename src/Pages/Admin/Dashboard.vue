@@ -382,8 +382,8 @@
           <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40 xl:col-span-2']" :style="cardStyle">
             <h3 :class="['text-[11px] font-black uppercase tracking-widest mb-6', textClass]">Daily Volume Comparison</h3>
             <div class="grid grid-cols-2 gap-8">
-              <div class="bg-neutral-600/5 p-6 rounded-2xl border border-neutral-200/50">
-                <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Transaction Count</p>
+              <div class="bg-neutral-600/5 p-6 rounded-2xl border border-neutral-600/40">
+                <p class="text-[10px] font-black text-neutral-400 uppercase mb-1">Transaction Count</p>
                 <p class="text-4xl font-black mb-4" :class="textClass">{{ todaysTransactionCount }}</p>
                 <div class="flex items-center gap-2 text-[10px] font-bold">
                   <span class="text-gray-400">PREV: {{ yesterdaysTransactionCount }}</span>
@@ -392,8 +392,8 @@
                   </span>
                 </div>
               </div>
-              <div class="bg-neutral-600/5 p-6 rounded-2xl border border-neutral-200/50">
-                <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Average Ticket</p>
+              <div class="bg-neutral-600/5 p-6 rounded-2xl border border-neutral-600/40">
+                <p class="text-[10px] font-black text-neutral-400 uppercase mb-1">Average Ticket</p>
                 <p class="text-4xl font-black mb-4" :class="textClass">₱{{ averageTransactionValue }}</p>
                 <div class="flex items-center gap-2 text-[10px] font-bold">
                   <span class="text-gray-400">PREV: ₱{{ yesterdaysAvgValue }}</span>
