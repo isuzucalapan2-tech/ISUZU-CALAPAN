@@ -29,11 +29,6 @@
           <span class="nav-text">Approvals</span>
         </router-link>
 
-        <router-link v-if="accessiblePages.payroll" to="/admin/payroll" class="nav-link group" active-class="nav-link-active">
-          <CreditCard class="nav-icon" /> 
-          <span class="nav-text">Payroll</span>
-        </router-link>
-
         <div class="pt-6 pb-2">
           <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] text-left">Logistics & Sales</p>
         </div>
@@ -96,12 +91,68 @@
 
     <transition name="slide">
       <aside v-if="isOpen" class="fixed inset-y-0 left-0 w-64 bg-neutral-900 z-50 md:hidden flex flex-col shadow-2xl">
-        <div class="h-14 flex items-center justify-between px-6 border-b border-neutral-800">
+        <div class="h-14 flex items-center justify-between px-6 border-b border-neutral-800 flex-shrink-0">
           <span class="text-lg font-black text-red-600 tracking-widest isuzu-font">ISUZU</span>
           <button @click="isOpen = false" class="text-neutral-400"><X class="w-5 h-5" /></button>
         </div>
-        <div class="p-4 text-white text-[9px] opacity-50 uppercase tracking-widest">Menu</div>
-        </aside>
+        
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+          <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] mb-3 text-left">Core Modules</p>
+          
+          <router-link v-if="accessiblePages.dashboard" to="/admin/dashboard" @click="isOpen = false" class="nav-link group" active-class="nav-link-active">
+            <LayoutDashboard class="nav-icon" /> 
+            <span class="nav-text">Dashboard</span>
+          </router-link>
+
+          <router-link v-if="accessiblePages['user-management']" to="/admin/user-management" @click="isOpen = false" class="nav-link group" active-class="nav-link-active">
+            <Users class="nav-icon" /> 
+            <span class="nav-text">User Management</span>
+          </router-link>
+
+          <router-link v-if="accessiblePages.approve" to="/admin/approve" @click="isOpen = false" class="nav-link group" active-class="nav-link-active">
+            <CheckSquare class="nav-icon" /> 
+            <span class="nav-text">Approvals</span>
+          </router-link>
+
+          <div class="pt-4 pb-2">
+            <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] text-left">Logistics & Sales</p>
+          </div>
+
+          <router-link v-if="accessiblePages.inventory" to="/admin/inventory" @click="isOpen = false" class="nav-link group" active-class="nav-link-active">
+            <Package class="nav-icon" /> 
+            <span class="nav-text">Inventory</span>
+          </router-link>
+
+          <router-link v-if="accessiblePages['transaction-in']" to="/admin/transaction-in" @click="isOpen = false" class="nav-link group" active-class="nav-link-active">
+            <ArrowDownLeft class="nav-icon text-emerald-500" /> 
+            <span class="nav-text">Transaction In</span>
+          </router-link>
+
+          <router-link v-if="accessiblePages['transaction-out']" to="/admin/transaction-out" @click="isOpen = false" class="nav-link group" active-class="nav-link-active">
+            <ArrowUpRight class="nav-icon text-red-500" /> 
+            <span class="nav-text">Transaction Out</span>
+          </router-link>
+
+          <router-link v-if="accessiblePages['sa-rotation']" to="/admin/sa-rotation" @click="isOpen = false" class="nav-link group" active-class="nav-link-active">
+            <ShoppingCart class="nav-icon" /> 
+            <span class="nav-text">Retail Orders</span>
+          </router-link>
+
+          <div class="pt-4 pb-2">
+            <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] text-left">System Control</p>
+          </div>
+
+          <router-link v-if="accessiblePages.settings" to="/admin/settings" @click="isOpen = false" class="nav-link group" active-class="nav-link-active">
+            <Settings class="nav-icon" /> 
+            <span class="nav-text">Settings</span>
+          </router-link>
+
+          <router-link v-if="isMasterAdmin" to="/admin/page-control" @click="isOpen = false" class="nav-link group border-l-2 border-transparent hover:border-yellow-500" active-class="nav-link-active-yellow">
+            <ShieldAlert class="nav-icon text-yellow-500" /> 
+            <span class="nav-text text-yellow-500">Page Control</span>
+          </router-link>
+        </nav>
+      </aside>
     </transition>
 
   </div>
@@ -119,17 +170,15 @@ import {
 const isOpen = ref(false);
 const { canAccessPage, isMasterAdmin, fetchUserRoles } = usePermissions();
 
-// Added 'payroll' to the initial state
 const accessiblePages = ref({
-  dashboard: true, "user-management": true, approve: true, payroll: true,
+  dashboard: true, "user-management": true, approve: true,
   inventory: true, "transaction-in": true, "transaction-out": true, 
   "sa-rotation": true, settings: true
 });
 
 onMounted(async () => {
   await fetchUserRoles();
-  // Added 'payroll' to the check loop
-  const pages = ["dashboard", "user-management", "approve", "payroll", "inventory", "transaction-in", "transaction-out", "sa-rotation", "settings"];
+  const pages = ["dashboard", "user-management", "approve", "inventory", "transaction-in", "transaction-out", "sa-rotation", "settings"];
   for (const page of pages) {
     accessiblePages.value[page] = await canAccessPage(page);
   }

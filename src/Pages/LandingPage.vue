@@ -117,7 +117,7 @@
                 <h3 class="text-sm font-black isuzu-font uppercase tracking-wider mb-1 text-neutral-900">{{ car.name }}</h3>
                 <p class="text-[10px] text-neutral-500 uppercase font-bold tracking-tight mb-3 line-clamp-1">{{ car.description }}</p>
                 <div class="flex items-center justify-between pt-3 border-t border-neutral-100">
-                  <span class="text-[9px] font-black text-neutral-400 uppercase tracking-widest">Special Offer</span>
+                  <span class="text-[9px] font-black text-neutral-400 uppercase tracking-widest">{{ car.promoLabel || 'Special Offer' }}</span>
                   <p class="text-red-600 font-black text-base italic">{{ car.promo }}</p>
                 </div>
               </div>
@@ -146,7 +146,7 @@
                 <h3 class="text-sm font-black isuzu-font uppercase tracking-wider mb-1 text-red-500">{{ part.name }}</h3>
                 <p class="text-[10px] text-neutral-400 uppercase font-bold tracking-tight mb-3 line-clamp-1 opacity-60">{{ part.description }}</p>
                 <div class="flex items-center justify-between pt-3 border-t border-white/10">
-                  <span class="text-[9px] font-black text-neutral-600 uppercase tracking-widest">Genuine Parts</span>
+                  <span class="text-[9px] font-black text-neutral-600 uppercase tracking-widest">{{ part.partsType || 'Genuine Parts' }}</span>
                   <p class="text-white font-black text-base italic">{{ part.promo }}</p>
                 </div>
               </div>
@@ -248,7 +248,15 @@ onMounted(async () => {
       const data = snap.data();
       // Load all non-image fields from Firestore
       carPromos.value = Array.isArray(data.carPromos) ? JSON.parse(JSON.stringify(data.carPromos)) : [];
+      // Ensure promoLabel default
+      carPromos.value.forEach(car => {
+        if (!('promoLabel' in car)) car.promoLabel = 'Special Offer';
+      });
       partsPromos.value = Array.isArray(data.partsPromos) ? JSON.parse(JSON.stringify(data.partsPromos)) : [];
+      // Ensure partsType default
+      partsPromos.value.forEach(part => {
+        if (!('partsType' in part)) part.partsType = 'Genuine Parts';
+      });
       brandIdentity.value.mission = data.mission || "";
       brandIdentity.value.vision = data.vision || "";
       brandIdentity.value.coreValues = Array.isArray(data.values) ? data.values : (data.values ? data.values.split("\n").filter(v => v.trim() !== "") : []);

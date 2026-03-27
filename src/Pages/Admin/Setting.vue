@@ -144,6 +144,7 @@
                     <input v-model="car.name" class="isuzu-font text-lg mb-2 font-bold w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Car Name" type="text" />
                     <textarea v-model="car.description" class="text-xs text-neutral-500 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
                     <input v-model="car.promo" class="text-red-600 font-black text-lg w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
+                    <input v-model="car.promoLabel" class="text-xs font-black text-neutral-400 uppercase tracking-widest w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 mt-2" placeholder="Promo Label (e.g. Special Offer)" type="text" />
                     <button @click="removeCarPromo(idx)" class="mt-3 text-xs text-red-500 hover:underline">Remove</button>
                   </div>
                 </div>
@@ -178,6 +179,11 @@
                     <input v-model="part.name" class="font-bold text-base isuzu-font mb-2 text-red-500 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Part Name" type="text" />
                     <textarea v-model="part.description" class="text-xs opacity-60 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
                     <input v-model="part.promo" class="text-lg font-black text-white w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
+                    <select v-model="part.partsType" class="text-xs font-black uppercase tracking-widest w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 mt-2">
+                      <option value="Genuine Parts">Genuine Parts</option>
+                      <option value="Best Value Parts">Best Value Parts</option>
+                      <option value="Select Parts">Select Parts</option>
+                    </select>
                     <button @click="removePartPromo(idx)" class="mt-3 text-xs text-red-400 hover:underline">Remove</button>
                   </div>
                 </div>
@@ -290,6 +296,7 @@ function addCarPromo() {
     name: "",
     description: "",
     promo: "",
+    promoLabel: "Special Offer",
     image: ""
   });
 }
@@ -299,6 +306,7 @@ function addPartPromo() {
     name: "",
     description: "",
     promo: "",
+    partsType: "Genuine Parts",
     image: ""
   });
 }
@@ -324,7 +332,13 @@ onMounted(async () => {
     if (snap.exists()) {
       const data = snap.data();
       landingCarPromos.value = Array.isArray(data.carPromos) ? JSON.parse(JSON.stringify(data.carPromos)) : [];
+      landingCarPromos.value.forEach(car => {
+        if (!('promoLabel' in car)) car.promoLabel = 'Special Offer';
+      });
       landingPartsPromos.value = Array.isArray(data.partsPromos) ? JSON.parse(JSON.stringify(data.partsPromos)) : [];
+      landingPartsPromos.value.forEach(part => {
+        if (!('partsType' in part)) part.partsType = 'Genuine Parts';
+      });
       // ...load other landing fields...
     } else {
       // If no data, initialize with defaults
@@ -381,8 +395,14 @@ async function savePromos() {
   isSaving.value = true;
   try {
     // Ensure all promos have image property
-    landingCarPromos.value.forEach(car => { if (!('image' in car)) car.image = ''; });
-    landingPartsPromos.value.forEach(part => { if (!('image' in part)) part.image = ''; });
+    landingCarPromos.value.forEach(car => {
+      if (!('image' in car)) car.image = '';
+      if (!('promoLabel' in car)) car.promoLabel = 'Special Offer';
+    });
+    landingPartsPromos.value.forEach(part => {
+      if (!('image' in part)) part.image = '';
+      if (!('partsType' in part)) part.partsType = 'Genuine Parts';
+    });
     await setDoc(doc(db, "settings", "landingPage"), {
       carPromos: landingCarPromos.value,
       partsPromos: landingPartsPromos.value,
