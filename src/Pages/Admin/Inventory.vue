@@ -42,74 +42,94 @@
         <div class=" backdrop-blur-none rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 animate-in fade-in slide-in-from-top-4 duration-500">
           <div class="flex flex-col xl:flex-row gap-4 sm:gap-5 lg:gap-6">
             
-            <div class="flex-1 space-y-4">
-              <div ref="searchWrapper" class="flex items-center gap-3">
-                <!-- Search Icon/Button/Search Bar -->
-                <div v-if="!searchVisible" @click="toggleSearch" class="cursor-pointer bg-gray-50 border border-neutral-200 rounded-xl p-3 hover:bg-gray-100 transition-all">
-                  <Search class="w-4 h-4 text-gray-600" />
+            <div class="space-y-6 w-full max-w-7xl mx-auto">
+    
+              <div class="flex flex-col md:flex-row md:items-center gap-3">
+                <div class="relative flex-1 group">
+                  <transition name="search-expand" mode="out-in">
+                    <button 
+                      v-if="!searchVisible" 
+                      @click="toggleSearch"
+                      class="flex items-center justify-center w-12 h-12 bg-white border border-neutral-200 rounded-2xl shadow-sm hover:border-red-500 hover:text-red-600 transition-all duration-300 active:scale-95 group"
+                    >
+                      <Search class="w-5 h-5 text-neutral-400 group-hover:text-red-600 transition-colors" />
+                    </button>
+
+                    <div v-else class="relative w-full md:max-w-xl h-12 flex items-center">
+                      <Search class="absolute left-4 w-4 h-4 text-red-500" />
+                      <input
+                        ref="searchInput"
+                        v-model="searchQuery"
+                        type="text"
+                        placeholder="SEARCH PART, NO, OR CONTROL..."
+                        class="w-full h-full pl-12 pr-12 bg-white border-2 border-red-500 rounded-2xl text-[11px] font-black uppercase tracking-widest outline-none shadow-xl shadow-red-500/5 transition-all"
+                        @blur="handleSearchBlur"
+                      />
+                      <button @click="closeSearch" class="absolute right-4 p-1 hover:bg-neutral-100 rounded-lg transition-colors">
+                        <X class="w-4 h-4 text-neutral-400" />
+                      </button>
+                    </div>
+                  </transition>
                 </div>
-                <div v-else class="flex-1 max-w-md relative border border-neutral-300 rounded-xl">
-                  <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    v-model="searchQuery"
-                    type="text"
-                    placeholder="SEARCH PART NAME, NUMBER, OR CONTROL NO..."
-                    class="w-full pl-12 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold uppercase tracking-widest focus:ring-2 focus:ring-red-500 outline-none transition-all"
-                    @blur="handleSearchBlur"
-                    @focus="handleSearchFocus"
-                  />
-                  <button @click="toggleSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                    <X class="w-4 h-4" />
+
+                <div class="relative w-full md:w-64 h-12">
+                  <select 
+                    v-model="selectedCategory" 
+                    class="w-full h-full pl-4 pr-10 bg-white border border-neutral-200 rounded-2xl text-[10px] font-black text-neutral-700 uppercase tracking-widest outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/5 transition-all appearance-none cursor-pointer shadow-sm"
+                  >
+                    <option value="">ALL CATEGORIES</option>
+                    <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
+                  </select>
+                  <ChevronDown class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                </div>
+              </div>
+
+              <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 bg-white border border-neutral-200 rounded-3xl shadow-sm">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center gap-6 lg:gap-8">
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 rounded-xl shrink-0">
+                      <Package class="w-5 h-5" />
+                    </div>
+                    <div class="space-y-1">
+                      <p class="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em]">Quantity Range</p>
+                      <div class="flex items-center gap-2">
+                        <input v-model="minQty" type="number" placeholder="MIN" class="w-16 h-8 bg-neutral-50 border border-neutral-200 rounded-lg text-[10px] font-bold text-center outline-none focus:border-red-500 focus:bg-white transition-all" />
+                        <div class="w-2 h-px bg-neutral-300"></div>
+                        <input v-model="maxQty" type="number" placeholder="MAX" class="w-16 h-8 bg-neutral-50 border border-neutral-200 rounded-lg text-[10px] font-bold text-center outline-none focus:border-red-500 focus:bg-white transition-all" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="hidden sm:block w-px h-10 bg-neutral-100"></div>
+
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
+                      <Banknote class="w-5 h-5" />
+                    </div>
+                    <div class="space-y-1">
+                      <p class="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em]">Price Range (₱)</p>
+                      <div class="flex items-center gap-2">
+                        <input v-model="minPrice" type="number" placeholder="0.00" class="w-24 h-8 bg-neutral-50 border border-neutral-200 rounded-lg text-[10px] font-bold px-2 outline-none focus:border-red-500 focus:bg-white transition-all" />
+                        <div class="w-2 h-px bg-neutral-300"></div>
+                        <input v-model="maxPrice" type="number" placeholder="MAX" class="w-24 h-8 bg-neutral-50 border border-neutral-200 rounded-lg text-[10px] font-bold px-2 outline-none focus:border-red-500 focus:bg-white transition-all" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="hasActiveFilters" class="flex items-center justify-end pt-4 lg:pt-0 border-t lg:border-t-0 border-neutral-50">
+                  <button 
+                    @click="clearAllFilters" 
+                    class="group flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg shadow-neutral-900/10 active:scale-95"
+                  >
+                    <RefreshCcw class="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
+                    Clear Filters
                   </button>
                 </div>
-
-                <!-- All Categories Dropdown -->
-                <select v-model="selectedCategory" class="bg-gray-50 border border-neutral-200 rounded-xl px-4 py-3 text-[10px] text-neutral-500 uppercase tracking-widest outline-none focus:ring-2 focus:ring-red-500">
-                  <option value="">ALL CATEGORIES</option>
-                  <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
-                </select>
               </div>
 
-              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-4 border-t border-gray-100">
-                <div class="flex flex-row items-center flex-wrap gap-4 sm:gap-8">
-                  
-                  <div class="flex items-center gap-3">
-                    <div class="flex flex-col">
-                      <span class="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Qty Range</span>
-                      <div class="flex items-center gap-1.5">
-                        <input v-model="minQty" type="number" placeholder="0" class="w-14 sm:w-16 px-2 py-1.5 bg-gray-50 border border-neutral-200 rounded-lg text-[10px] font-black outline-none focus:border-red-500 focus:bg-white transition-all text-center" />
-                        <span class="text-gray-300 font-bold">-</span>
-                        <input v-model="maxQty" type="number" placeholder="MAX" class="w-14 sm:w-16 px-2 py-1.5 bg-gray-50 border border-neutral-200 rounded-lg text-[10px] font-black outline-none focus:border-red-500 focus:bg-white transition-all text-center" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="hidden sm:block h-8 w-px bg-gray-200"></div>
-
-                  <div class="flex items-center gap-3">
-                    <div class="bg-emerald-50 p-1.5 rounded-lg">
-                      <Banknote class="w-3.5 h-3.5 text-emerald-600" />
-                    </div>
-                    <div class="flex flex-col">
-                      <span class="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Price Range (₱)</span>
-                      <div class="flex items-center gap-1.5">
-                        <input v-model="minPrice" type="number" placeholder="MIN" class="w-16 sm:w-24 px-2 py-1.5 bg-gray-50 border border-neutral-200 rounded-lg text-[10px] font-black outline-none focus:border-red-500 focus:bg-white transition-all" />
-                        <span class="text-gray-300 font-bold">-</span>
-                        <input v-model="maxPrice" type="number" placeholder="MAX" class="w-16 sm:w-24 px-2 py-1.5 bg-gray-50 border border-neutral-200 rounded-lg text-[10px] font-black outline-none focus:border-red-500 focus:bg-white transition-all" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <button 
-                  v-if="hasActiveFilters" 
-                  @click="clearAllFilters" 
-                  class="flex items-center gap-2 px-4 py-2 text-[9px] font-black text-red-600 uppercase tracking-[0.15em] hover:bg-red-50 rounded-xl transition-all self-end lg:self-auto"
-                >
-                  <RefreshCcw class="w-3 h-3" /> Clear All Filters
-                </button>
-              </div>
-            </div>
+            </div>>
 
             <div class="grid grid-cols-2 md:grid-cols-4 xl:flex xl:flex-col gap-2 min-w-[180px] sm:min-w-[200px]">
               <button @click="openAddModal" class="group flex items-center justify-center gap-1 sm:gap-2 bg-red-600 text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-neutral-800 transition-all hover:shadow-red-200">
@@ -564,7 +584,8 @@ import {
   ChevronsRight,
   Printer,
   Info,
-  Download
+  Download,
+  Banknote
 } from "lucide-vue-next";
 
 /*  STATE*/

@@ -1,7 +1,7 @@
 <template>
   <div class="font-sans text-neutral-800 overflow-x-hidden bg-white">
     
-    <header class="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-lg z-50 border-b border-gray-100">
+    <header class="fixed top-0 left-0 w-full bg-white z-50 border-b border-gray-100">
       <div class="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 md:px-6">
         <div class="flex items-center space-x-3">
           <img src="/mdoLogo.png" alt="Logo" class="w-10 h-10 object-contain" />
@@ -150,7 +150,7 @@
         <div class="max-w-4xl mx-auto text-center space-y-12 relative z-10">
           <h2 class="text-3xl md:text-5xl uppercase tracking-widest isuzu-font font-black">About <span class="text-red-600">Us</span></h2>
           <div class="space-y-8 text-sm md:text-lg text-neutral-400 leading-loose max-w-3xl mx-auto">
-            <p class="first-letter:text-5xl first-letter:text-red-600 first-letter:font-black first-letter:mr-3 first-letter:float-left">{{ aboutUs.aboutTextLine1 }}</p>
+            <p class="first-letter:text-2xl first-letter:text-red-600 first-letter:font-black">{{ aboutUs.aboutTextLine1 }}</p>
             <p>{{ aboutUs.aboutTextLine2 }}</p>
             <div class="pt-8">
               <p class="isuzu-font text-white border-y border-white/10 py-6 tracking-[0.4em] text-xl md:text-2xl uppercase">{{ aboutUs.slogan }}</p>
@@ -163,20 +163,20 @@
         <p class="text-[10px] text-neutral-600 uppercase tracking-[0.4em]">© 2026 Mina De Oro Motors. All Rights Reserved.</p>
       </footer>
 
-      <nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] bg-white/90 backdrop-blur-xl h-16 rounded-2xl shadow-2xl z-[60] flex items-center justify-around px-4 border border-white/20">
-        <button @click="scrollToSection('hero')" class="flex flex-col items-center gap-1 text-neutral-400 hover:text-red-600 transition">
+      <nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] bg-white h-16 rounded-2xl shadow-2xl z-[60] flex items-center justify-around px-4 border border-neutral-600">
+        <button @click="scrollToSection('hero')" class="flex flex-col items-center gap-1 text-neutral-900 hover:text-red-600 transition">
           <Home class="w-5 h-5" />
           <span class="text-[8px] font-black uppercase">Home</span>
         </button>
-        <button @click="scrollToSection('promos')" class="flex flex-col items-center gap-1 text-neutral-400 hover:text-red-600 transition">
+        <button @click="scrollToSection('promos')" class="flex flex-col items-center gap-1 text-neutral-900 hover:text-red-600 transition">
           <Tag class="w-5 h-5" />
           <span class="text-[8px] font-black uppercase">Promos</span>
         </button>
-        <button @click="scrollToSection('mission-vision')" class="flex flex-col items-center gap-1 text-neutral-400 hover:text-red-600 transition">
+        <button @click="scrollToSection('mission-vision')" class="flex flex-col items-center gap-1 text-neutral-900 hover:text-red-600 transition">
           <Target class="w-5 h-5" />
           <span class="text-[8px] font-black uppercase">Goal</span>
         </button>
-        <button @click="scrollToSection('about-us')" class="flex flex-col items-center gap-1 text-neutral-400 hover:text-red-600 transition">
+        <button @click="scrollToSection('about-us')" class="flex flex-col items-center gap-1 text-neutral-900 hover:text-red-600 transition">
           <Info class="w-5 h-5" />
           <span class="text-[8px] font-black uppercase">About</span>
         </button>
