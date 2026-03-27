@@ -17,7 +17,6 @@ import SA_Rotation from '../Pages/AfterSales/SA_Rotation.vue'
 import PageControl from '../Pages/Admin/PageControl.vue'
 import TransactionIn from '../Pages/Admin/TransactionIn.vue'
 import TransactionOut from '../Pages/Admin/TransactionOut.vue'
-import Payroll from '../Pages/Admin/Payroll.vue'
 import Unauthorized from '../Pages/401Page.vue'
 import Forbidden from '../Pages/403Page.vue'
 import NotFound from '../Pages/404Page.vue'
@@ -105,12 +104,6 @@ const routes = [
         name: 'TransactionOut', 
         component: TransactionOut,
         meta: { requiresAuth: true, pageId: 'transaction-out' }
-      },
-      {
-        path: 'payroll',
-        name: 'Payroll',
-        component: Payroll,
-        meta: { requiresAuth: true, pageId: 'payroll' }
       },
       { 
         path: 'page-control', 

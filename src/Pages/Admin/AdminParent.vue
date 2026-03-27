@@ -63,7 +63,8 @@ onUnmounted(() => {
 
 <style scoped>
 .admin-parent {
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
   width: 100%;
   overflow: hidden;
 }
