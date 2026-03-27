@@ -300,42 +300,64 @@
     <Transition name="fade">
       <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
+
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
-          <!-- Header -->
+          
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-4">
               <div class="bg-blue-600 p-3 rounded-2xl text-white shadow-lg">
                 <FileSpreadsheet class="w-8 h-8" />
               </div>
               <div>
-                <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter flex items-center gap-2">
-                  Batch <span class="text-blue-600">Import</span>
-                  <!-- Info Icon with Tooltip -->
+                <div class="flex items-center gap-3">
+                  <h3 class="text-2xl font-black uppercase tracking-tighter text-neutral-800 flex items-center gap-2">
+                    Batch <span class="text-blue-600">Import</span>
+                  </h3>
+
                   <div class="relative group">
-                    <button class="w-6 h-6 bg-neutral-200 hover:bg-neutral-300 rounded-full flex items-center justify-center transition-colors">
+                    <button type="button" class="w-6 h-6 bg-neutral-200 hover:bg-neutral-300 rounded-full flex items-center justify-center transition-all">
                       <Info class="w-4 h-4 text-neutral-600" />
                     </button>
-                    <!-- Tooltip -->
-                    <div class="absolute left-full top-0 ml-3 w-80 bg-neutral-800 text-white p-4 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50" style="font-family: Arial, sans-serif;">
-                      <div class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2" style="font-family: Arial, sans-serif;">📋 Import Validation Requirements</div>
-                      <div class="text-[9px] space-y-2" style="font-family: Arial, sans-serif;">
-                        <div class="font-bold text-green-400" style="font-family: Arial, sans-serif;">✓ REQUIRED FIELDS (ALL must be filled):</div>
-                        <div style="font-family: Arial, sans-serif;">• Category - Product category</div>
-                        <div style="font-family: Arial, sans-serif;">• Part Name - Full part name</div>
-                        <div style="font-family: Arial, sans-serif;">• Part No. - Unique part number</div>
-                        <div style="font-family: Arial, sans-serif;">• Model - Vehicle/model compatibility</div>
-                        <div style="font-family: Arial, sans-serif;">• Quantity - Stock quantity (0 or greater)</div>
-                        <div style="font-family: Arial, sans-serif;">• Unit Price - Price per unit (0 or greater)</div>
-                        <div class="font-bold text-red-400 mt-2" style="font-family: Arial, sans-serif;">✗ DUPLICATE CHECK (New items only):</div>
-                        <div style="font-family: Arial, sans-serif;">• Part No. must NOT exist in current inventory</div>
-                        <div style="font-family: Arial, sans-serif;">• Duplicate Part No. within import file not allowed</div>
-                        <div class="font-bold text-blue-400 mt-2" style="font-family: Arial, sans-serif;">✓ OPTIONAL FIELDS:</div>
-                        <div style="font-family: Arial, sans-serif;">• Description - Optional notes/remarks</div>
+
+                    <div class="absolute left-0 top-full mt-0 w-80 bg-neutral-900 text-white p-5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none max-h-[400px] overflow-y-auto">
+                      
+                      <header class="border-b border-neutral-700 pb-2 mb-3">
+                        <h4 class="text-[11px] font-black uppercase tracking-widest text-blue-400 flex items-center gap-2">
+                          📋 Import Validation Requirements
+                        </h4>
+                      </header>
+
+                      <div class="space-y-4 text-[11px] leading-relaxed font-sans">
+                        <section>
+                          <h5 class="font-bold text-green-400 mb-1 uppercase text-[10px]">✓ Required Fields (All)</h5>
+                          <ul class="space-y-0.5 text-neutral-300">
+                            <li><b class="text-white">Category</b> — Product category</li>
+                            <li><b class="text-white">Part Name</b> — Full part name</li>
+                            <li><b class="text-white">Part No.</b> — Unique part number</li>
+                            <li><b class="text-white">Model</b> — Vehicle compatibility</li>
+                            <li><b class="text-white">Quantity</b> — Stock (0 or greater)</li>
+                            <li><b class="text-white">Unit Price</b> — Price (0 or greater)</li>
+                          </ul>
+                        </section>
+
+                        <section>
+                          <h5 class="font-bold text-red-400 mb-1 uppercase text-[10px]">✗ Duplicate Check</h5>
+                          <ul class="space-y-0.5 text-neutral-300">
+                            <li>Part No. must be unique to inventory</li>
+                            <li>No duplicates within the upload file</li>
+                          </ul>
+                        </section>
+
+                        <section>
+                          <h5 class="font-bold text-blue-400 mb-1 uppercase text-[10px]">✓ Optional</h5>
+                          <p class="text-neutral-300"><b class="text-white">Description</b> — Optional notes/remarks</p>
+                        </section>
                       </div>
-                      <div class="absolute top-4 -left-2 w-4 h-4 bg-neutral-800 transform rotate-45"></div>
+
+                      <div class="absolute -top-1.5 left-2 w-3 h-3 bg-neutral-900 rotate-45"></div>
                     </div>
                   </div>
-                </h3>
+                </div>
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Inventory Data Excel Integration</p>
               </div>
             </div>
@@ -344,7 +366,6 @@
             </button>
           </div>
 
-          <!-- File Drop Zone -->
           <div v-if="importPreview.validItems.length === 0 && importPreview.invalidItems.length === 0" class="border-4 border-dashed border-gray-100 rounded-3xl p-12 text-center hover:border-blue-100 transition-all group flex-1 flex flex-col justify-center">
             <input type="file" ref="fileInput" @change="handleFileSelect" accept=".xlsx,.xls" class="hidden" />
             <Upload class="w-16 h-16 text-gray-200 mx-auto mb-4 group-hover:text-blue-400 transition-colors" />
@@ -352,9 +373,7 @@
             <button @click="$refs.fileInput.click()" class="bg-blue-600 text-white px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-blue-100 mx-auto">Select Spreadsheet</button>
           </div>
 
-          <!-- Preview Results -->
           <div v-else class="space-y-4 flex-1 overflow-hidden flex flex-col">
-            <!-- Summary Header -->
             <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
               <div class="text-xs font-black uppercase tracking-widest flex items-center gap-4">
                 <span class="text-green-600">✓ {{ importPreview.validItems.length }} Valid</span>
@@ -370,7 +389,6 @@
               </div>
             </div>
 
-            <!-- Preview Table -->
             <div class="flex-1 overflow-auto border border-gray-200 rounded-xl">
               <table class="w-full text-[10px]">
                 <thead class="bg-neutral-800 text-white sticky top-0">
@@ -387,11 +405,8 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- Valid Items -->
                   <tr v-for="(item, idx) in importPreview.validItems" :key="'valid-' + idx" class="border-b border-green-100 bg-green-50/30">
-                    <td class="p-3">
-                      <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[9px] font-black uppercase">Valid</span>
-                    </td>
+                    <td class="p-3"><span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[9px] font-black uppercase">Valid</span></td>
                     <td class="p-3 text-gray-400">{{ item.rowNumber }}</td>
                     <td class="p-3 font-bold">{{ item.category }}</td>
                     <td class="p-3 font-bold">{{ item.partNo }}</td>
@@ -402,11 +417,8 @@
                     <td class="p-3 text-right font-black text-green-600">₱{{ item.totalValue?.toLocaleString() }}</td>
                   </tr>
                   
-                  <!-- Invalid Items -->
                   <tr v-for="(item, idx) in importPreview.invalidItems" :key="'invalid-' + idx" class="border-b border-red-100 bg-red-50/30">
-                    <td class="p-3">
-                      <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-[9px] font-black uppercase">Invalid</span>
-                    </td>
+                    <td class="p-3"><span class="px-2 py-1 bg-red-100 text-red-700 rounded text-[9px] font-black uppercase">Invalid</span></td>
                     <td class="p-3 text-gray-400">{{ item.rowNumber }}</td>
                     <td class="p-3 font-bold">{{ item.category || '-' }}</td>
                     <td class="p-3 font-bold">{{ item.partNo || '-' }}</td>
