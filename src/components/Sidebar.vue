@@ -123,9 +123,9 @@
               <router-link v-if="accessiblePages['transaction-out']" to="/admin/transaction-out" @click="isLogisticsOpen = false" class="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-neutral-300 hover:bg-white/5 rounded-2xl transition-colors">
                 <ArrowUpRight class="w-4 h-4 text-red-500" /> Stock Out
               </router-link>
-              <router-link v-if="accessiblePages['sa-rotation']" to="/admin/sa-rotation" @click="isLogisticsOpen = false" class="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-neutral-300 hover:bg-white/5 rounded-2xl border-t border-white/5 mt-1 pt-2">
+              <!-- <router-link v-if="accessiblePages['sa-rotation']" to="/admin/sa-rotation" @click="isLogisticsOpen = false" class="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-neutral-300 hover:bg-white/5 rounded-2xl border-t border-white/5 mt-1 pt-2">
                 <ShoppingCart class="w-4 h-4 text-blue-500" /> Retail Orders
-              </router-link>
+              </router-link> -->
             </div>
           </transition>
         </div>
@@ -133,6 +133,11 @@
         <router-link to="/admin/approve" class="flex flex-col items-center justify-center flex-1 text-neutral-500 transition-all duration-200" active-class="!text-red-500 scale-110">
           <CheckSquare class="w-5 h-5" />
           <span class="text-[6px] mt-1 font-black uppercase tracking-tighter">Approvals</span>
+        </router-link>
+
+        <router-link to="/admin/sa-rotation" class="flex flex-col items-center justify-center flex-1 text-neutral-500 transition-all duration-200" active-class="!text-red-500 scale-110">
+          <ShoppingCart class="w-5 h-5 text-blue-500" />
+          <span class="text-[6px] mt-1 font-black uppercase tracking-tighter">Retail Orders</span>
         </router-link>
       </nav>
 
