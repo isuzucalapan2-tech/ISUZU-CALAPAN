@@ -3,986 +3,989 @@
     <Loaders />
   </div>
 
-  <div v-else :class="themeClass" class="min-h-screen flex flex-col font-sans relative overflow-hidden bg-white">
-    
-    <div class="absolute top-0 left-0 w-full z-0 opacity-5 pointer-events-none">
-      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
-        <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
-      </svg>
-    </div>
+    <div v-else :class="themeClass" class="min-h-screen flex flex-col font-sans relative overflow-hidden bg-white">
+      
+      <div class="absolute top-0 left-0 w-full z-0 opacity-5 pointer-events-none">
+        <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+          <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
+        </svg>
+      </div>
 
-    <main class="flex-1 relative z-10 overflow-auto">
-      <div class="max-w-[1600px] mx-auto p-6 lg:p-10 space-y-12">
-        
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 :class="['text-3xl font-black text-neutral-900 isuzu-font uppercase tracking-tight flex items-center gap-3', textClass]">
-              <span class="w-2 h-10 bg-red-600 rounded-full"></span>
-              System <span class="text-red-600">Dashboard</span>
-            </h1>
-            <p :class="['text-[10px] uppercase tracking-[0.3em] ml-5', subTextClass]">Real-time Operations Overview</p>
-          </div>
+      <main class="flex-1 relative z-10 overflow-auto">
+        <div class="max-w-[1600px] mx-auto p-3 sm:p-4 lg:p-6 xl:p-10 space-y-6 sm:space-y-8 lg:space-y-12">
           
-          <div :class="[cardClass, 'backdrop-blur-sm border border-neutral-400 rounded-2xl px-4 py-3 flex items-center gap-4 shadow-sm']">
-            <Calendar class="w-4 h-4 text-red-600" />
-            <span :class="['text-xs font-bold uppercase tracking-widest', subTextClass]">{{ new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }}</span>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div>
+              <h1 :class="['text-xl sm:text-3xl font-black text-neutral-900 isuzu-font uppercase tracking-tight flex items-center gap-2 sm:gap-3', textClass]">
+                <span class="w-2 h-8 sm:h-10 bg-red-600 rounded-full"></span>
+                System <span class="text-red-600">Dashboard</span>
+              </h1>
+              <p :class="['text-[5px] sm:text-[10px] uppercase tracking-[0.3em] ml-3 sm:ml-5', subTextClass]">Real-time Operations Overview</p>
+            </div>
+            
+            <div :class="[cardClass, 'backdrop-blur-sm border border-neutral-400 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-3 sm:gap-4']">
+              <Calendar class="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
+              <span :class="['text-[9px] sm:text-xs font-bold uppercase tracking-widest', subTextClass]">{{ new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }}</span>
+            </div>
           </div>
-        </div>
 
-        <section class="space-y-6">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="bg-red-600 p-2 rounded-xl">
-              <Boxes class="w-5 h-5 text-white" />
+          <section class="space-y-6">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="bg-red-600 p-2 rounded-xl">
+                <Boxes class="w-5 h-5 text-white" />
+              </div>
+              <h2 :class="['text-lg text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">Inventory <span class="text-red-600">Overview</span></h2>
             </div>
-            <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">Inventory <span class="text-red-600">Overview</span></h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
+
+              <div class="bg-neutral-900 rounded-2xl p-6 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-green-500/10 rounded-bl-[4rem]"></div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Availability</p>
+                <p class="text-3xl font-black text-green-500">{{ inStock }} <span class="text-xs text-white/50 font-medium">IN STOCK</span></p>
+                <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">Optimal Levels</p>
+              </div>
+
+              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 hover:border-red-600 transition-all group relative overflow-hidden shadow-sm">
+                <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
+                  <Package class="w-24 h-24 text-neutral-500" />
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Critical Warnings</p>
+                <p class="text-3xl font-black text-red-600">{{ outOfStock }}</p>
+                <div class="mt-4 flex items-center text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/30 w-fit px-2 py-1 rounded-lg">
+                  <AlertTriangle class="w-3 h-3 mr-1" /> OUT OF STOCK
+                </div>
+                <div v-if="outOfStock > 0" class="mt-3 pt-3 border-t border-neutral-200/50 max-h-[120px] overflow-y-auto">
+                  <div v-for="item in inventoryItems.filter(i => i.quantity === 0).slice(0, 3)" :key="item.id" class="text-[9px] py-1">
+                    <p class="font-bold text-gray-700 dark:text-gray-300">{{ item.partNo }}</p>
+                    <p class="text-gray-500 dark:text-gray-400">{{ item.partName }}</p>
+                  </div>
+                  <p v-if="outOfStock > 3" class="text-[8px] font-bold text-red-600 uppercase italic mt-2">+{{ outOfStock - 3 }} more</p>
+                </div>
+              </div>
+
+              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 hover:border-orange-600 transition-all group relative overflow-hidden shadow-sm">
+                <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform text-orange-500">
+                  <AlertTriangle class="w-24 h-24" />
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Low Stock Alerts</p>
+                <p class="text-3xl font-black text-orange-600">{{ lowStock }}</p>
+                <div class="mt-4 flex items-center text-[10px] font-bold text-orange-600 bg-orange-50 dark:bg-orange-900/30 w-fit px-2 py-1 rounded-lg">
+                  <AlertTriangle class="w-3 h-3 mr-1" /> REORDER SOON
+                </div>
+                <div v-if="lowStock > 0" class="mt-3 pt-3 border-t border-neutral-200/50 max-h-[120px] overflow-y-auto">
+                  <div v-for="item in inventoryItems.filter(i => i.quantity > 0 && i.quantity <= 10).slice(0, 3)" :key="item.id" class="text-[9px] py-1">
+                    <p class="font-bold text-gray-700 dark:text-gray-300">{{ item.partNo }} ({{ item.quantity }})</p>
+                    <p class="text-gray-500 dark:text-gray-400">{{ item.partName }}</p>
+                  </div>
+                  <p v-if="lowStock > 3" class="text-[8px] font-bold text-orange-600 uppercase italic mt-2">+{{ lowStock - 3 }} more</p>
+                </div>
+              </div>
+
+              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 hover:border-purple-600 transition-all group relative overflow-hidden shadow-sm">
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Quantity</p>
+                <p class="text-3xl font-black text-neutral-800">{{ totalInventoryQuantity.toLocaleString() }}</p>
+                <div class="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-purple-500 rounded-full" style="width: 70%"></div>
+                </div>
+              </div>
+
+              <div class="bg-neutral-600/10 rounded-2xl p-6 border-b-4 border-red-600 hover:border-red-900 relative group overflow-hidden shadow-sm">
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Critical Stock</p>
+                <p class="text-3xl font-black text-red-600">{{ outOfStock }}</p>
+                <p class="mt-4 text-[10px] font-bold text-red-600/50 uppercase tracking-widest flex items-center gap-1">
+                  <AlertTriangle class="w-3 h-3" /> Reorder Needed
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+              <div :class="[cardClass, 'rounded-2xl p-4 sm:p-6 lg:p-8 border border-neutral-600/40 xl:col-span-1']" :style="cardStyle">
+                <h3 :class="['text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2', textClass]">
+                  <PieChart class="w-4 h-4 text-red-600" /> Status Distribution
+                </h3>
+                <div class="h-[280px] relative px-4">
+                  <canvas ref="statusChart"></canvas>
+                </div>
+              </div>
+
+              <div :class="[cardClass, 'rounded-2xl p-4 sm:p-6 lg:p-8 border border-neutral-600/40 xl:col-span-2']" :style="cardStyle">
+                <h3 :class="['text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2', textClass]">
+                  <BarChart3 class="w-4 h-4 text-red-600" /> Stock by Category
+                </h3>
+                <div class="h-[280px] relative">
+                  <canvas ref="categoryChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alerts & Notifications in Inventory -->
+            <div v-if="outOfStock > 0 || lowStock > 0 || pendingUsersCount > 0" :class="[cardClass, 'rounded-2xl p-6 border border-neutral-600/40 shadow-sm']" :style="cardStyle">
+              <h3 :class="['text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-2 isuzu-font', textClass]">
+                <AlertTriangle class="w-4 h-4 text-red-600" /> Active <span :class="isDarkMode ? 'text-red-400' : 'text-red-600'">Alerts</span>
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div v-if="outOfStock > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-red-900/50' : 'bg-white border-neutral-200 shadow-sm']">
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></div>
+                      <h4 :class="['text-[10px] font-black uppercase tracking-[0.15em]', isDarkMode ? 'text-red-400' : 'text-red-600']">
+                        Critical Stock
+                      </h4>
+                    </div>
+                    <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-md', isDarkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-50 text-red-700']">{{ outOfStock }}</span>
+                  </div>
+                  
+                  <div class="space-y-3">
+                    <div v-for="item in inventoryItems.filter(i => i.quantity === 0).slice(0, 4)" :key="item.id" class="group">
+                      <p :class="['text-[11px] font-bold leading-none mb-1', textClass]">{{ item.partNo }}</p>
+                      <p :class="['text-[9px] truncate opacity-60 uppercase tracking-tighter', subTextClass]">{{ item.partName }}</p>
+                    </div>
+                  </div>
+                  
+                  <p v-if="outOfStock > 4" :class="['text-[9px] font-bold uppercase mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800', subTextClass]">
+                    + {{ outOfStock - 4 }} More Items
+                  </p>
+                </div>
+
+                <div v-if="lowStock > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-orange-900/50' : 'bg-white border-neutral-200 shadow-sm']">
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                      <h4 :class="['text-[10px] font-black uppercase tracking-[0.15em]', isDarkMode ? 'text-orange-400' : 'text-orange-600']">
+                        Low Inventory
+                      </h4>
+                    </div>
+                    <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-md', isDarkMode ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-50 text-orange-700']">{{ lowStock }}</span>
+                  </div>
+
+                  <div class="space-y-3">
+                    <div v-for="item in inventoryItems.filter(i => i.quantity > 0 && i.quantity <= 10).slice(0, 4)" :key="item.id">
+                      <div class="flex justify-between items-start">
+                        <p :class="['text-[11px] font-bold leading-none mb-1', textClass]">{{ item.partNo }}</p>
+                        <span class="text-[9px] font-black text-orange-600">{{ item.quantity }} QTY</span>
+                      </div>
+                      <p :class="['text-[9px] truncate opacity-60 uppercase tracking-tighter', subTextClass]">{{ item.partName }}</p>
+                    </div>
+                  </div>
+
+                  <p v-if="lowStock > 4" :class="['text-[9px] font-bold uppercase mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800', subTextClass]">
+                    + {{ lowStock - 4 }} More Items
+                  </p>
+                </div>
+
+                <div v-if="pendingUsersCount > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-yellow-900/50' : 'bg-white border-neutral-200 shadow-sm']">
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+                      <h4 :class="['text-[10px] font-black uppercase tracking-[0.15em]', isDarkMode ? 'text-yellow-500' : 'text-yellow-700']">
+                        User Requests
+                      </h4>
+                    </div>
+                    <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-md', isDarkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-50 text-yellow-700']">{{ pendingUsersCount }}</span>
+                  </div>
+
+                  <div class="space-y-3 mb-4">
+                    <div v-for="user in pendingUsers.slice(0, 3)" :key="user.id">
+                      <p :class="['text-[11px] font-bold leading-none mb-1', textClass]">{{ user.username }}</p>
+                      <p :class="['text-[9px] truncate opacity-60', subTextClass]">{{ user.email }}</p>
+                    </div>
+                  </div>
+
+                  <button 
+                    @click="$router.push('/admin/approve')" 
+                    :class="['w-full text-[9px] font-black uppercase py-2 rounded-lg border transition-all active:scale-95', 
+                    isDarkMode ? 'bg-yellow-500 text-neutral-900 border-yellow-500 hover:bg-yellow-400' : 'bg-neutral-900 text-white border-neutral-900 hover:bg-neutral-800']"
+                  >
+                    Review Applications
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Quick Actions Header -->
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2.5 rounded-xl" :class="isDarkMode ? 'bg-yellow-900/40' : 'bg-yellow-100'">
+              <Zap class="w-5 h-5" :class="isDarkMode ? 'text-yellow-400' : 'text-yellow-600'" />
+            </div>
+            <h2 :class="['text-sm font-black uppercase tracking-widest isuzu-font', textClass]">Quick <span :class="isDarkMode ? 'text-yellow-400' : 'text-yellow-600'">Actions</span></h2>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-red-600 transition-all group relative overflow-hidden shadow-sm">
-               <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
-                <Package class="w-24 h-24 text-neutral-500" />
-              </div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Critical Warnings</p>
-              <p class="text-3xl font-black text-red-600">{{ outOfStock }}</p>
-              <div class="mt-4 flex items-center text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/30 w-fit px-2 py-1 rounded-lg">
-                <AlertTriangle class="w-3 h-3 mr-1" /> OUT OF STOCK
-              </div>
-              <div v-if="outOfStock > 0" class="mt-3 pt-3 border-t border-neutral-200/50 max-h-[120px] overflow-y-auto">
-                <div v-for="item in inventoryItems.filter(i => i.quantity === 0).slice(0, 3)" :key="item.id" class="text-[9px] py-1">
-                  <p class="font-bold text-gray-700 dark:text-gray-300">{{ item.partNo }}</p>
-                  <p class="text-gray-500 dark:text-gray-400">{{ item.partName }}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <button 
+              @click="$router.push('/admin/inventory')" 
+              class="group relative flex flex-col p-4 sm:p-5 bg-white dark:bg-neutral-800 border border-red-200 dark:border-red-900/50 rounded-xl active:scale-95 cursor-pointer text-left"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                  <div class="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg group-hover:bg-red-200 dark:group-hover:bg-red-800 transition-colors">
+                    <AlertTriangle class="w-5 h-5 text-red-600" />
+                  </div>
+                  <span class="font-bold text-sm text-gray-600 dark:text-gray-300">Critical Stock</span>
                 </div>
-                <p v-if="outOfStock > 3" class="text-[8px] font-bold text-red-600 uppercase italic mt-2">+{{ outOfStock - 3 }} more</p>
+                <span class="text-3xl font-black text-red-600">{{ outOfStock }}</span>
               </div>
-            </div>
+              <div class="mt-auto pt-2 border-t border-gray-50 dark:border-neutral-700 flex justify-between items-center">
+                <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-red-500 transition-colors">Go to Inventory</span>
+                <ChevronRight class="w-3 h-3 text-gray-300 group-hover:text-red-500 transition-transform group-hover:translate-x-1" />
+              </div>
+            </button>
 
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-orange-600 transition-all group relative overflow-hidden shadow-sm">
-              <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform text-orange-500">
-                <AlertTriangle class="w-24 h-24" />
-              </div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Low Stock Alerts</p>
-              <p class="text-3xl font-black text-orange-600">{{ lowStock }}</p>
-              <div class="mt-4 flex items-center text-[10px] font-bold text-orange-600 bg-orange-50 dark:bg-orange-900/30 w-fit px-2 py-1 rounded-lg">
-                <AlertTriangle class="w-3 h-3 mr-1" /> REORDER SOON
-              </div>
-              <div v-if="lowStock > 0" class="mt-3 pt-3 border-t border-neutral-200/50 max-h-[120px] overflow-y-auto">
-                <div v-for="item in inventoryItems.filter(i => i.quantity > 0 && i.quantity <= 10).slice(0, 3)" :key="item.id" class="text-[9px] py-1">
-                  <p class="font-bold text-gray-700 dark:text-gray-300">{{ item.partNo }} ({{ item.quantity }})</p>
-                  <p class="text-gray-500 dark:text-gray-400">{{ item.partName }}</p>
+            <button 
+              @click="$router.push('/admin/transaction-in')" 
+              class="group relative flex flex-col p-4 sm:p-5 bg-white dark:bg-neutral-800 border border-green-200 dark:border-green-900/50 rounded-xl active:scale-95 cursor-pointer text-left"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                  <div class="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg group-hover:bg-green-200 dark:group-hover:bg-green-800 transition-colors">
+                    <ArrowDownCircle class="w-5 h-5 text-green-600" />
+                  </div>
+                  <span class="font-bold text-sm text-gray-600 dark:text-gray-300">Trans In (Today)</span>
                 </div>
-                <p v-if="lowStock > 3" class="text-[8px] font-bold text-orange-600 uppercase italic mt-2">+{{ lowStock - 3 }} more</p>
+                <span class="text-3xl font-black text-green-600 dark:text-green-400">{{ filteredTransactionInCount }}</span>
               </div>
+              <div class="mt-auto pt-2 border-t border-gray-50 dark:border-neutral-700 flex justify-between items-center">
+                <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-green-500 transition-colors">Go to Transaction In</span>
+                <ChevronRight class="w-3 h-3 text-gray-300 group-hover:text-green-500 transition-transform group-hover:translate-x-1" />
+              </div>
+            </button>
+
+            <button 
+              @click="$router.push('/admin/transaction-out')" 
+              class="group relative flex flex-col p-4 sm:p-5 bg-white dark:bg-neutral-800 border border-orange-200 dark:border-orange-900/50 rounded-xl active:scale-95 cursor-pointer text-left"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                  <div class="p-2 bg-orange-100 dark:bg-orange-900/50 rounded-lg group-hover:bg-orange-200 dark:group-hover:bg-orange-800 transition-colors">
+                    <ArrowUpCircle class="w-5 h-5 text-orange-600" />
+                  </div>
+                  <span class="font-bold text-sm text-gray-600 dark:text-gray-300">Trans Out (Today)</span>
+                </div>
+                <span class="text-3xl font-black text-orange-600 dark:text-orange-400">{{ filteredTransactionOutCount }}</span>
+              </div>
+              <div class="mt-auto pt-2 border-t border-gray-50 dark:border-neutral-700 flex justify-between items-center">
+                <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-orange-500 transition-colors">Go to Transaction Out</span>
+                <ChevronRight class="w-3 h-3 text-gray-300 group-hover:text-orange-500 transition-transform group-hover:translate-x-1" />
+              </div>
+            </button>
+          </div>
+
+          <div :class="[cardClass, 'rounded-2xl p-4 sm:p-5 border border-neutral-600/40']" :style="cardStyle">
+            <div class="flex items-center gap-2 mb-6">
+              <div class=" p-2">
+                <Activity class="w-5 h-5 text-blue-600" />
+              </div>
+              <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">
+                Recent <span class="text-blue-600">Activity</span>
+              </h2>
             </div>
 
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-purple-600 transition-all group relative overflow-hidden shadow-sm">
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Quantity</p>
-              <p class="text-3xl font-black text-neutral-800">{{ totalInventoryQuantity.toLocaleString() }}</p>
-              <div class="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full bg-purple-500 rounded-full" style="width: 70%"></div>
+            <div class="space-y-2">
+              <div v-for="item in recentTransactionIn.slice(0,3)" :key="`in-${item.id}`" 
+                  class="flex items-center gap-4 p-4 rounded-2xl border border-neutral-600/40 bg-neutral-600/5 transition-all">
+                <div :class="['p-2.5 rounded-xl', isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-600']">
+                  <ArrowDownCircle class="w-5 h-5" />
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                  <p :class="['text-[10px] font-black uppercase tracking-widest text-gray-400']">{{ item.partNo }}</p>
+                  <p :class="['text-sm font-bold', textClass]">Stock Replenishment</p>
+                </div>
+
+                <div class="text-right">
+                  <p :class="['text-lg font-black', isDarkMode ? 'text-green-400' : 'text-green-600']">+{{ item.quantity }}</p>
+                  <span class="text-[8px] font-black px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 uppercase">Incoming</span>
+                </div>
+              </div>
+
+              <div v-for="item in filteredTransactionOut.slice(0,3)" :key="`out-${item.id}`" 
+                  class="flex items-center gap-4 p-4 rounded-2xl border border-neutral-600/40 bg-neutral-600/5 transition-all">
+                <div :class="['p-2.5 rounded-xl', isDarkMode ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-100 text-orange-600']">
+                  <ArrowUpCircle class="w-5 h-5" />
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                  <p :class="['text-[10px] font-black uppercase tracking-widest text-gray-400']">{{ item.partNo }}</p>
+                  <p :class="['text-sm font-bold', textClass]">Inventory Outflow</p>
+                </div>
+
+                <div class="text-right">
+                  <p :class="['text-lg font-black', isDarkMode ? 'text-orange-400' : 'text-orange-600']">-{{ item.quantity }}</p>
+                  <span class="text-[8px] font-black px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-600 uppercase">Outgoing</span>
+                </div>
               </div>
             </div>
+          </div>
 
-            <div class="bg-neutral-900 rounded-2xl p-6 relative overflow-hidden group">
+          <div class="flex items-center gap-3 mt-8 mb-4">
+            <div class="bg-green-600 p-2 rounded-xl">
+              <TrendingUp class="w-5 h-5 text-white" />
+            </div>
+            <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">Financial <span class="text-green-600">Highlights</span></h2>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-6 sm:mb-8">
+            <div class="bg-neutral-900 rounded-2xl p-4 sm:p-6 relative overflow-hidden group">
               <div class="absolute top-0 right-0 w-16 h-16 bg-green-500/10 rounded-bl-[4rem]"></div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Availability</p>
-              <p class="text-3xl font-black text-green-500">{{ inStock }} <span class="text-xs text-white/50 font-medium">IN STOCK</span></p>
-              <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">Optimal Levels</p>
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Today's Revenue</p>
+              <p class="text-3xl font-black text-green-500">₱{{ todaysRevenue.toLocaleString() }}</p>
+              <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">{{ todaysTransactionCount }} Successful Sales</p>
             </div>
 
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border-b-4 border-red-600 hover:border-red-900 relative group overflow-hidden shadow-sm">
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Critical Stock</p>
-              <p class="text-3xl font-black text-red-600">{{ outOfStock }}</p>
-              <p class="mt-4 text-[10px] font-bold text-red-600/50 uppercase tracking-widest flex items-center gap-1">
-                <AlertTriangle class="w-3 h-3" /> Reorder Needed
+            <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 hover:border-blue-600 transition-all group relative overflow-hidden">
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Avg Transaction</p>
+              <p class="text-3xl font-black" :class="textClass">₱{{ averageTransactionValue.toLocaleString() }}</p>
+              <div class="mt-4 h-1.5 w-full bg-gray-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-500 rounded-full" style="width: 65%"></div>
+              </div>
+            </div>
+
+            <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 hover:border-purple-600 transition-all group relative overflow-hidden">
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Top Selling Part</p>
+              <p class="text-2xl font-black truncate" :class="textClass">{{ topSellingPart.partNo }}</p>
+              <p class="mt-2 text-[10px] font-bold text-purple-600 uppercase tracking-widest flex items-center gap-1">
+                <Package class="w-3 h-3" /> {{ topSellingPart.quantity }} Units Moved
               </p>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 xl:grid-cols-3 gap-3">
-            <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40 xl:col-span-1']" :style="cardStyle">
-              <h3 :class="['text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2', textClass]">
-                <PieChart class="w-4 h-4 text-red-600" /> Status Distribution
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
+            <div :class="[cardClass, 'rounded-2xl p-4 sm:p-6 lg:p-8 border border-neutral-600/40']" :style="cardStyle">
+              <h3 :class="['text-[11px] font-black uppercase tracking-widest mb-6 flex items-center gap-2', textClass]">
+                <Activity class="w-4 h-4 text-emerald-500" /> Performance Trends
               </h3>
-              <div class="h-[280px] relative px-4">
-                <canvas ref="statusChart"></canvas>
+              <div class="space-y-6">
+                <div class="flex justify-between items-end">
+                  <div>
+                    <p class="text-[10px] font-black text-gray-400 uppercase">vs Yesterday</p>
+                    <p :class="['text-3xl font-black', revenueGrowthVsYesterday >= 0 ? 'text-green-500' : 'text-red-500']">
+                      {{ revenueGrowthVsYesterday >= 0 ? '+' : '' }}{{ revenueGrowthVsYesterday }}%
+                    </p>
+                  </div>
+                  <div class="h-12 w-24">
+                    <TrendingUp :class="['w-8 h-8', revenueGrowthVsYesterday >= 0 ? 'text-green-500/20' : 'text-red-500/20']" />
+                  </div>
+                </div>
+                <div class="border-t border-neutral-200/50 pt-4">
+                  <p class="text-[10px] font-black text-gray-400 uppercase mb-2">Weekly Momentum</p>
+                  <div class="flex items-center gap-3">
+                    <span :class="['px-2 py-1 rounded text-[10px] font-black', revenueGrowthVsLastWeek >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700']">
+                      {{ revenueGrowthVsLastWeek >= 0 ? 'GROWTH' : 'DECLINE' }}
+                    </span>
+                    <p class="text-sm font-bold" :class="textClass">{{ Math.abs(revenueGrowthVsLastWeek) }}% vs last week</p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40 xl:col-span-2']" :style="cardStyle">
-              <h3 :class="['text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2', textClass]">
-                <BarChart3 class="w-4 h-4 text-red-600" /> Stock by Category
-              </h3>
-              <div class="h-[280px] relative">
-                <canvas ref="categoryChart"></canvas>
+            <div :class="[cardClass, 'rounded-2xl p-4 sm:p-6 lg:p-8 border border-neutral-600/40 xl:col-span-2']" :style="cardStyle">
+              <h3 :class="['text-[11px] font-black uppercase tracking-widest mb-6', textClass]">Daily Volume Comparison</h3>
+              <div class="grid grid-cols-2 gap-8">
+                <div class="bg-neutral-600/5 p-6 rounded-2xl border border-neutral-600/40">
+                  <p class="text-[10px] font-black text-neutral-400 uppercase mb-1">Transaction Count</p>
+                  <p class="text-4xl font-black mb-4" :class="textClass">{{ todaysTransactionCount }}</p>
+                  <div class="flex items-center gap-2 text-[10px] font-bold">
+                    <span class="text-gray-400">PREV: {{ yesterdaysTransactionCount }}</span>
+                    <span :class="txCountGrowthVsYesterday >= 0 ? 'text-green-500' : 'text-red-500'">
+                      ({{ txCountGrowthVsYesterday >= 0 ? '↑' : '↓' }} {{ Math.abs(txCountGrowthVsYesterday) }}%)
+                    </span>
+                  </div>
+                </div>
+                <div class="bg-neutral-600/5 p-6 rounded-2xl border border-neutral-600/40">
+                  <p class="text-[10px] font-black text-neutral-400 uppercase mb-1">Average Ticket</p>
+                  <p class="text-4xl font-black mb-4" :class="textClass">₱{{ averageTransactionValue }}</p>
+                  <div class="flex items-center gap-2 text-[10px] font-bold">
+                    <span class="text-gray-400">PREV: ₱{{ yesterdaysAvgValue }}</span>
+                    <span :class="avgValueGrowthVsYesterday >= 0 ? 'text-green-500' : 'text-red-500'">
+                      ({{ avgValueGrowthVsYesterday >= 0 ? '↑' : '↓' }} {{ Math.abs(avgValueGrowthVsYesterday) }}%)
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Alerts & Notifications in Inventory -->
-          <div v-if="outOfStock > 0 || lowStock > 0 || pendingUsersCount > 0" :class="[cardClass, 'rounded-2xl p-6 border border-neutral-600/40 shadow-sm']" :style="cardStyle">
-            <h3 :class="['text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-2 isuzu-font', textClass]">
-              <AlertTriangle class="w-4 h-4 text-red-600" /> Active <span :class="isDarkMode ? 'text-red-400' : 'text-red-600'">Alerts</span>
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div v-if="outOfStock > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-red-900/50' : 'bg-white border-neutral-200 shadow-sm']">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></div>
-                    <h4 :class="['text-[10px] font-black uppercase tracking-[0.15em]', isDarkMode ? 'text-red-400' : 'text-red-600']">
-                      Critical Stock
-                    </h4>
-                  </div>
-                  <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-md', isDarkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-50 text-red-700']">{{ outOfStock }}</span>
-                </div>
-                
-                <div class="space-y-3">
-                  <div v-for="item in inventoryItems.filter(i => i.quantity === 0).slice(0, 4)" :key="item.id" class="group">
-                    <p :class="['text-[11px] font-bold leading-none mb-1', textClass]">{{ item.partNo }}</p>
-                    <p :class="['text-[9px] truncate opacity-60 uppercase tracking-tighter', subTextClass]">{{ item.partName }}</p>
-                  </div>
-                </div>
-                
-                <p v-if="outOfStock > 4" :class="['text-[9px] font-bold uppercase mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800', subTextClass]">
-                  + {{ outOfStock - 4 }} More Items
-                </p>
+          <div class="flex items-center gap-2 pb-1 border-b-2 border-neutral-600/40 mb-6"></div>
+
+          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5 items-stretch">
+            <div :class="[cardClass, 'rounded-3xl p-4 sm:p-6 lg:p-8 border border-neutral-600/40 relative overflow-hidden group']" :style="cardStyle">
+              <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12 group-hover:scale-110 transition-transform duration-500">
+                <UserCheck class="w-40 h-40" :class="isDarkMode ? 'text-white' : 'text-neutral-900'" />
               </div>
 
-              <div v-if="lowStock > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-orange-900/50' : 'bg-white border-neutral-200 shadow-sm']">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
-                    <h4 :class="['text-[10px] font-black uppercase tracking-[0.15em]', isDarkMode ? 'text-orange-400' : 'text-orange-600']">
-                      Low Inventory
-                    </h4>
+              <div class="relative z-10 flex flex-col h-full">
+                <div class="flex items-center justify-between mb-10 ">
+                  <div :class="['p-3 rounded-2xl', isDarkMode ? 'bg-green-900/50' : 'bg-green-100']">
+                    <UserCheck class="w-6 h-6" :class="isDarkMode ? 'text-green-400' : 'text-green-600'" />
                   </div>
-                  <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-md', isDarkMode ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-50 text-orange-700']">{{ lowStock }}</span>
+                  <span :class="['text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest border', isDarkMode ? 'bg-green-900/50 text-green-400 border-green-800' : 'bg-green-50 text-green-700 border-green-100']">Verified System Access</span>
                 </div>
-
-                <div class="space-y-3">
-                  <div v-for="item in inventoryItems.filter(i => i.quantity > 0 && i.quantity <= 10).slice(0, 4)" :key="item.id">
-                    <div class="flex justify-between items-start">
-                      <p :class="['text-[11px] font-bold leading-none mb-1', textClass]">{{ item.partNo }}</p>
-                      <span class="text-[9px] font-black text-orange-600">{{ item.quantity }} QTY</span>
+                
+                <div class="mt-auto">
+                  <h2 :class="['text-[11px] font-black uppercase tracking-[0.2em] mb-1', subTextClass]">Total Approved</h2>
+                  <div class="flex items-baseline gap-2">
+                    <p :class="['text-6xl font-black tracking-tighter leading-none', textClass]">
+                      {{ approvedUsersCount }}
+                    </p>
+                    <p :class="['text-xs font-bold uppercase tracking-tighter', isDarkMode ? 'text-green-400' : 'text-green-600']">Users</p>
+                  </div>
+                  <div class="mt-4 flex items-center gap-2">
+                    <div :class="['h-1.5 w-full rounded-full overflow-hidden', isDarkMode ? 'bg-gray-700' : 'bg-neutral-100']">
+                      <div class="h-full bg-green-500 rounded-full" :style="{ width: '100%' }"></div>
                     </div>
-                    <p :class="['text-[9px] truncate opacity-60 uppercase tracking-tighter', subTextClass]">{{ item.partName }}</p>
                   </div>
                 </div>
+              </div>
+            </div>
 
-                <p v-if="lowStock > 4" :class="['text-[9px] font-bold uppercase mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800', subTextClass]">
-                  + {{ lowStock - 4 }} More Items
-                </p>
+            <div class="bg-neutral-900 rounded-3xl p-4 sm:p-6 lg:p-8 text-white relative overflow-hidden shadow-xl">
+              <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12">
+                <Users class="w-40 h-40" />
               </div>
 
-              <div v-if="pendingUsersCount > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-yellow-900/50' : 'bg-white border-neutral-200 shadow-sm']">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
-                    <h4 :class="['text-[10px] font-black uppercase tracking-[0.15em]', isDarkMode ? 'text-yellow-500' : 'text-yellow-700']">
-                      User Requests
-                    </h4>
+              <button 
+                @click="$router.push('/admin/approve')" 
+                class="absolute top-6 right-6 z-30 group flex items-center gap-2 bg-white/5 hover:bg-yellow-500 backdrop-blur-md border border-white/10 hover:border-yellow-500 p-2 pr-4 rounded-2xl transition-all duration-300"
+              >
+                <div class="bg-yellow-500 p-1.5 rounded-lg group-hover:bg-neutral-900 transition-colors">
+                  <ExternalLink class="w-3 h-3 text-neutral-900 group-hover:text-yellow-500" />
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-widest text-white group-hover:text-neutral-900">Review All</span>
+              </button>
+
+              <div class="relative z-10 flex flex-col h-full">
+                <div class="flex items-center gap-3 mb-10">
+                  <div class="bg-yellow-500 p-3 rounded-2xl shadow-lg shadow-yellow-500/20">
+                    <UserX class="w-6 h-6 text-neutral-900" />
                   </div>
-                  <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-md', isDarkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-50 text-yellow-700']">{{ pendingUsersCount }}</span>
+                  <span v-if="pendingUsersCount > 0" class="text-[9px] font-black bg-yellow-500 text-neutral-900 px-3 py-1 rounded-full uppercase tracking-widest animate-pulse">
+                    Action Required
+                  </span>
                 </div>
 
-                <div class="space-y-3 mb-4">
-                  <div v-for="user in pendingUsers.slice(0, 3)" :key="user.id">
-                    <p :class="['text-[11px] font-bold leading-none mb-1', textClass]">{{ user.username }}</p>
-                    <p :class="['text-[9px] truncate opacity-60', subTextClass]">{{ user.email }}</p>
+                <div class="mt-auto">
+                  <h2 class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Awaiting Approval</h2>
+                  <div class="flex items-baseline gap-2">
+                    <p class="text-6xl font-black tracking-tighter text-yellow-500 leading-none">
+                      {{ pendingUsersCount }}
+                    </p>
+                    <p class="text-xs font-bold text-yellow-500 uppercase tracking-tighter italic">Pending</p>
+                  </div>
+                  
+                  <div class="flex items-center gap-2 mt-4">
+                    <div class="w-1 h-1 bg-yellow-500 rounded-full"></div>
+                    <p class="text-[9px] font-medium text-gray-500 uppercase tracking-widest">New registration requests in queue</p>
                   </div>
                 </div>
-
-                <button 
-                  @click="$router.push('/admin/approve')" 
-                  :class="['w-full text-[9px] font-black uppercase py-2 rounded-lg border transition-all active:scale-95', 
-                  isDarkMode ? 'bg-yellow-500 text-neutral-900 border-yellow-500 hover:bg-yellow-400' : 'bg-neutral-900 text-white border-neutral-900 hover:bg-neutral-800']"
-                >
-                  Review Applications
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Quick Actions Header -->
-        <div class="flex items-center gap-3 mb-4">
-          <div class="p-2.5 rounded-xl" :class="isDarkMode ? 'bg-yellow-900/40' : 'bg-yellow-100'">
-            <Zap class="w-5 h-5" :class="isDarkMode ? 'text-yellow-400' : 'text-yellow-600'" />
-          </div>
-          <h2 :class="['text-sm font-black uppercase tracking-widest isuzu-font', textClass]">Quick <span :class="isDarkMode ? 'text-yellow-400' : 'text-yellow-600'">Actions</span></h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <button 
-            @click="$router.push('/admin/inventory')" 
-            class="group relative flex flex-col p-5 bg-white dark:bg-neutral-800 border border-red-200 dark:border-red-900/50 rounded-xl active:scale-95 cursor-pointer text-left"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-3">
-                <div class="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg group-hover:bg-red-200 dark:group-hover:bg-red-800 transition-colors">
-                  <AlertTriangle class="w-5 h-5 text-red-600" />
-                </div>
-                <span class="font-bold text-sm text-gray-600 dark:text-gray-300">Critical Stock</span>
-              </div>
-              <span class="text-3xl font-black text-red-600">{{ outOfStock }}</span>
-            </div>
-            <div class="mt-auto pt-2 border-t border-gray-50 dark:border-neutral-700 flex justify-between items-center">
-              <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-red-500 transition-colors">Go to Inventory</span>
-              <ChevronRight class="w-3 h-3 text-gray-300 group-hover:text-red-500 transition-transform group-hover:translate-x-1" />
-            </div>
-          </button>
-
-          <button 
-            @click="$router.push('/admin/transaction-in')" 
-            class="group relative flex flex-col p-5 bg-white dark:bg-neutral-800 border border-green-200 dark:border-green-900/50 rounded-xl active:scale-95 cursor-pointer text-left"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-3">
-                <div class="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg group-hover:bg-green-200 dark:group-hover:bg-green-800 transition-colors">
-                  <ArrowDownCircle class="w-5 h-5 text-green-600" />
-                </div>
-                <span class="font-bold text-sm text-gray-600 dark:text-gray-300">Trans In (Today)</span>
-              </div>
-              <span class="text-3xl font-black text-green-600 dark:text-green-400">{{ filteredTransactionInCount }}</span>
-            </div>
-            <div class="mt-auto pt-2 border-t border-gray-50 dark:border-neutral-700 flex justify-between items-center">
-              <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-green-500 transition-colors">Go to Transaction In</span>
-              <ChevronRight class="w-3 h-3 text-gray-300 group-hover:text-green-500 transition-transform group-hover:translate-x-1" />
-            </div>
-          </button>
-
-          <button 
-            @click="$router.push('/admin/transaction-out')" 
-            class="group relative flex flex-col p-5 bg-white dark:bg-neutral-800 border border-orange-200 dark:border-orange-900/50 rounded-xl active:scale-95 cursor-pointer text-left"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-3">
-                <div class="p-2 bg-orange-100 dark:bg-orange-900/50 rounded-lg group-hover:bg-orange-200 dark:group-hover:bg-orange-800 transition-colors">
-                  <ArrowUpCircle class="w-5 h-5 text-orange-600" />
-                </div>
-                <span class="font-bold text-sm text-gray-600 dark:text-gray-300">Trans Out (Today)</span>
-              </div>
-              <span class="text-3xl font-black text-orange-600 dark:text-orange-400">{{ filteredTransactionOutCount }}</span>
-            </div>
-            <div class="mt-auto pt-2 border-t border-gray-50 dark:border-neutral-700 flex justify-between items-center">
-              <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-orange-500 transition-colors">Go to Transaction Out</span>
-              <ChevronRight class="w-3 h-3 text-gray-300 group-hover:text-orange-500 transition-transform group-hover:translate-x-1" />
-            </div>
-          </button>
-        </div>
-
-        <div :class="[cardClass, 'rounded-2xl p-5 border border-neutral-600/40']" :style="cardStyle">
-          <div class="flex items-center gap-2 mb-6">
-            <div class=" p-2">
-              <Activity class="w-5 h-5 text-blue-600" />
-            </div>
-            <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">
-              Recent <span class="text-blue-600">Activity</span>
-            </h2>
-          </div>
-
-          <div class="space-y-2">
-            <div v-for="item in recentTransactionIn.slice(0,3)" :key="`in-${item.id}`" 
-                class="flex items-center gap-4 p-4 rounded-2xl border border-neutral-600/40 bg-neutral-600/5 transition-all">
-              <div :class="['p-2.5 rounded-xl', isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-600']">
-                <ArrowDownCircle class="w-5 h-5" />
-              </div>
-              
-              <div class="flex-1 min-w-0">
-                <p :class="['text-[10px] font-black uppercase tracking-widest text-gray-400']">{{ item.partNo }}</p>
-                <p :class="['text-sm font-bold', textClass]">Stock Replenishment</p>
-              </div>
-
-              <div class="text-right">
-                <p :class="['text-lg font-black', isDarkMode ? 'text-green-400' : 'text-green-600']">+{{ item.quantity }}</p>
-                <span class="text-[8px] font-black px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 uppercase">Incoming</span>
               </div>
             </div>
 
-            <div v-for="item in filteredTransactionOut.slice(0,3)" :key="`out-${item.id}`" 
-                class="flex items-center gap-4 p-4 rounded-2xl border border-neutral-600/40 bg-neutral-600/5 transition-all">
-              <div :class="['p-2.5 rounded-xl', isDarkMode ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-100 text-orange-600']">
-                <ArrowUpCircle class="w-5 h-5" />
-              </div>
-              
-              <div class="flex-1 min-w-0">
-                <p :class="['text-[10px] font-black uppercase tracking-widest text-gray-400']">{{ item.partNo }}</p>
-                <p :class="['text-sm font-bold', textClass]">Inventory Outflow</p>
-              </div>
-
-              <div class="text-right">
-                <p :class="['text-lg font-black', isDarkMode ? 'text-orange-400' : 'text-orange-600']">-{{ item.quantity }}</p>
-                <span class="text-[8px] font-black px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-600 uppercase">Outgoing</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-3 mt-8 mb-4">
-          <div class="bg-green-600 p-2 rounded-xl">
-            <TrendingUp class="w-5 h-5 text-white" />
-          </div>
-          <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">Financial <span class="text-green-600">Highlights</span></h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-8">
-          <div class="bg-neutral-900 rounded-2xl p-6 relative overflow-hidden group">
-            <div class="absolute top-0 right-0 w-16 h-16 bg-green-500/10 rounded-bl-[4rem]"></div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Today's Revenue</p>
-            <p class="text-3xl font-black text-green-500">₱{{ todaysRevenue.toLocaleString() }}</p>
-            <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">{{ todaysTransactionCount }} Successful Sales</p>
-          </div>
-
-          <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-blue-600 transition-all group relative overflow-hidden">
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Avg Transaction</p>
-            <p class="text-3xl font-black" :class="textClass">₱{{ averageTransactionValue.toLocaleString() }}</p>
-            <div class="mt-4 h-1.5 w-full bg-gray-100 dark:bg-neutral-800 rounded-full overflow-hidden">
-              <div class="h-full bg-blue-500 rounded-full" style="width: 65%"></div>
-            </div>
-          </div>
-
-          <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 hover:border-purple-600 transition-all group relative overflow-hidden">
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Top Selling Part</p>
-            <p class="text-2xl font-black truncate" :class="textClass">{{ topSellingPart.partNo }}</p>
-            <p class="mt-2 text-[10px] font-bold text-purple-600 uppercase tracking-widest flex items-center gap-1">
-              <Package class="w-3 h-3" /> {{ topSellingPart.quantity }} Units Moved
-            </p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
-          <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40']" :style="cardStyle">
-            <h3 :class="['text-[11px] font-black uppercase tracking-widest mb-6 flex items-center gap-2', textClass]">
-              <Activity class="w-4 h-4 text-emerald-500" /> Performance Trends
-            </h3>
-            <div class="space-y-6">
-              <div class="flex justify-between items-end">
+            <div :class="[cardClass, 'rounded-3xl p-4 sm:p-6 lg:p-8 border border-neutral-600/40 flex flex-col relative group']" :style="cardStyle">
+              <div class="flex items-center justify-between mb-6">
                 <div>
-                  <p class="text-[10px] font-black text-gray-400 uppercase">vs Yesterday</p>
-                  <p :class="['text-3xl font-black', revenueGrowthVsYesterday >= 0 ? 'text-green-500' : 'text-red-500']">
-                    {{ revenueGrowthVsYesterday >= 0 ? '+' : '' }}{{ revenueGrowthVsYesterday }}%
-                  </p>
+                  <h3 :class="['text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2', subTextClass]">
+                    <PieChart class="w-3.5 h-3.5 text-yellow-600" /> Access Distribution
+                  </h3>
                 </div>
-                <div class="h-12 w-24">
-                  <TrendingUp :class="['w-8 h-8', revenueGrowthVsYesterday >= 0 ? 'text-green-500/20' : 'text-red-500/20']" />
+                <div class="flex -space-x-2">
+                  <div class="w-6 h-6 rounded-full border-2" :class="isDarkMode ? 'border-gray-700 bg-gray-500' : 'border-neutral-200 bg-neutral-400'"></div>
+                  <div class="w-6 h-6 rounded-full border-2 border-neutral-200 bg-yellow-500"></div>
                 </div>
-              </div>
-              <div class="border-t border-neutral-200/50 pt-4">
-                <p class="text-[10px] font-black text-gray-400 uppercase mb-2">Weekly Momentum</p>
-                <div class="flex items-center gap-3">
-                  <span :class="['px-2 py-1 rounded text-[10px] font-black', revenueGrowthVsLastWeek >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700']">
-                    {{ revenueGrowthVsLastWeek >= 0 ? 'GROWTH' : 'DECLINE' }}
-                  </span>
-                  <p class="text-sm font-bold" :class="textClass">{{ Math.abs(revenueGrowthVsLastWeek) }}% vs last week</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40 xl:col-span-2']" :style="cardStyle">
-            <h3 :class="['text-[11px] font-black uppercase tracking-widest mb-6', textClass]">Daily Volume Comparison</h3>
-            <div class="grid grid-cols-2 gap-8">
-              <div class="bg-neutral-600/5 p-6 rounded-2xl border border-neutral-600/40">
-                <p class="text-[10px] font-black text-neutral-400 uppercase mb-1">Transaction Count</p>
-                <p class="text-4xl font-black mb-4" :class="textClass">{{ todaysTransactionCount }}</p>
-                <div class="flex items-center gap-2 text-[10px] font-bold">
-                  <span class="text-gray-400">PREV: {{ yesterdaysTransactionCount }}</span>
-                  <span :class="txCountGrowthVsYesterday >= 0 ? 'text-green-500' : 'text-red-500'">
-                    ({{ txCountGrowthVsYesterday >= 0 ? '↑' : '↓' }} {{ Math.abs(txCountGrowthVsYesterday) }}%)
-                  </span>
-                </div>
-              </div>
-              <div class="bg-neutral-600/5 p-6 rounded-2xl border border-neutral-600/40">
-                <p class="text-[10px] font-black text-neutral-400 uppercase mb-1">Average Ticket</p>
-                <p class="text-4xl font-black mb-4" :class="textClass">₱{{ averageTransactionValue }}</p>
-                <div class="flex items-center gap-2 text-[10px] font-bold">
-                  <span class="text-gray-400">PREV: ₱{{ yesterdaysAvgValue }}</span>
-                  <span :class="avgValueGrowthVsYesterday >= 0 ? 'text-green-500' : 'text-red-500'">
-                    ({{ avgValueGrowthVsYesterday >= 0 ? '↑' : '↓' }} {{ Math.abs(avgValueGrowthVsYesterday) }}%)
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 pb-1 border-b-2 border-neutral-600/40 mb-6"></div>
-
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
-          <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-600/40 relative overflow-hidden group']" :style="cardStyle">
-            <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12 group-hover:scale-110 transition-transform duration-500">
-              <UserCheck class="w-40 h-40" :class="isDarkMode ? 'text-white' : 'text-neutral-900'" />
-            </div>
-
-            <div class="relative z-10 flex flex-col h-full">
-              <div class="flex items-center justify-between mb-10 ">
-                <div :class="['p-3 rounded-2xl', isDarkMode ? 'bg-green-900/50' : 'bg-green-100']">
-                  <UserCheck class="w-6 h-6" :class="isDarkMode ? 'text-green-400' : 'text-green-600'" />
-                </div>
-                <span :class="['text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest border', isDarkMode ? 'bg-green-900/50 text-green-400 border-green-800' : 'bg-green-50 text-green-700 border-green-100']">Verified System Access</span>
               </div>
               
-              <div class="mt-auto">
-                <h2 :class="['text-[11px] font-black uppercase tracking-[0.2em] mb-1', subTextClass]">Total Approved</h2>
-                <div class="flex items-baseline gap-2">
-                  <p :class="['text-6xl font-black tracking-tighter leading-none', textClass]">
-                    {{ approvedUsersCount }}
-                  </p>
-                  <p :class="['text-xs font-bold uppercase tracking-tighter', isDarkMode ? 'text-green-400' : 'text-green-600']">Users</p>
-                </div>
-                <div class="mt-4 flex items-center gap-2">
-                  <div :class="['h-1.5 w-full rounded-full overflow-hidden', isDarkMode ? 'bg-gray-700' : 'bg-neutral-100']">
-                    <div class="h-full bg-green-500 rounded-full" :style="{ width: '100%' }"></div>
-                  </div>
-                </div>
+              <div class="flex-1 min-h-[160px] relative flex items-center justify-center px-4">
+                <canvas ref="approvalChart" class="max-h-[180px]"></canvas>
+              </div>
+
+              <div :class="['mt-4 pt-4 border-t flex justify-between items-center', isDarkMode ? 'border-gray-700' : 'border-neutral-300']">
+                <span :class="['text-[9px] font-black uppercase tracking-widest italic', subTextClass]">Live Analytics</span>
+                <button @click="openMatrixModal" :class="['text-[9px] font-black uppercase hover:underline', isDarkMode ? 'text-yellow-400' : 'text-yellow-700']">View Matrix</button>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div class="bg-neutral-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl">
-            <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12">
-              <Users class="w-40 h-40" />
+          <!-- Service Advisor Integration Section -->
+          <section class="space-y-6">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="bg-purple-600 p-2 rounded-xl shadow-lg">
+                <Users class="w-5 h-5 text-white" />
+              </div>
+              <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">
+                Service Advisor <span class="text-purple-600">Overview</span>
+              </h2>
+              <router-link to="/admin/sa-rotation" class="ml-auto text-[10px] font-black uppercase bg-neutral-900 text-white px-4 py-2 rounded-xl hover:bg-purple-600 transition-colors tracking-widest shadow-sm">
+                Rotation Logic →
+              </router-link>
             </div>
 
-            <button 
-              @click="$router.push('/admin/approve')" 
-              class="absolute top-6 right-6 z-30 group flex items-center gap-2 bg-white/5 hover:bg-yellow-500 backdrop-blur-md border border-white/10 hover:border-yellow-500 p-2 pr-4 rounded-2xl transition-all duration-300"
-            >
-              <div class="bg-yellow-500 p-1.5 rounded-lg group-hover:bg-neutral-900 transition-colors">
-                <ExternalLink class="w-3 h-3 text-neutral-900 group-hover:text-yellow-500" />
-              </div>
-              <span class="text-[9px] font-black uppercase tracking-widest text-white group-hover:text-neutral-900">Review All</span>
-            </button>
-
-            <div class="relative z-10 flex flex-col h-full">
-              <div class="flex items-center gap-3 mb-10">
-                <div class="bg-yellow-500 p-3 rounded-2xl shadow-lg shadow-yellow-500/20">
-                  <UserX class="w-6 h-6 text-neutral-900" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
+                <div class="absolute -right-4 -bottom-2 opacity-10">
+                  <Users class="w-24 h-24 text-purple-500" />
                 </div>
-                <span v-if="pendingUsersCount > 0" class="text-[9px] font-black bg-yellow-500 text-neutral-900 px-3 py-1 rounded-full uppercase tracking-widest animate-pulse">
-                  Action Required
-                </span>
-              </div>
-
-              <div class="mt-auto">
-                <h2 class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">Awaiting Approval</h2>
-                <div class="flex items-baseline gap-2">
-                  <p class="text-6xl font-black tracking-tighter text-yellow-500 leading-none">
-                    {{ pendingUsersCount }}
-                  </p>
-                  <p class="text-xs font-bold text-yellow-500 uppercase tracking-tighter italic">Pending</p>
-                </div>
-                
-                <div class="flex items-center gap-2 mt-4">
-                  <div class="w-1 h-1 bg-yellow-500 rounded-full"></div>
-                  <p class="text-[9px] font-medium text-gray-500 uppercase tracking-widest">New registration requests in queue</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Active SAs</p>
+                <p class="text-4xl font-black text-purple-600">{{ activeSAsCount }}</p>
+                <div class="mt-4 flex items-center text-[10px] font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/30 w-fit px-2 py-1 rounded-lg uppercase">
+                  On Duty
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div :class="[cardClass, 'rounded-3xl p-8 border border-neutral-600/40 flex flex-col relative group']" :style="cardStyle">
-            <div class="flex items-center justify-between mb-6">
-              <div>
-                <h3 :class="['text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2', subTextClass]">
-                  <PieChart class="w-3.5 h-3.5 text-yellow-600" /> Access Distribution
-                </h3>
-              </div>
-              <div class="flex -space-x-2">
-                <div class="w-6 h-6 rounded-full border-2" :class="isDarkMode ? 'border-gray-700 bg-gray-500' : 'border-neutral-200 bg-neutral-400'"></div>
-                <div class="w-6 h-6 rounded-full border-2 border-neutral-200 bg-yellow-500"></div>
-              </div>
-            </div>
-            
-            <div class="flex-1 min-h-[160px] relative flex items-center justify-center px-4">
-              <canvas ref="approvalChart" class="max-h-[180px]"></canvas>
-            </div>
-
-            <div :class="['mt-4 pt-4 border-t flex justify-between items-center', isDarkMode ? 'border-gray-700' : 'border-neutral-300']">
-              <span :class="['text-[9px] font-black uppercase tracking-widest italic', subTextClass]">Live Analytics</span>
-              <button @click="openMatrixModal" :class="['text-[9px] font-black uppercase hover:underline', isDarkMode ? 'text-yellow-400' : 'text-yellow-700']">View Matrix</button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Service Advisor Integration Section -->
-        <section class="space-y-6">
-          <div class="flex items-center gap-3 mb-6">
-            <div class="bg-purple-600 p-2 rounded-xl shadow-lg">
-              <Users class="w-5 h-5 text-white" />
-            </div>
-            <h2 :class="['text-xl text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">
-              Service Advisor <span class="text-purple-600">Overview</span>
-            </h2>
-            <router-link to="/admin/sa-rotation" class="ml-auto text-[10px] font-black uppercase bg-neutral-900 text-white px-4 py-2 rounded-xl hover:bg-purple-600 transition-colors tracking-widest shadow-sm">
-              Rotation Logic →
-            </router-link>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
-              <div class="absolute -right-4 -bottom-2 opacity-10">
-                <Users class="w-24 h-24 text-purple-500" />
-              </div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Active SAs</p>
-              <p class="text-4xl font-black text-purple-600">{{ activeSAsCount }}</p>
-              <div class="mt-4 flex items-center text-[10px] font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/30 w-fit px-2 py-1 rounded-lg uppercase">
-                On Duty
-              </div>
-            </div>
-
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
-              <div class="absolute -right-4 -bottom-2 opacity-10">
-                <CheckCircle class="w-24 h-24 text-green-500" />
-              </div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Jobs Done Today</p>
-              <p class="text-4xl font-black" :class="isDarkMode ? 'text-green-400' : 'text-green-600'">{{ jobsDoneToday }}</p>
-              <div class="mt-4 h-1.5 w-full bg-green-500/20 rounded-full overflow-hidden">
-                <div class="h-full bg-green-500 rounded-full" style="width: 100%"></div>
-              </div>
-            </div>
-
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
-              <div class="absolute -right-4 -bottom-2 opacity-10">
-                <Clock class="w-24 h-24 text-blue-500" />
-              </div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Ongoing Jobs</p>
-              <p class="text-4xl font-black" :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">{{ ongoingJobs }}</p>
-              <p class="mt-4 text-[10px] font-bold text-blue-500/60 uppercase tracking-tighter">In Progress</p>
-            </div>
-
-            <div class="bg-neutral-900 rounded-2xl p-6 relative overflow-hidden shadow-xl">
-              <div class="absolute top-0 right-0 w-16 h-16 bg-yellow-500/10 rounded-bl-[4rem]"></div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Efficiency Rate</p>
-              <p class="text-3xl font-black text-yellow-500">{{ efficiencyRate }}%</p>
-              <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">Performance Score</p>
-            </div>
-          </div>
-
-          <div :class="[cardClass, 'rounded-2xl p-8 border border-neutral-600/40']" :style="cardStyle">
-            <div class="flex items-center justify-between mb-8">
-              <h3 :class="['text-sm font-black uppercase tracking-widest flex items-center gap-2', textClass]">
-                <Activity class="w-4 h-4 text-purple-600" /> SA Workload Distribution
-              </h3>
-              <div class="flex items-center gap-3">
-                <p :class="['text-[10px] font-black uppercase text-gray-400']">Balance Status</p>
-                <span :class="['text-[11px] font-black px-3 py-1 rounded-lg', workloadBalanceClass]">
-                  {{ workloadBalance }}%
-                </span>
-              </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-              <div v-for="sa in saWorkload" :key="sa.name" 
-                  class="bg-neutral-600/5 p-5 rounded-2xl border border-neutral-600/40 transition-all">
-                <div class="flex items-center justify-between mb-4">
-                  <p :class="['text-[11px] font-black uppercase truncate tracking-wider', textClass]">{{ sa.name }}</p>
-                  <span :class="['text-[8px] font-black px-2 py-0.5 rounded uppercase border', sa.statusClass]">
-                    {{ sa.status }}
-                  </span>
-                </div>
-                
-                <div class="space-y-2">
-                  <div class="flex justify-between items-end">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Load</p>
-                    <p :class="['text-xs font-black', textClass]">{{ sa.ongoing }} / {{ sa.capacity }}</p>
-                  </div>
-                  <div class="h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
-                    <div :class="['h-full rounded-full transition-all duration-500', sa.barClass]" 
-                        :style="{ width: sa.workloadPercent + '%' }"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="space-y-8">          
-          <div class="flex items-center gap-3 pb-3 border-b-2 border-blue-600 mb-6">
-            <div class="flex -space-x-2">
-              <ArrowDownCircle class="w-7 h-7 text-blue-600 bg-white rounded-full shadow-sm" />
-              <ArrowUpCircle class="w-7 h-7 text-orange-600 bg-white rounded-full shadow-sm" />
-            </div>
-            <h2 :class="['text-2xl font-black uppercase tracking-tighter isuzu-font', textClass]">
-              Transactions <span :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">Overview</span>
-            </h2>
-          </div>
-
-          <div class="space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h3 :class="['text-lg font-bold flex items-center gap-2', textClass, isDarkMode ? 'text-green-400' : 'text-green-600']">
-                  <ArrowDownCircle class="w-5 h-5" />
-                  Transaction In 
-                </h3>
-                <p :class="['text-[10px] font-black uppercase tracking-[0.2em]', subTextClass]">
-                  Status: {{ transactionInFilter === 'today' ? 'Daily' : transactionInFilter === 'week' ? 'Weekly' : 'Monthly' }} Report
-                </p>
-              </div>
-              
-              <div :class="['flex p-1 rounded-xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-neutral-100 border-neutral-200 shadow-inner']">
-                <button 
-                  v-for="filter in ['today', 'week', 'month']" 
-                  :key="filter"
-                  @click="transactionInFilter = filter"
-                  :class="transactionInFilter === filter 
-                    ? ['bg-white dark:bg-neutral-600 shadow-sm text-white scale-105'] 
-                    : [isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700']"
-                  class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-200"
-                >
-                  {{ filter }}
-                </button>
-              </div>
-            </div>
-
-           <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
-              <div class="absolute -right-4 -bottom-2 opacity-10">
-                <ArrowDownCircle class="w-20 h-20 text-green-500" />
-              </div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Records</p>
-              <p class="text-3xl font-black" :class="textClass">{{ filteredTransactionInCount }}</p>
-              <div class="mt-4 flex items-center text-[9px] font-bold text-green-600 bg-green-50 dark:bg-green-900/30 w-fit px-2 py-1 rounded-lg">
-                <Activity class="w-3 h-3 mr-1" /> LOGGED
-              </div>
-            </div>
-
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
-              <div class="absolute -right-4 -bottom-2 opacity-10">
-                <Package class="w-20 h-20 text-blue-500" />
-              </div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Qty</p>
-              <p class="text-3xl font-black" :class="textClass">{{ filteredTransactionInQty.toLocaleString() }}</p>
-              <div class="mt-4 h-1 w-full bg-gray-100 dark:bg-neutral-800 rounded-full overflow-hidden">
-                <div class="h-full bg-blue-500 rounded-full" style="width: 100%"></div>
-              </div>
-            </div>
-
-            <div class="bg-neutral-900 rounded-2xl p-6 relative overflow-hidden shadow-xl">
-              <div class="absolute top-0 right-0 w-12 h-12 bg-purple-500/10 rounded-bl-[3rem]"></div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Value</p>
-              <p class="text-2xl font-black text-purple-400">₱{{ filteredTransactionInValue.toLocaleString() }}</p>
-              <p class="mt-4 text-[9px] text-white/40 uppercase tracking-widest font-bold">Gross Valuation</p>
-            </div>
-
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
-              <div class="absolute -right-4 -bottom-2 opacity-10">
-                <Clock class="w-20 h-20 text-yellow-500" />
-              </div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">To Review</p>
-              <p class="text-3xl font-black" :class="isDarkMode ? 'text-yellow-400' : 'text-yellow-600'">{{ filteredTransactionInToReview }}</p>
-              <div class="mt-4 flex items-center text-[9px] font-bold text-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 w-fit px-2 py-1 rounded-lg">
-                PENDING
-              </div>
-            </div>
-
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
-              <div class="absolute -right-4 -bottom-2 opacity-10">
-                <CheckCircle class="w-20 h-20 text-emerald-500" />
-              </div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Stock IN</p>
-              <p class="text-3xl font-black text-emerald-500">{{ filteredTransactionInStockIn }}</p>
-              <p class="mt-4 text-[9px] font-bold text-emerald-500/50 uppercase">Verified</p>
-            </div>
-
-            <div class="bg-neutral-600/10 rounded-2xl p-6 border-b-4 border-red-600 relative overflow-hidden shadow-sm">
-              <div class="absolute -right-4 -bottom-2 opacity-10">
-                <XCircle class="w-20 h-20 text-red-600" />
-              </div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Stock OUT</p>
-              <p class="text-3xl font-black text-red-600">{{ filteredTransactionInStockOut }}</p>
-              <p class="mt-4 text-[9px] font-bold text-red-600/50 uppercase">Discharged</p>
-            </div>
-          </div>
-
-            <div v-if="recentTransactionIn.length > 0" :class="[cardClass, 'overflow-hidden rounded-2xl border border-neutral-600/40']" :style="isDarkMode ? { ...cardStyle, borderColor: '#374151' } : { ...cardStyle, borderColor: '#e5e7eb' }">
-              <div :class="['p-4 border-b flex items-center justify-between', isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-50 bg-gray-50/50']">
-                <h4 :class="['text-xs font-black uppercase tracking-widest flex items-center gap-2 isuzu-font', textClass]">
-                  <TrendingUp class="w-4 h-4 text-green-600" />
-                  Recent Stock Inflow
-                </h4>
-                <span :class="['text-[9px] font-bold uppercase tracking-tighter italic', subTextClass]">Live Updates</span>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="w-full text-left ">
-                  <thead class="isuzu-font">
-                    <tr :class="[isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100']">
-                      <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Part No</th>
-                      <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Description</th>
-                      <th :class="['p-4 text-[10px] font-black uppercase tracking-widest text-center', subTextClass]">Qty</th>
-                      <th :class="['p-4 text-[10px] font-black uppercase tracking-widest text-center', subTextClass]">Status</th>
-                      <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody :class="['divide-y', isDarkMode ? 'divide-gray-700' : 'divide-gray-50']">
-                    <tr v-for="item in recentTransactionIn.slice(0, 5)" :key="item.id" :class="['transition-colors group', isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50/80']">
-                      <td :class="['p-4 text-[12px] font-bold', textClass, 'group-hover:text-blue-600']">{{ item.partNo }}</td>
-                      <td :class="['p-4 text-[12px] font-medium', subTextClass]">{{ item.partName }}</td>
-                      <td :class="['p-4 text-[12px] font-black text-center', textClass]">{{ item.quantity }}</td>
-                      <td class="p-4 text-center">
-                        <span :class="getTransactionInStatusClass(item.statusIN)" class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border shadow-sm">
-                          {{ item.statusIN || 'To Review' }}
-                        </span>
-                      </td>
-                      <td :class="['p-4 text-[11px] font-bold uppercase', subTextClass]">{{ formatTransactionDate(item.createdAt) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <hr :class="['border-dashed', isDarkMode ? 'border-gray-700' : 'border-neutral-600/40']" />
-
-          <div class="space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h3 :class="['text-lg font-bold flex items-center gap-2', textClass, isDarkMode ? 'text-orange-400' : 'text-orange-600']">
-                  <ArrowUpCircle class="w-5 h-5" />
-                  Transaction Out / Sales
-                </h3>
-                <p :class="['text-[10px] font-black uppercase tracking-[0.2em]', subTextClass]">
-                    Status: {{
-                      transactionOutFilter === 'today' ? 'Daily'
-                      : transactionOutFilter === 'week' ? 'Weekly'
-                      : transactionOutFilter === 'month' ? 'Monthly'
-                      : transactionOutFilter === 'year' ? 'Yearly'
-                      : 'Custom'
-                    }} Report
-                </p>
-              </div>
-              <div :class="['flex p-1 rounded-xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-neutral-100 border-neutral-200 shadow-inner']">
-                <button 
-                  v-for="filter in ['today', 'week', 'month', 'year', 'custom']" 
-                  :key="filter"
-                  @click="transactionOutFilter = filter"
-                  :class="transactionOutFilter === filter 
-                    ? ['bg-white dark:bg-neutral-600 shadow-sm text-white scale-105'] 
-                    : [isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700']"
-                  class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-200"
-                >
-                  {{ filter }}
-                </button>
-                <input v-if="transactionOutFilter === 'custom'" type="datetime-local" v-model="customTransactionOutDate" class="ml-2 px-2 py-1 rounded border text-xs" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
                 <div class="absolute -right-4 -bottom-2 opacity-10">
-                  <ArrowUpCircle class="w-24 h-24 text-orange-500" />
+                  <CheckCircle class="w-24 h-24 text-green-500" />
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Jobs Done Today</p>
+                <p class="text-4xl font-black" :class="isDarkMode ? 'text-green-400' : 'text-green-600'">{{ jobsDoneToday }}</p>
+                <div class="mt-4 h-1.5 w-full bg-green-500/20 rounded-full overflow-hidden">
+                  <div class="h-full bg-green-500 rounded-full" style="width: 100%"></div>
+                </div>
+              </div>
+
+              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
+                <div class="absolute -right-4 -bottom-2 opacity-10">
+                  <Clock class="w-24 h-24 text-blue-500" />
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Ongoing Jobs</p>
+                <p class="text-4xl font-black" :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">{{ ongoingJobs }}</p>
+                <p class="mt-4 text-[10px] font-bold text-blue-500/60 uppercase tracking-tighter">In Progress</p>
+              </div>
+
+              <div class="bg-neutral-900 rounded-2xl p-4 sm:p-6 relative overflow-hidden shadow-xl">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-yellow-500/10 rounded-bl-[4rem]"></div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Efficiency Rate</p>
+                <p class="text-3xl font-black text-yellow-500">{{ efficiencyRate }}%</p>
+                <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">Performance Score</p>
+              </div>
+            </div>
+
+            <div :class="[cardClass, 'rounded-2xl p-4 sm:p-6 lg:p-8 border border-neutral-600/40']" :style="cardStyle">
+              <div class="flex items-center justify-between mb-8">
+                <h3 :class="['text-sm font-black uppercase tracking-widest flex items-center gap-2', textClass]">
+                  <Activity class="w-4 h-4 text-purple-600" /> SA Workload Distribution
+                </h3>
+                <div class="flex items-center gap-3">
+                  <p :class="['text-[10px] font-black uppercase text-gray-400']">Balance Status</p>
+                  <span :class="['text-[11px] font-black px-3 py-1 rounded-lg', workloadBalanceClass]">
+                    {{ workloadBalance }}%
+                  </span>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                <div v-for="sa in saWorkload" :key="sa.name" 
+                    class="bg-neutral-600/5 p-5 rounded-2xl border border-neutral-600/40 transition-all">
+                  <div class="flex items-center justify-between mb-4">
+                    <p :class="['text-[11px] font-black uppercase truncate tracking-wider', textClass]">{{ sa.name }}</p>
+                    <span :class="['text-[8px] font-black px-2 py-0.5 rounded uppercase border', sa.statusClass]">
+                      {{ sa.status }}
+                    </span>
+                  </div>
+                  
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-end">
+                      <p class="text-[10px] font-bold text-gray-400 uppercase">Load</p>
+                      <p :class="['text-xs font-black', textClass]">{{ sa.ongoing }} / {{ sa.capacity }}</p>
+                    </div>
+                    <div class="h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
+                      <div :class="['h-full rounded-full transition-all duration-500', sa.barClass]" 
+                          :style="{ width: sa.workloadPercent + '%' }"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="space-y-8">          
+            <div class="flex items-center gap-3 pb-3 border-b-2 border-blue-600 mb-6">
+              <div class="flex -space-x-2">
+                <ArrowDownCircle class="w-7 h-7 text-blue-600 bg-white rounded-full shadow-sm" />
+                <ArrowUpCircle class="w-7 h-7 text-orange-600 bg-white rounded-full shadow-sm" />
+              </div>
+              <h2 :class="['text-2xl font-black uppercase tracking-tighter isuzu-font', textClass]">
+                Transactions <span :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">Overview</span>
+              </h2>
+            </div>
+
+            <div class="space-y-6">
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h3 :class="['text-lg font-bold flex items-center gap-2', textClass, isDarkMode ? 'text-green-400' : 'text-green-600']">
+                    <ArrowDownCircle class="w-5 h-5" />
+                    Transaction In 
+                  </h3>
+                  <p :class="['text-[10px] font-black uppercase tracking-[0.2em]', subTextClass]">
+                    Status: {{ transactionInFilter === 'today' ? 'Daily' : transactionInFilter === 'week' ? 'Weekly' : 'Monthly' }} Report
+                  </p>
+                </div>
+                
+                <div :class="['flex p-1 rounded-xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-neutral-100 border-neutral-200 shadow-inner']">
+                  <button 
+                    v-for="filter in ['today', 'week', 'month']" 
+                    :key="filter"
+                    @click="transactionInFilter = filter"
+                    :class="transactionInFilter === filter 
+                      ? ['bg-white dark:bg-neutral-600 shadow-sm text-white scale-105'] 
+                      : [isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700']"
+                    class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-200"
+                  >
+                    {{ filter }}
+                  </button>
+                </div>
+              </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
+                <div class="absolute -right-4 -bottom-2 opacity-10">
+                  <ArrowDownCircle class="w-20 h-20 text-green-500" />
                 </div>
                 <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Records</p>
-                <p class="text-3xl font-black text-orange-600">{{ filteredTransactionOutCount }}</p>
-                <div class="mt-4 flex items-center text-[10px] font-bold text-orange-600 bg-orange-50 dark:bg-orange-900/30 w-fit px-2 py-1 rounded-lg">
-                  LOG ENTRIES
+                <p class="text-3xl font-black" :class="textClass">{{ filteredTransactionInCount }}</p>
+                <div class="mt-4 flex items-center text-[9px] font-bold text-green-600 bg-green-50 dark:bg-green-900/30 w-fit px-2 py-1 rounded-lg">
+                  <Activity class="w-3 h-3 mr-1" /> LOGGED
                 </div>
               </div>
 
               <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
                 <div class="absolute -right-4 -bottom-2 opacity-10">
-                  <Package class="w-24 h-24 text-blue-500" />
+                  <Package class="w-20 h-20 text-blue-500" />
                 </div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Qty Sold</p>
-                <p class="text-3xl font-black" :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">
-                  {{ filteredTransactionOutQty.toLocaleString() }}
-                </p>
-                <div class="mt-4 h-1 w-full bg-blue-500/20 rounded-full"></div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Qty</p>
+                <p class="text-3xl font-black" :class="textClass">{{ filteredTransactionInQty.toLocaleString() }}</p>
+                <div class="mt-4 h-1 w-full bg-gray-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+                  <div class="h-full bg-blue-500 rounded-full" style="width: 100%"></div>
+                </div>
               </div>
 
-              <div class="bg-neutral-900 rounded-2xl p-6 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-16 h-16 bg-purple-500/10 rounded-bl-[4rem]"></div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Sales</p>
-                <p class="text-2xl font-black text-purple-400">₱{{ filteredTransactionOutValue.toLocaleString() }}</p>
-                <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">Gross Revenue</p>
+              <div class="bg-neutral-900 rounded-2xl p-4 sm:p-6 relative overflow-hidden shadow-xl">
+                <div class="absolute top-0 right-0 w-12 h-12 bg-purple-500/10 rounded-bl-[3rem]"></div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Value</p>
+                <p class="text-2xl font-black text-purple-400">₱{{ filteredTransactionInValue.toLocaleString() }}</p>
+                <p class="mt-4 text-[9px] text-white/40 uppercase tracking-widest font-bold">Gross Valuation</p>
               </div>
 
-              <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
+              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
                 <div class="absolute -right-4 -bottom-2 opacity-10">
-                  <Clock class="w-24 h-24 text-yellow-500" />
+                  <Clock class="w-20 h-20 text-yellow-500" />
                 </div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Pending Sales</p>
-                <p class="text-3xl font-black text-yellow-500">{{ filteredPendingTransactionOut }}</p>
-                <div class="mt-4 flex items-center text-[8px] font-bold text-yellow-600 border border-yellow-600/30 w-fit px-2 py-0.5 rounded uppercase">
-                  Awaiting Action
+                <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">To Review</p>
+                <p class="text-3xl font-black" :class="isDarkMode ? 'text-yellow-400' : 'text-yellow-600'">{{ filteredTransactionInToReview }}</p>
+                <div class="mt-4 flex items-center text-[9px] font-bold text-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 w-fit px-2 py-1 rounded-lg">
+                  PENDING
                 </div>
               </div>
 
-              <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
+              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
                 <div class="absolute -right-4 -bottom-2 opacity-10">
-                  <CheckCircle class="w-24 h-24 text-emerald-500" />
+                  <CheckCircle class="w-20 h-20 text-emerald-500" />
                 </div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Stock Out</p>
-                <p class="text-3xl font-black text-emerald-500">{{ filteredTransactionOutStockOut }}</p>
-                <p class="mt-4 text-[9px] font-bold text-emerald-500/60 uppercase tracking-tighter">Completed Orders</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Stock IN</p>
+                <p class="text-3xl font-black text-emerald-500">{{ filteredTransactionInStockIn }}</p>
+                <p class="mt-4 text-[9px] font-bold text-emerald-500/50 uppercase">Verified</p>
               </div>
 
-              <div class="bg-neutral-600/10 rounded-2xl p-6 border-b-4 border-red-600 relative overflow-hidden shadow-sm">
-                <div class="absolute -right-4 -bottom-2 opacity-[0.05]">
-                  <XCircle class="w-24 h-24 text-red-600" />
+              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border-b-4 border-red-600 relative overflow-hidden shadow-sm">
+                <div class="absolute -right-4 -bottom-2 opacity-10">
+                  <XCircle class="w-20 h-20 text-red-600" />
                 </div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Cancelled</p>
-                <p class="text-3xl font-black text-red-600">{{ filteredTransactionOutCancelled }}</p>
-                <p class="mt-4 text-[9px] font-bold text-red-600/50 uppercase flex items-center gap-1">
-                  <XCircle class="w-3 h-3" /> VOIDED RECORDS
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            
-            <div :class="[cardClass, 'rounded-3xl p-6 bg-white/10 backdrop-blur-none xl:col-span-2']" :style="cardStyle">
-              <div class="flex items-center justify-between mb-6">
-                <h2 :class="['text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2', textClass]">
-                  <TrendingUp class="w-5 h-5 text-blue-600" />
-                  Stock Flow <span :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">Analytics</span>
-                </h2>
-                <span :class="['text-[10px] font-black uppercase tracking-widest', subTextClass]">Last 7 Days</span>
-              </div>
-              <div class="h-[320px] w-full relative">
-                <canvas ref="transactionChart"></canvas>
+                <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Stock OUT</p>
+                <p class="text-3xl font-black text-red-600">{{ filteredTransactionInStockOut }}</p>
+                <p class="mt-4 text-[9px] font-bold text-red-600/50 uppercase">Discharged</p>
               </div>
             </div>
 
-            <div :class="[cardClass, 'rounded-3xl p-6 bg-white/10 backdrop-blur-none']" :style="cardStyle">
-              <div class="flex items-center justify-between mb-6">
-                <h2 :class="['text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2', textClass]">
-                  <BarChart3 class="w-5 h-5 text-orange-600" />
-                  Category <span :class="isDarkMode ? 'text-orange-400' : 'text-orange-600'">Sales</span>
-                </h2>
-              </div>
-              <div class="h-[320px] w-full relative">
-                <canvas ref="salesCategoryChart"></canvas>
+              <div v-if="recentTransactionIn.length > 0" :class="[cardClass, 'overflow-hidden rounded-2xl border border-neutral-600/40']" :style="isDarkMode ? { ...cardStyle, borderColor: '#374151' } : { ...cardStyle, borderColor: '#e5e7eb' }">
+                <div :class="['p-4 border-b flex items-center justify-between', isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-50 bg-gray-50/50']">
+                  <h4 :class="['text-xs font-black uppercase tracking-widest flex items-center gap-2 isuzu-font', textClass]">
+                    <TrendingUp class="w-4 h-4 text-green-600" />
+                    Recent Stock Inflow
+                  </h4>
+                  <span :class="['text-[9px] font-bold uppercase tracking-tighter italic', subTextClass]">Live Updates</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left ">
+                    <thead class="isuzu-font">
+                      <tr :class="[isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100']">
+                        <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Part No</th>
+                        <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Description</th>
+                        <th :class="['p-4 text-[10px] font-black uppercase tracking-widest text-center', subTextClass]">Qty</th>
+                        <th :class="['p-4 text-[10px] font-black uppercase tracking-widest text-center', subTextClass]">Status</th>
+                        <th :class="['p-4 text-[10px] font-black uppercase tracking-widest', subTextClass]">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody :class="['divide-y', isDarkMode ? 'divide-gray-700' : 'divide-gray-50']">
+                      <tr v-for="item in recentTransactionIn.slice(0, 5)" :key="item.id" :class="['transition-colors group', isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50/80']">
+                        <td :class="['p-4 text-[12px] font-bold', textClass, 'group-hover:text-blue-600']">{{ item.partNo }}</td>
+                        <td :class="['p-4 text-[12px] font-medium', subTextClass]">{{ item.partName }}</td>
+                        <td :class="['p-4 text-[12px] font-black text-center', textClass]">{{ item.quantity }}</td>
+                        <td class="p-4 text-center">
+                          <span :class="getTransactionInStatusClass(item.statusIN)" class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border shadow-sm">
+                            {{ item.statusIN || 'To Review' }}
+                          </span>
+                        </td>
+                        <td :class="['p-4 text-[11px] font-bold uppercase', subTextClass]">{{ formatTransactionDate(item.createdAt) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-            
-          </div>
-        </section>
 
-        <div class="mb-10 flex justify-end items-center gap-4">
-          <div v-if="syncing" class="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
-            </span>
-            <span class="text-[9px] font-black uppercase tracking-widest text-yellow-600">Database Handshake in Progress</span>
-          </div>
+            <hr :class="['border-dashed', isDarkMode ? 'border-gray-700' : 'border-neutral-600/40']" />
 
-          <button
-            @click="runSync"
-            :disabled="syncing"
-            class="group relative overflow-hidden flex items-center gap-3 bg-neutral-900 dark:bg-red-600 text-white px-6 py-3 rounded-2xl transition-all duration-300 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed border border-white/10"
-          >
-            <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-            
-            <RefreshCw 
-              :class="['w-4 h-4 transition-transform duration-700', syncing ? 'animate-spin' : 'group-hover:rotate-180']" 
-            />
-            
-            <span class="text-[11px] font-black uppercase tracking-[0.2em] isuzu-font relative z-10">
-              <span v-if="!syncing">Sync Firestore <span class="text-red-500 dark:text-red-200">to MySQL</span></span>
-              <span v-else>Processing Data Transfer...</span>
-            </span>
-          </button>
+            <div class="space-y-6">
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h3 :class="['text-lg font-bold flex items-center gap-2', textClass, isDarkMode ? 'text-orange-400' : 'text-orange-600']">
+                    <ArrowUpCircle class="w-5 h-5" />
+                    Transaction Out / Sales
+                  </h3>
+                  <p :class="['text-[10px] font-black uppercase tracking-[0.2em]', subTextClass]">
+                      Status: {{
+                        transactionOutFilter === 'today' ? 'Daily'
+                        : transactionOutFilter === 'week' ? 'Weekly'
+                        : transactionOutFilter === 'month' ? 'Monthly'
+                        : transactionOutFilter === 'year' ? 'Yearly'
+                        : 'Custom'
+                      }} Report
+                  </p>
+                </div>
+                <div :class="['flex p-1 rounded-xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-neutral-100 border-neutral-200 shadow-inner']">
+                  <button 
+                    v-for="filter in ['today', 'week', 'month', 'year', 'custom']" 
+                    :key="filter"
+                    @click="transactionOutFilter = filter"
+                    :class="transactionOutFilter === filter 
+                      ? ['bg-white dark:bg-neutral-600 shadow-sm text-white scale-105'] 
+                      : [isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700']"
+                    class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-200"
+                  >
+                    {{ filter }}
+                  </button>
+                  <input v-if="transactionOutFilter === 'custom'" type="datetime-local" v-model="customTransactionOutDate" class="ml-2 px-2 py-1 rounded border text-xs" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+                <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
+                  <div class="absolute -right-4 -bottom-2 opacity-10">
+                    <ArrowUpCircle class="w-24 h-24 text-orange-500" />
+                  </div>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Records</p>
+                  <p class="text-3xl font-black text-orange-600">{{ filteredTransactionOutCount }}</p>
+                  <div class="mt-4 flex items-center text-[10px] font-bold text-orange-600 bg-orange-50 dark:bg-orange-900/30 w-fit px-2 py-1 rounded-lg">
+                    LOG ENTRIES
+                  </div>
+                </div>
+
+                <div class="bg-neutral-600/10 rounded-2xl p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
+                  <div class="absolute -right-4 -bottom-2 opacity-10">
+                    <Package class="w-24 h-24 text-blue-500" />
+                  </div>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Qty Sold</p>
+                  <p class="text-3xl font-black" :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">
+                    {{ filteredTransactionOutQty.toLocaleString() }}
+                  </p>
+                  <div class="mt-4 h-1 w-full bg-blue-500/20 rounded-full"></div>
+                </div>
+
+                <div class="bg-neutral-900 rounded-2xl p-4 sm:p-6 relative overflow-hidden">
+                  <div class="absolute top-0 right-0 w-16 h-16 bg-purple-500/10 rounded-bl-[4rem]"></div>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Total Sales</p>
+                  <p class="text-2xl font-black text-purple-400">₱{{ filteredTransactionOutValue.toLocaleString() }}</p>
+                  <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">Gross Revenue</p>
+                </div>
+
+                <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
+                  <div class="absolute -right-4 -bottom-2 opacity-10">
+                    <Clock class="w-24 h-24 text-yellow-500" />
+                  </div>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Pending Sales</p>
+                  <p class="text-3xl font-black text-yellow-500">{{ filteredPendingTransactionOut }}</p>
+                  <div class="mt-4 flex items-center text-[8px] font-bold text-yellow-600 border border-yellow-600/30 w-fit px-2 py-0.5 rounded uppercase">
+                    Awaiting Action
+                  </div>
+                </div>
+
+                <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 relative overflow-hidden shadow-sm">
+                  <div class="absolute -right-4 -bottom-2 opacity-10">
+                    <CheckCircle class="w-24 h-24 text-emerald-500" />
+                  </div>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Stock Out</p>
+                  <p class="text-3xl font-black text-emerald-500">{{ filteredTransactionOutStockOut }}</p>
+                  <p class="mt-4 text-[9px] font-bold text-emerald-500/60 uppercase tracking-tighter">Completed Orders</p>
+                </div>
+
+                <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border-b-4 border-red-600 relative overflow-hidden shadow-sm">
+                  <div class="absolute -right-4 -bottom-2 opacity-[0.05]">
+                    <XCircle class="w-24 h-24 text-red-600" />
+                  </div>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Cancelled</p>
+                  <p class="text-3xl font-black text-red-600">{{ filteredTransactionOutCancelled }}</p>
+                  <p class="mt-4 text-[9px] font-bold text-red-600/50 uppercase flex items-center gap-1">
+                    <XCircle class="w-3 h-3" /> VOIDED RECORDS
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+              
+              <div :class="[cardClass, 'rounded-3xl p-4 sm:p-6 bg-white/10 backdrop-blur-none lg:col-span-2']" :style="cardStyle">
+                <div class="flex items-center justify-between mb-6">
+                  <h2 :class="['text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2', textClass]">
+                    <TrendingUp class="w-5 h-5 text-blue-600" />
+                    Stock Flow <span :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">Analytics</span>
+                  </h2>
+                  <span :class="['text-[10px] font-black uppercase tracking-widest', subTextClass]">Last 7 Days</span>
+                </div>
+                <div class="h-[320px] w-full relative">
+                  <canvas ref="transactionChart"></canvas>
+                </div>
+              </div>
+
+              <div :class="[cardClass, 'rounded-3xl p-4 sm:p-6 bg-white/10 backdrop-blur-none']" :style="cardStyle">
+                <div class="flex items-center justify-between mb-6">
+                  <h2 :class="['text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2', textClass]">
+                    <BarChart3 class="w-5 h-5 text-orange-600" />
+                    Category <span :class="isDarkMode ? 'text-orange-400' : 'text-orange-600'">Sales</span>
+                  </h2>
+                </div>
+                <div class="h-[320px] w-full relative">
+                  <canvas ref="salesCategoryChart"></canvas>
+                </div>
+              </div>
+              
+            </div>
+          </section>
+
+          <div class="mb-10 flex justify-end items-center gap-4">
+            <div v-if="syncing" class="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
+              </span>
+              <span class="text-[9px] font-black uppercase tracking-widest text-yellow-600">Database Handshake in Progress</span>
+            </div>
+
+            <button
+              @click="runSync"
+              :disabled="syncing"
+              class="group relative overflow-hidden flex items-center gap-3 bg-neutral-900 dark:bg-red-600 text-white px-6 py-3 rounded-2xl transition-all duration-300 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed border border-white/10"
+            >
+              <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              
+              <RefreshCw 
+                :class="['w-4 h-4 transition-transform duration-700', syncing ? 'animate-spin' : 'group-hover:rotate-180']" 
+              />
+              
+              <span class="text-[11px] font-black uppercase tracking-[0.2em] isuzu-font relative z-10">
+                <span v-if="!syncing">Sync Firestore <span class="text-red-500 dark:text-red-200">to MySQL</span></span>
+                <span v-else>Processing Data Transfer...</span>
+              </span>
+            </button>
+          </div>
         </div>
+      </main>
+
+      <div class="absolute bottom-0 left-0 w-full z-0 opacity-5 pointer-events-none transform rotate-180">
+        <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+          <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
+        </svg>
       </div>
-    </main>
 
-    <div class="absolute bottom-0 left-0 w-full z-0 opacity-5 pointer-events-none transform rotate-180">
-      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
-        <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
-      </svg>
-    </div>
-
-    <!-- Access Matrix Modal -->
-    <div v-if="showMatrixModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-black/50 backdrop-blur-none" @click="showMatrixModal = false"></div>
-      <div :class="[cardClass, 'relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl border']" :style="cardStyle">
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between p-4 border-b" :class="isDarkMode ? 'border-gray-700' : 'border-gray-200'">
-          <div class="flex items-center gap-3">
-            <div class="bg-red-600 p-2 rounded-xl">
-              <PieChart class="w-5 h-5 text-white" />
+      <!-- Access Matrix Modal -->
+      <div v-if="showMatrixModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-none" @click="showMatrixModal = false"></div>
+        <div :class="[cardClass, 'relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl border']" :style="cardStyle">
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between p-4 border-b" :class="isDarkMode ? 'border-gray-700' : 'border-gray-200'">
+            <div class="flex items-center gap-3">
+              <div class="bg-red-600 p-2 rounded-xl">
+                <PieChart class="w-5 h-5 text-white" />
+              </div>
+              <h2 :class="['text-xl font-black uppercase tracking-tighter isuzu-font', textClass]">Access <span class="text-red-600">Matrix</span></h2>
             </div>
-            <h2 :class="['text-xl font-black uppercase tracking-tighter isuzu-font', textClass]">Access <span class="text-red-600">Matrix</span></h2>
-          </div>
-          <button @click="showMatrixModal = false" class="p-2 transition-colors">
-            <X class="w-5 h-5" :class="subTextClass" />
-          </button>
-        </div>
-
-        <!-- Modal Content -->
-        <div class="p-6 overflow-y-auto max-h-[calc(90vh-\80px)]">
-          <!-- Legend -->
-          <div class="flex flex-wrap gap-4 mb-6">
-            <div class="flex items-center gap-2">
-              <div class="w-3 h-3 rounded-full bg-green-500"></div>
-              <span :class="['text-xs font-bold uppercase', subTextClass]">Full Access</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-              <span :class="['text-xs font-bold uppercase', subTextClass]">Partial Access</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-3 h-3 rounded-full bg-gray-400"></div>
-              <span :class="['text-xs font-bold uppercase', subTextClass]">No Access</span>
-            </div>
+            <button @click="showMatrixModal = false" class="p-2 transition-colors">
+              <X class="w-5 h-5" :class="subTextClass" />
+            </button>
           </div>
 
-          <!-- Matrix Table -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']">
-                  <th :class="['p-3 text-[10px] font-black uppercase tracking-widest', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Page / Module</th>
-                  <th :class="['p-3 text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Master Admin</th>
-                  <th :class="['p-3 text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Admin</th>
-                  <th :class="['p-3 text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Manager</th>
-                  <th :class="['p-3 text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Sales Agent</th>
-                  <th :class="['p-3 text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">AfterSales</th>
-                </tr>
-              </thead>
-              <tbody :class="['divide-y', isDarkMode ? 'divide-gray-700' : 'divide-gray-200']">
-                <tr v-for="row in accessMatrix" :key="row.page" :class="isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'">
-                  <td :class="['p-3 text-[11px] font-bold uppercase', textClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-                    {{ row.page }}
-                  </td>
-                  <td v-for="role in row.roles" :key="role.name" :class="['p-3 text-center border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-                    <div class="flex items-center justify-center">
-                      <div :class="[
-                        'w-6 h-6 rounded-full flex items-center justify-center',
-                        role.access === 'full' ? 'bg-green-500' :
-                        role.access === 'partial' ? 'bg-yellow-500' : 'bg-gray-400'
-                      ]">
-                        <CheckCircle v-if="role.access === 'full'" class="w-4 h-4 text-white" />
-                        <AlertTriangle v-else-if="role.access === 'partial'" class="w-3 h-3 text-white" />
-                        <XCircle v-else class="w-4 h-4 text-white" />
+          <!-- Modal Content -->
+          <div class="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+            <!-- Legend -->
+            <div class="flex flex-wrap gap-4 mb-6">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span :class="['text-xs font-bold uppercase', subTextClass]">Full Access</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <span :class="['text-xs font-bold uppercase', subTextClass]">Partial Access</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-gray-400"></div>
+                <span :class="['text-xs font-bold uppercase', subTextClass]">No Access</span>
+              </div>
+            </div>
+
+            <!-- Matrix Table -->
+            <div class="overflow-x-auto -mx-2 sm:mx-0">
+              <div class="inline-block min-w-full align-middle">
+                <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']">
+                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Page / Module</th>
+                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Master Admin</th>
+                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Admin</th>
+                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Manager</th>
+                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Sales Agent</th>
+                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">AfterSales</th>
+                  </tr>
+                </thead>
+                <tbody :class="['divide-y', isDarkMode ? 'divide-gray-700' : 'divide-gray-200']">
+                  <tr v-for="row in accessMatrix" :key="row.page" :class="isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'">
+                    <td :class="['p-2 sm:p-3 text-[9px] sm:text-[11px] font-bold uppercase', textClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">
+                      {{ row.page }}
+                    </td>
+                    <td v-for="role in row.roles" :key="role.name" :class="['p-2 sm:p-3 text-center border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">
+                      <div class="flex items-center justify-center">
+                        <div :class="[
+                          'w-6 h-6 rounded-full flex items-center justify-center',
+                          role.access === 'full' ? 'bg-green-500' :
+                          role.access === 'partial' ? 'bg-yellow-500' : 'bg-gray-400'
+                        ]">
+                          <CheckCircle v-if="role.access === 'full'" class="w-4 h-4 text-white" />
+                          <AlertTriangle v-else-if="role.access === 'partial'" class="w-3 h-3 text-white" />
+                          <XCircle v-else class="w-4 h-4 text-white" />
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-          <!-- Summary Stats -->
-          <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div :class="['p-4 rounded-2xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200']">
-              <p :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Pages</p>
-              <p :class="['text-2xl font-black', textClass]">{{ accessMatrix.length }}</p>
-            </div>
-            <div :class="['p-4 rounded-2xl border', isDarkMode ? 'bg-green-900/30 border-green-800' : 'bg-green-50 border-green-200']">
-              <p :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Full Access</p>
-              <p class="text-2xl font-black text-green-500">{{ fullAccessCount }}</p>
-            </div>
-            <div :class="['p-4 rounded-2xl border', isDarkMode ? 'bg-yellow-900/30 border-yellow-800' : 'bg-yellow-50 border-yellow-200']">
-              <p :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Partial Access</p>
-              <p class="text-2xl font-black text-yellow-500">{{ partialAccessCount }}</p>
-            </div>
-            <div :class="['p-4 rounded-2xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200']">
-              <p :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">No Access</p>
-              <p :class="['text-2xl font-black', isDarkMode ? 'text-gray-400' : 'text-gray-500']">{{ noAccessCount }}</p>
+            <!-- Summary Stats -->
+            <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <div :class="['p-3 sm:p-4 rounded-2xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200']">
+                <p :class="['text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Pages</p>
+                <p :class="['text-2xl font-black', textClass]">{{ accessMatrix.length }}</p>
+              </div>
+              <div :class="['p-3 sm:p-4 rounded-2xl border', isDarkMode ? 'bg-green-900/30 border-green-800' : 'bg-green-50 border-green-200']">
+                <p :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Full Access</p>
+                <p class="text-2xl font-black text-green-500">{{ fullAccessCount }}</p>
+              </div>
+              <div :class="['p-3 sm:p-4 rounded-2xl border', isDarkMode ? 'bg-yellow-900/30 border-yellow-800' : 'bg-yellow-50 border-yellow-200']">
+                <p :class="['text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Partial Access</p>
+                <p class="text-2xl font-black text-yellow-500">{{ partialAccessCount }}</p>
+              </div>
+              <div :class="['p-3 sm:p-4 rounded-2xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200']">
+                <p :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">No Access</p>
+                <p :class="['text-2xl font-black', isDarkMode ? 'text-gray-400' : 'text-gray-500']">{{ noAccessCount }}</p>
+              </div>
             </div>
           </div>
         </div>

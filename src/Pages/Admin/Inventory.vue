@@ -14,106 +14,136 @@
       </svg>
     </div>
 
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none">
-      <div class="flex items-center gap-4">
-        <div class="bg-red-600 p-2 rounded-lg">
-          <Boxes class="w-6 h-6 text-white" />
+    <header class="relative z-10 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6 flex justify-between items-center backdrop-blur-none">
+      <div class="flex items-center gap-2 sm:gap-4">
+        <div class="bg-red-600 p-1.5 sm:p-2 rounded-lg">
+          <Boxes class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
         <div>
-          <h1 class="text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800">
+          <h1 class="text-sm sm:text-xl lg:text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800">
             Inventory <span class="text-red-600">Management</span>
           </h1>
-          <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Parts & Logistics Console</p>
+          <p class="text-[8px] sm:text-[9px] lg:text-[10px] text-gray-500 uppercase tracking-[0.3em]">Parts & Logistics Console</p>
         </div>
       </div>
 
-      <div class="hidden md:flex items-center gap-4">
-        <div class="bg-neutral-100 px-4 py-2 rounded-full border border-neutral-200">
-          <span class="text-[10px] font-black uppercase tracking-widest text-neutral-600">
-            Total Items: <span class="text-red-600 text-sm ml-1">{{ inventoryItems.length }}</span>
+      <div class="flex items-center gap-2 sm:gap-4">
+        <div class="bg-neutral-100 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-neutral-200">
+          <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-neutral-600">
+            Total: <span class="text-red-600 text-xs sm:text-sm ml-1">{{ inventoryItems.length }}</span>
           </span>
         </div>
       </div>
     </header>
 
     <main class="flex-1 relative z-10 overflow-auto">
-      <div class="max-w-[1600px] mx-auto p-6 space-y-0">
+      <div class="max-w-[1600px] mx-auto p-4 sm:p-5 lg:p-6 space-y-0">
         
-        <div class=" backdrop-blur-none rounded-3xl p-6 animate-in fade-in slide-in-from-top-4 duration-500">
-          <div class="flex flex-col xl:flex-row gap-6">
+        <div class=" backdrop-blur-none rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div class="flex flex-col xl:flex-row gap-4 sm:gap-5 lg:gap-6">
             
             <div class="flex-1 space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                <div class="lg:col-span-2 relative border border-neutral-300 rounded-xl">
+              <div ref="searchWrapper" class="flex items-center gap-3">
+                <!-- Search Icon/Button/Search Bar -->
+                <div v-if="!searchVisible" @click="toggleSearch" class="cursor-pointer bg-gray-50 border border-neutral-200 rounded-xl p-3 hover:bg-gray-100 transition-all">
+                  <Search class="w-4 h-4 text-gray-600" />
+                </div>
+                <div v-else class="flex-1 max-w-md relative border border-neutral-300 rounded-xl">
                   <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     v-model="searchQuery"
                     type="text"
                     placeholder="SEARCH PART NAME, NUMBER, OR CONTROL NO..."
-                    class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold uppercase tracking-widest focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                    class="w-full pl-12 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold uppercase tracking-widest focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                    @blur="handleSearchBlur"
+                    @focus="handleSearchFocus"
                   />
+                  <button @click="toggleSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    <X class="w-4 h-4" />
+                  </button>
                 </div>
-                
+
+                <!-- All Categories Dropdown -->
                 <select v-model="selectedCategory" class="bg-gray-50 border border-neutral-200 rounded-xl px-4 py-3 text-[10px] text-neutral-500 uppercase tracking-widest outline-none focus:ring-2 focus:ring-red-500">
                   <option value="">ALL CATEGORIES</option>
                   <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
                 </select>
               </div>
 
-              <div class="flex flex-wrap items-center gap-6 pt-2 border-t border-gray-100 mt-2">
-                <div class="flex items-center gap-3">
-                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Qty Range:</span>
-                  <input v-model="minQty" type="number" placeholder="MIN" class="w-20 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold outline-none" />
-                  <span class="text-gray-300">-</span>
-                  <input v-model="maxQty" type="number" placeholder="MAX" class="w-20 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold outline-none" />
-                </div>
-                
-                <div class="flex items-center gap-3 border-l pl-6 border-gray-200">
-                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Price Range (₱):</span>
-                  <input v-model="minPrice" type="number" placeholder="MIN" class="w-24 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold outline-none" />
-                  <span class="text-gray-300">-</span>
-                  <input v-model="maxPrice" type="number" placeholder="MAX" class="w-24 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold outline-none" />
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-4 border-t border-gray-100">
+                <div class="flex flex-row items-center flex-wrap gap-4 sm:gap-8">
+                  
+                  <div class="flex items-center gap-3">
+                    <div class="flex flex-col">
+                      <span class="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Qty Range</span>
+                      <div class="flex items-center gap-1.5">
+                        <input v-model="minQty" type="number" placeholder="0" class="w-14 sm:w-16 px-2 py-1.5 bg-gray-50 border border-neutral-200 rounded-lg text-[10px] font-black outline-none focus:border-red-500 focus:bg-white transition-all text-center" />
+                        <span class="text-gray-300 font-bold">-</span>
+                        <input v-model="maxQty" type="number" placeholder="MAX" class="w-14 sm:w-16 px-2 py-1.5 bg-gray-50 border border-neutral-200 rounded-lg text-[10px] font-black outline-none focus:border-red-500 focus:bg-white transition-all text-center" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="hidden sm:block h-8 w-px bg-gray-200"></div>
+
+                  <div class="flex items-center gap-3">
+                    <div class="bg-emerald-50 p-1.5 rounded-lg">
+                      <Banknote class="w-3.5 h-3.5 text-emerald-600" />
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-1">Price Range (₱)</span>
+                      <div class="flex items-center gap-1.5">
+                        <input v-model="minPrice" type="number" placeholder="MIN" class="w-16 sm:w-24 px-2 py-1.5 bg-gray-50 border border-neutral-200 rounded-lg text-[10px] font-black outline-none focus:border-red-500 focus:bg-white transition-all" />
+                        <span class="text-gray-300 font-bold">-</span>
+                        <input v-model="maxPrice" type="number" placeholder="MAX" class="w-16 sm:w-24 px-2 py-1.5 bg-gray-50 border border-neutral-200 rounded-lg text-[10px] font-black outline-none focus:border-red-500 focus:bg-white transition-all" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <button v-if="hasActiveFilters" @click="clearAllFilters" class="text-[10px] font-black text-red-600 uppercase tracking-widest hover:underline flex items-center gap-1">
-                  <X class="w-3 h-3" /> Clear Filters
+                <button 
+                  v-if="hasActiveFilters" 
+                  @click="clearAllFilters" 
+                  class="flex items-center gap-2 px-4 py-2 text-[9px] font-black text-red-600 uppercase tracking-[0.15em] hover:bg-red-50 rounded-xl transition-all self-end lg:self-auto"
+                >
+                  <RefreshCcw class="w-3 h-3" /> Clear All Filters
                 </button>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 xl:flex xl:flex-col gap-2 min-w-[200px]">
-              <button @click="openAddModal" class="group flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-neutral-800 transition-all hover:shadow-red-200">
-                <Plus class="w-4 h-4" /> Add Item
+            <div class="grid grid-cols-2 md:grid-cols-4 xl:flex xl:flex-col gap-2 min-w-[180px] sm:min-w-[200px]">
+              <button @click="openAddModal" class="group flex items-center justify-center gap-1 sm:gap-2 bg-red-600 text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-neutral-800 transition-all hover:shadow-red-200">
+                <Plus class="w-3 h-3 sm:w-4 sm:h-4" /> Add Item
               </button>
               
-              <button @click="openImportModal" class="flex items-center justify-center gap-2 bg-neutral-800 border border-white text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md">
-                <Upload class="w-4 h-4" /> Import Excel
+              <button @click="openImportModal" class="flex items-center justify-center gap-1 sm:gap-2 bg-neutral-800 border border-white text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md">
+                <Upload class="w-3 h-3 sm:w-4 sm:h-4" /> Import Excel
               </button>
 
               <div class="relative group/export">
-                <button @click="toggleExportMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-600/40 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all ">
-                  <FileDown class="w-4 h-4" /> Export <ChevronDown class="w-3 h-3" />
+                <button @click="toggleExportMenu" class="w-full flex items-center justify-center gap-1 sm:gap-2 bg-neutral-100 text-neutral-800 border border-neutral-600/40 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all ">
+                  <FileDown class="w-3 h-3 sm:w-4 sm:h-4" /> Export <ChevronDown class="w-2 h-2 sm:w-3 sm:h-3" />
                 </button>
-                <div v-if="showExportMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 shadow-2xl rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                  <button @click="exportFilteredData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 flex items-center gap-2">
-                    <Filter class="w-3 h-3" /> Filtered ({{ filteredInventory.length }})
+                <div v-if="showExportMenu" class="absolute right-0 mt-2 w-40 sm:w-48 bg-white border border-gray-100 shadow-2xl rounded-lg sm:rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  <button @click="exportFilteredData" class="w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 flex items-center gap-1 sm:gap-2">
+                    <Filter class="w-2 h-2 sm:w-3 sm:h-3" /> Filtered ({{ filteredInventory.length }})
                   </button>
-                  <button @click="exportAllData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 border-t border-gray-50 flex items-center gap-2">
-                    <Database class="w-3 h-3" /> All ({{ inventoryItems.length }})
+                  <button @click="exportAllData" class="w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 border-t border-gray-50 flex items-center gap-1 sm:gap-2">
+                    <Database class="w-2 h-2 sm:w-3 sm:h-3" /> All ({{ inventoryItems.length }})
                   </button>
                 </div>
               </div>
 
               <div class="relative group/print">
-                <button @click="togglePrintMenu" class="w-full flex items-center justify-center gap-2 bg-neutral-100 text-neutral-800 border border-neutral-600/40 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all">
-                  <Printer class="w-4 h-4" /> Print <ChevronDown class="w-3 h-3" />
+                <button @click="togglePrintMenu" class="w-full flex items-center justify-center gap-1 sm:gap-2 bg-neutral-100 text-neutral-800 border border-neutral-600/40 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all">
+                  <Printer class="w-3 h-3 sm:w-4 sm:h-4" /> Print <ChevronDown class="w-2 h-2 sm:w-3 sm:h-3" />
                 </button>
-                <div v-if="showPrintMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 shadow-2xl rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                  <button @click="printFilteredData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 flex items-center gap-2">
-                    <Filter class="w-3 h-3" /> Filtered ({{ filteredInventory.length }})
+                <div v-if="showPrintMenu" class="absolute right-0 mt-2 w-40 sm:w-48 bg-white border border-gray-100 shadow-2xl rounded-lg sm:rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  <button @click="printFilteredData" class="w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 flex items-center gap-1 sm:gap-2">
+                    <Filter class="w-2 h-2 sm:w-3 sm:h-3" /> Filtered ({{ filteredInventory.length }})
                   </button>
-                  <button @click="printAllData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 border-t border-gray-50 flex items-center gap-2">
-                    <Database class="w-3 h-3" /> All ({{ inventoryItems.length }})
+                  <button @click="printAllData" class="w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 border-t border-gray-50 flex items-center gap-1 sm:gap-2">
+                    <Printer class="w-2 h-2 sm:w-3 sm:h-3" /> All ({{ inventoryItems.length }})
                   </button>
                 </div>
               </div>
@@ -121,56 +151,78 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+        <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 shadow-sm">
+          <div class="w-full overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[800px] lg:min-w-full">
               <thead>
-                <tr class="bg-neutral-900/90 text-white text-[10px] uppercase tracking-[0.2em] isuzu-font">
-                  <th class="px-6 py-5 font-black">Control No.</th>
-                  <th class="px-6 py-5 font-black">Part Specification</th>
-                  <th class="px-6 py-5 font-black">Description</th>
-                  <th class="px-6 py-5 font-black text-center">Stock</th>
-                  <th class="px-6 py-5 font-black">Price Info</th>
-                  <th class="px-6 py-5 font-black">Total Value</th>
-                  <th class="px-6 py-5 font-black text-center">Actions</th>
+                <tr class="bg-neutral-900 text-white text-[10px] uppercase tracking-[0.2em] isuzu-font">
+                  <th class="px-4 lg:px-6 py-4 lg:py-5 font-black shrink-0">Control No.</th>
+                  <th class="px-4 lg:px-6 py-4 lg:py-5 font-black">Part Specification</th>
+                  <th class="px-4 lg:px-6 py-4 lg:py-5 font-black hidden lg:table-cell">Description</th>
+                  <th class="px-4 lg:px-6 py-4 lg:py-5 font-black text-center">Stock</th>
+                  <th class="px-4 lg:px-6 py-4 lg:py-5 font-black">Price Info</th>
+                  <th class="px-4 lg:px-6 py-4 lg:py-5 font-black">Total Value</th>
+                  <th class="px-4 lg:px-6 py-4 lg:py-5 font-black text-center">Actions</th>
                 </tr>
               </thead>
+
               <tbody class="divide-y divide-neutral-100">
-                <tr v-for="item in paginatedInventory" :key="item.id" class="hover:bg-red-50/50 transition-colors group">
-                  <td class="px-6 py-2">
+                <tr v-for="item in paginatedInventory" :key="item.id" class="hover:bg-red-50/40 transition-colors group">
+                  
+                  <td class="px-4 lg:px-6 py-3">
                     <div class="flex flex-col">
-                      <span class="text-sm font-mono font-black text-red-600">{{ item.controlNo }}</span>
-                      <span class="text-[9px] font-black bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded mt-1 w-fit uppercase">{{ item.category }}</span>
+                      <span class="text-xs lg:text-sm font-mono font-black text-red-600">{{ item.controlNo }}</span>
+                      <span class="text-[8px] lg:text-[9px] font-black bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded mt-1 w-fit uppercase shrink-0">
+                        {{ item.category }}
+                      </span>
                     </div>
                   </td>
-                  <td class="px-6 py-2">
-                    <div class="flex flex-col">
-                      <span class="text-[12px] font-black text-neutral-800 uppercase tracking-tight">{{ item.partName }}</span>
-                      <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">PN: {{ item.partNo }} | MODEL: {{ item.model }}</span>
+
+                  <td class="px-4 lg:px-6 py-3">
+                    <div class="flex flex-col max-w-[200px] lg:max-w-xs">
+                      <span class="text-[11px] lg:text-[13px] font-black text-neutral-800 uppercase tracking-tight truncate">
+                        {{ item.partName }}
+                      </span>
+                      <span class="text-[8px] lg:text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 truncate">
+                        PN: {{ item.partNo }} | <span class="text-neutral-400">MOD: {{ item.model }}</span>
+                      </span>
                     </div>
                   </td>
-                  <td class="px-6 py-2">
-                    <span class="text-xs text-gray-500">{{ item.description || '-' }}</span>
-                  </td>
-                  <td class="px-6 py-2 text-center">
-                    <span :class="item.quantity < 5 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'" 
-                          class="px-3 py-1 rounded-full text-xs font-black">
-                      {{ item.quantity || 0 }}
+
+                  <td class="px-4 lg:px-6 py-3 hidden lg:table-cell">
+                    <span class="text-[10px] lg:text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                      {{ item.description || '-' }}
                     </span>
                   </td>
-                  <td class="px-6 py-2">
-                    <span class="text-sm font-bold text-neutral-700">₱{{ formatPrice(item.unitPrice) }}</span>
+
+                  <td class="px-4 lg:px-6 py-3 text-center">
+                    <div :class="item.quantity < 5 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'" 
+                        class="inline-block px-3 py-1 rounded-full text-[10px] lg:text-xs font-black min-w-[40px]">
+                      {{ item.quantity || 0 }}
+                    </div>
                   </td>
-                  <td class="px-6 py-2">
-                    <span class="text-sm font-black text-green-600">₱{{ formatPrice(item.totalValue) }}</span>
+
+                  <td class="px-4 lg:px-6 py-3 whitespace-nowrap">
+                    <div class="flex flex-col">
+                      <span class="text-[9px] text-gray-400 uppercase font-black block lg:hidden">Unit Price</span>
+                      <span class="text-xs lg:text-sm font-bold text-neutral-700 italic">₱{{ formatPrice(item.unitPrice) }}</span>
+                    </div>
                   </td>
-                  <td class="px-6 py-2 text-center">
-                    <div class="flex items-center justify-center gap-2">
-                      <button @click="editItem(item)" class="bg-neutral-100 hover:bg-blue-600 hover:text-white text-neutral-500 p-2 rounded-lg transition-all">
-                        <Edit class="w-4 h-4" />
+
+                  <td class="px-4 lg:px-6 py-3 whitespace-nowrap">
+                    <div class="flex flex-col">
+                      <span class="text-[9px] text-gray-400 uppercase font-black block lg:hidden">Total</span>
+                      <span class="text-xs lg:text-sm font-black text-emerald-600">₱{{ formatPrice(item.totalValue) }}</span>
+                    </div>
+                  </td>
+
+                  <td class="px-4 lg:px-6 py-3 text-center">
+                    <div class="flex items-center justify-center gap-1.5 lg:gap-3">
+                      <button @click="editItem(item)" class="bg-neutral-100 hover:bg-blue-600 hover:text-white text-neutral-500 p-2 rounded-xl transition-all active:scale-90">
+                        <Edit class="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                       </button>
-                      <button @click="deleteItem(item)" class="bg-neutral-100 hover:bg-red-600 hover:text-white text-neutral-500 p-2 rounded-lg transition-all">
-                        <Trash2 class="w-4 h-4" />
+                      <button @click="deleteItem(item)" class="bg-neutral-100 hover:bg-red-600 hover:text-white text-neutral-500 p-2 rounded-xl transition-all active:scale-90">
+                        <Trash2 class="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                       </button>
                     </div>
                   </td>
@@ -179,8 +231,8 @@
                 <tr v-if="paginatedInventory.length === 0">
                   <td colspan="7" class="px-6 py-24 text-center">
                     <div class="flex flex-col items-center opacity-20">
-                      <PackageX class="w-20 h-20 mb-4" />
-                      <p class="text-xl font-black isuzu-font uppercase tracking-widest">No Items Found</p>
+                      <PackageX class="w-16 h-16 mb-4" />
+                      <p class="text-lg font-black isuzu-font uppercase tracking-widest">No Items Found</p>
                     </div>
                   </td>
                 </tr>
@@ -188,28 +240,41 @@
             </table>
           </div>
 
-          <div class="px-8 py-5 bg-gray-50 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-              <select v-model="itemsPerPage" class="bg-white border border-gray-200 rounded-lg px-2 py-1 text-[10px] font-black uppercase outline-none">
-                <option v-for="option in itemsPerPageOptions" :key="option" :value="option">{{ option }} PER PAGE</option>
-              </select>
-              <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredInventory.length) }} of {{ filteredInventory.length }}
+          <div class="px-4 lg:px-8 py-4 bg-neutral-50 border-t border-neutral-100 flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full md:w-auto">
+              <div class="relative">
+                <select v-model="itemsPerPage" class="appearance-none bg-white border border-neutral-300 rounded-xl px-4 py-2 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-red-500/20 pr-10">
+                  <option v-for="option in itemsPerPageOptions" :key="option" :value="option">{{ option }} / PAGE</option>
+                </select>
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+                  <ChevronDown class="w-3 h-3" />
+                </div>
+              </div>
+              
+              <div class="text-[10px] font-black text-neutral-400 uppercase tracking-widest bg-white border border-neutral-200 px-3 py-2 rounded-xl">
+                {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredInventory.length) }} 
+                <span class="mx-1 text-neutral-300">of</span> 
+                <span class="text-neutral-600">{{ filteredInventory.length }} Items</span>
               </div>
             </div>
             
-            <div class="flex items-center gap-2">
-              <button @click="currentPage--" :disabled="currentPage === 1" class="p-2 rounded-lg bg-white border border-gray-200 disabled:opacity-30 hover:text-red-600 transition-colors">
+            <div class="flex items-center gap-1.5 lg:gap-2">
+              <button @click="currentPage--" :disabled="currentPage === 1" 
+                class="p-2 rounded-xl bg-white border border-neutral-300 disabled:opacity-20 hover:text-red-600 transition-all hover:border-red-600 active:scale-90">
                 <ChevronLeft class="w-4 h-4" />
               </button>
+              
               <div class="flex gap-1">
                 <button v-for="page in displayedPages" :key="page" @click="currentPage = page" 
-                  :class="currentPage === page ? 'bg-red-600 text-white shadow-lg' : 'bg-white text-neutral-600 hover:bg-gray-100'"
-                  class="w-8 h-8 rounded-lg text-xs font-bold transition-all">
+                  :class="currentPage === page ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'"
+                  class="w-8 h-8 lg:w-10 lg:h-10 rounded-xl text-[10px] lg:text-xs font-black transition-all active:scale-95">
                   {{ page }}
                 </button>
               </div>
-              <button @click="currentPage++" :disabled="currentPage === totalPages" class="p-2 rounded-lg bg-white border border-gray-200 disabled:opacity-30 hover:text-red-600 transition-colors">
+
+              <button @click="currentPage++" :disabled="currentPage === totalPages" 
+                class="p-2 rounded-xl bg-white border border-neutral-300 disabled:opacity-20 hover:text-red-600 transition-all hover:border-red-600 active:scale-90">
                 <ChevronRight class="w-4 h-4" />
               </button>
             </div>
@@ -518,6 +583,7 @@ const importFile = ref(null);
 const importPreview = ref({ validItems: [], invalidItems: [] });
 const isImporting = ref(false);
 const isPrinting = ref(false);
+const searchVisible = ref(false);
 
 // Pagination state
 const currentPage = ref(1);
@@ -1149,6 +1215,10 @@ const clearAllFilters = () => {
   maxQty.value = "";
   minPrice.value = "";
   maxPrice.value = "";
+};
+
+const toggleSearch = () => {
+  searchVisible.value = !searchVisible.value;
 };
 
 
