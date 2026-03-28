@@ -21,7 +21,7 @@
 
       <div class="mt-10">
         <router-link to="/" class="group relative inline-flex items-center gap-3 px-8 py-3.5 overflow-hidden rounded-xl bg-slate-900 text-white transition-all duration-300 ease-out hover:ring-2 hover:ring-red-500 hover:ring-offset-2">
-          <span class="absolute inset-0 w-full h-full bg-gradient-to-br from-red-600 to-rose-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"></span>
+          <span class="absolute inset-0 w-full h-full bg-linear-to-br from-red-600 to-rose-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"></span>
           <span class="relative flex items-center gap-2 text-sm tracking-wide uppercase isuzu-font">
             <ShieldCheck :size="18" />
             Return

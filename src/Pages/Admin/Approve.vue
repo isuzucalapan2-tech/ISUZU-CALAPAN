@@ -46,12 +46,12 @@
           </div>
 
           <div class="flex flex-row items-center gap-2 sm:gap-2 overflow-x-auto">
-            <select v-model="selectedRole" class="flex-shrink-0 px-3 sm:px-4 py-2 sm:py-2.5 border border-neutral-200 rounded-xl text-[10px] sm:text-xs font-bold outline-none cursor-pointer bg-white min-w-[100px]">
+            <select v-model="selectedRole" class="shrink-0 px-3 sm:px-4 py-2 sm:py-2.5 border border-neutral-200 rounded-xl text-[10px] sm:text-xs font-bold outline-none cursor-pointer bg-white min-w-25">
               <option value="">ALL ROLES</option>
               <option v-for="role in roleOptions" :key="role" :value="role">{{ role.toUpperCase() }}</option>
             </select>
 
-            <select v-model="selectedPosition" class="flex-shrink-0 px-3 sm:px-4 py-2 sm:py-2.5 border border-neutral-200 rounded-xl text-[10px] sm:text-xs font-bold outline-none cursor-pointer bg-white min-w-[120px]">
+            <select v-model="selectedPosition" class="shrink-0 px-3 sm:px-4 py-2 sm:py-2.5 border border-neutral-200 rounded-xl text-[10px] sm:text-xs font-bold outline-none cursor-pointer bg-white min-w-30">
               <option value="">ALL POSITIONS</option>
               <option v-for="pos in positionOptions" :key="pos" :value="pos">{{ pos.toUpperCase() }}</option>
             </select>
@@ -59,7 +59,7 @@
             <button 
               v-if="hasActiveFilters"
               @click="clearAllFilters"
-              class="flex-shrink-0 p-2 sm:p-2.5 text-neutral-500 hover:text-red-600 transition-colors"
+              class="shrink-0 p-2 sm:p-2.5 text-neutral-500 hover:text-red-600 transition-colors"
             >
               <X class="w-4 h-4 sm:w-5 sm:h-5" />
             </button>

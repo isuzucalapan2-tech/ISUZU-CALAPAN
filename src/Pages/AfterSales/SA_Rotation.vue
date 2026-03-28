@@ -1,12 +1,12 @@
 x
 <template>
-  <div class="h-screen w-full bg-neutral-100 font-sans overflow-hidden flex" @click="closeDropdown">
+  <div class="min-h-screen w-full bg-neutral-100 font-sans overflow-hidden flex" @click="closeDropdown">
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col overflow-hidden">
       
       <!-- Page Header and Mode Banner -->
-      <header class="bg-white border-b border-neutral-200 px-6 py-3 flex items-center justify-between shrink-0">
+      <header class="bg-white border-b border-neutral-200 px-6 py-3 flex flex-col md:flex-row items-start md:items-center justify-between shrink-0 gap-3">
         <div class="flex items-center gap-3">
           <span class="w-1.5 h-8 bg-red-600 rounded-full shrink-0"></span>
           <div>
@@ -39,7 +39,7 @@ x
         <div class="h-full grid grid-rows-[1fr_1fr] gap-4">
           
           <!-- Top Row: Auto Assign + Active Orders -->
-          <div class="grid grid-cols-[400px_1fr] gap-4 min-h-0">
+          <div class="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-4 min-h-0">
             
             <!-- Auto Assign Order Card -->
             <div class="bg-white rounded-xl shadow-sm border border-neutral-200 flex flex-col overflow-hidden hover:shadow-md transition-all duration-300"
@@ -100,7 +100,7 @@ x
 
                   <div v-if="showManualSelection" class="bg-white p-3 rounded-lg border border-neutral-200">
                     <div class="text-[9px] font-black text-neutral-500 uppercase tracking-widest mb-2">Select Advisor</div>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <button 
                         v-for="sa in rankedSAsForManual" 
                         :key="sa.saName"
@@ -151,7 +151,7 @@ x
                   <button 
                     @click="proceedAssignment"
                     :disabled="!canCreateAssignments || !assignmentForm.selectedPRO || !assignmentForm.selectedSA"
-                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-2.5 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    class="w-full bg-linear-to-r from-green-500 to-emerald-600 text-white font-bold py-2.5 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
                     {{ canCreateAssignments ? 'Assign Order' : 'View Mode Only' }}
                   </button>
@@ -176,12 +176,12 @@ x
                 <input 
                     v-model="searchQuery"
                     type="text"
-                    class="bg-white border border-neutral-300 text-xs rounded-md px-3 py-1.5 w-64 focus:ring-red-600 focus:border-red-600 hover:border-neutral-400 transition-colors duration-200"
+                    class="bg-white border border-neutral-300 text-xs rounded-md px-3 py-1.5 w-full max-w-xs focus:ring-red-600 focus:border-red-600 hover:border-neutral-400 transition-colors duration-200"
                     placeholder="Search PRO or SA..."
                 />
               </div>
               
-              <div class="flex-1 overflow-auto">
+              <div class="flex-1 overflow-x-auto">
                 <table class="min-w-full divide-y divide-neutral-200">
                   <thead class="bg-neutral-50 sticky top-0 z-10">
                     <tr>
@@ -237,7 +237,7 @@ x
           </div>
 
           <!-- Bottom Row: Switchable Card + History -->
-          <div class="grid grid-cols-[400px_1fr] gap-4 min-h-0">
+          <div class="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-4 min-h-0">
             
             <!-- Switchable Card: Retail Orders / Service Advisors -->
             <div class="bg-white rounded-xl shadow-sm border border-neutral-200 flex flex-col overflow-hidden hover:shadow-md transition-all duration-300">
@@ -277,7 +277,7 @@ x
                 <!-- Assignment Stats Panel -->
                 <div class="bg-neutral-50 border-b border-neutral-200 p-2 shrink-0">
                   <div class="text-[9px] font-black text-neutral-500 uppercase tracking-widest mb-1">Assignment Stats</div>
-                  <div class="grid grid-cols-3 gap-1 text-center">
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 text-center">
                     <div class="bg-white rounded-lg border border-neutral-100 p-1">
                       <div class="text-[8px] font-black text-neutral-400 uppercase tracking-widest">Total</div>
                       <div class="text-xs font-black text-red-600">{{ getTotalAssignedAll() }}</div>
@@ -296,9 +296,9 @@ x
                 <div class="flex-1 p-3 overflow-y-auto">
                   <ul class="space-y-2">
                     <li v-for="(sa, index) in serviceAdvisors" :key="index" 
-                        class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                        class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
                         :class="{ 'opacity-50': !isSAAvailable(sa) }">
-                      <div class="flex flex-col min-w-0 flex-1 mr-2">
+                      <div class="flex flex-col min-w-0 flex-1 mr-0 sm:mr-2 mb-2 sm:mb-0">
                         <span class="text-sm font-bold text-slate-700 truncate">{{ sa.saName }}</span>
                         <span 
                           class="text-[10px] font-bold px-2 py-0.5 rounded-full w-fit mt-1 uppercase"
@@ -346,7 +346,7 @@ x
                             ⋮
                           </button>
                           <div v-if="dropdownIndex === index && dropdownType === 'serviceAdvisors'" 
-                               class="absolute right-0 bottom-full mb-1 w-32 bg-white rounded-lg shadow-xl border border-slate-100 z-[60] overflow-hidden animate-fade-in-up">
+                               class="absolute right-0 bottom-full mb-1 w-32 bg-white rounded-lg shadow-xl border border-slate-100 z-60 overflow-hidden animate-fade-in-up">
                             <button class="w-full text-left px-3 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:pl-4 transition-all duration-200" @click.stop="openSAEditModal(index, sa.saName, sa.saStatus)">✎ Edit</button>
                             <button class="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-red-50 hover:pl-4 border-t border-slate-100 transition-all duration-200" @click.stop="openSADeleteModal(index, sa.saName)">🗑 Delete</button>
                           </div>
@@ -379,7 +379,7 @@ x
 
               <!-- Retail Orders View -->
               <div v-else class="flex-1 flex flex-col overflow-hidden">
-                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 text-white flex items-center gap-2 shadow-sm shrink-0 z-10">
+                <div class="bg-linear-to-r from-indigo-600 to-purple-600 p-2 text-white flex items-center gap-2 shadow-sm shrink-0 z-10">
                   <span class="text-xl">📦</span>
                   <h2 class="font-bold text-sm tracking-wide uppercase">Retail Orders</h2>
                 </div>
@@ -439,7 +439,7 @@ x
                   <span class="text-xl">📊</span>
                   <h2 class="font-bold text-sm tracking-wide uppercase">History</h2>
                 </div>
-                <div class="flex gap-2 items-center flex-wrap">
+                <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center flex-wrap">
                   <input 
                     v-model="historyFromDate"
                     @change="onDateFilterChange"
@@ -458,7 +458,7 @@ x
                   <input 
                     v-model="historySearchQuery"
                     type="text"
-                    class="bg-white border border-slate-300 text-xs rounded-md px-3 py-1.5 w-32 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-400 hover:shadow-sm transition-all duration-200"
+                    class="bg-white border border-slate-300 text-xs rounded-md px-3 py-1.5 w-full sm:w-32 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-400 hover:shadow-sm transition-all duration-200"
                     placeholder="Search..."
                   />
                   <select v-model="historyStatusFilter" @change="historyPage = 1" class="bg-white border border-slate-300 text-xs rounded-md px-2 py-1.5 focus:ring-indigo-500 hover:border-indigo-400 transition-colors duration-200">
@@ -475,7 +475,7 @@ x
                 </span>
               </div>
 
-              <div class="flex-1 overflow-auto">
+              <div class="flex-1 overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
                   <thead class="bg-slate-50 sticky top-0 z-10">
                     <tr>
@@ -524,9 +524,9 @@ x
     <!-- [All your existing modals remain unchanged] -->
     
     <!-- Edit Assignment Modal -->
-    <div v-if="showEditModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in" @click="closeEditModal">
+    <div v-if="showEditModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex items-center justify-center animate-fade-in" @click="closeEditModal">
       <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100" @click.stop>
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center text-white">
+        <div class="bg-linear-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center text-white">
           <h3 class="font-bold">Edit Assignment</h3>
           <button @click="closeEditModal" class="text-white/80 hover:text-white hover:scale-110 font-bold text-xl transition-transform duration-200">✕</button>
         </div>
@@ -562,9 +562,9 @@ x
     </div>
 
     <!-- Edit PR Order Modal -->
-    <div v-if="showEditPRModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in" @click="closePREditModal">
+    <div v-if="showEditPRModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex items-center justify-center animate-fade-in" @click="closePREditModal">
       <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100" @click.stop>
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center text-white">
+        <div class="bg-linear-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center text-white">
           <h3 class="font-bold">Edit Retail Order</h3>
           <button @click="closePREditModal" class="text-white/80 hover:text-white hover:scale-110 font-bold text-xl transition-transform duration-200">✕</button>
         </div>
@@ -587,9 +587,9 @@ x
     </div>
 
     <!-- Delete PR Order Modal -->
-    <div v-if="showDeletePRModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in" @click="closePRDeleteModal">
+    <div v-if="showDeletePRModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex items-center justify-center animate-fade-in" @click="closePRDeleteModal">
       <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100" @click.stop>
-        <div class="bg-gradient-to-r from-red-600 to-red-700 p-4 flex justify-between items-center text-white">
+        <div class="bg-linear-to-r from-red-600 to-red-700 p-4 flex justify-between items-center text-white">
           <h3 class="font-bold">Delete Retail Order</h3>
           <button @click="closePRDeleteModal" class="text-white/80 hover:text-white hover:scale-110 font-bold text-xl transition-transform duration-200">✕</button>
         </div>
@@ -607,9 +607,9 @@ x
     </div>
 
     <!-- Edit Service Advisor Modal -->
-    <div v-if="showEditSAModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in" @click="closeSAEditModal">
+    <div v-if="showEditSAModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex items-center justify-center animate-fade-in" @click="closeSAEditModal">
       <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100" @click.stop>
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center text-white">
+        <div class="bg-linear-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center text-white">
           <h3 class="font-bold">Edit Service Advisor</h3>
           <button @click="closeSAEditModal" class="text-white/80 hover:text-white hover:scale-110 font-bold text-xl transition-transform duration-200">✕</button>
         </div>
@@ -638,9 +638,9 @@ x
     </div>
 
     <!-- Delete Service Advisor Modal -->
-    <div v-if="showDeleteSAModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in" @click="closeSADeleteModal">
+    <div v-if="showDeleteSAModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex items-center justify-center animate-fade-in" @click="closeSADeleteModal">
       <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100" @click.stop>
-        <div class="bg-gradient-to-r from-red-600 to-red-700 p-4 flex justify-between items-center text-white">
+        <div class="bg-linear-to-r from-red-600 to-red-700 p-4 flex justify-between items-center text-white">
           <h3 class="font-bold">Delete Service Advisor</h3>
           <button @click="closeSADeleteModal" class="text-white/80 hover:text-white hover:scale-110 font-bold text-xl transition-transform duration-200">✕</button>
         </div>
@@ -2268,8 +2268,8 @@ button:active:not(:disabled) {
 /* Focus ring consistency */
 input:focus, select:focus, textarea:focus {
   outline: none;
-  ring: 2px;
-  ring-color: rgb(99 102 241);
+  range: 2px;
+  outline-color: rgb(99 102 241);
 }
 
 /* Smooth height transitions for expanding sections */

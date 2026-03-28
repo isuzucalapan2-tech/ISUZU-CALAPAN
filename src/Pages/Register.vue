@@ -140,7 +140,7 @@
               <button
                 type="button"
                 @click="showPassword = !showPassword"
-                class="absolute right-4 top-[34px] text-neutral-400 hover:text-red-500 transition"
+                class="absolute right-4 top-8.5 text-neutral-400 hover:text-red-500 transition"
               >
                 <Eye v-if="!showPassword" size="16" />
                 <EyeOff v-else size="16" />
@@ -158,7 +158,7 @@
               <button
                 type="button"
                 @click="showConfirmPassword = !showConfirmPassword"
-                class="absolute right-4 top-[34px] text-neutral-400 hover:text-red-500 transition"
+                class="absolute right-4 top-8.5 text-neutral-400 hover:text-red-500 transition"
               >
                 <Eye v-if="!showConfirmPassword" size="16" />
                 <EyeOff v-else size="16" />
@@ -205,7 +205,7 @@
       class="hidden md:block md:w-3/5 relative bg-cover bg-center"
       :style="{ backgroundImage: `url(${bgImage})` }"
     >
-      <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+      <div class="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-transparent"></div>
 
       <div class="absolute top-10 left-10 z-10 flex items-center gap-6">
         <div class="flex flex-col uppercase">
@@ -214,7 +214,7 @@
             <span class="text-yellow-500 mx-1.5">de</span>
             <span class="text-red-600">Oro</span>
           </h1>
-          <div class="w-full h-[1px] bg-white/20 my-1"></div>
+          <div class="w-full h-px bg-white/20 my-1"></div>
           <p class="text-[10px] tracking-[0.3em] text-white font-black opacity-90">Motors inc.</p>
         </div>
 

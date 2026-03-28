@@ -1,275 +1,275 @@
 <template>
-  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white">
+  <div v-if="isLoading" class="min-h-screen flex items-center justify-center bg-white px-4">
     <Loaders />
   </div>
 
-  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden bg-gray-70">
+  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden bg-gray-50">
     
     <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
-      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
         <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
       </svg>
     </div>
 
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none">
-      <div class="flex items-center gap-4">
-        <div class="bg-red-600 p-2 rounded-lg">
-          <SettingsIcon class="w-6 h-6 text-white" />
+    <header class="relative z-10 px-4 py-4 md:px-8 md:py-6 flex flex-col sm:flex-row justify-between items-center gap-4 backdrop-blur-none border-b border-gray-200 sm:border-none">
+      <div class="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
+        <div class="bg-red-600 p-2 rounded-lg shrink-0">
+          <SettingsIcon class="w-5 h-5 md:w-6 md:h-6 text-white" />
         </div>
         <div>
-          <h1 class="text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800">
+          <h1 class="text-lg md:text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800 leading-tight">
             System <span class="text-red-600">Settings</span>
           </h1>
-          <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Administrator Console</p>
+          <p class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-[0.2em] md:tracking-[0.3em]">Administrator Console</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-6">
-        <div v-if="user" class="hidden md:block text-right border-r pr-6 border-gray-300">
-          <p class="text-sm font-bold text-neutral-800 uppercase tracking-tight">{{ user.displayName || user.email }}</p>
-          <p class="text-[10px] text-red-600 font-bold uppercase tracking-widest">{{ userRole }}</p>
+      <div class="flex items-center justify-between sm:justify-end gap-4 md:gap-6 w-full sm:w-auto">
+        <div v-if="user" class="text-right border-r pr-4 md:pr-6 border-gray-300">
+          <p class="text-xs md:text-sm font-bold text-neutral-800 uppercase tracking-tight truncate max-w-30 md:max-w-none">
+            {{ user.displayName || user.email }}
+          </p>
+          <p class="text-[8px] md:text-[10px] text-red-600 font-bold uppercase tracking-widest">{{ userRole }}</p>
         </div>
         
         <button
           @click="handleLogout"
           :disabled="isLoggingOut"
-          class="group flex items-center gap-2 bg-red-600 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-all duration-300 disabled:opacity-50"
+          class="group flex items-center gap-2 bg-red-600 text-white px-4 py-2 md:px-6 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-all duration-300 disabled:opacity-50 shrink-0"
         >
-          <LogOutIcon class="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
-          {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+          <LogOutIcon class="w-3 h-3 md:w-4 md:h-4 group-hover:-translate-x-1 transition-transform" /> 
+          {{ isLoggingOut ? '...' : 'Logout' }}
         </button>
       </div>
     </header>
 
-    <main class="flex-1 relative z-10 overflow-auto">
-      <div class="max-w-7xl mx-auto p-8">
+    <main class="flex-1 relative z-10 overflow-x-hidden overflow-y-auto">
+      <div class="max-w-7xl mx-auto px-4 py-6 md:p-8">
         
-        <div class="flex space-x-2 mb-8 bg-neutral-400/50 p-1 rounded-2xl w-fit">
+        <div class="flex space-x-2 mb-8 bg-neutral-400/20 p-1.5 rounded-2xl w-full sm:w-fit overflow-x-auto no-scrollbar">
           <button 
             @click="activeTab = 'general'" 
-            :class="activeTab === 'general' ? 'bg-white text-red-600 ' : 'text-neutral-500 hover:text-neutral-800'"
-            class="px-8 py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-xs tracking-widest isuzu-font"
+            :class="activeTab === 'general' ? 'bg-white text-red-600 shadow-sm' : 'text-neutral-500 hover:text-neutral-800'"
+            class="px-4 py-2.5 md:px-8 md:py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-[10px] md:text-xs tracking-widest isuzu-font whitespace-nowrap"
           >
-            <UserIcon class="w-4 h-4" /> General
+            <UserIcon class="w-3.5 h-3.5 md:w-4 md:h-4" /> General
           </button>
           <button 
             @click="activeTab = 'landing'" 
-            :class="activeTab === 'landing' ? 'bg-white text-red-600' : 'text-neutral-500 hover:text-neutral-800'"
-            class="px-8 py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-xs tracking-widest isuzu-font"
+            :class="activeTab === 'landing' ? 'bg-white text-red-600 shadow-sm' : 'text-neutral-500 hover:text-neutral-800'"
+            class="px-4 py-2.5 md:px-8 md:py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-[10px] md:text-xs tracking-widest isuzu-font whitespace-nowrap"
           >
-            <LayoutIcon class="w-4 h-4" /> Landing Editor
+            <LayoutIcon class="w-3.5 h-3.5 md:w-4 md:h-4" /> Landing Editor
           </button>
         </div>
 
         <TransitionGroup name="slide-fade">
-          <div v-if="isSaving" key="saving" class="fixed bottom-10 right-10 bg-neutral-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-4 border-b-4 border-blue-500">
-            <Loader2Icon class="w-5 h-5 animate-spin text-blue-400" /> 
-            <span class="text-sm font-bold uppercase tracking-widest">Saving...</span>
+          <div v-if="isSaving" key="saving" class="fixed bottom-4 right-4 md:bottom-10 md:right-10 bg-neutral-800 text-white px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-2xl z-50 flex items-center gap-3 md:gap-4 border-b-4 border-blue-500">
+            <Loader2Icon class="w-4 h-4 md:w-5 md:h-5 animate-spin text-blue-400" /> 
+            <span class="text-[10px] md:text-sm font-bold uppercase tracking-widest">Saving...</span>
           </div>
-          <div v-if="saveSuccess" key="success" class="fixed bottom-10 right-10 bg-neutral-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-4 border-b-4 border-green-500">
-            <CheckCircleIcon class="w-5 h-5 text-green-400" /> 
-            <span class="text-sm font-bold uppercase tracking-widest">Promos Updated</span>
+          <div v-if="saveSuccess" key="success" class="fixed bottom-4 right-4 md:bottom-10 md:right-10 bg-neutral-800 text-white px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-2xl z-50 flex items-center gap-3 md:gap-4 border-b-4 border-green-500">
+            <CheckCircleIcon class="w-4 h-4 md:w-5 md:h-5 text-green-400" /> 
+            <span class="text-[10px] md:text-sm font-bold uppercase tracking-widest">Promos Updated</span>
           </div>
         </TransitionGroup>
 
-        <div class="space-y-8 pb-20">
+        <div class="space-y-6 md:space-y-8 pb-20">
+          
           <div v-if="activeTab === 'general'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="rounded-2xl p-10 relative overflow-hidden max-w-2xl">
-              <div class="absolute top-0 right-0 p-4 opacity-5">
-                <Settings2Icon class="w-32 h-32 text-neutral-900" />
+            <div class="bg-white/40 backdrop-blur-sm rounded-2xl p-6 md:p-10 relative overflow-hidden max-w-2xl border border-gray-200">
+              <div class="absolute top-0 right-0 p-4 opacity-5 hidden sm:block">
+                <Settings2Icon class="w-24 h-24 md:w-32 md:h-32 text-neutral-900" />
               </div>
 
-              <h2 class="text-xl font-black mb-10 flex items-center gap-3 uppercase tracking-tighter text-neutral-800">
-                <span class="w-2 h-8 bg-red-600 rounded-full"></span> Interface Preferences
+              <h2 class="text-lg md:text-xl font-black mb-6 md:mb-10 flex items-center gap-3 uppercase tracking-tighter text-neutral-800">
+                <span class="w-1.5 h-6 md:w-2 md:h-8 bg-red-600 rounded-full"></span> Interface Preferences
               </h2>
 
-              <div class="relative z-10 space-y-8">
-                <div class="flex items-center justify-between p-6 rounded-2xl">
-                  <div class="flex items-center gap-4">
-                    <div class="p-3 bg-white rounded-full border border-neutral-500">
-                      <SunIcon v-if="settings.general.theme === 'light'" class="w-6 h-6 text-yellow-500" />
-                      <MoonIcon v-else class="w-6 h-6 text-indigo-600" />
+              <div class="relative z-10 space-y-6 md:space-y-8">
+                <div class="flex items-center justify-between p-4 md:p-6 rounded-2xl bg-white/50 border border-gray-100">
+                  <div class="flex items-center gap-3 md:gap-4">
+                    <div class="p-2 md:p-3 bg-white rounded-full border border-neutral-300 shrink-0">
+                      <SunIcon v-if="settings.general.theme === 'light'" class="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
+                      <MoonIcon v-else class="w-5 h-5 md:w-6 md:h-6 text-indigo-600" />
                     </div>
                     <div>
-                      <p class="text-sm font-black uppercase tracking-widest text-neutral-800">System Theme</p>
-                      <p class="text-xs text-gray-500">Toggle between Light and Dark visual modes</p>
+                      <p class="text-[10px] md:text-sm font-black uppercase tracking-widest text-neutral-800">System Theme</p>
+                      <p class="text-[9px] md:text-xs text-gray-500">Toggle visual modes</p>
                     </div>
                   </div>
                   
                   <button 
                     @click="settings.general.theme = settings.general.theme === 'light' ? 'dark' : 'light'; applyTheme(settings.general.theme)"
-                    class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-300 focus:outline-none"
-                    :class="settings.general.theme === 'dark' ? 'border border-neutral-600 bg-gradient-to-r from-indigo-900 via-blue-600/40 to-black-900' : 'border border-neutral-400 bg-gradient-to-r from-neutral-200 to-yellow-600'"
+                    class="relative inline-flex h-7 w-12 md:h-8 md:w-14 items-center rounded-full transition-colors duration-300 focus:outline-none shrink-0"
+                    :class="settings.general.theme === 'dark' ? 'border border-neutral-600 bg-neutral-400' : 'border border-neutral-400 bg-neutral-400'"
                   >
                     <span
-                      :class="settings.general.theme === 'dark' ? 'translate-x-7' : 'translate-x-1'"
-                      class="inline-block h-6 w-6 transform rounded-full bg-white/80 transition-transform duration-300"
+                      :class="settings.general.theme === 'dark' ? 'translate-x-6 md:translate-x-7' : 'translate-x-1'"
+                      class="inline-block h-5 w-5 md:h-6 md:w-6 transform rounded-full bg-white shadow-md transition-transform duration-300"
                     />
                   </button>
                 </div>
 
-                <div class="pt-6">
-                  <button @click="saveSettings" class="bg-red-600 text-white px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-3 isuzu-font text-sm">
-                    <SaveIcon class="w-5 h-5" /> Save
+                <div class="pt-4">
+                  <button @click="saveSettings" class="w-full sm:w-auto bg-red-600 text-white px-8 py-3.5 md:px-10 md:py-4 rounded-full font-bold uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-3 isuzu-font text-xs md:text-sm shadow-lg hover:bg-red-700">
+                    <SaveIcon class="w-4 h-4 md:w-5 md:h-5" /> Save Changes
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div v-if="activeTab === 'landing'" class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div v-if="activeTab === 'landing'" class="space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
-
-            <div class="bg-white rounded-3xl p-8 bg-white/10 backdrop-blur-none">
-              <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+            <div class="bg-white/40 backdrop-blur-sm rounded-3xl p-5 md:p-8 border border-gray-200">
+              <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 md:mb-10 gap-4">
                 <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Car Promos</h2>
-                <div class="h-[2px] flex-1 bg-red-600 hidden md:block ml-8"></div>
+                <div class="h-0.5 flex-1 bg-red-600 hidden md:block ml-8"></div>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                <div v-for="(car, idx) in landingCarPromos" :key="idx" class="bg-white rounded-2xl overflow-hidden border border-neutral-600/40">
-                  <div class="aspect-video flex items-center justify-center bg-gray-200 relative group">
-                    <label class="absolute top-2 right-2 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
+                <div v-for="(car, idx) in landingCarPromos" :key="idx" class="bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-sm flex flex-col">
+                  <div class="aspect-video flex items-center justify-center bg-gray-100 relative group shrink-0">
+                    <label class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
                       </svg>
                       <input type="file" accept="image/*" @change="e => handleCarImageUpload(e, idx)" class="hidden" />
                     </label>
-                    
                     <img v-if="car.image" :src="car.image" alt="Car Promo Image" class="w-full h-full object-cover" />
-                    <span v-else class="text-gray-400 text-xs font-bold">IMAGE COMING SOON</span>
+                    <span v-else class="text-gray-400 text-[10px] font-bold">IMAGE COMING SOON</span>
                   </div>
 
-                  <div class="p-5">
-                    <input v-model="car.name" class="isuzu-font text-lg mb-2 font-bold w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Car Name" type="text" />
-                    <textarea v-model="car.description" class="text-xs text-neutral-500 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
-                    <input v-model="car.promo" class="text-red-600 font-black text-lg w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
-                    <input v-model="car.promoLabel" class="text-xs font-black text-neutral-400 uppercase tracking-widest w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 mt-2" placeholder="Promo Label (e.g. Special Offer)" type="text" />
-                    <button @click="removeCarPromo(idx)" class="mt-3 text-xs text-red-500 hover:underline">Remove</button>
+                  <div class="p-4 md:p-5 space-y-3 flex-1 flex flex-col">
+                    <input v-model="car.name" class="isuzu-font text-base md:text-lg font-bold w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Car Name" />
+                    <textarea v-model="car.description" class="text-xs text-neutral-500 w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500 resize-none h-20" placeholder="Description"></textarea>
+                    <input v-model="car.promo" class="text-red-600 font-black text-base md:text-lg w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Promo" />
+                    <input v-model="car.promoLabel" class="text-[10px] font-black text-neutral-400 uppercase tracking-widest w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Label (e.g. Special Offer)" />
+                    <button @click="removeCarPromo(idx)" class="mt-auto pt-2 text-[10px] font-bold text-red-500 hover:text-red-700 uppercase tracking-tighter self-start">Remove</button>
                   </div>
                 </div>
 
-                <div class="flex items-center justify-center">
-                  <button @click="addCarPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition">+ Add Car Promo</button>
+                <div class="flex items-center justify-center min-h-50 border-2 border-dashed border-neutral-300 rounded-2xl bg-white/30">
+                  <button @click="addCarPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-red-700 transition shadow-md">+ Add Car Promo</button>
                 </div>
               </div>
             </div>
 
-            <div class="bg-white rounded-3xl p-8 bg-white/10 backdrop-blur-none">
-              <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-10 gap-4">
+            <div class="bg-white/40 backdrop-blur-sm rounded-3xl p-5 md:p-8 border border-gray-200">
+              <div class="flex flex-col md:flex-row-reverse md:items-center justify-between mb-8 md:mb-10 gap-4">
                 <h2 class="text-2xl md:text-4xl text-black uppercase tracking-widest isuzu-font">Parts Promos</h2>
-                <div class="h-[2px] flex-1 bg-red-600 hidden md:block mr-8"></div>
+                <div class="h-0.5 flex-1 bg-red-600 hidden md:block mr-8"></div>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                <div v-for="(part, idx) in landingPartsPromos" :key="idx" class="bg-neutral-800 text-white rounded-2xl overflow-hidden hover:bg-neutral-900 transition-all">
-                  <div class="h-40 flex items-center justify-center bg-white/5 relative group">
-                    <label class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
+                <div v-for="(part, idx) in landingPartsPromos" :key="idx" class="bg-neutral-800 text-white rounded-2xl overflow-hidden hover:bg-neutral-900 transition-all flex flex-col">
+                  <div class="h-36 md:h-40 flex items-center justify-center bg-white/10 relative group shrink-0">
+                    <label class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
                       </svg>
                       <input type="file" accept="image/*" @change="e => handlePartImageUpload(e, idx)" class="hidden" />
                     </label>
-                    
                     <img v-if="part.image" :src="part.image" alt="Part Promo Image" class="w-full h-full object-cover" />
-                    <span v-else class="text-gray-400 text-xs font-bold">PREVIEW N/A</span>
+                    <span v-else class="text-gray-400 text-[10px] font-bold">PREVIEW N/A</span>
                   </div>
 
-                  <div class="p-6">
-                    <input v-model="part.name" class="font-bold text-base isuzu-font mb-2 text-red-500 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Part Name" type="text" />
-                    <textarea v-model="part.description" class="text-xs opacity-60 mb-2 w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 resize-none" placeholder="Description"></textarea>
-                    <input v-model="part.promo" class="text-lg font-black text-white w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" type="text" />
-                    <select v-model="part.partsType" class="text-xs font-black uppercase tracking-widest w-full bg-white border border-gray-300 rounded px-3 py-2 outline-none focus:border-red-500 mt-2">
+                  <div class="p-5 md:p-6 space-y-3 flex-1 flex flex-col">
+                    <input v-model="part.name" class="font-bold text-sm md:text-base isuzu-font text-red-500 w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500" placeholder="Part Name" />
+                    <textarea v-model="part.description" class="text-xs opacity-60 w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500 resize-none h-16" placeholder="Description"></textarea>
+                    <input v-model="part.promo" class="text-base md:text-lg font-black text-white w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" />
+                    <select v-model="part.partsType" class="text-[10px] font-black uppercase tracking-widest w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500">
                       <option value="Genuine Parts">Genuine Parts</option>
                       <option value="Best Value Parts">Best Value Parts</option>
                       <option value="Select Parts">Select Parts</option>
                     </select>
-                    <button @click="removePartPromo(idx)" class="mt-3 text-xs text-red-400 hover:underline">Remove</button>
+                    <button @click="removePartPromo(idx)" class="mt-auto pt-2 text-[10px] text-red-400 hover:underline self-start uppercase font-bold">Remove</button>
                   </div>
                 </div>
 
-                <div class="flex items-center justify-center">
-                  <button @click="addPartPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition">+ Add Part Promo</button>
+                <div class="flex items-center justify-center min-h-50 border-2 border-dashed border-neutral-500/30 rounded-2xl">
+                  <button @click="addPartPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-red-700 transition shadow-md">+ Add Part Promo</button>
                 </div>
               </div>
             </div>
 
-            <!-- Save Promos Button -->
-            <div class="flex justify-end mt-8">
-              <button @click="savePromos" :disabled="isSaving" class="bg-neutral-800 text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg disabled:opacity-50">
-                <SaveIcon class="w-4 h-4 inline-block mr-2" />
-                {{ isSaving ? 'Saving...' : 'Save Promos' }}
+            <div class="flex flex-col sm:flex-row justify-end gap-4 mt-8">
+              <button @click="savePromos" :disabled="isSaving" class="w-full sm:w-auto bg-neutral-800 text-white px-8 py-3.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg disabled:opacity-50 flex justify-center items-center">
+                <SaveIcon class="w-4 h-4 mr-2" />
+                {{ isSaving ? 'Saving...' : 'Draft Save' }}
               </button>
             </div>
 
-            <div class="bg-neutral-800 rounded-2xl p-8 text-white relative overflow-hidden">
-               <div class="absolute -bottom-10 -right-10 opacity-10">
-                <TargetIcon class="w-64 h-64 text-white" />
+            <div class="bg-neutral-800 rounded-3xl p-6 md:p-8 text-white relative overflow-hidden">
+              <div class="absolute -bottom-10 -right-10 opacity-10 pointer-events-none">
+                <TargetIcon class="w-48 h-48 md:w-64 md:h-64 text-white" />
               </div>
-              <h2 class="text-xl font-black mb-8 flex items-center gap-3 uppercase tracking-widest relative z-10">
-                <span class="w-2 h-8 bg-red-600 rounded-full"></span> Brand Identity
+              <h2 class="text-lg md:text-xl font-black mb-8 flex items-center gap-3 uppercase tracking-widest relative z-10">
+                <span class="w-1.5 h-6 md:w-2 md:h-8 bg-red-600 rounded-full"></span> Brand Identity
               </h2>
-              <div class="grid md:grid-cols-3 gap-6 relative z-10">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
                 <div class="space-y-2">
-                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Mission</label>
-                  <textarea v-model="missionText" placeholder="Mission Statement" rows="5" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-sm leading-relaxed"></textarea>
+                  <label class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Mission</label>
+                  <textarea v-model="missionText" placeholder="Mission Statement" rows="4" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-xs md:text-sm leading-relaxed"></textarea>
                 </div>
                 <div class="space-y-2">
-                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Vision</label>
-                  <textarea v-model="visionText" placeholder="Vision Statement" rows="5" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-sm leading-relaxed"></textarea>
+                  <label class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Vision</label>
+                  <textarea v-model="visionText" placeholder="Vision Statement" rows="4" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-xs md:text-sm leading-relaxed"></textarea>
                 </div>
                 <div class="space-y-2">
-                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Core Values</label>
-                  <textarea v-model="valuesText" placeholder="Values..." rows="5" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-sm leading-relaxed"></textarea>
+                  <label class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Core Values</label>
+                  <textarea v-model="valuesText" placeholder="Values..." rows="4" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-xs md:text-sm leading-relaxed"></textarea>
                 </div>
               </div>
             </div>
 
-            <!-- Editable About Us & Slogan Card -->
-            <div v-if="activeTab === 'landing'" class="bg-white rounded-3xl p-8 bg-white/10 backdrop-blur-none mt-8">
-              <h2 class="text-2xl font-black mb-10 flex items-center gap-3 uppercase tracking-tighter text-neutral-800 isuzu-font">
-                <TagIcon class="w-7 h-7 text-red-600" /> 
+            <div class="bg-white/40 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-gray-200 mt-8">
+              <h2 class="text-xl md:text-2xl font-black mb-8 md:mb-10 flex items-center gap-3 uppercase tracking-tighter text-neutral-800 isuzu-font">
+                <TagIcon class="w-6 h-6 md:w-7 md:h-7 text-red-600" /> 
                 About Us <span class="text-red-600">Editor</span>
               </h2>
-              <div class="space-y-6">
-                <div>
-                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-1">About Us Text (Line 1)</label>
-                  <input v-model="aboutUsTextLine1" class="w-full bg-gray-50 border border-neutral-400 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400 mb-2" />
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+                <div class="space-y-6">
+                  <div>
+                    <label class="block text-[9px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-2">About Us Text (Line 1)</label>
+                    <input v-model="aboutUsTextLine1" class="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-xs md:text-sm font-medium outline-none focus:border-red-500" />
+                  </div>
+                  <div>
+                    <label class="block text-[9px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-2">About Us Text (Line 2)</label>
+                    <input v-model="aboutUsTextLine2" class="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-xs md:text-sm font-medium outline-none focus:border-red-500" />
+                  </div>
+                  <div>
+                    <label class="block text-[9px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-2">Slogan</label>
+                    <input v-model="sloganText" class="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-sm md:text-base font-bold outline-none focus:border-red-500" />
+                    <p v-if="aboutUsSaveSuccess" class="mt-2 text-green-600 text-[10px] font-bold">Slogan updated!</p>
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-1">About Us Text (Line 2)</label>
-                  <input v-model="aboutUsTextLine2" class="w-full bg-gray-50 border border-neutral-400 rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-red-400" />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-1">Slogan</label>
-                  <input v-model="sloganText" class="w-full bg-gray-50 border border-neutral-400 rounded-lg px-4 py-2.5 text-sm font-bold outline-none focus:border-red-400" />
-                  <div v-if="aboutUsSaveSuccess" class="mt-2 text-green-600 text-xs font-bold">Slogan updated!</div>
-                  <div v-if="aboutUsSaveError" class="mt-2 text-red-600 text-xs font-bold">{{ aboutUsSaveError }}</div>
-                </div>
-                <div class="mt-8">
-                  <h3 class="font-black text-sm uppercase tracking-widest text-neutral-700 mb-2">Preview:</h3>
-                  <div class="bg-gray-50 p-4 rounded-xl border border-neutral-400">
-                    <p class="text-sm text-gray-700 mb-4 whitespace-pre-line">{{ aboutUsTextLine1 }}</p>
-                    <p class="text-sm text-gray-700 mb-4 whitespace-pre-line">{{ aboutUsTextLine2 }}</p>
-                    <p class="isuzu-font text-red-500 tracking-widest text-lg">{{ sloganText }}</p>
+
+                <div class="bg-white/50 p-6 md:p-8 rounded-2xl border border-neutral-200">
+                  <h3 class="font-black text-[10px] uppercase tracking-widest text-neutral-400 mb-4">Live Preview</h3>
+                  <div class="space-y-4">
+                    <p class="text-xs md:text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ aboutUsTextLine1 }}</p>
+                    <p class="text-xs md:text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ aboutUsTextLine2 }}</p>
+                    <p class="isuzu-font text-red-600 tracking-[0.15em] text-base md:text-xl font-black mt-6">{{ sloganText }}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-
-            <div class="flex justify-center pt-10">
-              <button @click="saveLandingContent" class="group bg-red-600 text-white px-16 py-5 rounded-full font-black text-xl shadow-[0_20px_50px_rgba(204,0,0,0.3)] transition-all flex items-center gap-4 isuzu-font">
-                <SaveIcon class="w-7 h-7" /> UPDATE LIVE WEBSITE
+            <div class="flex justify-center pt-10 pb-16">
+              <button @click="saveLandingContent" class="group w-full sm:w-auto bg-red-600 text-white px-8 md:px-16 py-4 md:py-6 rounded-full font-black text-base md:text-xl shadow-[0_20px_50px_rgba(204,0,0,0.2)] hover:shadow-[0_20px_50px_rgba(204,0,0,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 isuzu-font">
+                <SaveIcon class="w-5 h-5 md:w-7 md:h-7" /> UPDATE LIVE WEBSITE
               </button>
             </div>
+
           </div>
         </div>
       </div>
     </main>
 
     <div class="absolute bottom-0 left-0 w-full z-0 opacity-10 pointer-events-none transform rotate-180">
-      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+      <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
         <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
       </svg>
     </div>

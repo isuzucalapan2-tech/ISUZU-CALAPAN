@@ -25,7 +25,7 @@
     <div class="pt-14 md:pt-0">
 
       <section id="hero" class="relative min-h-[75vh] md:min-h-screen flex flex-col bg-cover bg-center overflow-hidden" style="background-image: url('/LDbg.webp');">
-        <div class="absolute inset-0 bg-gradient-to-b from-black/90 via-black/60 to-neutral-900"></div>
+        <div class="absolute inset-0 bg-linear-to-b from-black/90 via-black/60 to-neutral-900"></div>
         
         <div class="absolute top-16 md:top-24 left-0 w-full z-0 opacity-70 pointer-events-none">
           <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full scale-150 md:scale-100">
@@ -33,7 +33,7 @@
           </svg>
         </div>
 
-        <div class="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 flex-grow flex flex-col justify-end md:justify-center pt-52 md:pt-72 pb-20 md:pb-32">
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 grow flex flex-col justify-end md:justify-center pt-52 md:pt-72 pb-20 md:pb-32">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             
             <div class="text-white space-y-4 text-center md:text-left">
@@ -51,14 +51,14 @@
 
             <div class="hidden md:flex flex-col items-end gap-6">
               <button v-for="link in navLinks" :key="link.id" @click="scrollToSection(link.id)" class="group flex items-center flex-row-reverse gap-4">
-                <div class="w-12 h-[1px] bg-red-600 group-hover:w-20 transition-all duration-300"></div>
+                <div class="w-12 h-px bg-red-600 group-hover:w-20 transition-all duration-300"></div>
                 <span class="text-white uppercase tracking-[0.2em] text-sm font-bold group-hover:text-red-500 transition-colors isuzu-font">{{ link.label }}</span>
               </button>
             </div>
           </div>
 
           <div class="mt-12 md:mt-16 overflow-x-auto pb-4 no-scrollbar">
-            <div class="flex md:grid md:grid-cols-4 gap-4 min-w-[700px] md:min-w-full">
+            <div class="flex md:grid md:grid-cols-4 gap-4 min-w-175 md:min-w-full">
               <div v-for="card in heroCards" :key="card.title" class="flex-1 bg-white/5 backdrop-blur-md p-4 md:p-5 rounded-2xl border border-white/10 text-white hover:bg-white/10 transition-all">
                 <h3 class="text-[9px] md:text-[10px] font-black mb-2 uppercase tracking-widest text-red-500">{{ card.title }}</h3>
                 <p class="text-[10px] md:text-[11px] opacity-70 leading-relaxed">{{ card.desc }}</p>
@@ -79,7 +79,7 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
             <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-neutral-200/50 group">
-              <div class="aspect-[16/10] bg-neutral-100 overflow-hidden relative">
+              <div class="aspect-16/10 bg-neutral-100 overflow-hidden relative">
                 <img v-if="car.image" :src="car.image" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" />
                 <div v-else class="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-neutral-400">Preview N/A</div>
                 <div class="absolute top-4 right-4 bg-red-600 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase italic">{{ car.promo }}</div>
@@ -103,7 +103,7 @@
             <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-900 rounded-3xl overflow-hidden border border-neutral-800">
               <div class="aspect-video bg-neutral-800 relative">
                 <img v-if="part.image" :src="part.image" class="w-full h-full object-cover opacity-80" />
-                <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent"></div>
+                <div class="absolute inset-0 bg-linear-to-t from-neutral-900 via-transparent"></div>
               </div>
               <div class="p-6 -mt-10 relative z-10">
                 <h3 class="text-sm font-black isuzu-font uppercase text-red-500 mb-2">{{ part.name }}</h3>
@@ -163,7 +163,7 @@
         <p class="text-[10px] text-neutral-600 uppercase tracking-[0.4em]">© 2026 Mina De Oro Motors. All Rights Reserved.</p>
       </footer>
 
-      <nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] bg-white h-16 rounded-2xl shadow-2xl z-[60] flex items-center justify-around px-4 border border-neutral-600">
+      <nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] bg-white h-16 rounded-2xl shadow-2xl z-60 flex items-center justify-around px-4 border border-neutral-600">
         <button @click="scrollToSection('hero')" class="flex flex-col items-center gap-1 text-neutral-900 hover:text-red-600 transition">
           <Home class="w-5 h-5" />
           <span class="text-[8px] font-black uppercase">Home</span>

@@ -37,39 +37,55 @@
     </header>
 
     <main class="flex-1 relative z-10 overflow-auto">
-      <div class="max-w-[1600px] mx-auto p-4 sm:p-5 lg:p-6 space-y-0">
+      <div class="w-full p-2 sm:p-3 lg:p-4 space-y-0">
         
-        <div class=" backdrop-blur-none rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div class="backdrop-blur-none rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 animate-in fade-in slide-in-from-top-4 duration-500">
           <div class="flex flex-col xl:flex-row gap-4 sm:gap-5 lg:gap-6">
             
             <div class="space-y-6 w-full max-w-7xl mx-auto">
-    
+              
               <div class="flex flex-col md:flex-row md:items-center gap-3">
                 <div class="relative flex-1 group">
-                  <transition name="search-expand" mode="out-in">
-                    <button 
-                      v-if="!searchVisible" 
-                      @click="toggleSearch"
-                      class="flex items-center justify-center w-12 h-12 bg-white border border-neutral-200 rounded-2xl shadow-sm hover:border-red-500 hover:text-red-600 transition-all duration-300 active:scale-95 group"
-                    >
-                      <Search class="w-5 h-5 text-neutral-400 group-hover:text-red-600 transition-colors" />
-                    </button>
-
-                    <div v-else class="relative w-full md:max-w-xl h-12 flex items-center">
-                      <Search class="absolute left-4 w-4 h-4 text-red-500" />
-                      <input
-                        ref="searchInput"
-                        v-model="searchQuery"
-                        type="text"
-                        placeholder="SEARCH PART, NO, OR CONTROL..."
-                        class="w-full h-full pl-12 pr-12 bg-white border-2 border-red-500 rounded-2xl text-[11px] font-black uppercase tracking-widest outline-none shadow-xl shadow-red-500/5 transition-all"
-                        @blur="handleSearchBlur"
-                      />
-                      <button @click="closeSearch" class="absolute right-4 p-1 hover:bg-neutral-100 rounded-lg transition-colors">
-                        <X class="w-4 h-4 text-neutral-400" />
+                  
+                  <div class="md:hidden">
+                    <transition name="search-expand" mode="out-in">
+                      <button 
+                        v-if="!searchVisible" 
+                        @click="toggleSearch"
+                        class="flex items-center justify-center w-12 h-12 bg-white border border-neutral-200 rounded-2xl shadow-sm hover:border-red-500 hover:text-red-600 transition-all duration-300 active:scale-95"
+                      >
+                        <Search class="w-5 h-5 text-neutral-400" />
                       </button>
-                    </div>
-                  </transition>
+
+                      <div v-else class="relative w-full h-12 flex items-center">
+                        <Search class="absolute left-4 w-4 h-4 text-red-500" />
+                        <input
+                          ref="searchInputMobile"
+                          v-model="searchQuery"
+                          type="text"
+                          placeholder="SEARCH PART, NO..."
+                          class="w-full h-full pl-12 pr-12 bg-white border-2 border-red-500 rounded-2xl text-[11px] font-black uppercase tracking-widest outline-none shadow-xl shadow-red-500/5"
+                          @blur="handleSearchBlur"
+                        />
+                        <button @click="closeSearch" class="absolute right-4 p-1 hover:bg-neutral-100 rounded-lg transition-colors">
+                          <X class="w-4 h-4 text-neutral-400" />
+                        </button>
+                      </div>
+                    </transition>
+                  </div>
+
+                  <div class="hidden md:flex relative w-full max-w-xl h-12 items-center">
+                    <Search class="absolute left-4 w-4 h-4 text-neutral-400 group-focus-within:text-red-500 transition-colors" />
+                    <input
+                      v-model="searchQuery"
+                      type="text"
+                      placeholder="SEARCH PART NAME, NUMBER, OR CONTROL NO..."
+                      class="w-full h-full pl-12 pr-12 bg-white border border-neutral-200 focus:border-red-500 focus:border-2 rounded-2xl text-[11px] font-black uppercase tracking-widest outline-none shadow-sm transition-all"
+                    />
+                    <button v-if="searchQuery" @click="searchQuery = ''" class="absolute right-4 p-1 hover:bg-neutral-100 rounded-lg">
+                      <X class="w-4 h-4 text-neutral-400" />
+                    </button>
+                  </div>
                 </div>
 
                 <div class="relative w-full md:w-64 h-12">
@@ -85,7 +101,6 @@
               </div>
 
               <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 bg-white border border-neutral-200 rounded-3xl shadow-sm">
-                
                 <div class="flex flex-col sm:flex-row sm:items-center gap-6 lg:gap-8">
                   <div class="flex items-center gap-4">
                     <div class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 rounded-xl shrink-0">
@@ -119,61 +134,58 @@
                 </div>
 
                 <div v-if="hasActiveFilters" class="flex items-center justify-end pt-4 lg:pt-0 border-t lg:border-t-0 border-neutral-50">
-                  <button 
-                    @click="clearAllFilters" 
-                    class="group flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg shadow-neutral-900/10 active:scale-95"
-                  >
+                  <button @click="clearAllFilters" class="group flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all duration-300 active:scale-95">
                     <RefreshCcw class="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
                     Clear Filters
                   </button>
                 </div>
               </div>
+            </div>
 
-            </div>>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 xl:flex xl:flex-col gap-2 min-w-[180px] sm:min-w-[200px]">
-              <button @click="openAddModal" class="group flex items-center justify-center gap-1 sm:gap-2 bg-red-600 text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-neutral-800 transition-all hover:shadow-red-200">
-                <Plus class="w-3 h-3 sm:w-4 sm:h-4" /> Add Item
+            <div class="grid grid-cols-2 md:grid-cols-4 xl:flex xl:flex-col gap-2 min-w-45 sm:min-w-50">
+              <button @click="openAddModal" class="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-95">
+                <Plus class="w-4 h-4" /> Add Item
               </button>
               
-              <button @click="openImportModal" class="flex items-center justify-center gap-1 sm:gap-2 bg-neutral-800 border border-white text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md">
-                <Upload class="w-3 h-3 sm:w-4 sm:h-4" /> Import Excel
+              <button @click="openImportModal" class="flex items-center justify-center gap-2 bg-neutral-800 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all active:scale-95">
+                <Upload class="w-4 h-4" /> Import Excel
               </button>
 
               <div class="relative group/export">
-                <button @click="toggleExportMenu" class="w-full flex items-center justify-center gap-1 sm:gap-2 bg-neutral-100 text-neutral-800 border border-neutral-600/40 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all ">
-                  <FileDown class="w-3 h-3 sm:w-4 sm:h-4" /> Export <ChevronDown class="w-2 h-2 sm:w-3 sm:h-3" />
+                <button @click="toggleExportMenu" class="w-full flex items-center justify-center gap-2 bg-white text-neutral-800 border border-neutral-200 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all">
+                  <FileDown class="w-4 h-4" /> Export <ChevronDown class="w-3 h-3" />
                 </button>
-                <div v-if="showExportMenu" class="absolute right-0 mt-2 w-40 sm:w-48 bg-white border border-gray-100 shadow-2xl rounded-lg sm:rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                  <button @click="exportFilteredData" class="w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 flex items-center gap-1 sm:gap-2">
-                    <Filter class="w-2 h-2 sm:w-3 sm:h-3" /> Filtered ({{ filteredInventory.length }})
+                <div v-if="showExportMenu" class="absolute right-0 mt-2 w-48 bg-white border border-neutral-100 shadow-2xl rounded-2xl z-50 overflow-hidden">
+                  <button @click="exportFilteredData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-neutral-50 text-neutral-600 flex items-center gap-2">
+                    <Filter class="w-3 h-3" /> Filtered ({{ filteredInventory.length }})
                   </button>
-                  <button @click="exportAllData" class="w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 border-t border-gray-50 flex items-center gap-1 sm:gap-2">
-                    <Database class="w-2 h-2 sm:w-3 sm:h-3" /> All ({{ inventoryItems.length }})
+                  <button @click="exportAllData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-neutral-50 text-neutral-600 border-t border-neutral-50 flex items-center gap-2">
+                    <Database class="w-3 h-3" /> All ({{ inventoryItems.length }})
                   </button>
                 </div>
               </div>
 
               <div class="relative group/print">
-                <button @click="togglePrintMenu" class="w-full flex items-center justify-center gap-1 sm:gap-2 bg-neutral-100 text-neutral-800 border border-neutral-600/40 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all">
-                  <Printer class="w-3 h-3 sm:w-4 sm:h-4" /> Print <ChevronDown class="w-2 h-2 sm:w-3 sm:h-3" />
+                <button @click="togglePrintMenu" class="w-full flex items-center justify-center gap-2 bg-white text-neutral-800 border border-neutral-200 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all">
+                  <Printer class="w-4 h-4" /> Print <ChevronDown class="w-3 h-3" />
                 </button>
-                <div v-if="showPrintMenu" class="absolute right-0 mt-2 w-40 sm:w-48 bg-white border border-gray-100 shadow-2xl rounded-lg sm:rounded-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                  <button @click="printFilteredData" class="w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 flex items-center gap-1 sm:gap-2">
-                    <Filter class="w-2 h-2 sm:w-3 sm:h-3" /> Filtered ({{ filteredInventory.length }})
+                <div v-if="showPrintMenu" class="absolute right-0 mt-2 w-48 bg-white border border-neutral-100 shadow-2xl rounded-2xl z-50 overflow-hidden">
+                  <button @click="printFilteredData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-neutral-50 text-neutral-600 flex items-center gap-2">
+                    <Filter class="w-3 h-3" /> Filtered ({{ filteredInventory.length }})
                   </button>
-                  <button @click="printAllData" class="w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase hover:bg-gray-50 text-neutral-600 border-t border-gray-50 flex items-center gap-1 sm:gap-2">
-                    <Printer class="w-2 h-2 sm:w-3 sm:h-3" /> All ({{ inventoryItems.length }})
+                  <button @click="printAllData" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-neutral-50 text-neutral-600 border-t border-neutral-50 flex items-center gap-2">
+                    <Printer class="w-3 h-3" /> All ({{ inventoryItems.length }})
                   </button>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
 
         <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 shadow-sm">
           <div class="w-full overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left border-collapse min-w-[800px] lg:min-w-full">
+            <table class="w-full text-left border-collapse min-w-full">
               <thead>
                 <tr class="bg-neutral-900 text-white text-[10px] uppercase tracking-[0.2em] isuzu-font">
                   <th class="px-4 lg:px-6 py-4 lg:py-5 font-black shrink-0">Control No.</th>
@@ -199,7 +211,7 @@
                   </td>
 
                   <td class="px-4 lg:px-6 py-3">
-                    <div class="flex flex-col max-w-[200px] lg:max-w-xs">
+                    <div class="flex flex-col max-w-50 lg:max-w-xs">
                       <span class="text-[11px] lg:text-[13px] font-black text-neutral-800 uppercase tracking-tight truncate">
                         {{ item.partName }}
                       </span>
@@ -217,7 +229,7 @@
 
                   <td class="px-4 lg:px-6 py-3 text-center">
                     <div :class="item.quantity < 5 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'" 
-                        class="inline-block px-3 py-1 rounded-full text-[10px] lg:text-xs font-black min-w-[40px]">
+                        class="inline-block px-3 py-1 rounded-full text-[10px] lg:text-xs font-black min-w-10">
                       {{ item.quantity || 0 }}
                     </div>
                   </td>
@@ -304,7 +316,7 @@
     </main>
 
     <Transition name="fade">
-      <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div v-if="showModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeModal"></div>
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
           <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
@@ -383,7 +395,7 @@
     </Transition>
 
     <Transition name="fade">
-      <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div v-if="showImportModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
 
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
@@ -404,7 +416,7 @@
                       <Info class="w-4 h-4 text-neutral-600" />
                     </button>
 
-                    <div class="absolute left-0 top-full mt-0 w-80 bg-neutral-900 text-white p-5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none max-h-[400px] overflow-y-auto">
+                    <div class="absolute left-0 top-full mt-0 w-80 bg-neutral-900 text-white p-5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none max-h-100 overflow-y-auto">
                       
                       <header class="border-b border-neutral-700 pb-2 mb-3">
                         <h4 class="text-[11px] font-black uppercase tracking-widest text-blue-400 flex items-center gap-2">

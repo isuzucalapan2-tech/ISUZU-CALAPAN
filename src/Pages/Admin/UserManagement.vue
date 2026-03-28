@@ -35,7 +35,7 @@
       <div class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-          <div class="relative flex-1 min-w-[280px] sm:min-w-[300px]">
+          <div class="relative flex-1 min-w-70 sm:min-w-75">
             <Search class="w-4 h-4 absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 opacity-30" />
             <input
               v-model="searchQuery"
@@ -46,12 +46,12 @@
           </div>
 
           <div class="flex flex-wrap items-center gap-2 sm:gap-2">
-            <select v-model="selectedRole" :class="['px-3 sm:px-4 py-2.5 border rounded-xl text-xs font-bold outline-none cursor-pointer min-w-[120px]', isDarkMode ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-neutral-200 text-neutral-800']">
+            <select v-model="selectedRole" :class="['px-3 sm:px-4 py-2.5 border rounded-xl text-xs font-bold outline-none cursor-pointer min-w-30', isDarkMode ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-neutral-200 text-neutral-800']">
               <option value="">ALL ROLES</option>
               <option v-for="role in roleOptions" :key="role" :value="role">{{ role.toUpperCase() }}</option>
             </select>
 
-            <select v-model="selectedStatus" :class="['px-3 sm:px-4 py-2.5 border rounded-xl text-xs font-bold outline-none cursor-pointer min-w-[120px]', isDarkMode ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-neutral-200 text-neutral-800']">
+            <select v-model="selectedStatus" :class="['px-3 sm:px-4 py-2.5 border rounded-xl text-xs font-bold outline-none cursor-pointer min-w-30', isDarkMode ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-neutral-200 text-neutral-800']">
               <option value="">ALL STATUS</option>
               <option value="Active">ACTIVE</option>
               <option value="Deactivated">DEACTIVATED</option>
@@ -100,7 +100,7 @@
                   </td>
 
                   <td class="px-2 sm:px-3 lg:px-6 py-2 sm:py-3 lg:py-4">
-                    <div v-if="admin.isEditing" class="flex flex-col gap-1 sm:gap-2 max-w-[100px] sm:max-w-[120px] lg:max-w-[140px]">
+                    <div v-if="admin.isEditing" class="flex flex-col gap-1 sm:gap-2 max-w-25 sm:max-w-30 lg:max-w-35">
                       <select v-model="admin.selectedPosition" class="bg-transparent border border-neutral-500/30 rounded px-1 sm:px-2 py-0.5 sm:py-1 text-[7px] sm:text-[9px] lg:text-[10px] font-bold outline-none">
                         <option v-for="pos in positionOptions" :key="pos" :value="pos">{{ pos }}</option>
                       </select>

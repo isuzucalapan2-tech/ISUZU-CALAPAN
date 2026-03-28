@@ -12,7 +12,7 @@
       </div>
 
       <main class="flex-1 relative z-10 overflow-auto">
-        <div class="max-w-[1600px] mx-auto p-3 sm:p-4 lg:p-6 xl:p-10 space-y-6 sm:space-y-8 lg:space-y-12">
+        <div class="max-w-full mx-auto p-3 sm:p-4 lg:p-6 xl:p-10 space-y-6 sm:space-y-8 lg:space-y-12">
           
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div>
@@ -20,7 +20,7 @@
                 <span class="w-2 h-8 sm:h-10 bg-red-600 rounded-full"></span>
                 System <span class="text-red-600">Dashboard</span>
               </h1>
-              <p :class="['text-[5px] sm:text-[10px] uppercase tracking-[0.3em] ml-3 sm:ml-5', subTextClass]">Real-time Operations Overview</p>
+              <p :class="['text-[8px] sm:text-[10px] uppercase tracking-[0.3em] ml-3 sm:ml-5', subTextClass]">Real-time Operations Overview</p>
             </div>
             
             <div :class="[cardClass, 'backdrop-blur-sm border border-neutral-400 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-3 sm:gap-4']">
@@ -55,7 +55,7 @@
                 <div class="mt-4 flex items-center text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/30 w-fit px-2 py-1 rounded-lg">
                   <AlertTriangle class="w-3 h-3 mr-1" /> OUT OF STOCK
                 </div>
-                <div v-if="outOfStock > 0" class="mt-3 pt-3 border-t border-neutral-200/50 max-h-[120px] overflow-y-auto">
+                <div v-if="outOfStock > 0" class="mt-3 pt-3 border-t border-neutral-200/50 max-h-30 overflow-y-auto">
                   <div v-for="item in inventoryItems.filter(i => i.quantity === 0).slice(0, 3)" :key="item.id" class="text-[9px] py-1">
                     <p class="font-bold text-gray-700 dark:text-gray-300">{{ item.partNo }}</p>
                     <p class="text-gray-500 dark:text-gray-400">{{ item.partName }}</p>
@@ -73,7 +73,7 @@
                 <div class="mt-4 flex items-center text-[10px] font-bold text-orange-600 bg-orange-50 dark:bg-orange-900/30 w-fit px-2 py-1 rounded-lg">
                   <AlertTriangle class="w-3 h-3 mr-1" /> REORDER SOON
                 </div>
-                <div v-if="lowStock > 0" class="mt-3 pt-3 border-t border-neutral-200/50 max-h-[120px] overflow-y-auto">
+                <div v-if="lowStock > 0" class="mt-3 pt-3 border-t border-neutral-200/50 max-h-30 overflow-y-auto">
                   <div v-for="item in inventoryItems.filter(i => i.quantity > 0 && i.quantity <= 10).slice(0, 3)" :key="item.id" class="text-[9px] py-1">
                     <p class="font-bold text-gray-700 dark:text-gray-300">{{ item.partNo }} ({{ item.quantity }})</p>
                     <p class="text-gray-500 dark:text-gray-400">{{ item.partName }}</p>
@@ -104,7 +104,7 @@
                 <h3 :class="['text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2', textClass]">
                   <PieChart class="w-4 h-4 text-red-600" /> Status Distribution
                 </h3>
-                <div class="h-[280px] relative px-4">
+                <div class="h-70 relative px-4">
                   <canvas ref="statusChart"></canvas>
                 </div>
               </div>
@@ -113,7 +113,7 @@
                 <h3 :class="['text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2', textClass]">
                   <BarChart3 class="w-4 h-4 text-red-600" /> Stock by Category
                 </h3>
-                <div class="h-[280px] relative">
+                <div class="h-70 relative">
                   <canvas ref="categoryChart"></canvas>
                 </div>
               </div>
@@ -495,8 +495,8 @@
                 </div>
               </div>
               
-              <div class="flex-1 min-h-[160px] relative flex items-center justify-center px-4">
-                <canvas ref="approvalChart" class="max-h-[180px]"></canvas>
+              <div class="flex-1 min-h-40 relative flex items-center justify-center px-4">
+                <canvas ref="approvalChart" class="max-h-45"></canvas>
               </div>
 
               <div :class="['mt-4 pt-4 border-t flex justify-between items-center', isDarkMode ? 'border-gray-700' : 'border-neutral-300']">
@@ -841,7 +841,7 @@
                   </h2>
                   <span :class="['text-[10px] font-black uppercase tracking-widest', subTextClass]">Last 7 Days</span>
                 </div>
-                <div class="h-[320px] w-full relative">
+                <div class="h-80 w-full relative">
                   <canvas ref="transactionChart"></canvas>
                 </div>
               </div>
@@ -853,7 +853,7 @@
                     Category <span :class="isDarkMode ? 'text-orange-400' : 'text-orange-600'">Sales</span>
                   </h2>
                 </div>
-                <div class="h-[320px] w-full relative">
+                <div class="h-80 w-full relative">
                   <canvas ref="salesCategoryChart"></canvas>
                 </div>
               </div>
@@ -875,7 +875,7 @@
               :disabled="syncing"
               class="group relative overflow-hidden flex items-center gap-3 bg-neutral-900 dark:bg-red-600 text-white px-6 py-3 rounded-2xl transition-all duration-300 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed border border-white/10"
             >
-              <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              <div class="absolute inset-0 bg-linear-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               
               <RefreshCw 
                 :class="['w-4 h-4 transition-transform duration-700', syncing ? 'animate-spin' : 'group-hover:rotate-180']" 
