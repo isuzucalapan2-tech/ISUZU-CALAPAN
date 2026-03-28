@@ -88,20 +88,20 @@
 
       <div class="absolute top-10 left-10 z-10 flex items-center gap-6">
         <div class="flex flex-col uppercase">
-          <h1 class="text-xl font-bold tracking-tight">
+          <h1 class="text-sm font-bold tracking-tight">
             <span class="text-blue-500">Mina</span>
             <span class="text-yellow-500 mx-1.5">de</span>
             <span class="text-red-600">Oro</span>
           </h1>
           <div class="w-full h-px bg-white/20 my-1"></div>
-          <p class="text-[10px] tracking-[0.3em] text-white font-black opacity-90">Motors inc.</p>
+          <p class="text-[10px] tracking-[0.3em] text-neutral-300 font-black opacity-90">Motors inc.</p>
         </div>
 
         <div class="h-10 w-px bg-white/30"></div>
 
         <div class="text-white isuzu-font">
           <h1 class="text-4xl tracking-tighter font-black">ISUZU</h1>
-          <p class="text-[10px] tracking-[0.4em] text-red-500 font-bold">CALAPAN CITY</p>
+          <p class="text-[9px] tracking-[0.4em] text-white font-bold">CALAPAN CITY</p>
         </div>
       </div>
 

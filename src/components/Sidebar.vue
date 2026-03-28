@@ -17,7 +17,7 @@
         </router-link>
 
         <router-link v-if="accessiblePages['user-management']" to="/admin/user-management" 
-          class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-neutralj-400 font-bold transition-all duration-200 hover:bg-white/5 hover:text-white group" 
+          class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-neutral-400 font-bold transition-all duration-200 hover:bg-white/5 hover:text-white group" 
           active-class="!bg-neutral-800 !text-white !shadow-lg !translate-x-1">
           <Users class="w-4 h-4 transition-transform duration-300 group-hover:scale-110 shrink-0" /> 
           <span class="flex-1 text-left text-[10px] uppercase tracking-wider">User Management</span>

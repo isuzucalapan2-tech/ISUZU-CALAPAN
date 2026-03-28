@@ -64,7 +64,7 @@
                           v-model="searchQuery"
                           type="text"
                           placeholder="SEARCH PART, NO..."
-                          class="w-full h-full pl-12 pr-12 bg-white border-2 border-red-500 rounded-2xl text-[11px] font-black uppercase tracking-widest outline-none shadow-xl shadow-red-500/5"
+                          class="w-full h-full pl-12 pr-12 bg-white border-2 border-red-500 rounded-2xl text-[11px] font-black uppercase tracking-widest outline-none"
                           @blur="handleSearchBlur"
                         />
                         <button @click="closeSearch" class="absolute right-4 p-1 hover:bg-neutral-100 rounded-lg transition-colors">
@@ -80,27 +80,16 @@
                       v-model="searchQuery"
                       type="text"
                       placeholder="SEARCH PART NAME, NUMBER, OR CONTROL NO..."
-                      class="w-full h-full pl-12 pr-12 bg-white border border-neutral-200 focus:border-red-500 focus:border-2 rounded-2xl text-[11px] font-black uppercase tracking-widest outline-none shadow-sm transition-all"
+                      class="w-full h-full pl-12 pr-12 bg-white border border-neutral-300 focus:border-red-500 focus:border-2 rounded-2xl text-[11px] font-black uppercase tracking-widest outline-none"
                     />
                     <button v-if="searchQuery" @click="searchQuery = ''" class="absolute right-4 p-1 hover:bg-neutral-100 rounded-lg">
                       <X class="w-4 h-4 text-neutral-400" />
                     </button>
                   </div>
                 </div>
-
-                <div class="relative w-full md:w-64 h-12">
-                  <select 
-                    v-model="selectedCategory" 
-                    class="w-full h-full pl-4 pr-10 bg-white border border-neutral-200 rounded-2xl text-[10px] font-black text-neutral-700 uppercase tracking-widest outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/5 transition-all appearance-none cursor-pointer shadow-sm"
-                  >
-                    <option value="">ALL CATEGORIES</option>
-                    <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
-                  </select>
-                  <ChevronDown class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
-                </div>
               </div>
 
-              <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 bg-white border border-neutral-200 rounded-3xl shadow-sm">
+              <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 bg-white border border-neutral-200 rounded-2xl">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-6 lg:gap-8">
                   <div class="flex items-center gap-4">
                     <div class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 rounded-xl shrink-0">
@@ -138,6 +127,17 @@
                     <RefreshCcw class="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
                     Clear Filters
                   </button>
+                </div>
+
+                <div class="relative w-full md:w-64 h-12">
+                  <select 
+                    v-model="selectedCategory" 
+                    class="w-full h-full pl-4 pr-10 bg-white border border-neutral-300 rounded-2xl text-[10px] font-black text-neutral-700 uppercase tracking-widest outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/5 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="">ALL CATEGORIES</option>
+                    <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
+                  </select>
+                  <ChevronDown class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
                 </div>
               </div>
             </div>

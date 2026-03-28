@@ -1,7 +1,7 @@
 <template>
   <div class="font-sans text-neutral-800 overflow-x-hidden bg-white">
     
-    <header class="fixed top-0 left-0 w-full bg-white z-50 border-b border-gray-100">
+    <header class="fixed top-0 left-0 w-full bg-white z-50">
       <div class="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 md:px-6">
         <div class="flex items-center space-x-3">
           <img src="/mdoLogo.png" alt="Logo" class="w-10 h-10 object-contain" />
@@ -11,6 +11,7 @@
               <span class="text-yellow-500"> De </span>
               <span class="text-red-600">Oro</span>
             </h1>
+            <div class="w-full h-px bg-neutral-700 my-0.5"></div>
             <p class="text-[8px] md:text-[10px] font-bold text-neutral-900 uppercase tracking-[0.2em]">Motors inc.</p>
           </div>
         </div>
@@ -24,23 +25,23 @@
 
     <div class="pt-14 md:pt-0">
 
-      <section id="hero" class="relative min-h-[75vh] md:min-h-screen flex flex-col bg-cover bg-center overflow-hidden" style="background-image: url('/LDbg.webp');">
-        <div class="absolute inset-0 bg-linear-to-b from-black/90 via-black/60 to-neutral-900"></div>
+      <section id="hero" class="relative min-h-[78vh] md:min-h-screen flex flex-col bg-cover bg-center overflow-hidden" style="background-image: url('/LDbg.webp');">
+        <div class="absolute inset-0 bg-linear-to-b from-black/95 via-black/60 to-black"></div>
         
-        <div class="absolute top-16 md:top-24 left-0 w-full z-0 opacity-70 pointer-events-none">
-          <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full scale-150 md:scale-100">
-            <path d="M-50 40 L150 40 L190 25 L550 25" stroke="#DC2626" stroke-width="1.5" />
+        <div class="absolute top-20 left-0 w-full z-0 opacity-50 hidden md:block">
+          <svg viewBox="0 0 500 50" xmlns="http://www.w3.org/2000/svg" class="w-full">
+            <path d="M0 15 H280 L330 45 H500" class="stroke-red-600 stroke-1" fill="none"/>
           </svg>
         </div>
 
-        <div class="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 grow flex flex-col justify-end md:justify-center pt-52 md:pt-72 pb-20 md:pb-32">
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-2 md:px-12 grow flex flex-col justify-end md:justify-center pt-52 md:pt-72 pb-20 md:pb-32">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             
             <div class="text-white space-y-4 text-center md:text-left">
               <div class="space-y-1 inline-block md:block">
                 <h1 class="uppercase leading-none isuzu-font">
                   <span class="block text-5xl md:text-8xl tracking-tighter">ISUZU</span>
-                  <span class="block text-xs md:text-2xl tracking-[0.4em] text-red-500 font-bold">CALAPAN CITY</span>
+                  <span class="block text-xs md:text-2xl tracking-[0.4em] text-white font-bold">CALAPAN CITY</span>
                 </h1>
                 <div class="w-full h-1 bg-red-600 mt-3 md:w-24"></div>
               </div>
@@ -57,9 +58,9 @@
             </div>
           </div>
 
-          <div class="mt-12 md:mt-16 overflow-x-auto pb-4 no-scrollbar">
-            <div class="flex md:grid md:grid-cols-4 gap-4 min-w-175 md:min-w-full">
-              <div v-for="card in heroCards" :key="card.title" class="flex-1 bg-white/5 backdrop-blur-md p-4 md:p-5 rounded-2xl border border-white/10 text-white hover:bg-white/10 transition-all">
+          <div class="mt-12 md:mt-16">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+              <div v-for="card in heroCards" :key="card.title" class="bg-white/5 backdrop-blur-md p-4 md:p-5 rounded-2xl border border-white/10 text-white hover:bg-white/10 transition-all">
                 <h3 class="text-[9px] md:text-[10px] font-black mb-2 uppercase tracking-widest text-red-500">{{ card.title }}</h3>
                 <p class="text-[10px] md:text-[11px] opacity-70 leading-relaxed">{{ card.desc }}</p>
               </div>
@@ -68,7 +69,7 @@
         </div>
       </section>
 
-      <section id="promos" class="relative py-20 px-6 md:px-16 bg-neutral-50 overflow-hidden">
+      <section id="promos" class="relative py-20 px-2 md:px-16 bg-white overflow-hidden">
         <div class="max-w-7xl mx-auto relative z-10">
           <div class="text-center md:text-left mb-12">
             <p class="text-red-600 text-xs font-black tracking-[0.3em] uppercase mb-2">Exclusives</p>
@@ -78,7 +79,7 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
-            <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-neutral-200/50 group">
+            <div v-for="car in carPromos" :key="car.name" class="bg-white rounded-lg overflow-hidden border border-neutral-300 group">
               <div class="aspect-16/10 bg-neutral-100 overflow-hidden relative">
                 <img v-if="car.image" :src="car.image" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" />
                 <div v-else class="w-full h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-neutral-400">Preview N/A</div>
@@ -100,7 +101,7 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-900 rounded-3xl overflow-hidden border border-neutral-800">
+            <div v-for="part in partsPromos" :key="part.name" class="bg-neutral-900 rounded-lg overflow-hidden border border-neutral-300">
               <div class="aspect-video bg-neutral-800 relative">
                 <img v-if="part.image" :src="part.image" class="w-full h-full object-cover opacity-80" />
                 <div class="absolute inset-0 bg-linear-to-t from-neutral-900 via-transparent"></div>
@@ -118,27 +119,35 @@
         </div>
       </section>
 
-      <section id="mission-vision" class="py-24 px-6 md:px-16 bg-white overflow-hidden relative">
-        <div class="absolute top-0 right-0 w-1/2 h-full bg-neutral-50 -skew-x-12 translate-x-20 z-0 hidden md:block"></div>
+      <section id="mission-vision" class="py-20 px-2 md:px-16 bg-white overflow-hidden relative">
+        <div class="absolute top-0 right-0 w-1/2 h-full -skew-x-12 translate-x-20 z-0 hidden md:block"></div>
+        
+        <div class="absolute bottom-0 left-0 w-full h-40 bg-linear-to-t from-neutral-900 to-transparent"></div>
+
         <div class="max-w-7xl mx-auto relative z-10">
-          <div class="mb-16">
+          <div class="mb-8">
             <div class="w-12 h-1 bg-red-600 mb-4"></div>
-            <h2 class="text-3xl md:text-5xl font-black uppercase tracking-tighter isuzu-font">Mission <span class="text-neutral-300">&</span> Vision</h2>
+            <h2 class="text-3xl md:text-5xl font-black uppercase tracking-tighter isuzu-font text-black">
+              Mission <span class="text-red-600">&</span> Vision
+            </h2>
           </div>
+
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="p-10 rounded-3xl bg-neutral-50 border border-neutral-100 transition">
+            <div class="p-10 rounded-3xl backdrop-blur-none transition">
               <h3 class="text-xl mb-4 text-black font-black uppercase isuzu-font">Mission</h3>
-              <p class="text-sm leading-relaxed text-neutral-600 italic">"{{ brandIdentity.mission }}"</p>
+              <p class="text-sm font-bold leading-relaxed text-neutral-900 italic">"{{ brandIdentity.mission }}"</p>
             </div>
-            <div class="p-10 rounded-3xl bg-neutral-50 border border-neutral-100 transition">
+
+            <div class="p-10 rounded-3xl backdrop-blur-none transition">
               <h3 class="text-xl mb-4 text-black font-black uppercase isuzu-font">Vision</h3>
-              <p class="text-sm leading-relaxed text-neutral-600 italic">"{{ brandIdentity.vision }}"</p>
+              <p class="text-sm font-bold leading-relaxed text-neutral-900 italic">"{{ brandIdentity.vision }}"</p>
             </div>
-            <div class="bg-neutral-900 text-white p-10 rounded-3xl shadow-2xl">
-              <h3 class="text-xl mb-8 text-red-500 font-black uppercase isuzu-font tracking-widest">Core Values</h3>
-              <div class="grid grid-cols-1 gap-4 font-bold tracking-widest text-[10px] uppercase">
+
+            <div class="bg-neutral-900/70 backdrop-blur-md text-white p-10 rounded-xl border border-neutral-600">
+              <h3 class="text-xl mb-8 text-black font-black uppercase isuzu-font tracking-widest">Core Values</h3>
+              <div class="grid grid-cols-2 gap-2 font-bold tracking-widest text-[10px] uppercase">
                 <span v-for="val in brandIdentity.coreValues" :key="val" class="flex items-center gap-3">
-                  <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span> {{ val }}
+                  <span class="w-1.5 h-1.5 bg-white rounded-full"></span> {{ val }}
                 </span>
               </div>
             </div>
@@ -146,37 +155,58 @@
         </div>
       </section>
 
-      <section id="about-us" class="relative py-24 px-6 md:px-16 bg-neutral-900 text-white flex items-center overflow-hidden">
+      <section id="about-us" class="relative py-40 px-6 md:px-16 bg-neutral-900 text-white flex items-center overflow-hidden">
+  
+        <div class="absolute inset-0 z-0 opacity-30" 
+            style="background-image: radial-gradient(circle, #a3a3a3 1px, transparent 1px); background-size: 24px 24px;">
+        </div>
+
         <div class="max-w-4xl mx-auto text-center space-y-12 relative z-10">
-          <h2 class="text-3xl md:text-5xl uppercase tracking-widest isuzu-font font-black">About <span class="text-red-600">Us</span></h2>
+          <h2 class="text-3xl md:text-5xl uppercase tracking-widest isuzu-font font-black">
+            About <span class="text-red-600">Us</span>
+          </h2>
+          
           <div class="space-y-8 text-sm md:text-lg text-neutral-400 leading-loose max-w-3xl mx-auto">
-            <p class="first-letter:text-2xl first-letter:text-red-600 first-letter:font-black">{{ aboutUs.aboutTextLine1 }}</p>
+            <p class="first-letter:text-2xl first-letter:text-red-600 first-letter:font-black">
+              {{ aboutUs.aboutTextLine1 }}
+            </p>
             <p>{{ aboutUs.aboutTextLine2 }}</p>
+            
             <div class="pt-8">
-              <p class="isuzu-font text-white border-y border-white/10 py-6 tracking-[0.4em] text-xl md:text-2xl uppercase">{{ aboutUs.slogan }}</p>
+              <p class="isuzu-font text-white border-y border-white/10 py-6 tracking-[0.4em] text-xl md:text-2xl uppercase">
+                {{ aboutUs.slogan }}
+              </p>
             </div>
           </div>
         </div>
+
+        <a href="#hero" 
+          class="hidden md:flex absolute bottom-10 right-10 z-20 w-12 h-12 items-center justify-center border border-white/20 bg-neutral-800/50 hover:bg-red-600 hover:border-red-600 transition-all duration-300 rounded-full group">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-white transition-transform group-hover:-translate-y-1">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+          </svg>
+        </a>
+
       </section>
 
-      <footer class="bg-neutral-950 py-12 pb-32 md:pb-12 text-center border-t border-white/5">
+      <footer class="bg-black py-5 pb-32 md:pb-5 text-center border-t border-white/5">
         <p class="text-[10px] text-neutral-600 uppercase tracking-[0.4em]">© 2026 Mina De Oro Motors. All Rights Reserved.</p>
       </footer>
 
-      <nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] bg-white h-16 rounded-2xl shadow-2xl z-60 flex items-center justify-around px-4 border border-neutral-600">
-        <button @click="scrollToSection('hero')" class="flex flex-col items-center gap-1 text-neutral-900 hover:text-red-600 transition">
+      <nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] bg-neutral-900/75 h-16 rounded-full shadow-2xl z-60 flex items-center justify-around px-4 border border-neutral-600">
+        <button @click="scrollToSection('hero')" class="flex flex-col items-center gap-1 text-neutral-100/55 hover:text-red-600 transition">
           <Home class="w-5 h-5" />
           <span class="text-[8px] font-black uppercase">Home</span>
         </button>
-        <button @click="scrollToSection('promos')" class="flex flex-col items-center gap-1 text-neutral-900 hover:text-red-600 transition">
+        <button @click="scrollToSection('promos')" class="flex flex-col items-center gap-1 text-neutral-100/55 hover:text-red-600 transition">
           <Tag class="w-5 h-5" />
           <span class="text-[8px] font-black uppercase">Promos</span>
         </button>
-        <button @click="scrollToSection('mission-vision')" class="flex flex-col items-center gap-1 text-neutral-900 hover:text-red-600 transition">
+        <button @click="scrollToSection('mission-vision')" class="flex flex-col items-center gap-1 text-neutral-100/55 hover:text-red-600 transition">
           <Target class="w-5 h-5" />
           <span class="text-[8px] font-black uppercase">Goal</span>
         </button>
-        <button @click="scrollToSection('about-us')" class="flex flex-col items-center gap-1 text-neutral-900 hover:text-red-600 transition">
+        <button @click="scrollToSection('about-us')" class="flex flex-col items-center gap-1 text-neutral-100/55 hover:text-red-600 transition">
           <Info class="w-5 h-5" />
           <span class="text-[8px] font-black uppercase">About</span>
         </button>
