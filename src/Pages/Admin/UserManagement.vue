@@ -114,12 +114,42 @@
                   </td>
 
                   <td class="px-6 py-4">
-                    <select v-if="admin.isEditing" v-model="admin.selectedPermission" class="bg-transparent border border-neutral-500/30 rounded px-2 py-1 text-[10px] font-bold outline-none">
-                      <option v-for="perm in permissionOptions" :key="perm" :value="perm">{{ perm }}</option>
-                    </select>
-                    <span v-else class="text-[11px] font-bold text-neutral-500">
-                      {{ admin.permission || "STANDARD" }}
-                    </span>
+                    <div v-if="admin.isEditing" class="flex flex-col gap-1">
+                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
+                        <input type="checkbox" v-model="admin.selectedPermissionMap.canView" class="accent-red-600 w-3 h-3" />
+                        <span>View</span>
+                      </label>
+                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
+                        <input type="checkbox" v-model="admin.selectedPermissionMap.canCreate" class="accent-red-600 w-3 h-3" />
+                        <span>Create</span>
+                      </label>
+                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
+                        <input type="checkbox" v-model="admin.selectedPermissionMap.canEdit" class="accent-red-600 w-3 h-3" />
+                        <span>Edit</span>
+                      </label>
+                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
+                        <input type="checkbox" v-model="admin.selectedPermissionMap.canDelete" class="accent-red-600 w-3 h-3" />
+                        <span>Delete</span>
+                      </label>
+                    </div>
+                    <div v-else class="flex flex-col gap-1">
+                      <div class="flex items-center gap-1 text-[10px]">
+                        <span :class="admin.permissionMap?.canView ? 'text-green-600' : 'text-neutral-400'">●</span>
+                        <span :class="admin.permissionMap?.canView ? 'text-neutral-700' : 'text-neutral-400'">View</span>
+                      </div>
+                      <div class="flex items-center gap-1 text-[10px]">
+                        <span :class="admin.permissionMap?.canCreate ? 'text-green-600' : 'text-neutral-400'">●</span>
+                        <span :class="admin.permissionMap?.canCreate ? 'text-neutral-700' : 'text-neutral-400'">Create</span>
+                      </div>
+                      <div class="flex items-center gap-1 text-[10px]">
+                        <span :class="admin.permissionMap?.canEdit ? 'text-green-600' : 'text-neutral-400'">●</span>
+                        <span :class="admin.permissionMap?.canEdit ? 'text-neutral-700' : 'text-neutral-400'">Edit</span>
+                      </div>
+                      <div class="flex items-center gap-1 text-[10px]">
+                        <span :class="admin.permissionMap?.canDelete ? 'text-green-600' : 'text-neutral-400'">●</span>
+                        <span :class="admin.permissionMap?.canDelete ? 'text-neutral-700' : 'text-neutral-400'">Delete</span>
+                      </div>
+                    </div>
                   </td>
 
                   <td class="px-6 py-4">
@@ -229,8 +259,42 @@ const fetchOptions = async (collectionName, docIds, fieldName, targetRef) => {
 const fetchAdminRoles = async (adminId) => {
   try {
     const roleDoc = await getDoc(doc(db, "Administrator", adminId, "Roles", "Default_Roles"));
-    return roleDoc.exists() ? roleDoc.data() : { position: "", role: "", permission: "" };
-  } catch { return { position: "", role: "", permission: "" }; }
+    if (roleDoc.exists()) {
+      const data = roleDoc.data();
+      // Return permissionMap if it exists, otherwise fallback to old structure
+      return {
+        position: data.position || "",
+        role: data.role || "",
+        permissionMap: data.permissionMap || {
+          canView: data.permission ? true : false, // Fallback: if old permission exists, set canView to true
+          canCreate: false,
+          canEdit: false,
+          canDelete: false
+        }
+      };
+    }
+    return { 
+      position: "", 
+      role: "", 
+      permissionMap: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false
+      }
+    };
+  } catch { 
+    return { 
+      position: "", 
+      role: "", 
+      permissionMap: {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false
+      }
+    }; 
+  }
 };
 
 const fetchAdmins = async () => {
@@ -239,6 +303,12 @@ const fetchAdmins = async () => {
     const snapshot = await getDocs(collection(db, "Administrator"));
     const adminPromises = snapshot.docs.map(async (d) => {
       const roleData = await fetchAdminRoles(d.id);
+      const permissionMap = roleData.permissionMap || {
+        canView: false,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false
+      };
       return {
         id: d.id,
         ...d.data(),
@@ -246,11 +316,11 @@ const fetchAdmins = async () => {
         accountStatus: d.data().accountStatus || "pending",
         position: roleData.position || "",
         roleName: roleData.role || "",
-        permission: roleData.permission || "",
+        permissionMap: permissionMap,
         isEditing: false,
         selectedPosition: roleData.position || "",
         selectedRole: roleData.role || "",
-        selectedPermission: roleData.permission || ""
+        selectedPermissionMap: { ...permissionMap } // Copy for editing
       };
     });
     admins.value = await Promise.all(adminPromises);
@@ -271,17 +341,17 @@ const enableEditing = (admin) => {
 };
 
 const grantPrivilege = async (admin) => {
-  if (!admin.selectedPosition || !admin.selectedRole || !admin.selectedPermission) return;
+  if (!admin.selectedPosition || !admin.selectedRole) return;
   try {
     await updateDoc(doc(db, "Administrator", admin.id, "Roles", "Default_Roles"), {
       position: admin.selectedPosition,
       role: admin.selectedRole,
-      permission: admin.selectedPermission,
+      permissionMap: admin.selectedPermissionMap,
       updateAt: new Date()
     });
     admin.position = admin.selectedPosition;
     admin.roleName = admin.selectedRole;
-    admin.permission = admin.selectedPermission;
+    admin.permissionMap = { ...admin.selectedPermissionMap };
     admin.isEditing = false;
   } catch (err) { console.error(err); }
 };

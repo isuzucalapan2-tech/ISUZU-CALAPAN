@@ -102,11 +102,25 @@
                   </td>
 
                   <td class="px-6 py-4">
-                    <select v-model="user.selectedPermission" class="bg-transparent border border-neutral-200 rounded px-2 py-1.5 text-[10px] font-bold outline-none focus:border-red-500 transition-colors uppercase">
-                      <option disabled value="">Select Permission</option>
-                      <option v-for="perm in permissionOptions" :key="perm" :value="perm">{{ perm }}</option>
-                    </select>
-                  </td>
+                    <div class="flex flex-col gap-1">
+                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
+                        <input type="checkbox" v-model="user.selectedPermissionMap.canView" class="accent-red-600 w-3 h-3" />
+                        <span>View</span>
+                      </label>
+                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
+                        <input type="checkbox" v-model="user.selectedPermissionMap.canCreate" class="accent-red-600 w-3 h-3" />
++                        <span>Create</span>
++                      </label>
++                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
++                        <input type="checkbox" v-model="user.selectedPermissionMap.canEdit" class="accent-red-600 w-3 h-3" />
++                        <span>Edit</span>
++                      </label>
++                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
++                        <input type="checkbox" v-model="user.selectedPermissionMap.canDelete" class="accent-red-600 w-3 h-3" />
++                        <span>Delete</span>
++                      </label>
++                    </div>
++                  </td>
 
                   <td class="px-6 py-4">
                     <div class="flex justify-end items-center gap-1">
@@ -236,7 +250,12 @@ const loadPendingUsers = () => {
         email: data.email || "N/A",
         selectedPosition: "",
         selectedRole: "",
-        selectedPermission: ""
+        selectedPermissionMap: {
+          canView: true,    // Default: true
+          canCreate: false, // Default: false
+          canEdit: false,   // Default: false
+          canDelete: false  // Default: false
+        }
       };
     });
     pendingUsers.value = await Promise.all(promises);
@@ -246,15 +265,15 @@ const loadPendingUsers = () => {
 
 /* ACTIONS */
 const approveUser = async (user) => {
-  if (!user.selectedPosition || !user.selectedRole || !user.selectedPermission) {
-    alert("Please assign all fields first.");
+  if (!user.selectedPosition || !user.selectedRole) {
+    alert("Please assign position and role first.");
     return;
   }
   try {
     await setDoc(doc(db, "Administrator", user.id, "Roles", "Default_Roles"), {
       position: user.selectedPosition,
       role: user.selectedRole,
-      permission: user.selectedPermission,
+      permissionMap: user.selectedPermissionMap,
       setAt: new Date()
     });
     await updateDoc(doc(db, "Administrator", user.id), {

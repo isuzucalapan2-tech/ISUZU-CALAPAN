@@ -37,66 +37,37 @@
           <h2 :class="['text-xl font-black uppercase tracking-tighter isuzu-font', textClass]">{{ page.name }}</h2>
         </div>
         
-        <div class="grid lg:grid-cols-2 gap-10">
-          <div class="space-y-6">
-            <h3 :class="['text-[11px] font-black uppercase tracking-[0.2em] text-red-600', subTextClass]">
-              Visibility Protocols
-            </h3>
-            
-            <div class="space-y-4">
-              <div>
-                <label class="block text-[10px] font-bold uppercase text-gray-400 mb-3 tracking-widest">Allowed Roles</label>
-                <div class="flex flex-wrap gap-2">
-                  <label v-for="role in availableRoles" :key="role" 
-                         :class="['flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer text-xs font-bold uppercase tracking-wider',
-                                  page.allowedRoles.includes(role) 
-                                  ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20' 
-                                  : 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 hover:bg-neutral-600/10']">
-                    <input type="checkbox" :value="role" v-model="page.allowedRoles" @change="updatePageAccess(page)" class="hidden" />
-                    {{ role }}
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-[10px] font-bold uppercase text-gray-400 mb-3 tracking-widest">Allowed Positions</label>
-                <div class="flex flex-wrap gap-2">
-                  <label v-for="position in availablePositions" :key="position"
-                         :class="['flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer text-xs font-bold uppercase tracking-wider',
-                                  page.allowedPositions.includes(position) 
-                                  ? 'bg-neutral-900 border-neutral-900 text-white shadow-md' 
-                                  : 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 hover:bg-neutral-600/10']">
-                    <input type="checkbox" :value="position" v-model="page.allowedPositions" @change="updatePageAccess(page)" class="hidden" />
-                    {{ position }}
-                  </label>
-                </div>
+        <div class="space-y-6">
+          <h3 :class="['text-[11px] font-black uppercase tracking-[0.2em] text-red-600', subTextClass]">
+            Visibility Protocols
+          </h3>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-gray-400 mb-3 tracking-widest">Allowed Roles</label>
+              <div class="flex flex-wrap gap-2">
+                <label v-for="role in availableRoles" :key="role" 
+                       :class="['flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer text-xs font-bold uppercase tracking-wider',
+                                page.allowedRoles.includes(role) 
+                                ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20' 
+                                : 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 hover:bg-neutral-600/10']">
+                  <input type="checkbox" :value="role" v-model="page.allowedRoles" @change="updatePageAccess(page)" class="hidden" />
+                  {{ role }}
+                </label>
               </div>
             </div>
-          </div>
 
-          <div class="space-y-6">
-            <h3 :class="['text-[11px] font-black uppercase tracking-[0.2em] text-red-600', subTextClass]">
-              Action Authorization
-            </h3>
-            
-            <div class="space-y-3">
-              <div v-for="(feature, featureName) in page.features" :key="featureName" 
-                   class="flex items-center justify-between p-4 rounded-2xl bg-neutral-600/5 border border-neutral-300/10">
-                <div class="flex flex-col">
-                  <span :class="['text-xs font-black uppercase tracking-widest', textClass]">{{ formatFeatureName(featureName) }}</span>
-                  <span class="text-[9px] text-gray-500 uppercase">Min. Requirement</span>
-                </div>
-                
-                <div class="flex items-center gap-3">
-                  <select v-model="feature.minPermission" @change="updatePageAccess(page)"
-                          class="appearance-none border-none bg-neutral-900 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg outline-none focus:ring-2 focus:ring-red-600 cursor-pointer">
-                    <option value="View">View Only</option>
-                    <option value="Edit">Edit</option>
-                    <option value="Create">Create</option>
-                    <option value="Delete">Delete</option>
-                    <option value="All">Full Access</option>
-                  </select>
-                </div>
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-gray-400 mb-3 tracking-widest">Allowed Positions</label>
+              <div class="flex flex-wrap gap-2">
+                <label v-for="position in availablePositions" :key="position"
+                       :class="['flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer text-xs font-bold uppercase tracking-wider',
+                                page.allowedPositions.includes(position) 
+                                ? 'bg-neutral-900 border-neutral-900 text-white shadow-md' 
+                                : 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 hover:bg-neutral-600/10']">
+                  <input type="checkbox" :value="position" v-model="page.allowedPositions" @change="updatePageAccess(page)" class="hidden" />
+                  {{ position }}
+                </label>
               </div>
             </div>
           </div>
@@ -130,95 +101,49 @@ const pages = ref([
     id: 'dashboard', 
     name: 'Dashboard', 
     allowedRoles: [], 
-    allowedPositions: [],
-    features: {
-      viewDashboard: { minPermission: 'View' }
-    }
+    allowedPositions: []
   },
   { 
     id: 'user-management', 
     name: 'User Management', 
     allowedRoles: [], 
-    allowedPositions: [],
-    features: {
-      viewUsers: { minPermission: 'View' },
-      editUser: { minPermission: 'Edit' },
-      createUser: { minPermission: 'Create' },
-      deleteUser: { minPermission: 'Delete' },
-      approveUser: { minPermission: 'All' }
-    }
+    allowedPositions: []
   },
   { 
     id: 'approve', 
     name: 'Approve Users', 
     allowedRoles: [], 
-    allowedPositions: [],
-    features: {
-      viewPending: { minPermission: 'View' },
-      approveUser: { minPermission: 'Edit' },
-      denyUser: { minPermission: 'Delete' }
-    }
+    allowedPositions: []
   },
   { 
     id: 'inventory', 
     name: 'Inventory', 
     allowedRoles: [], 
-    allowedPositions: [],
-    features: {
-      viewInventory: { minPermission: 'View' },
-      addItem: { minPermission: 'Create' },
-      editItem: { minPermission: 'Edit' },
-      deleteItem: { minPermission: 'Delete' }
-    }
+    allowedPositions: []
   },
   { 
     id: 'transaction-in', 
     name: 'Transaction In', 
     allowedRoles: [], 
-    allowedPositions: [],
-    features: {
-      viewTransactionIn: { minPermission: 'View' },
-      createTransactionIn: { minPermission: 'Create' },
-      editTransactionIn: { minPermission: 'Edit' },
-      deleteTransactionIn: { minPermission: 'Delete' },
-      stockOut: { minPermission: 'Edit' }
-    }
+    allowedPositions: []
   },
   { 
     id: 'transaction-out', 
     name: 'Transaction Out', 
     allowedRoles: [], 
-    allowedPositions: [],
-    features: {
-      viewTransactionOut: { minPermission: 'View' },
-      createTransactionOut: { minPermission: 'Create' },
-      editTransactionOut: { minPermission: 'Edit' },
-      deleteTransactionOut: { minPermission: 'Delete' },
-      cancelSale: { minPermission: 'Delete' }
-    }
+    allowedPositions: []
   },
   { 
     id: 'sa-rotation', 
     name: 'Retail Order (SA Rotation)', 
     allowedRoles: [], 
-    allowedPositions: [],
-    features: {
-      viewOrders: { minPermission: 'View' },
-      createOrder: { minPermission: 'Create' },
-      editOrder: { minPermission: 'Edit' },
-      deleteOrder: { minPermission: 'Delete' }
-    }
+    allowedPositions: []
   },
-
   { 
     id: 'settings', 
     name: 'Settings', 
     allowedRoles: [], 
-    allowedPositions: [],
-    features: {
-      viewSettings: { minPermission: 'View' },
-      modifySettings: { minPermission: 'Edit' }
-    }
+    allowedPositions: []
   }
 ]);
 
@@ -257,15 +182,6 @@ const fetchPageAccess = async () => {
         page.allowedRoles = pageData.allowedRoles || [];
         page.allowedPositions = pageData.allowedPositions || [];
         page.updatedAt = pageData.updatedAt;
-        
-        // Merge features if they exist
-        if (pageData.features) {
-          Object.keys(pageData.features).forEach(key => {
-            if (page.features[key]) {
-              page.features[key].minPermission = pageData.features[key].minPermission;
-            }
-          });
-        }
       }
     });
   } catch (err) {
@@ -282,7 +198,6 @@ const updatePageAccess = async (page) => {
       pageName: page.name,
       allowedRoles: page.allowedRoles,
       allowedPositions: page.allowedPositions,
-      features: page.features,
       updatedAt: new Date(),
       updatedBy: 'Master Admin'
     });
@@ -292,13 +207,6 @@ const updatePageAccess = async (page) => {
     console.error('Error updating page access:', err);
     //alert('Failed to update access');
   }
-};
-
-const formatFeatureName = (name) => {
-  return name
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, str => str.toUpperCase())
-    .trim();
 };
 
 // Theme support

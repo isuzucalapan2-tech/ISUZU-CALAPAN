@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '../Firebase/Firebase'
 
 import LandingPage from '../Pages/LandingPage.vue'
@@ -17,6 +17,7 @@ import SA_Rotation from '../Pages/AfterSales/SA_Rotation.vue'
 import PageControl from '../Pages/Admin/PageControl.vue'
 import TransactionIn from '../Pages/Admin/TransactionIn.vue'
 import TransactionOut from '../Pages/Admin/TransactionOut.vue'
+import IsuzuDTR from '../Pages/ISUZU-DTR/IsuzuDTR.vue'
 import Unauthorized from '../Pages/401Page.vue'
 import Forbidden from '../Pages/403Page.vue'
 import NotFound from '../Pages/404Page.vue'
@@ -115,6 +116,12 @@ const routes = [
           requiresMasterAdmin: true 
         }
       },
+      { 
+        path: 'isuzu-dtr', 
+        name: 'IsuzuDTR', 
+        component: IsuzuDTR,
+        meta: { requiresAuth: true, pageId: 'isuzu-dtr' }
+      },
     ]
   },
   // --- Error Routes ---
@@ -159,23 +166,44 @@ router.beforeEach((to, from, next) => {
 
 async function checkPageAccess(pageId, userId) {
   try {
+    // Get user's role and position from Default_Roles
     const roleDoc = await getDoc(doc(db, 'Administrator', userId, 'Roles', 'Default_Roles'))
     if (!roleDoc.exists()) return false
     
     const userRoles = roleDoc.data()
+    const userRole = userRoles.role
+    const userPosition = userRoles.position
+    
+    // Check if Master Admin - always has access
+    if (userRole === 'Master Admin' || userRole === 'isuzu&calapan&master&admin101') {
+      return true
+    }
+    
+    // Check Page_Access collection (new simplified structure)
+    const docId = `${userRole}_${userPosition}_${pageId}`
+    const pageAccessDoc = await getDoc(doc(db, 'Page_Access', docId))
+    
+    if (pageAccessDoc.exists()) {
+      return pageAccessDoc.data().canView === true
+    }
+    
+    // No permissions found - check if there's a default entry in old Page_Control
+    // This is for backward compatibility during migration
     const pageDoc = await getDoc(doc(db, 'Page_Control', pageId))
+    if (pageDoc.exists()) {
+      const config = pageDoc.data()
+      const { allowedRoles = [], allowedPositions = [] } = config
+      
+      if (allowedRoles.includes('All')) return true
+      
+      const roleMatch = allowedRoles.includes(userRole)
+      const positionMatch = allowedPositions.includes(userPosition)
+      
+      return roleMatch && positionMatch
+    }
     
-    if (!pageDoc.exists()) return true
-    
-    const config = pageDoc.data()
-    const { allowedRoles = [], allowedPositions = [] } = config
-    
-    if (allowedRoles.includes('All')) return true
-    
-    const roleMatch = allowedRoles.includes(userRoles.role)
-    const positionMatch = allowedPositions.includes(userRoles.position)
-    
-    return roleMatch && positionMatch
+    // No permissions found at all - default to no access (secure by default)
+    return false
   } catch (err) {
     console.error('Error checking page access:', err)
     return false

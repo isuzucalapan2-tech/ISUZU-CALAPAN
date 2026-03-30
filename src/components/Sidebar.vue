@@ -54,6 +54,15 @@
         </router-link>
 
         <div class="pt-6 pb-2">
+          <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] text-left">HR & Attendance</p>
+        </div>
+
+        <router-link v-if="accessiblePages['isuzu-dtr']" to="/admin/isuzu-dtr" class="nav-link group" active-class="nav-link-active">
+          <Clock class="nav-icon text-blue-500" /> 
+          <span class="nav-text">DTR Management</span>
+        </router-link>
+
+        <div class="pt-6 pb-2">
           <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] text-left">System Control</p>
         </div>
 
@@ -139,6 +148,15 @@
           </router-link>
 
           <div class="pt-4 pb-2">
+            <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] text-left">HR & Attendance</p>
+          </div>
+
+          <router-link v-if="accessiblePages['isuzu-dtr']" to="/admin/isuzu-dtr" @click="isOpen = false" class="nav-link group" active-class="nav-link-active">
+            <Clock class="nav-icon text-blue-500" /> 
+            <span class="nav-text">DTR Management</span>
+          </router-link>
+
+          <div class="pt-4 pb-2">
             <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] text-left">System Control</p>
           </div>
 
@@ -164,7 +182,7 @@ import { usePermissions } from "../composables/usePermissions";
 import { 
   LayoutDashboard, Users, CheckSquare, Package, 
   ArrowDownLeft, ArrowUpRight, ShoppingCart, Settings, 
-  ShieldAlert, Menu, X, ChevronRight, CreditCard
+  ShieldAlert, Menu, X, ChevronRight, CreditCard, Clock
 } from "lucide-vue-next";
 
 const isOpen = ref(false);
@@ -173,12 +191,12 @@ const { canAccessPage, isMasterAdmin, fetchUserRoles } = usePermissions();
 const accessiblePages = ref({
   dashboard: true, "user-management": true, approve: true,
   inventory: true, "transaction-in": true, "transaction-out": true, 
-  "sa-rotation": true, settings: true
+  "sa-rotation": true, "isuzu-dtr": true, settings: true
 });
 
 onMounted(async () => {
   await fetchUserRoles();
-  const pages = ["dashboard", "user-management", "approve", "inventory", "transaction-in", "transaction-out", "sa-rotation", "settings"];
+  const pages = ["dashboard", "user-management", "approve", "inventory", "transaction-in", "transaction-out", "sa-rotation", "isuzu-dtr", "settings"];
   for (const page of pages) {
     accessiblePages.value[page] = await canAccessPage(page);
   }

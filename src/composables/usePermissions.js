@@ -88,6 +88,27 @@ export function usePermissions() {
 
   // Check if user has specific permission level
   const hasPermission = (requiredLevel) => {
+    // First check if permissionMap exists (new structure)
+    if (userRoles.value?.permissionMap) {
+      const map = userRoles.value.permissionMap
+      switch (requiredLevel) {
+        case 'View':
+          return map.canView === true
+        case 'Create':
+          return map.canCreate === true
+        case 'Edit':
+          return map.canEdit === true
+        case 'Delete':
+          return map.canDelete === true
+        case 'All':
+          return map.canView === true && map.canCreate === true && 
+                 map.canEdit === true && map.canDelete === true
+        default:
+          return false
+      }
+    }
+    
+    // Fallback to old permission structure for backward compatibility
     if (!userRoles.value?.permission) return false
     
     const userLevel = PERMISSION_LEVELS[userRoles.value.permission] || 0

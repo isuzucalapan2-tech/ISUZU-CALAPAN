@@ -436,14 +436,27 @@ const fetchDefaultRoleValues = async () => {
     const roleDoc = await getDoc(doc(db, "Role_Access", "isuzu&calapan&staff103"));
     const role = roleDoc.exists() ? roleDoc.data().roleName : "";
 
-    // Fetch permission from Permission_Access collection
-    const permissionDoc = await getDoc(doc(db, "Permission_Access", "isuzu#calapan#permission305"));
-    const permission = permissionDoc.exists() ? permissionDoc.data().permission : "";
+    // Create permission map with canView as default true
+    const permissionMap = {
+      canView: true,      // Default: true
+      canCreate: false,   // Default: false
+      canEdit: false,     // Default: false
+      canDelete: false    // Default: false
+    };
 
-    return { position, role, permission };
+    return { position, role, permissionMap };
   } catch (err) {
     console.error("Error fetching default role values:", err);
-    return { position: "", role: "", permission: "" };
+    return { 
+      position: "", 
+      role: "", 
+      permissionMap: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false
+      }
+    };
   }
 };
 
@@ -517,7 +530,7 @@ const register = async () => {
     await setDoc(doc(db, "Administrator", cred.user.uid, "Roles", "Default_Roles"), {
       position: defaultRoles.position,
       role: defaultRoles.role,
-      permission: defaultRoles.permission,
+      permissionMap: defaultRoles.permissionMap,
       setAt: new Date(),
       updateAt: null
     });
