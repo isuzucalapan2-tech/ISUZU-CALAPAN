@@ -971,8 +971,10 @@
 
 <script setup>
 import { ref, onMounted, computed, nextTick, onUnmounted, watch } from "vue";
+import { useRouter } from "vue-router";
 
 import { useAuth } from "../../composables/useAuth";
+import { usePermissions } from "../../composables/usePermissions";
 import { db } from "../../Firebase/Firebase";
 import { collection, getDocs, doc, onSnapshot, query, where, collectionGroup } from "firebase/firestore";
 import Loaders from "../../components/Loaders.vue";
@@ -1019,7 +1021,10 @@ const tableRowClass = computed(() => isDarkMode.value ? 'hover:bg-gray-800' : 'h
 
 /* ===== STATE ===== */
 const { user, isAuthenticated } = useAuth();
+const { canAccessPage, fetchUserRoles } = usePermissions();
+const router = useRouter();
 const isLoading = ref(true);
+const hasDashboardAccess = ref(false);
 
 const inventoryItems = ref([]);
 const pendingUsers = ref([]);
@@ -1998,6 +2003,15 @@ watch([pendingUsers, approvedUsers], () => {
 
 /* ===== LIFECYCLE ===== */
 onMounted(async () => {
+  // Check permissions first
+  await fetchUserRoles();
+  hasDashboardAccess.value = canAccessPage('Dashboard');
+  
+  if (!hasDashboardAccess.value) {
+    isLoading.value = false;
+    router.push('/403');
+    return;
+  }
 
   await setupInventoryListeners();
   setupPendingUsersListener();

@@ -144,6 +144,12 @@ const pages = ref([
     name: 'Settings', 
     allowedRoles: [], 
     allowedPositions: []
+  },
+  { 
+    id: 'isuzu-dtr', 
+    name: 'DTR Management', 
+    allowedRoles: [], 
+    allowedPositions: []
   }
 ]);
 

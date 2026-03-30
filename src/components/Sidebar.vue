@@ -7,7 +7,7 @@
       </div>
 
       <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-        <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] mb-3">Core Modules</p>
+        <p v-if="hasCoreModules" class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] mb-3">Core Modules</p>
         
         <router-link v-if="accessiblePages.dashboard" to="/admin/dashboard" 
           class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-neutral-400 font-bold transition-all duration-200 hover:bg-white/5 hover:text-white group" 
@@ -30,7 +30,7 @@
           <span class="flex-1 text-left text-[10px] uppercase tracking-wider">Approvals</span>
         </router-link>
 
-        <div class="pt-6 pb-2">
+        <div v-if="hasLogisticsSales" class="pt-6 pb-2">
           <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em]">Logistics & Sales</p>
         </div>
 
@@ -58,22 +58,22 @@
         <router-link v-if="accessiblePages['sa-rotation']" to="/admin/sa-rotation" 
           class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-neutral-400 font-bold transition-all duration-200 hover:bg-white/5 hover:text-white group" 
           active-class="!bg-neutral-800 !text-white !shadow-lg !translate-x-1">
-          <ShoppingCart class="w-4 h-4 text-blue-500 transition-transform duration-300 group-hover:scale-110 shrink-0" /> 
+          <ShoppingCart class="w-4 h-4 text-white-500 transition-transform duration-300 group-hover:scale-110 shrink-0" /> 
           <span class="flex-1 text-left text-[10px] uppercase tracking-wider">Retail Orders</span>
         </router-link>
 
-        <div class="pt-6 pb-2">
+        <div v-if="hasHRAttendance" class="pt-6 pb-2">
           <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] text-left">HR & Attendance</p>
         </div>
 
         <router-link v-if="accessiblePages['isuzu-dtr']" to="/admin/isuzu-dtr" 
           class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-neutral-400 font-bold transition-all duration-200 hover:bg-white/5 hover:text-white group" 
           active-class="!bg-neutral-800 !text-white !shadow-lg !translate-x-1">
-          <Clock class="w-4 h-4 text-blue-500 transition-transform duration-300 group-hover:scale-110 shrink-0" /> 
+          <Clock class="w-4 h-4 text-white-500 transition-transform duration-300 group-hover:scale-110 shrink-0" /> 
           <span class="flex-1 text-left text-[10px] uppercase tracking-wider">DTR Management</span>
         </router-link>
 
-        <div class="pt-6 pb-2">
+        <div v-if="hasSystemControl" class="pt-6 pb-2">
           <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em]">System Control</p>
         </div>
 
@@ -111,36 +111,38 @@
         <router-view />
       </main>
 
-      <nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] bg-neutral-900 backdrop-blur-lg h-13 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 flex items-center justify-around px-2 border border-white/10">
+      <nav v-if="!isLoading && visibleMobileNavItems.length > 0" class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] bg-neutral-900 backdrop-blur-lg h-13 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 flex items-center justify-around px-2 border border-white/10">
         
-        <router-link to="/admin/dashboard" class="flex flex-col items-center justify-center flex-1 text-neutral-500 transition-all duration-200" active-class="!text-red-500 scale-110">
-          <LayoutDashboard class="w-5 h-5" />
-          <span class="text-[6px] mt-1 font-black uppercase tracking-tighter">Home</span>
+        <!-- Dynamic Mobile Navigation Items - Only shows what user has access to -->
+        <router-link 
+          v-for="item in visibleMobileNavItems" 
+          :key="item.id"
+          :to="item.to" 
+          class="flex flex-col items-center justify-center flex-1 text-neutral-500 transition-all duration-200 min-w-0" 
+          :class="item.activeClass"
+          :active-class="item.activeClass"
+        >
+          <component :is="item.icon" class="w-5 h-5" :class="item.iconClass" />
+          <span class="text-[6px] mt-1 font-black uppercase tracking-tighter truncate px-1">{{ item.label }}</span>
         </router-link>
 
-        <router-link to="/admin/user-management" class="flex flex-col items-center justify-center flex-1 text-neutral-500 transition-all duration-200" active-class="!text-red-500 scale-110">
-          <Users class="w-5 h-5" />
-          <span class="text-[6px] mt-1 font-black uppercase tracking-tighter">Users</span>
-        </router-link>
-
-        <div class="relative -mt-10">
+        <!-- Logistics Floating Action Button (if user has any logistics access) -->
+        <div v-if="hasLogisticsSales" class="relative -mt-10 flex-shrink-0">
           <button @click="isLogisticsOpen = !isLogisticsOpen" 
             class="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-red-900/20 active:scale-90 transition-all duration-300 border-2 border-neutral-900"
             :class="{'rotate-45 bg-neutral-800! border-white/20': isLogisticsOpen}">
             <Plus class="w-8 h-8" />
           </button>
         </div>
-
-        <router-link to="/admin/approve" class="flex flex-col items-center justify-center flex-1 text-neutral-500 transition-all duration-200" active-class="!text-red-500 scale-110">
-          <CheckSquare class="w-5 h-5" />
-          <span class="text-[6px] mt-1 font-black uppercase tracking-tighter">Approvals</span>
-        </router-link>
-
-        <router-link to="/admin/sa-rotation" class="flex flex-col items-center justify-center flex-1 text-neutral-500 transition-all duration-200" active-class="!text-red-500 scale-110">
-          <ShoppingCart class="w-5 h-5 text-blue-500" />
-          <span class="text-[6px] mt-1 font-black uppercase tracking-tighter">Retail Orders</span>
-        </router-link>
       </nav>
+
+      <!-- Loading State for Mobile Navigation -->
+      <div v-if="isLoading" class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] bg-neutral-900 backdrop-blur-lg h-13 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 flex items-center justify-center px-2 border border-white/10">
+        <div class="flex items-center gap-2 text-neutral-500">
+          <div class="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+          <span class="text-[10px] font-bold uppercase tracking-wider">Loading...</span>
+        </div>
+      </div>
 
       <!-- Mobile Logistics Menu Overlay -->
       <div v-if="isLogisticsOpen" class="md:hidden fixed inset-0 bg-black/50 z-40" @click="isLogisticsOpen = false"></div>
@@ -169,7 +171,7 @@
 
           <router-link v-if="accessiblePages['sa-rotation']" to="/admin/sa-rotation" @click="isLogisticsOpen = false" 
             class="flex items-center gap-3 px-4 py-3 rounded-xl text-neutral-400 font-bold transition-all hover:bg-white/5 hover:text-white">
-            <ShoppingCart class="w-5 h-5 text-blue-500" /> 
+            <ShoppingCart class="w-5 h-5 text-white-500" /> 
             <span class="text-xs uppercase tracking-wider">Retail Orders</span>
           </router-link>
         </div>
@@ -180,29 +182,115 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { usePermissions } from "../composables/usePermissions";
 import { 
   LayoutDashboard, Users, CheckSquare, Package, 
   ArrowDownLeft, ArrowUpRight, ShoppingCart, Settings, 
-  ShieldAlert, Menu, X, ChevronRight, CreditCard, Plus, Clock
+  ShieldAlert, Plus, Clock
 } from "lucide-vue-next";
 
 const isLogisticsOpen = ref(false);
 const { canAccessPage, isMasterAdmin, fetchUserRoles } = usePermissions();
 
 const accessiblePages = ref({
-  dashboard: true, "user-management": true, approve: true,
-  inventory: true, "transaction-in": true, "transaction-out": true, 
-  "sa-rotation": true, "isuzu-dtr": true, settings: true
+  dashboard: false, "user-management": false, approve: false,
+  inventory: false, "transaction-in": false, "transaction-out": false, 
+  "sa-rotation": false, "isuzu-dtr": false, settings: false
+});
+
+const isLoading = ref(true);
+
+// Computed properties for section visibility
+const hasCoreModules = computed(() => {
+  return accessiblePages.value.dashboard || 
+         accessiblePages.value['user-management'] || 
+         accessiblePages.value.approve;
+});
+
+const hasLogisticsSales = computed(() => {
+  return accessiblePages.value.inventory || 
+         accessiblePages.value['transaction-in'] || 
+         accessiblePages.value['transaction-out'] || 
+         accessiblePages.value['sa-rotation'];
+});
+
+const hasHRAttendance = computed(() => {
+  return accessiblePages.value['isuzu-dtr'];
+});
+
+const hasSystemControl = computed(() => {
+  return accessiblePages.value.settings || isMasterAdmin.value;
+});
+
+// Dynamic mobile navigation items - filtered by user permissions
+const visibleMobileNavItems = computed(() => {
+  const allMobileNavItems = [
+    {
+      id: 'dashboard',
+      to: '/admin/dashboard',
+      icon: LayoutDashboard,
+      label: 'Home',
+      activeClass: '!text-white-500 scale-110',
+      iconClass: '',
+      permission: () => accessiblePages.value.dashboard
+    },
+    {
+      id: 'user-management',
+      to: '/admin/user-management',
+      icon: Users,
+      label: 'Users',
+      activeClass: '!text-white-500 scale-110',
+      iconClass: '',
+      permission: () => accessiblePages.value['user-management']
+    },
+    {
+      id: 'approve',
+      to: '/admin/approve',
+      icon: CheckSquare,
+      label: 'Approvals',
+      activeClass: '!text-white-500 scale-110',
+      iconClass: '',
+      permission: () => accessiblePages.value.approve
+    },
+    {
+      id: 'sa-rotation',
+      to: '/admin/sa-rotation',
+      icon: ShoppingCart,
+      label: 'Retail',
+      activeClass: '!text-white-500 scale-110',
+      iconClass: 'text-white-500',
+      permission: () => accessiblePages.value['sa-rotation']
+    },
+    {
+      id: 'isuzu-dtr',
+      to: '/admin/isuzu-dtr',
+      icon: Clock,
+      label: 'DTR',
+      activeClass: '!text-white-500 scale-110',
+      iconClass: 'text-white-500',
+      permission: () => accessiblePages.value['isuzu-dtr']
+    }
+  ];
+  
+  // Filter items based on user permissions
+  return allMobileNavItems.filter(item => item.permission());
 });
 
 onMounted(async () => {
   await fetchUserRoles();
   const pages = ["dashboard", "user-management", "approve", "inventory", "transaction-in", "transaction-out", "sa-rotation", "isuzu-dtr", "settings"];
-  for (const page of pages) {
-    accessiblePages.value[page] = await canAccessPage(page);
-  }
+  
+  // Check all permissions in parallel for faster loading
+  const results = await Promise.all(
+    pages.map(page => canAccessPage(page))
+  );
+  
+  pages.forEach((page, index) => {
+    accessiblePages.value[page] = results[index];
+  });
+  
+  isLoading.value = false;
 });
 </script>
 
