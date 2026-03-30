@@ -5,11 +5,11 @@
         <div
           v-for="toast in toasts"
           :key="toast.id"
-          class="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg min-w-[300px] max-w-[400px] transform transition-all duration-300"
+          class="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg min-w-75 max-w-100 transform transition-all duration-300"
           :class="getToastClass(toast.type)"
         >
           <!-- Icon -->
-          <div class="flex-shrink-0">
+          <div class="shrink-0">
             <CheckCircle v-if="toast.type === 'success'" class="w-5 h-5" />
             <AlertCircle v-else-if="toast.type === 'error'" class="w-5 h-5" />
             <Info v-else-if="toast.type === 'info'" class="w-5 h-5" />
@@ -25,7 +25,7 @@
           <!-- Close Button -->
           <button
             @click="removeToast(toast.id)"
-            class="flex-shrink-0 p-1 hover:bg-black/10 rounded transition-colors"
+            class="shrink-0 p-1 hover:bg-black/10 rounded transition-colors"
           >
             <X class="w-4 h-4" />
           </button>

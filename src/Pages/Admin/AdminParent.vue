@@ -69,14 +69,14 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
+.loading-overlay { 
+  position: fixed; 
+  inset: 0; 
+  background: #ffffff; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  z-index: 9999; 
 }
 
 .loading-spinner {

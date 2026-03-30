@@ -38,7 +38,7 @@
     </header>
 
     <main class="flex-1 relative z-10 overflow-auto p-6 lg:p-6">
-      <div class="max-w-[1800px] mx-auto space-y-6">
+      <div class="max-w-450 mx-auto space-y-6">
         
         <div class="bg-white rounded-2xl p-6 border border-neutral-300 space-y-2">
           <div class="flex flex-col xl:flex-row gap-6">
@@ -113,7 +113,7 @@
 
         <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[1600px]">
+            <table class="w-full text-left border-collapse min-w-400">
               <thead>
                 <tr class="bg-neutral-800 text-white text-[10px] uppercase tracking-widest isuzu-font">
                   <th class="p-4 font-black">Control No</th>
@@ -144,7 +144,7 @@
                   <td class="p-4 text-right font-black">{{ item.quantity.toLocaleString() }}</td>
                   <td class="p-4 text-right">₱{{ item.unitPrice?.toLocaleString() }}</td>
                   <td class="p-4 text-right text-red-600 font-black">₱{{ item.totalPrice?.toLocaleString() }}</td>
-                  <td class="p-4 max-w-[150px] truncate" :title="item.source">{{ item.source }}</td>
+                  <td class="p-4 max-w-37.5 truncate" :title="item.source">{{ item.source }}</td>
                   <td class="p-4 text-neutral-400">{{ formatDate(item.receivedAt) }}</td>
                   
                   <td class="p-4 text-center">
@@ -225,7 +225,7 @@
     </main>
 
     <Transition name="fade">
-      <div v-if="showTransactionInModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div v-if="showTransactionInModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeTransactionInModal"></div>
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-neutral-200">
           <div class="bg-neutral-800 p-6 flex justify-between items-center border-b-4 border-red-600">
@@ -297,7 +297,7 @@
 
     <!-- Import Excel Modal -->
     <Transition name="fade">
-      <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div v-if="showImportModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeImportModal"></div>
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
           <!-- Header -->

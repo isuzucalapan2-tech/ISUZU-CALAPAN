@@ -1,20 +1,28 @@
 <template>
   <div class="min-h-screen flex font-sans relative">
     
-    <div class="w-full md:w-2/5 flex items-center justify-center bg-white relative overflow-hidden">
+    <div class="w-full md:w-2/5 flex items-center justify-center bg-white relative overflow-hidden min-h-screen">
 
-      <div class="absolute top-0 left-0 w-full z-0">
+      <router-link
+        to="/"
+        class="absolute top-6 left-6 md:left-10 z-30 flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
+      >
+        <ArrowLeft size="18" />
+        <span class="text-xs md:text-sm font-bold uppercase tracking-wider isuzu-font">Home</span>
+      </router-link>
+
+      <div class="absolute top-0 left-0 w-full z-0 pointer-events-none">
         <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
           <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
         </svg>
       </div>
 
-      <div class="w-full max-w-xs p-6 z-10">
+      <div class="w-full max-w-xs p-6 z-10 mt-12">
         <h2 class="text-2xl text-center mb-4 text-red-600 isuzu-font uppercase tracking-widest">
           Reset Password
         </h2>
         
-        <p class="text-center text-[11px] text-neutral-500 mb-8 px-2">
+        <p class="text-center text-[11px] text-neutral-500 mb-8 px-2 leading-relaxed">
           Enter your registered email address and we'll send you a link to reset your password.
         </p>
 
@@ -27,7 +35,7 @@
               required
               placeholder=" "
               class="peer w-full px-5 py-3 text-sm border border-neutral-300 rounded-2xl
-                     focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400"
+                     focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 bg-transparent"
             />
             <label
               for="email"
@@ -43,9 +51,9 @@
           <button
             type="submit"
             :disabled="isLoading"
-            class="w-full bg-neutral-700 text-white py-3 rounded-full uppercase tracking-widest
-                   hover:bg-neutral-800 transition disabled:opacity-50 
-                   disabled:cursor-not-allowed flex items-center justify-center gap-2 isuzu-font shadow-md"
+            class="w-full bg-neutral-800 text-white py-3.5 rounded-full uppercase tracking-widest
+                   hover:bg-neutral-900 transition disabled:opacity-50 
+                   disabled:cursor-not-allowed flex items-center justify-center gap-2 isuzu-font shadow-lg"
           >
             <span
               v-if="isLoading"
@@ -65,7 +73,7 @@
         </div>
       </div>
 
-      <div class="absolute bottom-0 left-0 w-full z-0">
+      <div class="absolute bottom-0 left-0 w-full z-0 pointer-events-none">
         <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
           <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
         </svg>
@@ -76,42 +84,39 @@
       class="hidden md:block md:w-3/5 relative bg-cover bg-center"
       :style="{ backgroundImage: `url(${bgImage})` }"
     >
-      <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/60 to-black/50"></div>
+      <div class="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-transparent"></div>
 
-      <div class="absolute top-8 left-8 z-10 flex items-center gap-6">
-        <div class="flex items-center gap-3 uppercase">
-          <div class="text-white">
-            <h1 class="text-lg font-semibold tracking-wide">
-              <span class="text-blue-600">Mina</span>
-              <span class="text-yellow-500 mx-1">de</span>
-              <span class="text-red-700">Oro</span>
-            </h1>
-            <div class="w-30 h-0.5 bg-neutral-800 my-1"></div>
-            <p class="text-[10px] text-center tracking-[0.2em] opacity-80 text-white font-bold">Motors <span> inc.</span></p>
-          </div>
+      <div class="absolute top-10 left-10 z-10 flex items-center gap-6">
+        <div class="flex flex-col uppercase">
+          <h1 class="text-sm font-bold tracking-tight">
+            <span class="text-blue-500">Mina</span>
+            <span class="text-yellow-500 mx-1.5">de</span>
+            <span class="text-red-600">Oro</span>
+          </h1>
+          <div class="w-full h-px bg-white/20 my-1"></div>
+          <p class="text-[10px] tracking-[0.3em] text-neutral-300 font-black opacity-90">Motors inc.</p>
         </div>
-        <div class="h-10 w-px bg-white/40"></div>
-        <div class="flex items-center gap-4">
-          <div class="text-white isuzu-font">
-            <h1 class="text-3xl tracking-tighter">I S U Z U</h1>
-            <p class="text-[12px] tracking-[0.2em] opacity-80">CALAPAN CITY</p>
-          </div>
+
+        <div class="h-10 w-px bg-white/30"></div>
+
+        <div class="text-white isuzu-font">
+          <h1 class="text-4xl tracking-tighter font-black">ISUZU</h1>
+          <p class="text-[9px] tracking-[0.4em] text-white font-bold">CALAPAN CITY</p>
         </div>
       </div>
 
-      <div class="absolute bottom-8 left-0 right-0 z-10 flex justify-center text-white text-[10px] uppercase tracking-widest opacity-70">
-        <div class="flex items-center divide-x divide-white/30 isuzu-font">
-          <span class="px-4">HR Department</span>
-          <span class="px-4">Sales Department</span>
-          <span class="px-4">After Sales Department</span>
-          <span class="px-4 border-r-0">Admin Department</span>
+      <div class="absolute bottom-10 left-0 right-0 z-10 flex justify-center text-white text-[9px] uppercase tracking-[0.2em] opacity-60 font-bold">
+        <div class="flex items-center divide-x divide-white/20 isuzu-font">
+          <span class="px-5">HR Department</span>
+          <span class="px-5">Sales Department</span>
+          <span class="px-5">After Sales Department</span>
+          <span class="px-5">Admin Department</span>
         </div>
       </div>
     </div>
 
   </div>
 </template>
-
 <script setup>
 import { ref } from "vue";
 import { auth } from "../Firebase/Firebase"; // Ensure auth is exported from your Firebase config
