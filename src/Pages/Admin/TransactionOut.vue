@@ -3,8 +3,13 @@
     <Loaders />
   </div>
 
-  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
+  <div v-else-if="canView" :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
     
+    <!-- View-Only Mode Banner -->
+    <div v-if="!canEdit && !canCreate" class="bg-yellow-500 text-white px-4 py-2 text-center text-[10px] font-black uppercase tracking-widest z-50">
+      <Eye class="w-3 h-3 inline-block mr-1" /> View-Only Mode - You have permission to view but not modify records
+    </div>
+
     <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
         <path d="M0 45 H280 L330 15 H500" stroke="#cc0000" stroke-width="2" />
@@ -25,10 +30,18 @@
       </div>
 
       <div class="hidden md:flex items-center gap-4">
-        <button @click="openImportModal" class="flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-600/40 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all">
+        <button 
+          v-if="canCreate"
+          @click="openImportModal" 
+          class="flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-600/40 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all"
+        >
           <Upload class="w-4 h-4" /> Import Excel
         </button>
-        <button @click="openTransactionOutModal" class="group bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 flex items-center gap-2">
+        <button 
+          v-if="canCreate"
+          @click="openTransactionOutModal" 
+          class="group bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 flex items-center gap-2"
+        >
           <Plus class="w-4 h-4" /> Add New Sale
         </button>
       </div>
@@ -160,20 +173,32 @@
                   <td class="p-4">
                     <div class="flex items-center justify-center gap-2">
                       <button 
-                        v-if="item.statusOUT === 'Pending' || !item.statusOUT"
+                        v-if="canEdit && (item.statusOUT === 'Pending' || !item.statusOUT)"
                         @click="processSale(item)" 
                         class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-neutral-800 transition-all flex items-center gap-1 shadow-sm"
                       >
                         <Check class="w-3 h-3" /> Process Sale
                       </button>
+                      <div 
+                        v-else-if="!canEdit && (item.statusOUT === 'Pending' || !item.statusOUT)"
+                        class="text-gray-400 flex items-center gap-1 text-[9px] font-black"
+                      >
+                        <Lock class="w-3 h-3" /> Locked
+                      </div>
 
                       <button 
-                        v-if="item.statusOUT === 'Completed' && isCancelAvailable(item)"
+                        v-if="canEdit && item.statusOUT === 'Completed' && isCancelAvailable(item)"
                         @click="cancelSale(item)" 
                         class="bg-neutral-800 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-red-600 transition-all flex items-center gap-1"
                       >
                         <X class="w-3 h-3" /> Cancel
                       </button>
+                      <div 
+                        v-else-if="!canEdit && item.statusOUT === 'Completed' && isCancelAvailable(item)"
+                        class="text-gray-400 flex items-center gap-1 text-[9px] font-black"
+                      >
+                        <Lock class="w-3 h-3" /> Locked
+                      </div>
 
                       <span v-if="item.statusOUT === 'Cancelled'" class="text-red-600 flex items-center gap-1 text-[9px] font-black">
                         <XCircle class="w-4 h-4" /> CANCELLED
@@ -341,9 +366,16 @@
             <!-- Action Buttons -->
             <div class="flex justify-end gap-3 pt-6 border-t">
               <button @click="closeTransactionOutModal" class="px-8 py-3 text-[10px] font-black uppercase text-gray-500 hover:bg-gray-100 border border-neutral-600/40 rounded-full transition-all">Discard</button>
-              <button @click="saveTransactionOut" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all">
+              <button 
+                v-if="canCreate" 
+                @click="saveTransactionOut" 
+                class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all"
+              >
                 Record Sale
               </button>
+              <div v-else class="px-8 py-3 text-[10px] font-black uppercase text-gray-400 flex items-center gap-2">
+                <Lock class="w-4 h-4" /> No Permission to Create
+              </div>
             </div>
           </div>
         </div>
@@ -418,10 +450,18 @@
               </div>
               <div class="flex gap-2">
                 <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-gray-100 rounded-full transition-all">Cancel</button>
-                <button @click="confirmBatchImport" :disabled="isImporting || importPreview.validItems.length === 0" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50 hover:bg-blue-700 transition-all flex items-center gap-2">
+                <button 
+                  v-if="canCreate"
+                  @click="confirmBatchImport" 
+                  :disabled="isImporting || importPreview.validItems.length === 0" 
+                  class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50 hover:bg-blue-700 transition-all flex items-center gap-2"
+                >
                   <Loader2 v-if="isImporting" class="w-4 h-4 animate-spin" />
                   {{ isImporting ? 'Importing...' : 'Import ' + importPreview.validItems.length + ' Sales' }}
                 </button>
+                <div v-else class="px-6 py-2 text-[10px] font-black uppercase text-gray-400 flex items-center gap-2">
+                  <Lock class="w-4 h-4" /> No Permission to Import
+                </div>
               </div>
             </div>
 
@@ -491,6 +531,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { db } from '../../Firebase/Firebase';
 import { collection, getDocs, doc, setDoc, getDoc, collectionGroup, updateDoc } from 'firebase/firestore';
 import { 
@@ -501,12 +542,20 @@ import {
 } from '../../composables/useControlNumber';
 import { useToast } from '../../composables/useToast';
 import { useExcelExport } from '../../composables/useExcelExport';
+import { usePermissions } from '../../composables/usePermissions';
 import Loaders from '../../components/Loaders.vue';
-import { Plus, ArrowUpCircle, Search, Check, X, CheckCircle, XCircle, FileDown, ChevronDown, Filter, Database, Upload, FileSpreadsheet, Printer, AlertTriangle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Info, Download, Loader2 } from 'lucide-vue-next';
+import { Plus, ArrowUpCircle, Search, Check, X, CheckCircle, XCircle, FileDown, ChevronDown, Filter, Database, Upload, FileSpreadsheet, Printer, AlertTriangle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Info, Download, Loader2, Eye, Lock } from 'lucide-vue-next';
 
 
 // Toast notification
 const toast = useToast();
+
+// Router
+const router = useRouter();
+
+// Permissions
+const { canView, canEdit, canCreate, canDelete, canAccessPage, fetchUserRoles } = usePermissions();
+const hasTransactionOutAccess = ref(false);
 
 // Loading state
 const isLoading = ref(true);
@@ -1843,11 +1892,50 @@ watch(transactionOutItems, (newVal) => {
   console.log('transactionOutItems updated:', newVal.length, 'items');
 }, { deep: true, immediate: true });
 
+// Check permissions on mount
+const checkPermissions = async () => {
+  try {
+    // First fetch user roles to populate permissionMap
+    await fetchUserRoles();
+    
+    // Check page-level access (dual-layer permission check)
+    const hasPageAccess = canAccessPage('transaction-out');
+    const hasViewPermission = canView.value;
+    
+    console.log('TransactionOut permission check:', {
+      hasPageAccess,
+      hasViewPermission,
+      canView: canView.value,
+      canCreate: canCreate.value,
+      canEdit: canEdit.value,
+      canDelete: canDelete.value
+    });
+    
+    // User must have BOTH page access AND view permission
+    if (!hasPageAccess || !hasViewPermission) {
+      console.log('Access denied to TransactionOut - redirecting to 403');
+      router.push('/forbidden');
+      return false;
+    }
+    
+    hasTransactionOutAccess.value = true;
+    return true;
+  } catch (error) {
+    console.error('Error checking permissions:', error);
+    router.push('/forbidden');
+    return false;
+  }
+};
+
 // Initialize
 onMounted(async () => {
-
   await nextTick();
   console.log('TransactionOut component mounted');
+  
+  // Check permissions first
+  const hasAccess = await checkPermissions();
+  if (!hasAccess) return;
+  
   await loadTransactionOut();
   console.log('TransactionOut data loaded, items count:', transactionOutItems.value.length);
   isLoading.value = false;

@@ -3,8 +3,13 @@
     <Loaders />
   </div>
 
-  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
+  <div v-else-if="canView" :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
     
+    <!-- View-Only Mode Banner -->
+    <div v-if="!canEdit && !canCreate" class="bg-yellow-500 text-white px-4 py-2 text-center text-[10px] font-black uppercase tracking-widest z-50">
+      <Eye class="w-3 h-3 inline-block mr-1" /> View-Only Mode - You have permission to view but not modify records
+    </div>
+
     <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
         <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
@@ -25,13 +30,11 @@
       </div>
 
       <div class="hidden md:flex items-center gap-6">
-        <div class="text-right border-r pr-6 border-gray-300">
-          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Database Status</p>
-          <p class="text-xs font-black text-green-600 uppercase flex items-center justify-end gap-1">
-            <Database class="w-3 h-3" /> Synchronized
-          </p>
-        </div>
-        <button @click="openTransactionInModal" class="group bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg flex items-center gap-2">
+        <button 
+          v-if="canCreate" 
+          @click="openTransactionInModal" 
+          class="group bg-neutral-800 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all duration-300 shadow-lg flex items-center gap-2"
+        >
           <Plus class="w-4 h-4" /> Add New Record
         </button>
       </div>
@@ -80,7 +83,11 @@
                 </div>
               </div>
 
-              <button @click="showImportModal = true" class="flex items-center gap-2 bg-blue-50 text-blue-600 px-5 py-3 rounded-xl font-black text-[10px] uppercase border border-blue-400 tracking-widest hover:bg-blue-600 hover:text-white transition-all">
+              <button 
+                v-if="canCreate" 
+                @click="showImportModal = true" 
+                class="flex items-center gap-2 bg-blue-50 text-blue-600 px-5 py-3 rounded-xl font-black text-[10px] uppercase border border-blue-400 tracking-widest hover:bg-blue-600 hover:text-white transition-all"
+              >
                 <Upload class="w-4 h-4" /> Import Excel
               </button>
             </div>
@@ -156,7 +163,7 @@
                   <td class="p-4">
                     <div class="flex items-center justify-center gap-2">
                       <button 
-                        v-if="item.statusIN === 'To Review' || !item.statusIN"
+                        v-if="canEdit && (item.statusIN === 'To Review' || !item.statusIN)"
                         @click="processStockIn(item)" 
                         :disabled="processingItems[item.id]"
                         class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-neutral-800 transition-all flex items-center gap-1 disabled:opacity-50"
@@ -166,7 +173,7 @@
 
                       <div v-if="item.statusIN === 'Stock IN'" class="flex items-center gap-2">
                         <button 
-                          v-if="isStockOutButtonEnabled(item)"
+                          v-if="canEdit && isStockOutButtonEnabled(item)"
                           @click="processStockOut(item)" 
                           :disabled="processingItems[item.id]"
                           class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-neutral-800 transition-all flex items-center gap-1"
@@ -175,7 +182,11 @@
                           <span class="text-[8px] opacity-70">({{ getStockOutExpirationText(item) }})</span>
                         </button>
 
-                        <span v-else class="text-neutral-400 text-[9px] font-black flex items-center gap-1">
+                        <span v-else-if="!canEdit && isStockOutButtonEnabled(item)" class="text-neutral-400 text-[9px] font-black flex items-center gap-1">
+                          <Lock class="w-3 h-3" /> LOCKED
+                        </span>
+
+                        <span v-else-if="!isStockOutButtonEnabled(item)" class="text-neutral-400 text-[9px] font-black flex items-center gap-1">
                           <Lock class="w-3 h-3" /> EXPIRED
                         </span>
                       </div>
@@ -286,7 +297,11 @@
 
             <div class="flex justify-end gap-3 pt-6 border-t">
               <button @click="closeTransactionInModal" class="px-8 py-3 text-[10px] font-black uppercase border border-neutral-600/40 text-gray-500 hover:bg-gray-100 rounded-full transition-all">Discard</button>
-              <button @click="saveTransactionIn" class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all">
+              <button 
+                v-if="canCreate" 
+                @click="saveTransactionIn" 
+                class="bg-red-600 text-white px-12 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all"
+              >
                 Register Record
               </button>
             </div>
@@ -433,6 +448,7 @@
   
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import { db } from '../../Firebase/Firebase';
 import { collection, getDocs, doc, setDoc, getDoc, collectionGroup, updateDoc } from 'firebase/firestore';
 import { 
@@ -445,6 +461,7 @@ import {
 } from '../../composables/useControlNumber';
 import { useToast } from '../../composables/useToast';
 import { useExcelExport } from '../../composables/useExcelExport';
+import { usePermissions } from '../../composables/usePermissions';
 import Loaders from '../../components/Loaders.vue';
 
 import { 
@@ -470,7 +487,8 @@ import {
   ChevronsRight,
   Info,
   Download,
-  Loader2
+  Loader2,
+  Eye
 } from 'lucide-vue-next';
 
 
@@ -478,6 +496,10 @@ import {
 const toast = useToast();
 const { exportTransactionIn, parseTransactionInExcelFile, processTransactionInImportItems, downloadTransactionInTemplate } = useExcelExport();
 
+// Permissions
+const router = useRouter();
+const { canView, canEdit, canCreate, canDelete, canAccessPage, fetchUserRoles } = usePermissions();
+const hasTransactionInAccess = ref(false);
 
 // Loading state
 const isLoading = ref(true);
@@ -1236,10 +1258,50 @@ watch(transactionInItems, (newVal) => {
   console.log('transactionInItems updated:', newVal.length, 'items');
 }, { deep: true, immediate: true });
 
+// Check permissions on mount
+const checkPermissions = async () => {
+  try {
+    // First fetch user roles to populate permissionMap
+    await fetchUserRoles();
+    
+    // Check page-level access (dual-layer permission check)
+    const hasPageAccess = canAccessPage('transaction-in');
+    const hasViewPermission = canView.value;
+    
+    console.log('TransactionIn permission check:', {
+      hasPageAccess,
+      hasViewPermission,
+      canView: canView.value,
+      canCreate: canCreate.value,
+      canEdit: canEdit.value,
+      canDelete: canDelete.value
+    });
+    
+    // User must have BOTH page access AND view permission
+    if (!hasPageAccess || !hasViewPermission) {
+      console.log('Access denied to TransactionIn - redirecting to 403');
+      router.push('/forbidden');
+      return false;
+    }
+    
+    hasTransactionInAccess.value = true;
+    return true;
+  } catch (error) {
+    console.error('Error checking permissions:', error);
+    router.push('/forbidden');
+    return false;
+  }
+};
+
 // Initialize
 onMounted(async () => {
   await nextTick();
   console.log('Transaction component mounted');
+  
+  // Check permissions first
+  const hasAccess = await checkPermissions();
+  if (!hasAccess) return;
+  
   await loadTransactionIn();
   console.log('Transaction data loaded, items count:', transactionInItems.value.length);
   isLoading.value = false;

@@ -109,18 +109,18 @@
                       </label>
                       <label class="flex items-center gap-1 text-[10px] cursor-pointer">
                         <input type="checkbox" v-model="user.selectedPermissionMap.canCreate" class="accent-red-600 w-3 h-3" />
-+                        <span>Create</span>
-+                      </label>
-+                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
-+                        <input type="checkbox" v-model="user.selectedPermissionMap.canEdit" class="accent-red-600 w-3 h-3" />
-+                        <span>Edit</span>
-+                      </label>
-+                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
-+                        <input type="checkbox" v-model="user.selectedPermissionMap.canDelete" class="accent-red-600 w-3 h-3" />
-+                        <span>Delete</span>
-+                      </label>
-+                    </div>
-+                  </td>
+                        <span>Create</span>
+                      </label>
+                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
+                        <input type="checkbox" v-model="user.selectedPermissionMap.canEdit" class="accent-red-600 w-3 h-3" />
+                        <span>Edit</span>
+                      </label>
+                      <label class="flex items-center gap-1 text-[10px] cursor-pointer">
+                        <input type="checkbox" v-model="user.selectedPermissionMap.canDelete" class="accent-red-600 w-3 h-3" />
+                        <span>Delete</span>
+                      </label>
+                    </div>
+                  </td>
                   <td class="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4">
                     <div class="flex justify-end items-center gap-0.5 sm:gap-1">
                       <button @click="approveUser(user)" class="p-1 sm:p-2 text-neutral-400 hover:text-green-600 transition-colors" title="Approve">
@@ -184,7 +184,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
-import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, setDoc, getDocs } from "firebase/firestore";
 import { db } from "../../Firebase/Firebase";
 
 /* ICONS */
@@ -213,29 +213,35 @@ const itemsPerPage = ref(10);
 const themeClass = computed(() => "bg-gray-100 text-neutral-900");
 const themeStyle = computed(() => ({}));
 
-/* FETCH LOGIC (Incorporate your existing functions) */
+/* FETCH LOGIC - Dynamically fetch all roles and positions from collections */
 const fetchPositionOptions = async () => {
-  const docIds = ["isuzu$calapan$position201", "isuzu$calapan$position202", "isuzu$calapan$position203", "isuzu$calapan$position204", "isuzu$calapan$position205", "isuzu$calapan$position206"];
-  for (const id of docIds) {
-    const d = await getDoc(doc(db, "Position_Access", id));
-    if (d.exists()) positionOptions.value.push(d.data().position);
+  try {
+    const snapshot = await getDocs(collection(db, "Position_Access"));
+    positionOptions.value = snapshot.docs
+      .map(doc => doc.data().position)
+      .filter(pos => pos) // Remove any undefined/null values
+      .sort(); // Sort alphabetically
+  } catch (error) {
+    console.error("Error fetching positions:", error);
   }
 };
 
 const fetchRoleOptions = async () => {
-  const docIds = ["isuzu&calapan&staff103", "isuzu&calapan&admin102", "isuzu&calapan&master&admin101"];
-  for (const id of docIds) {
-    const d = await getDoc(doc(db, "Role_Access", id));
-    if (d.exists()) roleOptions.value.push(d.data().roleName);
+  try {
+    const snapshot = await getDocs(collection(db, "Role_Access"));
+    roleOptions.value = snapshot.docs
+      .map(doc => doc.data().roleName)
+      .filter(role => role) // Remove any undefined/null values
+      .sort(); // Sort alphabetically
+  } catch (error) {
+    console.error("Error fetching roles:", error);
   }
 };
 
 const fetchPermissionOptions = async () => {
-  const docIds = ["isuzu#calapan#permission301", "isuzu#calapan#permission302", "isuzu#calapan#permission303", "isuzu#calapan#permission304", "isuzu#calapan#permission305"];
-  for (const id of docIds) {
-    const d = await getDoc(doc(db, "Permission_Access", id));
-    if (d.exists()) permissionOptions.value.push(d.data().permission);
-  }
+  // Permission options are now hardcoded as checkboxes (View, Create, Edit, Delete)
+  // This function is kept for compatibility but not used
+  permissionOptions.value = ["View", "Create", "Edit", "Delete"];
 };
 
 const loadPendingUsers = () => {

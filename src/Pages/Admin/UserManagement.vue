@@ -246,6 +246,31 @@ const itemsPerPageOptions = [10, 25, 50];
 /* =====================
    FETCHING LOGIC
 ===================== */
+const fetchPositionOptions = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, "Position_Access"));
+    positionOptions.value = snapshot.docs
+      .map(doc => doc.data().position)
+      .filter(pos => pos) // Remove any undefined/null values
+      .sort(); // Sort alphabetically
+  } catch (error) {
+    console.error("Error fetching positions:", error);
+  }
+};
+
+const fetchRoleOptions = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, "Role_Access"));
+    roleOptions.value = snapshot.docs
+      .map(doc => doc.data().roleName)
+      .filter(role => role) // Remove any undefined/null values
+      .sort(); // Sort alphabetically
+  } catch (error) {
+    console.error("Error fetching roles:", error);
+  }
+};
+
+// Keep for backward compatibility if needed
 const fetchOptions = async (collectionName, docIds, fieldName, targetRef) => {
   try {
     const options = [];
@@ -425,9 +450,10 @@ const hasActiveFilters = computed(() => selectedRole.value || selectedStatus.val
 ===================== */
 onMounted(() => {
   fetchAdmins();
-  // Fetch dynamic access options
-  fetchOptions("Position_Access", ["isuzu$calapan$position201", "isuzu$calapan$position202", "isuzu$calapan$position203", "isuzu$calapan$position204", "isuzu$calapan$position205", "isuzu$calapan$position206"], "position", positionOptions);
-  fetchOptions("Role_Access", ["isuzu&calapan&staff103", "isuzu&calapan&admin102", "isuzu&calapan&master&admin101"], "roleName", roleOptions);
+  // Fetch dynamic roles and positions from collections
+  fetchPositionOptions();
+  fetchRoleOptions();
+  // Keep permission options as before (hardcoded document IDs)
   fetchOptions("Permission_Access", ["isuzu#calapan#permission301", "isuzu#calapan#permission302", "isuzu#calapan#permission303", "isuzu#calapan#permission304", "isuzu#calapan#permission305"], "permission", permissionOptions);
 });
 </script>
