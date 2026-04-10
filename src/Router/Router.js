@@ -18,10 +18,12 @@ import PageControl from '../Pages/Admin/PageControl.vue'
 import TransactionIn from '../Pages/Admin/TransactionIn.vue'
 import TransactionOut from '../Pages/Admin/TransactionOut.vue'
 import IsuzuDTR from '../Pages/ISUZU-DTR/IsuzuDTR.vue'
+
 import Unauthorized from '../Pages/401Page.vue'
 import Forbidden from '../Pages/403Page.vue'
 import NotFound from '../Pages/404Page.vue'
 import Test from '../Pages/Test.vue'
+import AttendancePlotting from '../Pages/ISUZU-DTR/AttendancePlotting.vue'
 
 const routes = [
   { 
@@ -117,10 +119,16 @@ const routes = [
         }
       },
       { 
-        path: 'isuzu-dtr', 
+        path: 'isuzu-dtr',
         name: 'IsuzuDTR', 
         component: IsuzuDTR,
         meta: { requiresAuth: true, pageId: 'isuzu-dtr' }
+      },
+      {
+        path: 'attendance-plotting',
+        name: 'AttendancePlotting',
+        component: AttendancePlotting,
+        meta: { requiresAuth: true, pageId: 'isuzu-dtr' } // Same access as DTR Management
       },
     ]
   },
