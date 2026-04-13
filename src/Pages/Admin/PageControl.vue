@@ -32,9 +32,24 @@
           <ShieldCheck class="w-48 h-48 text-neutral-900" />
         </div>
 
-        <div class="flex items-center gap-3 mb-8 border-b border-neutral-500/10 pb-4">
-          <div class="w-2 h-6 bg-red-600 rounded-full"></div>
-          <h2 :class="['text-xl font-black uppercase tracking-tighter isuzu-font', textClass]">{{ page.name }}</h2>
+        <div class="flex items-center justify-between mb-8 border-b border-neutral-500/10 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-6 bg-red-600 rounded-full"></div>
+            <h2 :class="['text-xl font-black uppercase tracking-tighter isuzu-font', textClass]">{{ page.name }}</h2>
+          </div>
+          <!-- Lock/Unlock Button for Master Admin -->
+          <button 
+            @click="togglePageLock(page)"
+            :class="['p-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-xs font-bold uppercase tracking-wider',
+                     page.locked 
+                       ? 'bg-red-600 text-white hover:bg-red-700' 
+                       : 'bg-green-600 text-white hover:bg-green-700']"
+            :title="page.locked ? 'Page access is locked - click to unlock' : 'Page access is unlocked - click to lock'"
+          >
+            <LockIcon v-if="page.locked" class="w-4 h-4" />
+            <UnlockIcon v-else class="w-4 h-4" />
+            {{ page.locked ? 'Locked' : 'Unlocked' }}
+          </button>
         </div>
         
         <div class="space-y-6">
@@ -47,12 +62,23 @@
               <label class="block text-[10px] font-bold uppercase text-gray-400 mb-3 tracking-widest">Allowed Roles</label>
               <div class="flex flex-wrap gap-2">
                 <label v-for="role in availableRoles" :key="role" 
-                       :class="['flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer text-xs font-bold uppercase tracking-wider',
-                                page.allowedRoles.includes(role) 
-                                ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20' 
-                                : 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 hover:bg-neutral-600/10']">
-                  <input type="checkbox" :value="role" v-model="page.allowedRoles" @change="updatePageAccess(page)" class="hidden" />
+                       :class="['flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-xs font-bold uppercase tracking-wider',
+                                isMasterAdminRole(role)
+                                ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20 cursor-not-allowed opacity-100' 
+                                : page.locked && page.allowedRoles.includes(role)
+                                  ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20 cursor-not-allowed'
+                                  : page.locked && !page.allowedRoles.includes(role)
+                                    ? 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 cursor-not-allowed'
+                                    : page.allowedRoles.includes(role) 
+                                      ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20 cursor-pointer' 
+                                      : 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 hover:bg-neutral-600/10 cursor-pointer']">
+                  <input type="checkbox" 
+                         :checked="page.allowedRoles.includes(role) || isMasterAdminRole(role)" 
+                         @change="handleRoleChange(page, role)" 
+                         :disabled="isMasterAdminRole(role) || page.locked"
+                         class="hidden" />
                   {{ role }}
+                  <span v-if="isMasterAdminRole(role)" class="text-[8px] opacity-70">(Required)</span>
                 </label>
               </div>
             </div>
@@ -61,12 +87,24 @@
               <label class="block text-[10px] font-bold uppercase text-gray-400 mb-3 tracking-widest">Allowed Positions</label>
               <div class="flex flex-wrap gap-2">
                 <label v-for="position in availablePositions" :key="position"
-                       :class="['flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer text-xs font-bold uppercase tracking-wider',
-                                page.allowedPositions.includes(position) 
-                                ? 'bg-neutral-900 border-neutral-900 text-white shadow-md' 
-                                : 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 hover:bg-neutral-600/10']">
-                  <input type="checkbox" :value="position" v-model="page.allowedPositions" @change="updatePageAccess(page)" class="hidden" />
+                       :class="['flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-xs font-bold uppercase tracking-wider',
+                                isStaffPositionRequired(page, position)
+                                ? 'bg-neutral-900 border-neutral-900 text-white shadow-md cursor-not-allowed opacity-100' 
+                                : page.locked && page.allowedPositions.includes(position)
+                                  ? 'bg-neutral-900 border-neutral-900 text-white shadow-md cursor-not-allowed'
+                                  : page.locked && !page.allowedPositions.includes(position)
+                                    ? 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 cursor-not-allowed'
+                                    : page.allowedPositions.includes(position) 
+                                      ? 'bg-neutral-900 border-neutral-900 text-white shadow-md cursor-pointer' 
+                                      : 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 hover:bg-neutral-600/10 cursor-pointer']">
+                  <input type="checkbox" 
+                         :value="position" 
+                         :checked="page.allowedPositions.includes(position) || isStaffPositionRequired(page, position)"
+                         @change="handlePositionChange(page, position)" 
+                         :disabled="isStaffPositionRequired(page, position) || page.locked"
+                         class="hidden" />
                   {{ position }}
+                  <span v-if="isStaffPositionRequired(page, position)" class="text-[8px] opacity-70">(Required)</span>
                 </label>
               </div>
             </div>
@@ -88,12 +126,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { db } from '../../Firebase/Firebase';
 import { 
-  ShieldCheck, ShieldAlert, Clock, 
+  ShieldCheck, ShieldAlert, Clock, Lock as LockIcon, Unlock as UnlockIcon
 } from 'lucide-vue-next'
+
+// Master Admin role identifiers
+const MASTER_ADMIN_ROLES = ['Master Admin', 'isuzu&calapan&master&admin101'];
 
 const loading = ref(false);
 const pages = ref([
@@ -101,55 +142,64 @@ const pages = ref([
     id: 'dashboard', 
     name: 'Dashboard', 
     allowedRoles: [], 
-    allowedPositions: []
+    allowedPositions: [],
+    locked: false
   },
   { 
     id: 'user-management', 
     name: 'User Management', 
     allowedRoles: [], 
-    allowedPositions: []
+    allowedPositions: [],
+    locked: false
   },
   { 
     id: 'approve', 
     name: 'Approve Users', 
     allowedRoles: [], 
-    allowedPositions: []
+    allowedPositions: [],
+    locked: false
   },
   { 
     id: 'inventory', 
     name: 'Inventory', 
     allowedRoles: [], 
-    allowedPositions: []
+    allowedPositions: [],
+    locked: false
   },
   { 
     id: 'transaction-in', 
     name: 'Transaction In', 
     allowedRoles: [], 
-    allowedPositions: []
+    allowedPositions: [],
+    locked: false
   },
   { 
     id: 'transaction-out', 
     name: 'Transaction Out', 
     allowedRoles: [], 
-    allowedPositions: []
+    allowedPositions: [],
+    locked: false
   },
   { 
     id: 'sa-rotation', 
     name: 'Retail Order (SA Rotation)', 
     allowedRoles: [], 
-    allowedPositions: []
+    allowedPositions: [],
+    locked: false
   },
   { 
     id: 'settings', 
     name: 'Settings', 
     allowedRoles: [], 
-    allowedPositions: []
+    allowedPositions: [],
+    locked: false
   },
   { 
     id: 'isuzu-dtr', 
     name: 'DTR Management', 
     allowedRoles: [], 
-    allowedPositions: []
+    allowedPositions: [],
+    locked: false
   }
 ]);
 
@@ -187,6 +237,7 @@ const fetchPageAccess = async () => {
       if (page) {
         page.allowedRoles = pageData.allowedRoles || [];
         page.allowedPositions = pageData.allowedPositions || [];
+        page.locked = pageData.locked || false;
         page.updatedAt = pageData.updatedAt;
       }
     });
@@ -197,6 +248,74 @@ const fetchPageAccess = async () => {
   }
 };
 
+// Helper function to check if a role is Master Admin
+const isMasterAdminRole = (role) => {
+  return MASTER_ADMIN_ROLES.includes(role);
+};
+
+// Handle role checkbox change
+const handleRoleChange = (page, role) => {
+  // Prevent unchecking Master Admin roles
+  if (isMasterAdminRole(role)) {
+    return; // Do nothing - Master Admin cannot be unchecked
+  }
+  
+  const index = page.allowedRoles.indexOf(role);
+  if (index === -1) {
+    page.allowedRoles.push(role);
+  } else {
+    page.allowedRoles.splice(index, 1);
+  }
+  
+  // Update Firestore
+  updatePageAccess(page);
+};
+
+// Check if page has Master Admin role
+const pageHasMasterAdmin = (page) => {
+  return page.allowedRoles.some(r => MASTER_ADMIN_ROLES.includes(r));
+};
+
+// Pages where Staff position should always be required
+const STAFF_REQUIRED_PAGES = ['sa-rotation', 'settings'];
+
+// Check if Staff position is required (when Master Admin is allowed OR for specific pages)
+const isStaffPositionRequired = (page, position) => {
+  // Staff position is required when Master Admin role is allowed
+  if (position === 'Staff' && pageHasMasterAdmin(page)) {
+    return true;
+  }
+  // Staff position is also required for specific pages (Retail Order and Settings)
+  if (position === 'Staff' && STAFF_REQUIRED_PAGES.includes(page.id)) {
+    return true;
+  }
+  return false;
+};
+
+// Handle position checkbox change
+const handlePositionChange = (page, position) => {
+  // Prevent unchecking Staff position when Master Admin is allowed
+  if (isStaffPositionRequired(page, position)) {
+    return; // Do nothing - Staff is required for Master Admin
+  }
+  
+  const index = page.allowedPositions.indexOf(position);
+  if (index === -1) {
+    page.allowedPositions.push(position);
+  } else {
+    page.allowedPositions.splice(index, 1);
+  }
+  
+  // Update Firestore
+  updatePageAccess(page);
+};
+
+// Toggle page lock/unlock
+const togglePageLock = async (page) => {
+  page.locked = !page.locked;
+  await updatePageAccess(page);
+};
+
 // Update page access in Firestore
 const updatePageAccess = async (page) => {
   try {
@@ -204,6 +323,7 @@ const updatePageAccess = async (page) => {
       pageName: page.name,
       allowedRoles: page.allowedRoles,
       allowedPositions: page.allowedPositions,
+      locked: page.locked || false,
       updatedAt: new Date(),
       updatedBy: 'Master Admin'
     });

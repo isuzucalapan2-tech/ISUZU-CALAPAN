@@ -3,6 +3,9 @@ import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../Firebase/Firebase'
 import { useAuthStore } from '../stores/auth'
 
+// Master Admin role identifiers
+const MASTER_ADMIN_ROLES = ['Master Admin', 'isuzu&calapan&master&admin101']
+
 export function usePermissions() {
   const authStore = useAuthStore()
   
@@ -63,6 +66,12 @@ export function usePermissions() {
       await fetchUserRoles()
     }
 
+    // Master Admin bypass - always has access to all pages
+    const userRole = userRoles.value?.role
+    if (MASTER_ADMIN_ROLES.includes(userRole)) {
+      return true
+    }
+
     const config = await fetchPageAccess(pageId)
     if (!config) {
       // If no config exists, allow access by default (or restrict for security)
@@ -75,7 +84,6 @@ export function usePermissions() {
     if (allowedRoles.includes('All')) return true
 
     // Check role match
-    const userRole = userRoles.value?.role
     const roleMatch = allowedRoles.includes(userRole)
 
     // Check position match
@@ -88,6 +96,12 @@ export function usePermissions() {
 
   // Check if user has specific permission level
   const hasPermission = (requiredLevel) => {
+    // Master Admin bypass - has all permissions
+    const userRole = userRoles.value?.role
+    if (MASTER_ADMIN_ROLES.includes(userRole)) {
+      return true
+    }
+
     // First check if permissionMap exists (new structure)
     if (userRoles.value?.permissionMap) {
       const map = userRoles.value.permissionMap
@@ -168,8 +182,7 @@ export function usePermissions() {
 
   // Check if Master Admin
   const isMasterAdmin = computed(() => {
-    return userRoles.value?.role === 'Master Admin' || 
-           userRoles.value?.role === 'isuzu&calapan&master&admin101'
+    return MASTER_ADMIN_ROLES.includes(userRoles.value?.role)
   })
 
   return {

@@ -6,8 +6,13 @@
     </div>
   </div>
 
-  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
+  <div v-else-if="canView" :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
     
+    <!-- View-Only Mode Banner -->
+    <div v-if="!canEdit && !canCreate" class="bg-yellow-500 text-white px-4 py-2 text-center text-[10px] font-black uppercase tracking-widest z-50">
+      <Eye class="w-3 h-3 inline-block mr-1" /> View-Only Mode - You have permission to view but not modify records
+    </div>
+
     <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
         <path d="M0 15 H280 L330 45 H500" stroke="#cc0000" stroke-width="2" />
@@ -143,11 +148,11 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 xl:flex xl:flex-col gap-2 min-w-45 sm:min-w-50">
-              <button @click="openAddModal" class="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-95">
+              <button v-if="canCreate" @click="openAddModal" class="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-95">
                 <Plus class="w-4 h-4" /> Add Item
               </button>
               
-              <button @click="openImportModal" class="flex items-center justify-center gap-2 bg-neutral-800 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all active:scale-95">
+              <button v-if="canCreate" @click="openImportModal" class="flex items-center justify-center gap-2 bg-neutral-800 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all active:scale-95">
                 <Upload class="w-4 h-4" /> Import Excel
               </button>
 
@@ -250,10 +255,10 @@
 
                   <td class="px-4 lg:px-6 py-3 text-center">
                     <div class="flex items-center justify-center gap-1.5 lg:gap-3">
-                      <button @click="editItem(item)" class="bg-neutral-100 hover:bg-blue-600 hover:text-white text-neutral-500 p-2 rounded-xl transition-all active:scale-90">
+                      <button v-if="canEdit" @click="editItem(item)" class="bg-neutral-100 hover:bg-blue-600 hover:text-white text-neutral-500 p-2 rounded-xl transition-all active:scale-90">
                         <Edit class="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                       </button>
-                      <button @click="deleteItem(item)" class="bg-neutral-100 hover:bg-red-600 hover:text-white text-neutral-500 p-2 rounded-xl transition-all active:scale-90">
+                      <button v-if="canDelete" @click="deleteItem(item)" class="bg-neutral-100 hover:bg-red-600 hover:text-white text-neutral-500 p-2 rounded-xl transition-all active:scale-90">
                         <Trash2 class="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                       </button>
                     </div>
@@ -385,7 +390,12 @@
 
             <div class="flex justify-end gap-3 pt-4">
               <button type="button" @click="closeModal" class="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-gray-100 border border-neutral-600/40 transition-all">Cancel</button>
-              <button type="submit" :disabled="isSaving" class="bg-red-600 text-white px-10 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl shadow-red-100 disabled:opacity-50">
+              <button 
+                v-if="canCreate" 
+                type="submit" 
+                :disabled="isSaving" 
+                class="bg-red-600 text-white px-10 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl shadow-red-100 disabled:opacity-50"
+              >
                 {{ isSaving ? 'Syncing...' : 'Confirm' }}
               </button>
             </div>
@@ -479,7 +489,12 @@
               </div>
               <div class="flex gap-2">
                 <button @click="resetImport" class="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-gray-100 rounded-full transition-all">Cancel</button>
-                <button @click="confirmImport" :disabled="isImporting || importPreview.validItems.length === 0" class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50 hover:bg-blue-700 transition-all flex items-center gap-2">
+                <button 
+                  v-if="canCreate"
+                  @click="confirmImport" 
+                  :disabled="isImporting || importPreview.validItems.length === 0" 
+                  class="bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-50 hover:bg-blue-700 transition-all flex items-center gap-2"
+                >
                   <Loader2 v-if="isImporting" class="w-4 h-4 animate-spin" />
                   {{ isImporting ? 'Importing...' : 'Import ' + importPreview.validItems.length + ' Items' }}
                 </button>
@@ -548,6 +563,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch, nextTick, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
 
 import { db } from "../../Firebase/Firebase";
 
@@ -568,6 +584,7 @@ import {
 import Loaders from "../../components/Loaders.vue";
 import { useToast } from "../../composables/useToast";
 import { useExcelExport } from "../../composables/useExcelExport";
+import { usePermissions } from "../../composables/usePermissions";
 
 
 /* ICONS */
@@ -597,7 +614,9 @@ import {
   Printer,
   Info,
   Download,
-  Banknote
+  Banknote,
+  Eye,
+  Lock
 } from "lucide-vue-next";
 
 /*  STATE*/
@@ -617,6 +636,11 @@ const importPreview = ref({ validItems: [], invalidItems: [] });
 const isImporting = ref(false);
 const isPrinting = ref(false);
 const searchVisible = ref(false);
+
+// Permissions
+const router = useRouter();
+const { canView, canEdit, canCreate, canDelete, canAccessPage, fetchUserRoles } = usePermissions();
+const hasInventoryAccess = ref(false);
 
 // Pagination state
 const currentPage = ref(1);
@@ -1748,9 +1772,34 @@ const confirmImport = async () => {
 };
 
 /* =====================
+   PERMISSION CHECKS
+===================== */
+const checkPermissions = async () => {
+  // Refresh user roles from Firestore to get latest permissions
+  await fetchUserRoles();
+  
+  // Check BOTH page access (role/position) AND view permission
+  const hasPageAccess = await canAccessPage('inventory');
+  const hasViewPermission = canView.value; // Checks permissionMap.canView
+  
+  hasInventoryAccess.value = hasPageAccess && hasViewPermission;
+  
+  if (!hasInventoryAccess.value) {
+    router.push('/forbidden');
+    return false;
+  }
+  
+  return true;
+};
+
+/* =====================
    LIFECYCLE
 ===================== */
 onMounted(async () => {
+  // Check permissions first
+  const hasAccess = await checkPermissions();
+  if (!hasAccess) return;
+  
   // Set up real-time listeners instead of one-time load
   await setupInventoryListeners();
   isLoading.value = false;

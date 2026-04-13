@@ -66,11 +66,19 @@
           <p class="px-4 text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] text-left">HR & Attendance</p>
         </div>
 
+
         <router-link v-if="accessiblePages['isuzu-dtr']" to="/admin/isuzu-dtr" 
           class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-neutral-400 font-bold transition-all duration-200 hover:bg-white/5 hover:text-white group" 
           active-class="!bg-neutral-800 !text-white !shadow-lg !translate-x-1">
           <Clock class="w-4 h-4 text-white-500 transition-transform duration-300 group-hover:scale-110 shrink-0" /> 
           <span class="flex-1 text-left text-[10px] uppercase tracking-wider">DTR Management</span>
+        </router-link>
+
+        <router-link v-if="accessiblePages['isuzu-dtr']" to="/admin/attendance-plotting"
+          class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-neutral-400 font-bold transition-all duration-200 hover:bg-white/5 hover:text-white group"
+          active-class="!bg-neutral-800 !text-white !shadow-lg !translate-x-1">
+          <Clock class="w-4 h-4 text-blue-400 transition-transform duration-300 group-hover:scale-110 shrink-0" />
+          <span class="flex-1 text-left text-[10px] uppercase tracking-wider">Attendance Plotting</span>
         </router-link>
 
         <div v-if="hasSystemControl" class="pt-6 pb-2">
@@ -111,7 +119,7 @@
         <router-view />
       </main>
 
-      <nav v-if="!isLoading && visibleMobileNavItems.length > 0" class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] bg-neutral-900 backdrop-blur-lg h-13 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 flex items-center justify-around px-2 border border-white/10">
+      <nav v-if="!isLoading && visibleMobileNavItems.length > 0" class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] bg-neutral-900 backdrop-blur-lg h-14 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 flex items-center justify-around px-2 border border-white/10">
         
         <!-- Dynamic Mobile Navigation Items - Only shows what user has access to -->
         <router-link 
@@ -137,7 +145,7 @@
       </nav>
 
       <!-- Loading State for Mobile Navigation -->
-      <div v-if="isLoading" class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] bg-neutral-900 backdrop-blur-lg h-13 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 flex items-center justify-center px-2 border border-white/10">
+      <div v-if="isLoading" class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] bg-neutral-900 backdrop-blur-lg h-14 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 flex items-center justify-center px-2 border border-white/10">
         <div class="flex items-center gap-2 text-neutral-500">
           <div class="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
           <span class="text-[10px] font-bold uppercase tracking-wider">Loading...</span>
@@ -231,7 +239,7 @@ const visibleMobileNavItems = computed(() => {
       to: '/admin/dashboard',
       icon: LayoutDashboard,
       label: 'Home',
-      activeClass: '!text-white-500 scale-110',
+      activeClass: '!text-white scale-110',
       iconClass: '',
       permission: () => accessiblePages.value.dashboard
     },
@@ -240,7 +248,7 @@ const visibleMobileNavItems = computed(() => {
       to: '/admin/user-management',
       icon: Users,
       label: 'Users',
-      activeClass: '!text-white-500 scale-110',
+      activeClass: '!text-white scale-110',
       iconClass: '',
       permission: () => accessiblePages.value['user-management']
     },
@@ -249,7 +257,7 @@ const visibleMobileNavItems = computed(() => {
       to: '/admin/approve',
       icon: CheckSquare,
       label: 'Approvals',
-      activeClass: '!text-white-500 scale-110',
+      activeClass: '!text-white scale-110',
       iconClass: '',
       permission: () => accessiblePages.value.approve
     },
@@ -258,8 +266,8 @@ const visibleMobileNavItems = computed(() => {
       to: '/admin/sa-rotation',
       icon: ShoppingCart,
       label: 'Retail',
-      activeClass: '!text-white-500 scale-110',
-      iconClass: 'text-white-500',
+      activeClass: '!text-white scale-110',
+      iconClass: 'text-white',
       permission: () => accessiblePages.value['sa-rotation']
     },
     {
@@ -267,8 +275,8 @@ const visibleMobileNavItems = computed(() => {
       to: '/admin/isuzu-dtr',
       icon: Clock,
       label: 'DTR',
-      activeClass: '!text-white-500 scale-110',
-      iconClass: 'text-white-500',
+      activeClass: '!text-white scale-110',
+      iconClass: 'text-white',
       permission: () => accessiblePages.value['isuzu-dtr']
     }
   ];

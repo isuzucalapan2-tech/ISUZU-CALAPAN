@@ -20,7 +20,7 @@
           <h1 class="text-lg md:text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800 leading-tight">
             System <span class="text-red-600">Settings</span>
           </h1>
-          <p class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-[0.2em] md:tracking-[0.3em]">Administrator Console</p>
+          <p class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-[0.2em] md:tracking-[0.3em]">System Configuration</p>
         </div>
       </div>
 
@@ -67,6 +67,13 @@
             class="px-4 py-2.5 md:px-8 md:py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-[10px] md:text-xs tracking-widest isuzu-font whitespace-nowrap"
           >
             <DatabaseIcon class="w-3.5 h-3.5 md:w-4 md:h-4" /> Database
+          </button>
+          <button 
+            @click="activeTab = 'roleposition'" 
+            :class="activeTab === 'roleposition' ? 'bg-white text-red-600 shadow-sm' : 'text-neutral-500 hover:text-neutral-800'"
+            class="px-4 py-2.5 md:px-8 md:py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-[10px] md:text-xs tracking-widest isuzu-font whitespace-nowrap"
+          >
+            <ShieldIcon class="w-3.5 h-3.5 md:w-4 md:h-4" /> Role & Position
           </button>
         </div>
 
@@ -137,7 +144,7 @@
 
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
                 <div v-for="(car, idx) in landingCarPromos" :key="idx" class="bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-sm flex flex-col">
-                  <div class="aspect-video flex items-center justify-center bg-gray-100 relative group shrink-0">
+                  <div class="w-full h-40 md:h-48 flex items-center justify-center bg-gray-100 relative group shrink-0">
                     <label class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
@@ -171,7 +178,7 @@
 
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
                 <div v-for="(part, idx) in landingPartsPromos" :key="idx" class="bg-neutral-800 text-white rounded-2xl overflow-hidden hover:bg-neutral-900 transition-all flex flex-col">
-                  <div class="h-36 md:h-40 flex items-center justify-center bg-white/10 relative group shrink-0">
+                  <div class="w-full h-36 md:h-40 flex items-center justify-center bg-white/10 relative group shrink-0">
                     <label class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
@@ -336,9 +343,248 @@
               </div>
             </div>
           </div>
+
+          <div v-if="activeTab === 'roleposition'" class="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+            <!-- Roles Management Section -->
+            <div class="bg-white/40 backdrop-blur-sm rounded-2xl p-6 md:p-10 relative overflow-hidden border border-gray-200">
+              <div class="absolute top-0 right-0 p-4 opacity-5 hidden sm:block">
+                <ShieldIcon class="w-24 h-24 md:w-32 md:h-32 text-neutral-900" />
+              </div>
+
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 md:mb-10 gap-4">
+                <h2 class="text-lg md:text-xl font-black flex items-center gap-3 uppercase tracking-tighter text-neutral-800">
+                  <span class="w-1.5 h-6 md:w-2 md:h-8 bg-red-600 rounded-full"></span> Roles Management
+                </h2>
+                <button 
+                  @click="showAddRoleModal = true"
+                  type="button"
+                  class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
+                >
+                  <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" /> 
+                  <span>Add Role</span>
+                </button>
+              </div>
+
+              <div class="relative z-10">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="border-b border-gray-200">
+                        <th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-500">Role Name</th>
+                        <th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-500 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="role in roles" :key="role.id" class="border-b border-gray-100 hover:bg-gray-50/50">
+                        <td class="py-3 px-4">
+                          <input 
+                            v-if="editingRole && editingRole.id === role.id"
+                            v-model="editingRole.roleName"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-red-500"
+                          />
+                          <span v-else class="text-sm font-medium text-neutral-800">{{ role.roleName }}</span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                          <div class="flex items-center justify-end gap-2">
+                            <button 
+                              v-if="editingRole && editingRole.id === role.id"
+                              @click="saveRoleEdit"
+                              class="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                            >
+                              <CheckCircleIcon class="w-4 h-4" />
+                            </button>
+                            <button 
+                              v-if="editingRole && editingRole.id === role.id"
+                              @click="cancelRoleEdit"
+                              class="p-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+                            >
+                              <XIcon class="w-4 h-4" />
+                            </button>
+                            <button 
+                              v-else-if="!isProtectedRole(role.roleName)"
+                              @click="startEditRole(role)"
+                              class="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                            >
+                              <PencilIcon class="w-4 h-4" />
+                            </button>
+                            <button 
+                              v-if="!isProtectedRole(role.roleName)"
+                              @click="deleteRole(role)"
+                              class="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                            >
+                              <TrashIcon class="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr v-if="roles.length === 0">
+                        <td colspan="2" class="py-8 text-center text-gray-400 text-sm">No roles found</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Positions Management Section -->
+            <div class="bg-white/40 backdrop-blur-sm rounded-2xl p-6 md:p-10 relative overflow-hidden border border-gray-200">
+              <div class="absolute top-0 right-0 p-4 opacity-5 hidden sm:block">
+                <UserIcon class="w-24 h-24 md:w-32 md:h-32 text-neutral-900" />
+              </div>
+
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 md:mb-10 gap-4">
+                <h2 class="text-lg md:text-xl font-black flex items-center gap-3 uppercase tracking-tighter text-neutral-800">
+                  <span class="w-1.5 h-6 md:w-2 md:h-8 bg-red-600 rounded-full"></span> Positions Management
+                </h2>
+                <button 
+                  @click="showAddPositionModal = true"
+                  type="button"
+                  class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
+                >
+                  <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" /> 
+                  <span>Add Position</span>
+                </button>
+              </div>
+
+              <div class="relative z-10">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="border-b border-gray-200">
+                        <th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-500">Position Name</th>
+                        <th class="py-3 px-4 text-[10px] font-black uppercase tracking-widest text-gray-500 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="position in positions" :key="position.id" class="border-b border-gray-100 hover:bg-gray-50/50">
+                        <td class="py-3 px-4">
+                          <input 
+                            v-if="editingPosition && editingPosition.id === position.id"
+                            v-model="editingPosition.position"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-red-500"
+                          />
+                          <span v-else class="text-sm font-medium text-neutral-800">{{ position.position }}</span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                          <div class="flex items-center justify-end gap-2">
+                            <button 
+                              v-if="editingPosition && editingPosition.id === position.id"
+                              @click="savePositionEdit"
+                              class="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                            >
+                              <CheckCircleIcon class="w-4 h-4" />
+                            </button>
+                            <button 
+                              v-if="editingPosition && editingPosition.id === position.id"
+                              @click="cancelPositionEdit"
+                              class="p-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+                            >
+                              <XIcon class="w-4 h-4" />
+                            </button>
+                            <button 
+                              v-else-if="!isProtectedPosition(position.position)"
+                              @click="startEditPosition(position)"
+                              class="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                            >
+                              <PencilIcon class="w-4 h-4" />
+                            </button>
+                            <button 
+                              v-if="!isProtectedPosition(position.position)"
+                              @click="deletePosition(position)"
+                              class="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                            >
+                              <TrashIcon class="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr v-if="positions.length === 0">
+                        <td colspan="2" class="py-8 text-center text-gray-400 text-sm">No positions found</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </main>
+
+    <!-- Add Role Modal - Moved outside main container -->
+    <div v-if="showAddRoleModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-black uppercase tracking-tight text-neutral-800">Add New Role</h3>
+          <button @click="showAddRoleModal = false" class="p-2 hover:bg-gray-100 rounded-lg transition">
+            <XIcon class="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Role Name</label>
+            <input 
+              v-model="newRoleName"
+              placeholder="e.g., Manager, Supervisor"
+              class="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:border-red-500"
+            />
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button 
+              @click="showAddRoleModal = false"
+              class="flex-1 px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest border border-gray-200 hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+            <button 
+              @click="addRole"
+              :disabled="!newRoleName.trim()"
+              class="flex-1 bg-green-600 text-white px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-green-700 transition disabled:opacity-50"
+            >
+              Add Role
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Position Modal - Moved outside main container -->
+    <div v-if="showAddPositionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-black uppercase tracking-tight text-neutral-800">Add New Position</h3>
+          <button @click="showAddPositionModal = false" class="p-2 hover:bg-gray-100 rounded-lg transition">
+            <XIcon class="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Position Name</label>
+            <input 
+              v-model="newPositionName"
+              placeholder="e.g., Sales Associate, Technician"
+              class="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:border-red-500"
+            />
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button 
+              @click="showAddPositionModal = false"
+              class="flex-1 px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest border border-gray-200 hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+            <button 
+              @click="addPosition"
+              :disabled="!newPositionName.trim()"
+              class="flex-1 bg-green-600 text-white px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-green-700 transition disabled:opacity-50"
+            >
+              Add Position
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="absolute bottom-0 left-0 w-full z-0 opacity-10 pointer-events-none transform rotate-180">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
@@ -351,7 +597,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useAuth } from "../../composables/useAuth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
 import { db } from "../../Firebase/Firebase";
 import Loaders from "../../components/Loaders.vue";
 
@@ -359,7 +605,8 @@ import {
   SettingsIcon, LogOutIcon, UserIcon,
   UserCogIcon, SaveIcon,
   Loader2Icon, CheckCircleIcon, XCircleIcon,
-  MoonIcon, SunIcon, LayoutIcon, Database as DatabaseIcon, RefreshCw
+  MoonIcon, SunIcon, LayoutIcon, Database as DatabaseIcon, RefreshCw,
+  ShieldIcon, PlusIcon, PencilIcon, TrashIcon, XIcon
 } from "lucide-vue-next";
 
 // Add/Remove Car and Part Promo handlers
@@ -500,9 +747,295 @@ const saveSuccess = ref(false);
 const saveError = ref(null);
 const syncing = ref(false);
 
+/* ===== ROLE & POSITION MANAGEMENT ===== */
+const roles = ref([]);
+const positions = ref([]);
+const newRoleName = ref("");
+const newPositionName = ref("");
+const editingRole = ref(null);
+const editingPosition = ref(null);
+const showAddRoleModal = ref(false);
+const showAddPositionModal = ref(false);
+
+// Fetch roles from Role_Access collection
+const fetchRoles = async () => {
+  try {
+    const roleSnapshot = await getDocs(collection(db, 'Role_Access'));
+    roles.value = roleSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })).filter(role => role.roleName);
+  } catch (err) {
+    console.error('Error fetching roles:', err);
+  }
+};
+
+// Fetch positions from Position_Access collection
+const fetchPositions = async () => {
+  try {
+    const positionSnapshot = await getDocs(collection(db, 'Position_Access'));
+    positions.value = positionSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })).filter(position => position.position);
+  } catch (err) {
+    console.error('Error fetching positions:', err);
+  }
+};
+
+// Get next role ID (101, 102, 103...)
+const getNextRoleId = () => {
+  let maxId = 100;
+  roles.value.forEach(role => {
+    const match = role.id.match(/(\d+)$/);
+    if (match) {
+      const id = parseInt(match[1]);
+      if (id > maxId) maxId = id;
+    }
+  });
+  return maxId + 1;
+};
+
+// Get next position ID (201, 202, 203...)
+const getNextPositionId = () => {
+  let maxId = 200;
+  positions.value.forEach(position => {
+    const match = position.id.match(/(\d+)$/);
+    if (match) {
+      const id = parseInt(match[1]);
+      if (id > maxId) maxId = id;
+    }
+  });
+  return maxId + 1;
+};
+
+// Helper function to convert text to title case (sentence case)
+const toTitleCase = (str) => {
+  return str.replace(/\w\S*/g, (txt) => {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+};
+
+// Check if role is protected (Master Admin or Staff)
+const isProtectedRole = (roleName) => {
+  const protectedRoles = ['Master Admin', 'Staff'];
+  return protectedRoles.includes(roleName);
+};
+
+// Check if position is protected (Staff)
+const isProtectedPosition = (positionName) => {
+  const protectedPositions = ['Staff'];
+  return protectedPositions.includes(positionName);
+};
+
+// Check for duplicate role (case-insensitive)
+const isDuplicateRole = (roleName, excludeId = null) => {
+  const normalizedName = roleName.toLowerCase().trim();
+  return roles.value.some(role => 
+    role.id !== excludeId && 
+    role.roleName.toLowerCase().trim() === normalizedName
+  );
+};
+
+// Check for duplicate position (case-insensitive)
+const isDuplicatePosition = (positionName, excludeId = null) => {
+  const normalizedName = positionName.toLowerCase().trim();
+  return positions.value.some(position => 
+    position.id !== excludeId && 
+    position.position.toLowerCase().trim() === normalizedName
+  );
+};
+
+// Add new role
+const addRole = async () => {
+  if (!newRoleName.value.trim()) return;
+  
+  const formattedRoleName = toTitleCase(newRoleName.value.trim());
+  
+  // Check for duplicates
+  if (isDuplicateRole(formattedRoleName)) {
+    alert(`Role "${formattedRoleName}" already exists!`);
+    return;
+  }
+  
+  // Check for protected role names
+  if (isProtectedRole(formattedRoleName)) {
+    alert(`Cannot add protected role "${formattedRoleName}"!`);
+    return;
+  }
+  
+  try {
+    const nextId = getNextRoleId();
+    const roleKey = formattedRoleName.toLowerCase().replace(/\s+/g, '&');
+    const docId = `isuzu&calapan&${roleKey}${nextId}`;
+    
+    await setDoc(doc(db, 'Role_Access', docId), {
+      roleName: formattedRoleName
+    });
+    
+    await fetchRoles();
+    newRoleName.value = "";
+    showAddRoleModal.value = false;
+    alert('Role added successfully!');
+  } catch (err) {
+    console.error('Error adding role:', err);
+    alert('Failed to add role');
+  }
+};
+
+// Add new position
+const addPosition = async () => {
+  if (!newPositionName.value.trim()) return;
+  
+  const formattedPositionName = toTitleCase(newPositionName.value.trim());
+  
+  // Check for duplicates
+  if (isDuplicatePosition(formattedPositionName)) {
+    alert(`Position "${formattedPositionName}" already exists!`);
+    return;
+  }
+  
+  // Check for protected position names
+  if (isProtectedPosition(formattedPositionName)) {
+    alert(`Cannot add protected position "${formattedPositionName}"!`);
+    return;
+  }
+  
+  try {
+    const nextId = getNextPositionId();
+    const docId = `isuzu$calapan$position${nextId}`;
+    
+    await setDoc(doc(db, 'Position_Access', docId), {
+      position: formattedPositionName
+    });
+    
+    await fetchPositions();
+    newPositionName.value = "";
+    showAddPositionModal.value = false;
+    alert('Position added successfully!');
+  } catch (err) {
+    console.error('Error adding position:', err);
+    alert('Failed to add position');
+  }
+};
+
+// Start editing role
+const startEditRole = (role) => {
+  editingRole.value = { ...role };
+};
+
+// Cancel role edit
+const cancelRoleEdit = () => {
+  editingRole.value = null;
+};
+
+// Save role edit
+const saveRoleEdit = async () => {
+  if (!editingRole.value || !editingRole.value.roleName.trim()) return;
+  
+  const formattedRoleName = toTitleCase(editingRole.value.roleName.trim());
+  
+  // Check for duplicates (excluding current role)
+  if (isDuplicateRole(formattedRoleName, editingRole.value.id)) {
+    alert(`Role "${formattedRoleName}" already exists!`);
+    return;
+  }
+  
+  // Check for protected role names
+  if (isProtectedRole(formattedRoleName)) {
+    alert(`Cannot change to protected role "${formattedRoleName}"!`);
+    return;
+  }
+  
+  try {
+    await setDoc(doc(db, 'Role_Access', editingRole.value.id), {
+      roleName: formattedRoleName
+    });
+    
+    await fetchRoles();
+    editingRole.value = null;
+    alert('Role updated successfully!');
+  } catch (err) {
+    console.error('Error updating role:', err);
+    alert('Failed to update role');
+  }
+};
+
+// Start editing position
+const startEditPosition = (position) => {
+  editingPosition.value = { ...position };
+};
+
+// Cancel position edit
+const cancelPositionEdit = () => {
+  editingPosition.value = null;
+};
+
+// Save position edit
+const savePositionEdit = async () => {
+  if (!editingPosition.value || !editingPosition.value.position.trim()) return;
+  
+  const formattedPositionName = toTitleCase(editingPosition.value.position.trim());
+  
+  // Check for duplicates (excluding current position)
+  if (isDuplicatePosition(formattedPositionName, editingPosition.value.id)) {
+    alert(`Position "${formattedPositionName}" already exists!`);
+    return;
+  }
+  
+  // Check for protected position names
+  if (isProtectedPosition(formattedPositionName)) {
+    alert(`Cannot change to protected position "${formattedPositionName}"!`);
+    return;
+  }
+  
+  try {
+    await setDoc(doc(db, 'Position_Access', editingPosition.value.id), {
+      position: formattedPositionName
+    });
+    
+    await fetchPositions();
+    editingPosition.value = null;
+    alert('Position updated successfully!');
+  } catch (err) {
+    console.error('Error updating position:', err);
+    alert('Failed to update position');
+  }
+};
+
+// Delete role
+const deleteRole = async (role) => {
+  if (!confirm(`Are you sure you want to delete the role "${role.roleName}"?`)) return;
+  
+  try {
+    await deleteDoc(doc(db, 'Role_Access', role.id));
+    await fetchRoles();
+    alert('Role deleted successfully!');
+  } catch (err) {
+    console.error('Error deleting role:', err);
+    alert('Failed to delete role');
+  }
+};
+
+// Delete position
+const deletePosition = async (position) => {
+  if (!confirm(`Are you sure you want to delete the position "${position.position}"?`)) return;
+  
+  try {
+    await deleteDoc(doc(db, 'Position_Access', position.id));
+    await fetchPositions();
+    alert('Position deleted successfully!');
+  } catch (err) {
+    console.error('Error deleting position:', err);
+    alert('Failed to delete position');
+  }
+};
+
 /* ===== SETTINGS ===== */
 const defaultSettings = {
-  general: { companyName: "", companyEmail: "", phone: "", language: "en", theme: "light" },
+  general: { 
+    theme: "light", // light, dark, auto
+  },
 };
 
 const settings = ref(JSON.parse(JSON.stringify(defaultSettings)));
@@ -568,11 +1101,13 @@ const saveSettings = async () => {
   saveError.value = null;
   
   try {
-    await setDoc(doc(db, "users", user.value.uid, "settings", "preferences"), settings.value);
+    // Store settings at Administrator/{uid}/settings/settings
+    await setDoc(doc(db, "Administrator", user.value.uid, "settings", "settings"), settings.value);
     applyTheme(settings.value.general.theme);
     saveSuccess.value = true;
     setTimeout(() => (saveSuccess.value = false), 3000);
   } catch (error) {
+    console.error("Error saving settings:", error);
     saveError.value = "Failed to save settings";
   } finally {
     isSaving.value = false;
@@ -667,27 +1202,22 @@ const runSync = async () => {
 onMounted(async () => {
   if (user.value) {
     try {
-      const snap = await getDoc(doc(db, "users", user.value.uid, "settings", "preferences"));
+      // Load settings from Administrator/{uid}/settings/settings
+      const snap = await getDoc(doc(db, "Administrator", user.value.uid, "settings", "settings"));
       if (snap.exists()) {
-        settings.value = snap.data();
-      }
-      // Load About Us & Slogan
-      const aboutSnap = await getDoc(doc(db, "users", user.value.uid, "settings", "aboutUs"));
-      if (aboutSnap.exists()) {
-        aboutUsText.value = aboutSnap.data().aboutUsText || aboutUsText.value;
-        sloganText.value = aboutSnap.data().sloganText || sloganText.value;
-      }
-      // Load Brand Identity
-      const brandSnap = await getDoc(doc(db, "users", user.value.uid, "settings", "brandIdentity"));
-      if (brandSnap.exists()) {
-        missionText.value = brandSnap.data().mission || missionText.value;
-        visionText.value = brandSnap.data().vision || visionText.value;
-        valuesText.value = brandSnap.data().values || valuesText.value;
+        settings.value = { ...defaultSettings, ...snap.data() };
+        // Apply the loaded theme
+        applyTheme(settings.value.general.theme);
       }
     } catch (error) {
       console.error("Error loading settings:", error);
     }
   }
+  
+  // Fetch roles and positions
+  await fetchRoles();
+  await fetchPositions();
+  
   isLoading.value = false;
 });
 
@@ -702,26 +1232,7 @@ const tabHoverClass = computed(() =>
     : "hover:bg-gray-100 hover:text-blue-700"
 );
 
-</script>
 
-<style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.5s; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-input, textarea, select { background-color: white !important; color: #1a202c !important; }
-.dark label { color: #a0aec0; }
-.slide-fade-enter-active, .slide-fade-leave-active {
-  transition: all 0.4s ease;
-}
-.slide-fade-enter-from, .slide-fade-leave-to {
-  transform: translateX(20px);
-  opacity: 0;
-}
-.isuzu-font {
-  font-family: 'IsuzuFont', sans-serif;
-}
-</style>
-
-<script>
 const carUnitImage = ref(null);
 const serviceImage = ref(null);
 
@@ -744,4 +1255,22 @@ function onServiceImageUpload(e) {
   };
   reader.readAsDataURL(file);
 }
+
 </script>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active { transition: opacity 0.5s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+input, textarea, select { background-color: white !important; color: #1a202c !important; }
+.dark label { color: #a0aec0; }
+.slide-fade-enter-active, .slide-fade-leave-active {
+  transition: all 0.4s ease;
+}
+.slide-fade-enter-from, .slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+.isuzu-font {
+  font-family: 'IsuzuFont', sans-serif;
+}
+</style>
