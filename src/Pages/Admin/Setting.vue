@@ -144,7 +144,7 @@
 
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
                 <div v-for="(car, idx) in landingCarPromos" :key="idx" class="bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-sm flex flex-col">
-                  <div class="aspect-video flex items-center justify-center bg-gray-100 relative group shrink-0">
+                  <div class="w-full h-40 md:h-48 flex items-center justify-center bg-gray-100 relative group shrink-0">
                     <label class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
@@ -178,7 +178,7 @@
 
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
                 <div v-for="(part, idx) in landingPartsPromos" :key="idx" class="bg-neutral-800 text-white rounded-2xl overflow-hidden hover:bg-neutral-900 transition-all flex flex-col">
-                  <div class="h-36 md:h-40 flex items-center justify-center bg-white/10 relative group shrink-0">
+                  <div class="w-full h-36 md:h-40 flex items-center justify-center bg-white/10 relative group shrink-0">
                     <label class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
@@ -1232,26 +1232,7 @@ const tabHoverClass = computed(() =>
     : "hover:bg-gray-100 hover:text-blue-700"
 );
 
-</script>
 
-<style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.5s; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-input, textarea, select { background-color: white !important; color: #1a202c !important; }
-.dark label { color: #a0aec0; }
-.slide-fade-enter-active, .slide-fade-leave-active {
-  transition: all 0.4s ease;
-}
-.slide-fade-enter-from, .slide-fade-leave-to {
-  transform: translateX(20px);
-  opacity: 0;
-}
-.isuzu-font {
-  font-family: 'IsuzuFont', sans-serif;
-}
-</style>
-
-<script>
 const carUnitImage = ref(null);
 const serviceImage = ref(null);
 
@@ -1274,4 +1255,22 @@ function onServiceImageUpload(e) {
   };
   reader.readAsDataURL(file);
 }
+
 </script>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active { transition: opacity 0.5s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+input, textarea, select { background-color: white !important; color: #1a202c !important; }
+.dark label { color: #a0aec0; }
+.slide-fade-enter-active, .slide-fade-leave-active {
+  transition: all 0.4s ease;
+}
+.slide-fade-enter-from, .slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+.isuzu-font {
+  font-family: 'IsuzuFont', sans-serif;
+}
+</style>
