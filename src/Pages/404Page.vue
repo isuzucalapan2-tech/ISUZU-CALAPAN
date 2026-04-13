@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-[#111111] flex flex-col items-center justify-center px-6 text-center font-sans">
+  <div class="min-h-screen bg-neutral-900 flex flex-col items-center justify-center px-6 text-center font-sans">
 
     <div class="relative flex flex-col items-center">
       
       <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <span class="text-[15rem] md:text-[25rem] font-light text-white/5 select-none leading-none isuzu-font">
+        <span class="text-[11rem] md:text-[40rem] font-light text-white/5 select-none leading-none isuzu-font">
           4O4
         </span>
       </div>
@@ -16,20 +16,25 @@
         </h1>
 
         <div class="space-y-4">
-          <p class="text-[#999999] text-sm md:text-base max-w-xs mx-auto">
+          <p class="text-neutral-300 text-sm md:text-base max-w-xs mx-auto">
             Oops! It seems the page you are looking for has moved or no longer exists.
           </p>
 
           <p class="mt-8">
             <router-link 
               to="/" 
-              class="inline-flex items-center gap-2 text-[#0063dc] hover:text-[#2d88ff] transition-colors text-sm md:text-base font-medium"
+              class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-500 transition-colors text-sm md:text-base font-medium"
             >
               <HouseIcon :size="18" />
               Return to the home
             </router-link>
           </p>
         </div>
+      </div>
+
+      <div class="relative top-60 z-10 text-center isuzu-font mt-auto">
+        <h1 class="text-sm md:text-2xl tracking-tighter font-black text-red-600 uppercase">ISUZU</h1>
+        <p class="text-[5px] md:text-[7px] tracking-[0.4em] text-neutral-500 font-bold uppercase">Calapan City</p>
       </div>
     </div>
   </div>
