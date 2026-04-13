@@ -105,14 +105,6 @@
         </div>
       </div>
 
-      <div class="absolute bottom-10 left-0 right-0 z-10 flex justify-center text-white text-[9px] uppercase tracking-[0.2em] opacity-60 font-bold">
-        <div class="flex items-center divide-x divide-white/20 isuzu-font">
-          <span class="px-5">HR Department</span>
-          <span class="px-5">Sales Department</span>
-          <span class="px-5">After Sales Department</span>
-          <span class="px-5">Admin Department</span>
-        </div>
-      </div>
     </div>
 
   </div>

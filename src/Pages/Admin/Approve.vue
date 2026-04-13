@@ -3,8 +3,13 @@
     <div class="animate-spin rounded-full h-12 w-12 border-4 border-red-600 border-t-transparent"></div>
   </div>
 
-  <div v-else :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
+  <div v-else-if="canView" :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
     
+    <!-- View-Only Mode Banner -->
+    <div v-if="!canEdit && !canCreate" class="bg-yellow-500 text-white px-4 py-2 text-center text-[10px] font-black uppercase tracking-widest z-50">
+      <Eye class="w-3 h-3 inline-block mr-1" /> View-Only Mode - You have permission to view but not modify records
+    </div>
+
     <div class="absolute top-0 left-0 w-full z-0 opacity-5 pointer-events-none">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
         <path d="M0 15 H280 L330 45 H500" stroke="currentColor" stroke-width="1" />
@@ -34,6 +39,20 @@
     <main class="flex-1 relative z-10 overflow-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-10 lg:pb-12">
       <div class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         
+        <!-- Critical Alert: Multiple Master Admins -->
+        <div v-if="masterAdminWarning" class="bg-red-50 border-2 border-red-500 rounded-xl p-4 sm:p-6 animate-pulse">
+          <div class="flex items-start gap-3">
+            <AlertTriangle class="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h2 class="text-sm font-bold text-red-700 uppercase tracking-wide">System Critical Alert</h2>
+              <p class="text-xs text-red-600 mt-1">
+                Multiple Master Admins detected ({{ masterAdminCount }}). Only one Master Admin is allowed in the system. 
+                Please transfer privileges immediately to resolve this issue.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div class="flex flex-col gap-3 sm:gap-4">
           <div class="relative w-full">
             <Search class="w-3 h-3 sm:w-4 sm:h-4 absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 opacity-30" />
@@ -90,7 +109,7 @@
                   <td class="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4">
                     <select v-model="user.selectedRole" class="bg-transparent border border-neutral-200 rounded px-1 sm:px-2 py-1 sm:py-1.5 text-[8px] sm:text-[10px] font-bold outline-none focus:border-red-500 transition-colors uppercase w-full">
                       <option disabled value="">Select Role</option>
-                      <option v-for="role in roleOptions" :key="role" :value="role">{{ role }}</option>
+                      <option v-for="role in availableRoleOptions" :key="role" :value="role">{{ role }}</option>
                     </select>
                   </td>
 
@@ -123,12 +142,26 @@
                   </td>
                   <td class="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4">
                     <div class="flex justify-end items-center gap-0.5 sm:gap-1">
-                      <button @click="approveUser(user)" class="p-1 sm:p-2 text-neutral-400 hover:text-green-600 transition-colors" title="Approve">
+                      <button 
+                        v-if="canEdit" 
+                        @click="approveUser(user)" 
+                        class="p-1 sm:p-2 text-neutral-400 hover:text-green-600 transition-colors" 
+                        title="Approve"
+                      >
                         <Check class="w-3 h-3 sm:w-4 sm:h-4" />
                       </button>
-                      <button @click="denyUser(user)" class="p-1 sm:p-2 text-neutral-400 hover:text-red-600 transition-colors" title="Deny">
+                      <button 
+                        v-if="canEdit" 
+                        @click="denyUser(user)" 
+                        class="p-1 sm:p-2 text-neutral-400 hover:text-red-600 transition-colors" 
+                        title="Deny"
+                      >
                         <Trash2 class="w-3 h-3 sm:w-4 sm:h-4" />
                       </button>
+                      <div v-if="!canEdit" class="flex items-center gap-1 text-neutral-300" title="No permission to approve/deny users">
+                        <Lock class="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span class="text-[9px] uppercase">Locked</span>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -184,13 +217,17 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
+import { useRouter } from "vue-router";
 import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, setDoc, getDocs } from "firebase/firestore";
 import { db } from "../../Firebase/Firebase";
+import { useMasterAdmin } from "../../composables/useMasterAdmin";
+import { usePermissions } from "../../composables/usePermissions";
 
 /* ICONS */
 import { 
   Search, X, ChevronLeft, ChevronRight, Check, Trash2, 
-  UserPlus, Users, AlertCircle 
+  UserPlus, Users, AlertCircle, Crown, AlertTriangle,
+  Eye, Lock
 } from "lucide-vue-next";
 
 /* STATE */
@@ -209,9 +246,33 @@ const selectedPermission = ref("");
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
+// Master Admin State
+const masterAdminWarning = ref(false);
+const masterAdminCount = ref(0);
+const masterAdminExists = ref(false);
+
+// Initialize Master Admin composable
+const masterAdmin = useMasterAdmin();
+
+// Permissions
+const router = useRouter();
+const { canView, canEdit, canCreate, canDelete, canAccessPage, fetchUserRoles, isMasterAdmin } = usePermissions();
+const hasApproveAccess = ref(false);
+
 /* THEME COMPUTED (Sync with your system settings) */
 const themeClass = computed(() => "bg-gray-100 text-neutral-900");
 const themeStyle = computed(() => ({}));
+
+// Filtered role options - hide Master Admin if one already exists
+const availableRoleOptions = computed(() => {
+  // If no Master Admin exists, show all roles
+  if (!masterAdminExists.value) return roleOptions.value;
+  
+  // If Master Admin exists, filter out Master Admin role
+  return roleOptions.value.filter(role => 
+    role !== 'Master Admin' && role !== 'isuzu&calapan&master&admin101'
+  );
+});
 
 /* FETCH LOGIC - Dynamically fetch all roles and positions from collections */
 const fetchPositionOptions = async () => {
@@ -318,11 +379,56 @@ const displayedPages = computed(() => {
 const hasActiveFilters = computed(() => searchQuery.value !== "");
 const clearAllFilters = () => searchQuery.value = "";
 
-onMounted(() => {
+const checkMasterAdminStatus = async () => {
+  try {
+    const result = await masterAdmin.checkMasterAdminCount();
+    masterAdminWarning.value = result.hasMultiple;
+    masterAdminCount.value = result.count;
+    masterAdminExists.value = result.count > 0;
+  } catch (err) {
+    console.error("Error checking Master Admin status:", err);
+  }
+};
+
+/* =====================
+   PERMISSION CHECKS
+===================== */
+const checkPermissions = async () => {
+  // Refresh user roles from Firestore to get latest permissions
+  await fetchUserRoles();
+  
+  // Check BOTH page access (role/position) AND view permission
+  const hasPageAccess = await canAccessPage('approve');
+  const hasViewPermission = canView.value; // Checks permissionMap.canView
+  
+  hasApproveAccess.value = hasPageAccess && hasViewPermission;
+  
+  if (!hasApproveAccess.value) {
+    router.push('/forbidden');
+    return false;
+  }
+  
+  return true;
+};
+
+onMounted(async () => {
+  // Check permissions first
+  const hasAccess = await checkPermissions();
+  if (!hasAccess) return;
+  
   loadPendingUsers();
   fetchPositionOptions();
   fetchRoleOptions();
   fetchPermissionOptions();
+  
+  // Check Master Admin status for warning display
+  checkMasterAdminStatus();
+  
+  // Listen for Master Admin warning events from router
+  window.addEventListener('master-admin-warning', (event) => {
+    masterAdminWarning.value = true;
+    masterAdminCount.value = event.detail?.count || 0;
+  });
 });
 </script>
 

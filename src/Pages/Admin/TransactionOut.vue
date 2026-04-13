@@ -191,7 +191,7 @@
                         @click="cancelSale(item)" 
                         class="bg-neutral-800 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-red-600 transition-all flex items-center gap-1"
                       >
-                        <X class="w-3 h-3" /> Cancel
+                        <X class="w-3 h-3" /> Return
                       </button>
                       <div 
                         v-else-if="!canEdit && item.statusOUT === 'Completed' && isCancelAvailable(item)"
@@ -200,8 +200,8 @@
                         <Lock class="w-3 h-3" /> Locked
                       </div>
 
-                      <span v-if="item.statusOUT === 'Cancelled'" class="text-red-600 flex items-center gap-1 text-[9px] font-black">
-                        <XCircle class="w-4 h-4" /> CANCELLED
+                      <span v-if="item.statusOUT === 'Returned'" class="text-red-600 flex items-center gap-1 text-[9px] font-black">
+                        <XCircle class="w-4 h-4" /> RETURNED
                       </span>
                     </div>
                   </td>
@@ -667,7 +667,7 @@ const availableCategories = computed(() => {
 });
 
 // Available statuses
-const availableStatuses = ['Pending', 'Completed', 'Cancelled'];
+const availableStatuses = ['Pending', 'Completed', 'Returned'];
 
 // Total import value for preview
 const totalImportValue = computed(() => {
@@ -861,7 +861,7 @@ const getStatusBadgeClass = (status) => {
   switch (status) {
     case 'Completed':
       return 'bg-green-100 text-green-800';
-    case 'Cancelled':
+    case 'Returned':
       return 'bg-red-100 text-red-800';
     case 'Pending':
     default:
@@ -1194,7 +1194,7 @@ const processSale = async (transaction) => {
 const cancelSale = async (transaction) => {
   // Check if cancel is still available (within 3 days)
   if (!isCancelAvailable(transaction)) {
-    toast.error('Cancel action has expired. Sales can only be cancelled within 3 days of the transaction date.', 'Cancel Expired');
+    toast.error('Return action has expired. Sales can only be returned within 3 days of the transaction date.', 'Return Expired');
     return;
   }
   
@@ -1244,21 +1244,21 @@ const cancelSale = async (transaction) => {
     
     const transactionRef = doc(db, TRANSACTION_COLLECTION, cleanPartNo, TRANSACTION_OUT_SUBCOLLECTION, transaction.id);
     await updateDoc(transactionRef, {
-      statusOUT: 'Cancelled',
+      statusOUT: 'Returned',
       processedAt: new Date(),
       restoredInventoryQty: newQty
     });
     
     toast.success(
-      `Sale cancelled! Restored ${transaction.quantity} units. Inventory updated from ${currentQty} to ${newQty}.`,
-      'Sale Cancelled'
+      `Sale Returned! Restored ${transaction.quantity} units. Inventory updated from ${currentQty} to ${newQty}.`,
+      'Sale Returned'
     );
     
     // Refresh the list
     await loadTransactionOut();
   } catch (error) {
     console.error('Error cancelling sale:', error);
-    toast.error('Failed to cancel sale: ' + error.message, 'Error');
+    toast.error('Failed to return sale: ' + error.message, 'Error');
   } finally {
     processingItems.value[transaction.id] = false;
   }
@@ -1587,7 +1587,7 @@ const printTransactionOut = (data, title) => {
         }
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-completed { background: #d1fae5; color: #065f46; }
-        .status-cancelled { background: #fee2e2; color: #991b1b; }
+        .status-returned { background: #fee2e2; color: #991b1b; }
         
         .footer {
           margin-top: 20px;
@@ -1658,7 +1658,7 @@ const printTransactionOut = (data, title) => {
         <tbody>
           ${data.map(item => {
             const statusClass = item.statusOUT === 'Completed' ? 'status-completed' : 
-                               item.statusOUT === 'Cancelled' ? 'status-cancelled' : 'status-pending';
+                               item.statusOUT === 'Returned' ? 'status-returned' : 'status-pending';
             const statusText = item.statusOUT || 'Pending';
             const soldAt = item.soldAt ? new Date(item.soldAt.toDate ? item.soldAt.toDate() : item.soldAt).toLocaleString() : '-';
             return `

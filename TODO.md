@@ -1,32 +1,36 @@
-# Role Management Fix - TODO
+# Dashboard Granular Permissions Implementation
 
-## Task
-Fix and verify the "Add Role" and "Add Position" modals in Settings page
+## Requirements Confirmed:
+- [x] Master Admin sees all sections regardless of page permissions
+- [x] Completely hide unauthorized sections (no "Restricted Access" message)
+- [x] Just hide the UI (keep existing data fetching)
+- [x] Quick actions completely hidden for unauthorized pages
 
-## Current Status
-- Setting.vue has "Role & Position" tab with CRUD functionality
-- Modals exist in code but may have issues
+## Implementation Steps:
 
-## Steps to Complete
+### Step 1: Update Dashboard.vue - Add Permission Checks
+- [x] Import `getAccessiblePages` and `isMasterAdmin` from usePermissions
+- [x] Add `accessiblePages` ref and `isMasterAdmin` computed property
+- [x] Create computed properties for section visibility:
+  - [x] `canViewInventory` - checks 'inventory' page access
+  - [x] `canViewServiceAdvisor` - checks 'sa-rotation' page access
+  - [x] `canViewTransactions` - checks 'transaction-in' or 'transaction-out' access
+  - [x] `canViewFinancials` - checks 'transaction-out' access
+  - [x] `canViewUserManagement` - checks 'approve' or 'user-management' access
+- [x] Fetch accessible pages on mount
 
-### 1. Verify Modal Implementation
-- [ ] Check modal template structure
-- [ ] Verify all required imports (PlusIcon, XIcon, etc.)
-- [ ] Check modal state variables (showAddRoleModal, showAddPositionModal)
-- [ ] Verify modal open/close functions
+### Step 2: Add v-if Directives to Sections
+- [x] Inventory Overview section - v-if="canViewInventory"
+- [x] Service Advisor Overview section - v-if="canViewServiceAdvisor"
+- [x] Transactions Overview section - v-if="canViewTransactions"
+- [x] Financial Highlights section - v-if="canViewFinancials"
+- [x] User Management Stats section - v-if="canViewUserManagement"
 
-### 2. Fix Any Issues Found
-- [ ] Fix modal positioning/z-index if needed
-- [ ] Fix any missing imports or variables
-- [ ] Ensure modals are properly placed in DOM hierarchy
+### Step 3: Filter Quick Actions
+- [ ] Filter quick actions array based on accessible pages
+- [ ] Only show quick actions for pages user can access
 
-### 3. Test the Flow
-- [ ] Open "Role & Position" tab
-- [ ] Click "Add Role" button - modal should appear
-- [ ] Add a new role - should save to Firestore
-- [ ] Verify role appears in the list
-- [ ] Repeat for "Add Position"
-
-### 4. Fix UserManagement.vue (Dynamic Fetching)
-- [ ] Change from hardcoded IDs to dynamic fetching
-- [ ] Ensure new roles appear in UserManagement dropdown
+### Step 4: Testing
+- [ ] Test with Master Admin (should see all)
+- [ ] Test with limited permissions (only see allowed sections)
+- [ ] Verify quick actions are properly filtered

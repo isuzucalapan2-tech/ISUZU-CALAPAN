@@ -401,13 +401,14 @@
                               <XIcon class="w-4 h-4" />
                             </button>
                             <button 
-                              v-else
+                              v-else-if="!isProtectedRole(role.roleName)"
                               @click="startEditRole(role)"
                               class="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                             >
                               <PencilIcon class="w-4 h-4" />
                             </button>
                             <button 
+                              v-if="!isProtectedRole(role.roleName)"
                               @click="deleteRole(role)"
                               class="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                             >
@@ -481,13 +482,14 @@
                               <XIcon class="w-4 h-4" />
                             </button>
                             <button 
-                              v-else
+                              v-else-if="!isProtectedPosition(position.position)"
                               @click="startEditPosition(position)"
                               class="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                             >
                               <PencilIcon class="w-4 h-4" />
                             </button>
                             <button 
+                              v-if="!isProtectedPosition(position.position)"
                               @click="deletePosition(position)"
                               class="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                             >
@@ -814,12 +816,55 @@ const toTitleCase = (str) => {
   });
 };
 
+// Check if role is protected (Master Admin or Staff)
+const isProtectedRole = (roleName) => {
+  const protectedRoles = ['Master Admin', 'Staff'];
+  return protectedRoles.includes(roleName);
+};
+
+// Check if position is protected (Staff)
+const isProtectedPosition = (positionName) => {
+  const protectedPositions = ['Staff'];
+  return protectedPositions.includes(positionName);
+};
+
+// Check for duplicate role (case-insensitive)
+const isDuplicateRole = (roleName, excludeId = null) => {
+  const normalizedName = roleName.toLowerCase().trim();
+  return roles.value.some(role => 
+    role.id !== excludeId && 
+    role.roleName.toLowerCase().trim() === normalizedName
+  );
+};
+
+// Check for duplicate position (case-insensitive)
+const isDuplicatePosition = (positionName, excludeId = null) => {
+  const normalizedName = positionName.toLowerCase().trim();
+  return positions.value.some(position => 
+    position.id !== excludeId && 
+    position.position.toLowerCase().trim() === normalizedName
+  );
+};
+
 // Add new role
 const addRole = async () => {
   if (!newRoleName.value.trim()) return;
   
+  const formattedRoleName = toTitleCase(newRoleName.value.trim());
+  
+  // Check for duplicates
+  if (isDuplicateRole(formattedRoleName)) {
+    alert(`Role "${formattedRoleName}" already exists!`);
+    return;
+  }
+  
+  // Check for protected role names
+  if (isProtectedRole(formattedRoleName)) {
+    alert(`Cannot add protected role "${formattedRoleName}"!`);
+    return;
+  }
+  
   try {
-    const formattedRoleName = toTitleCase(newRoleName.value.trim());
     const nextId = getNextRoleId();
     const roleKey = formattedRoleName.toLowerCase().replace(/\s+/g, '&');
     const docId = `isuzu&calapan&${roleKey}${nextId}`;
@@ -842,8 +887,21 @@ const addRole = async () => {
 const addPosition = async () => {
   if (!newPositionName.value.trim()) return;
   
+  const formattedPositionName = toTitleCase(newPositionName.value.trim());
+  
+  // Check for duplicates
+  if (isDuplicatePosition(formattedPositionName)) {
+    alert(`Position "${formattedPositionName}" already exists!`);
+    return;
+  }
+  
+  // Check for protected position names
+  if (isProtectedPosition(formattedPositionName)) {
+    alert(`Cannot add protected position "${formattedPositionName}"!`);
+    return;
+  }
+  
   try {
-    const formattedPositionName = toTitleCase(newPositionName.value.trim());
     const nextId = getNextPositionId();
     const docId = `isuzu$calapan$position${nextId}`;
     
@@ -875,8 +933,21 @@ const cancelRoleEdit = () => {
 const saveRoleEdit = async () => {
   if (!editingRole.value || !editingRole.value.roleName.trim()) return;
   
+  const formattedRoleName = toTitleCase(editingRole.value.roleName.trim());
+  
+  // Check for duplicates (excluding current role)
+  if (isDuplicateRole(formattedRoleName, editingRole.value.id)) {
+    alert(`Role "${formattedRoleName}" already exists!`);
+    return;
+  }
+  
+  // Check for protected role names
+  if (isProtectedRole(formattedRoleName)) {
+    alert(`Cannot change to protected role "${formattedRoleName}"!`);
+    return;
+  }
+  
   try {
-    const formattedRoleName = toTitleCase(editingRole.value.roleName.trim());
     await setDoc(doc(db, 'Role_Access', editingRole.value.id), {
       roleName: formattedRoleName
     });
@@ -904,8 +975,21 @@ const cancelPositionEdit = () => {
 const savePositionEdit = async () => {
   if (!editingPosition.value || !editingPosition.value.position.trim()) return;
   
+  const formattedPositionName = toTitleCase(editingPosition.value.position.trim());
+  
+  // Check for duplicates (excluding current position)
+  if (isDuplicatePosition(formattedPositionName, editingPosition.value.id)) {
+    alert(`Position "${formattedPositionName}" already exists!`);
+    return;
+  }
+  
+  // Check for protected position names
+  if (isProtectedPosition(formattedPositionName)) {
+    alert(`Cannot change to protected position "${formattedPositionName}"!`);
+    return;
+  }
+  
   try {
-    const formattedPositionName = toTitleCase(editingPosition.value.position.trim());
     await setDoc(doc(db, 'Position_Access', editingPosition.value.id), {
       position: formattedPositionName
     });
@@ -949,7 +1033,9 @@ const deletePosition = async (position) => {
 
 /* ===== SETTINGS ===== */
 const defaultSettings = {
-  general: { companyName: "", companyEmail: "", phone: "", language: "en", theme: "light" },
+  general: { 
+    theme: "light", // light, dark, auto
+  },
 };
 
 const settings = ref(JSON.parse(JSON.stringify(defaultSettings)));
@@ -1015,11 +1101,13 @@ const saveSettings = async () => {
   saveError.value = null;
   
   try {
-    await setDoc(doc(db, "users", user.value.uid, "settings", "preferences"), settings.value);
+    // Store settings at Administrator/{uid}/settings/settings
+    await setDoc(doc(db, "Administrator", user.value.uid, "settings", "settings"), settings.value);
     applyTheme(settings.value.general.theme);
     saveSuccess.value = true;
     setTimeout(() => (saveSuccess.value = false), 3000);
   } catch (error) {
+    console.error("Error saving settings:", error);
     saveError.value = "Failed to save settings";
   } finally {
     isSaving.value = false;
@@ -1114,22 +1202,12 @@ const runSync = async () => {
 onMounted(async () => {
   if (user.value) {
     try {
-      const snap = await getDoc(doc(db, "users", user.value.uid, "settings", "preferences"));
+      // Load settings from Administrator/{uid}/settings/settings
+      const snap = await getDoc(doc(db, "Administrator", user.value.uid, "settings", "settings"));
       if (snap.exists()) {
-        settings.value = snap.data();
-      }
-      // Load About Us & Slogan
-      const aboutSnap = await getDoc(doc(db, "users", user.value.uid, "settings", "aboutUs"));
-      if (aboutSnap.exists()) {
-        aboutUsText.value = aboutSnap.data().aboutUsText || aboutUsText.value;
-        sloganText.value = aboutSnap.data().sloganText || sloganText.value;
-      }
-      // Load Brand Identity
-      const brandSnap = await getDoc(doc(db, "users", user.value.uid, "settings", "brandIdentity"));
-      if (brandSnap.exists()) {
-        missionText.value = brandSnap.data().mission || missionText.value;
-        visionText.value = brandSnap.data().vision || visionText.value;
-        valuesText.value = brandSnap.data().values || valuesText.value;
+        settings.value = { ...defaultSettings, ...snap.data() };
+        // Apply the loaded theme
+        applyTheme(settings.value.general.theme);
       }
     } catch (error) {
       console.error("Error loading settings:", error);
