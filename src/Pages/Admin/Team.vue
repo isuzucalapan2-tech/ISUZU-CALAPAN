@@ -24,7 +24,7 @@
 					<div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
 						<div v-for="member in leftSideTeam" :key="member.name" 
 							:class="[cardClass, 'rounded-xl p-6 flex flex-col items-center border border-neutral-100 bg-neutral-50/50']">
-							<img :src="member.photo" :alt="member.name" class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl object-cover border border-neutral-200 mb-5 p-1 bg-white" />
+							<img :src="member.photo" :alt="member.name" class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl object-cover border border-red-600 mb-2 p-1 bg-white" />
 							
 							<h2 class="text-base font-bold text-neutral-950 text-center leading-tight">{{ member.name }}</h2>
 							
@@ -41,7 +41,7 @@
 							:class="[cardClass, 'h-full rounded-xl p-8 flex flex-col items-center justify-center border-2 border-red-600/20 bg-white relative']">
 							
 							<img :src="projectManager.photo" :alt="projectManager.name" 
-								class="w-32 h-32 sm:w-36 sm:h-36 rounded-4xl object-cover border-4 border-neutral-100 mb-6 p-1.5 bg-white" />
+								class="w-32 h-32 sm:w-36 sm:h-36 rounded-4xl object-cover border-4 border-neutral-600 mb-6 p-1.5 bg-white" />
 							
 							<h2 class="text-2xl font-extrabold text-neutral-950 text-center mb-1.5 leading-tight">{{ projectManager.name }}</h2>
 							
@@ -73,38 +73,6 @@
 import { ref, computed } from 'vue'
 
 const team = ref([
-<<<<<<< Updated upstream
-	{
-		name: 'Arnold Z. Adeva',
-		role: 'Lead Developer',
-		photo: 'https://randomuser.me/api/portraits/men/32.jpg',
-		bio: 'Arnold leads the team with expertise in full-stack development, ensuring robust and scalable solutions.'
-	},
-	{
-		name: 'Michael Joshua F. Manga',
-		role: 'UI/UX Designer | Frontend Developer',
-		photo: 'https://randomuser.me/api/portraits/women/44.jpg',
-		bio: 'Michael crafts intuitive user interfaces and seamless user experiences, bringing designs to life on the frontend.'
-	},
-	{
-		name: 'Dominic Medrano',
-		role: 'Project Manager',
-		photo: 'https://randomuser.me/api/portraits/men/21.jpg',
-		bio: 'Dominic organizes, coordinates, and drives the team to deliver projects efficiently and on schedule.'
-	},
-	{
-		name: 'Donabel V. Gasco',
-		role: 'Backend Engineer | QA Specialist',
-		photo: 'https://randomuser.me/api/portraits/women/68.jpg',
-		bio: 'Donabel develops and maintains backend systems, and ensures product quality through rigorous testing.'
-	},
-	{
-		name: 'Ansel Phillip C. Laniosa',
-		role: 'Backend Engineer | QA Specialist',
-		photo: 'https://randomuser.me/api/portraits/men/65.jpg',
-		bio: 'Ansel specializes in backend development and quality assurance, keeping the server and database reliable.'
-	}
-=======
   {
     name: 'Arnold Z. Adeva',
     role: 'Lead Developer',
@@ -135,7 +103,6 @@ const team = ref([
     photo: '/Team/APL.jpg',
     bio: 'Ansel specializes in backend development and quality assurance, keeping the server and database reliable.'
   }
->>>>>>> Stashed changes
 ])
 
 // Filter data for the specific layout

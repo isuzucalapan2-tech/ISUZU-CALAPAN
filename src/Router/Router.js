@@ -1,4 +1,3 @@
-import EggieChan from '../Pages/Admin/eggiechan.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
@@ -78,7 +77,7 @@ import PageControl from '../Pages/Admin/PageControl.vue'
 import TransactionIn from '../Pages/Admin/TransactionIn.vue'
 import TransactionOut from '../Pages/Admin/TransactionOut.vue'
 import IsuzuDTR from '../Pages/ISUZU-DTR/IsuzuDTR.vue'
-
+import Team from '../Pages/Admin/Team.vue'
 import Unauthorized from '../Pages/401Page.vue'
 import Forbidden from '../Pages/403Page.vue'
 import NotFound from '../Pages/404Page.vue'
@@ -191,9 +190,9 @@ const routes = [
         meta: { requiresAuth: true, pageId: 'isuzu-dtr' } // Same access as DTR Management
       },
       { 
-        path: 'eggiechan',
-        name: 'EggieChan',
-        component: EggieChan,
+        path: 'team',
+        name: 'Team',
+        component: Team,
         meta: { requiresAuth: true }
       }
     ]
