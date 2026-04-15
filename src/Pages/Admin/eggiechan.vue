@@ -9,7 +9,7 @@
 		<main class="flex-1 relative z-10 overflow-auto">
 			<div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 xl:p-12 space-y-8 sm:space-y-10 lg:space-y-16">
 				
-				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-neutral-200 pb-6">
+				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-neutral-200 pb-2">
 					<div>
 						<h1 :class="['text-2xl sm:text-4xl font-black text-neutral-950 isuzu-font uppercase tracking-tighter flex items-center gap-3', textClass]">
 							<span class="w-1.5 h-8 sm:h-10 bg-red-600"></span>
@@ -41,7 +41,7 @@
 							:class="[cardClass, 'h-full rounded-xl p-8 flex flex-col items-center justify-center border-2 border-red-600/20 bg-white relative']">
 							
 							<img :src="projectManager.photo" :alt="projectManager.name" 
-								class="w-32 h-32 sm:w-36 sm:h-36 rounded-[2rem] object-cover border-4 border-neutral-100 mb-6 p-1.5 bg-white" />
+								class="w-32 h-32 sm:w-36 sm:h-36 rounded-4xl object-cover border-4 border-neutral-100 mb-6 p-1.5 bg-white" />
 							
 							<h2 class="text-2xl font-extrabold text-neutral-950 text-center mb-1.5 leading-tight">{{ projectManager.name }}</h2>
 							
