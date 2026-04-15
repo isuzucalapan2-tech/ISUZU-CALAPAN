@@ -3,7 +3,7 @@
     
     <aside class="hidden md:flex md:flex-col w-64 bg-neutral-900 text-white border-r border-neutral-900 shadow-2xl shrink-0">
       <div class="h-16 flex items-center px-8">
-        <router-link to="/admin/eggiechan" class="focus:outline-none">
+        <router-link to="/admin/team" class="focus:outline-none">
           <span class="text-xl font-black text-red-600 tracking-[0.2em] uppercase isuzu-font">ISUZU</span>
         </router-link>
       </div>
@@ -137,7 +137,7 @@
         </router-link>
 
         <!-- Logistics Floating Action Button (if user has any logistics access) -->
-        <div v-if="hasLogisticsSales" class="relative -mt-10 flex-shrink-0">
+        <div v-if="hasLogisticsSales" class="relative -mt-10 shrink-0">
           <button @click="isLogisticsOpen = !isLogisticsOpen" 
             class="w-14 h-14 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-red-900/20 active:scale-90 transition-all duration-300 border-2 border-neutral-900"
             :class="{'rotate-45 bg-neutral-800! border-white/20': isLogisticsOpen}">

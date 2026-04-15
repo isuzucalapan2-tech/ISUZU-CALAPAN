@@ -1,49 +1,57 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6 py-12">
-    <div class="text-center">
-      <div class="flex justify-center mb-6">
-        <div class="p-4 bg-red-100 rounded-full">
-          <CircleAlert :size="64" class="text-red-600" />
-        </div>
+  <div class="min-h-screen bg-neutral-900 flex flex-col items-center justify-center px-6 text-center font-sans">
+
+    <div class="relative flex flex-col items-center">
+      
+      <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <span class="text-[11rem] md:text-[40rem] font-light text-white/5 select-none leading-none isuzu-font">
+          4O4
+        </span>
       </div>
 
-      <h1 class="text-9xl font-extrabold text-gray-900 tracking-widest isuzu-font">
-        4<span class="text-red-600">o</span>4
-      </h1>
-      
-      <div class="bg-indigo-600 px-4 text-sm text-white rounded rotate-12 absolute -mt-20 ml-32 hidden sm:block">
-        Page Not Found
-      </div>
-      
-      <p class="mt-4 text-gray-600 text-lg max-w-md mx-auto">
-        Sorry, the page you are looking for doesn't exist or has been moved to another universe.
-      </p>
+      <div class="relative z-10">
+        
+        <h1 class="text-3xl md:text-4xl font-light text-white mb-4">
+          Page Not Found
+        </h1>
 
-      <div class="mt-10">
+        <div class="space-y-4">
+          <p class="text-neutral-300 text-sm md:text-base max-w-xs mx-auto">
+            Oops! It seems the page you are looking for has moved or no longer exists.
+          </p>
+
+          <p class="mt-8">
             <router-link 
-            to="/" 
-            class="group relative inline-flex items-center gap-3 px-8 py-3.5 overflow-hidden rounded-xl bg-slate-900 text-white transition-all duration-300 ease-out hover:ring-2 hover:ring-indigo-500 hover:ring-offset-2"
+              to="/" 
+              class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-500 transition-colors text-sm md:text-base font-medium"
             >
-            <span class="absolute inset-0 w-full h-full bg-linear-to-br from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"></span>
-            
-            <span class="relative flex items-center gap-2 text-sm tracking-wide uppercase isuzu-font">
-                <Home 
-                :size="18" 
-                class="transition-transform duration-300 group-hover:-translate-y-0.5" 
-                />
-                Back to Home
-            </span>
+              <HouseIcon :size="18" />
+              Return to the home
             </router-link>
+          </p>
         </div>
+      </div>
+
+      <div class="relative top-60 z-10 text-center isuzu-font mt-auto">
+        <h1 class="text-sm md:text-2xl tracking-tighter font-black text-red-600 uppercase">ISUZU</h1>
+        <p class="text-[5px] md:text-[7px] tracking-[0.4em] text-neutral-500 font-bold uppercase">Calapan City</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { CircleAlert, Home } from 'lucide-vue-next';
+import { 
+  House as HouseIcon, 
+} from 'lucide-vue-next';
 </script>
 
 <style scoped>
+div {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .isuzu-font {
   font-family: 'IsuzuFont', sans-serif;
 }

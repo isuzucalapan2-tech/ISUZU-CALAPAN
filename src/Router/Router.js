@@ -1,8 +1,66 @@
-import EggieChan from '../Pages/Admin/eggiechan.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '../Firebase/Firebase'
+
+// Master Admin role identifiers
+const MASTER_ADMIN_ROLES = ['Master Admin', 'isuzu&calapan&master&admin101']
+
+// Global state for multiple Master Admin warning
+let multipleMasterAdminsWarning = false
+let masterAdminCheckPromise = null
+
+// Check Master Admin count across all users
+const checkMasterAdminCount = async () => {
+  // Return cached promise if already checking
+  if (masterAdminCheckPromise) {
+    return masterAdminCheckPromise
+  }
+  
+  masterAdminCheckPromise = (async () => {
+    try {
+      const adminsRef = collection(db, 'Administrator')
+      const adminsSnapshot = await getDocs(adminsRef)
+      
+      let masterAdminCount = 0
+      
+      for (const adminDoc of adminsSnapshot.docs) {
+        const adminId = adminDoc.id
+        const roleDocRef = doc(db, 'Administrator', adminId, 'Roles', 'Default_Roles')
+        const roleDoc = await getDoc(roleDocRef)
+        
+        if (roleDoc.exists()) {
+          const roleData = roleDoc.data()
+          if (MASTER_ADMIN_ROLES.includes(roleData.role)) {
+            masterAdminCount++
+          }
+        }
+      }
+      
+      multipleMasterAdminsWarning = masterAdminCount > 1
+      return { count: masterAdminCount, hasMultiple: masterAdminCount > 1 }
+    } catch (err) {
+      console.error('Error checking Master Admin count:', err)
+      return { count: 0, hasMultiple: false }
+    } finally {
+      // Reset promise after 5 seconds to allow future checks
+      setTimeout(() => {
+        masterAdminCheckPromise = null
+      }, 5000)
+    }
+  })()
+  
+  return masterAdminCheckPromise
+}
+
+// Export function to check warning state
+export const hasMultipleMasterAdmins = () => multipleMasterAdminsWarning
+
+// Export function to manually refresh check
+export const refreshMasterAdminCheck = () => {
+  masterAdminCheckPromise = null
+  return checkMasterAdminCount()
+}
 
 import LandingPage from '../Pages/LandingPage.vue'
 import Login from '../Pages/Login.vue'
@@ -19,7 +77,7 @@ import PageControl from '../Pages/Admin/PageControl.vue'
 import TransactionIn from '../Pages/Admin/TransactionIn.vue'
 import TransactionOut from '../Pages/Admin/TransactionOut.vue'
 import IsuzuDTR from '../Pages/ISUZU-DTR/IsuzuDTR.vue'
-
+import Team from '../Pages/Admin/Team.vue'
 import Unauthorized from '../Pages/401Page.vue'
 import Forbidden from '../Pages/403Page.vue'
 import NotFound from '../Pages/404Page.vue'
@@ -132,9 +190,9 @@ const routes = [
         meta: { requiresAuth: true, pageId: 'isuzu-dtr' } // Same access as DTR Management
       },
       { 
-        path: 'eggiechan',
-        name: 'EggieChan',
-        component: EggieChan,
+        path: 'team',
+        name: 'Team',
+        component: Team,
         meta: { requiresAuth: true }
       }
     ]
@@ -190,7 +248,7 @@ async function checkPageAccess(pageId, userId) {
     const userPosition = userRoles.position
     
     // Check if Master Admin - always has access
-    if (userRole === 'Master Admin' || userRole === 'isuzu&calapan&master&admin101') {
+    if (MASTER_ADMIN_ROLES.includes(userRole)) {
       return true
     }
     
@@ -261,8 +319,7 @@ async function handleNavigation(to, from, next, authStore) {
     }
     
     const userRoles = roleDoc.data()
-    const isMaster = userRoles.role === 'Master Admin' || 
-                     userRoles.role === 'isuzu&calapan&master&admin101'
+    const isMaster = MASTER_ADMIN_ROLES.includes(userRoles.role)
     
     if (!isMaster) {
       return next({ name: 'Forbidden' })
@@ -275,6 +332,24 @@ async function handleNavigation(to, from, next, authStore) {
     return next({ 
       name: 'Login', 
       query: { session: 'expired', reason: 'timeout' } 
+    })
+  }
+  
+  // 7. Check Master Admin count (for all authenticated routes)
+  if (isAuthenticated) {
+    // Run check in background (don't block navigation)
+    checkMasterAdminCount().then(result => {
+      if (result.hasMultiple) {
+        console.warn('SYSTEM CRITICAL: Multiple Master Admins detected:', result.count)
+        // Emit event for global warning banner
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('master-admin-warning', {
+            detail: { count: result.count }
+          }))
+        }
+      }
+    }).catch(err => {
+      console.error('Failed to check Master Admin count:', err)
     })
   }
   

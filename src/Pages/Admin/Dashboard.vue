@@ -29,7 +29,7 @@
             </div>
           </div>
 
-          <section class="space-y-6">
+          <section v-if="canViewInventory" class="space-y-6">
             <div class="flex items-center gap-3 mb-2">
               <div class="bg-red-600 p-2 rounded-xl">
                 <Boxes class="w-5 h-5 text-white" />
@@ -319,7 +319,7 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-3 mt-8 mb-4">
+          <div v-if="canViewFinancials" class="flex items-center gap-3 mt-8 mb-4">
             <div class="bg-green-600 p-2 rounded-xl">
               <TrendingUp class="w-5 h-5 text-white" />
             </div>
@@ -409,7 +409,7 @@
 
           <div class="flex items-center gap-2 pb-1 border-b-2 border-neutral-600/40 mb-6"></div>
 
-          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5 items-stretch">
+          <section v-if="canViewUserManagement" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5 items-stretch">
             <div :class="[cardClass, 'rounded-3xl p-4 sm:p-6 lg:p-8 border border-neutral-600/40 relative overflow-hidden group']" :style="cardStyle">
               <div class="absolute -right-6 -bottom-6 opacity-15 rotate-12 group-hover:scale-110 transition-transform duration-500">
                 <UserCheck class="w-40 h-40" :class="isDarkMode ? 'text-white' : 'text-neutral-900'" />
@@ -498,16 +498,11 @@
               <div class="flex-1 min-h-40 relative flex items-center justify-center px-4">
                 <canvas ref="approvalChart" class="max-h-45"></canvas>
               </div>
-
-              <div :class="['mt-4 pt-4 border-t flex justify-between items-center', isDarkMode ? 'border-gray-700' : 'border-neutral-300']">
-                <span :class="['text-[9px] font-black uppercase tracking-widest italic', subTextClass]">Live Analytics</span>
-                <button @click="openMatrixModal" :class="['text-[9px] font-black uppercase hover:underline', isDarkMode ? 'text-yellow-400' : 'text-yellow-700']">View Matrix</button>
-              </div>
             </div>
           </section>
 
           <!-- Service Advisor Integration Section -->
-          <section class="space-y-6">
+          <section v-if="canViewServiceAdvisor" class="space-y-6">
             <div class="flex items-center gap-3 mb-6">
               <div class="bg-purple-600 p-2 rounded-xl shadow-lg">
                 <Users class="w-5 h-5 text-white" />
@@ -598,7 +593,7 @@
             </div>
           </section>
 
-          <section class="space-y-8">          
+          <section v-if="canViewTransactions" class="space-y-8">          
             <div class="flex items-center gap-3 pb-3 border-b-2 border-blue-600 mb-6">
               <div class="flex -space-x-2">
                 <ArrowDownCircle class="w-7 h-7 text-blue-600 bg-white rounded-full shadow-sm" />
@@ -869,102 +864,6 @@
           <path d="M0 45 H170 L220 15 H500" stroke="#cc0000" stroke-width="2" />
         </svg>
       </div>
-
-      <!-- Access Matrix Modal -->
-      <div v-if="showMatrixModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-none" @click="showMatrixModal = false"></div>
-        <div :class="[cardClass, 'relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl border']" :style="cardStyle">
-          <!-- Modal Header -->
-          <div class="flex items-center justify-between p-4 border-b" :class="isDarkMode ? 'border-gray-700' : 'border-gray-200'">
-            <div class="flex items-center gap-3">
-              <div class="bg-red-600 p-2 rounded-xl">
-                <PieChart class="w-5 h-5 text-white" />
-              </div>
-              <h2 :class="['text-xl font-black uppercase tracking-tighter isuzu-font', textClass]">Access <span class="text-red-600">Matrix</span></h2>
-            </div>
-            <button @click="showMatrixModal = false" class="p-2 transition-colors">
-              <X class="w-5 h-5" :class="subTextClass" />
-            </button>
-          </div>
-
-          <!-- Modal Content -->
-          <div class="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-            <!-- Legend -->
-            <div class="flex flex-wrap gap-4 mb-6">
-              <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                <span :class="['text-xs font-bold uppercase', subTextClass]">Full Access</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <span :class="['text-xs font-bold uppercase', subTextClass]">Partial Access</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-gray-400"></div>
-                <span :class="['text-xs font-bold uppercase', subTextClass]">No Access</span>
-              </div>
-            </div>
-
-            <!-- Matrix Table -->
-            <div class="overflow-x-auto -mx-2 sm:mx-0">
-              <div class="inline-block min-w-full align-middle">
-                <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']">
-                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Page / Module</th>
-                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Master Admin</th>
-                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Admin</th>
-                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Manager</th>
-                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">Sales Agent</th>
-                    <th :class="['p-2 sm:p-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center', subTextClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">AfterSales</th>
-                  </tr>
-                </thead>
-                <tbody :class="['divide-y', isDarkMode ? 'divide-gray-700' : 'divide-gray-200']">
-                  <tr v-for="row in accessMatrix" :key="row.page" :class="isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'">
-                    <td :class="['p-2 sm:p-3 text-[9px] sm:text-[11px] font-bold uppercase', textClass, 'border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-                      {{ row.page }}
-                    </td>
-                    <td v-for="role in row.roles" :key="role.name" :class="['p-2 sm:p-3 text-center border', isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-                      <div class="flex items-center justify-center">
-                        <div :class="[
-                          'w-6 h-6 rounded-full flex items-center justify-center',
-                          role.access === 'full' ? 'bg-green-500' :
-                          role.access === 'partial' ? 'bg-yellow-500' : 'bg-gray-400'
-                        ]">
-                          <CheckCircle v-if="role.access === 'full'" class="w-4 h-4 text-white" />
-                          <AlertTriangle v-else-if="role.access === 'partial'" class="w-3 h-3 text-white" />
-                          <XCircle v-else class="w-4 h-4 text-white" />
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Summary Stats -->
-            <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-              <div :class="['p-3 sm:p-4 rounded-2xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200']">
-                <p :class="['text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Total Pages</p>
-                <p :class="['text-2xl font-black', textClass]">{{ accessMatrix.length }}</p>
-              </div>
-              <div :class="['p-3 sm:p-4 rounded-2xl border', isDarkMode ? 'bg-green-900/30 border-green-800' : 'bg-green-50 border-green-200']">
-                <p :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Full Access</p>
-                <p class="text-2xl font-black text-green-500">{{ fullAccessCount }}</p>
-              </div>
-              <div :class="['p-3 sm:p-4 rounded-2xl border', isDarkMode ? 'bg-yellow-900/30 border-yellow-800' : 'bg-yellow-50 border-yellow-200']">
-                <p :class="['text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">Partial Access</p>
-                <p class="text-2xl font-black text-yellow-500">{{ partialAccessCount }}</p>
-              </div>
-              <div :class="['p-3 sm:p-4 rounded-2xl border', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200']">
-                <p :class="['text-[10px] font-black uppercase tracking-widest mb-1', subTextClass]">No Access</p>
-                <p :class="['text-2xl font-black', isDarkMode ? 'text-gray-400' : 'text-gray-500']">{{ noAccessCount }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -1021,10 +920,18 @@ const tableRowClass = computed(() => isDarkMode.value ? 'hover:bg-gray-800' : 'h
 
 /* ===== STATE ===== */
 const { user, isAuthenticated } = useAuth();
-const { canAccessPage, fetchUserRoles } = usePermissions();
+const { canAccessPage, fetchUserRoles, getAccessiblePages, isMasterAdmin } = usePermissions();
 const router = useRouter();
 const isLoading = ref(true);
 const hasDashboardAccess = ref(false);
+const accessiblePages = ref([]);
+
+// Permission-based section visibility
+const canViewInventory = computed(() => isMasterAdmin.value || accessiblePages.value.includes('inventory'));
+const canViewServiceAdvisor = computed(() => isMasterAdmin.value || accessiblePages.value.includes('sa-rotation'));
+const canViewTransactions = computed(() => isMasterAdmin.value || accessiblePages.value.includes('transaction-in') || accessiblePages.value.includes('transaction-out'));
+const canViewFinancials = computed(() => isMasterAdmin.value || accessiblePages.value.includes('transaction-out'));
+const canViewUserManagement = computed(() => isMasterAdmin.value || accessiblePages.value.includes('approve') || accessiblePages.value.includes('user-management'));
 
 const inventoryItems = ref([]);
 const pendingUsers = ref([]);
@@ -1317,27 +1224,6 @@ const topSellingPart = computed(() => {
 
 const pendingUsersCount = computed(() => pendingUsers.value.length);
 const approvedUsersCount = computed(() => approvedUsers.value.length);
-
-/* ===== MATRIX MODAL STATE ===== */
-const showMatrixModal = ref(false);
-
-const accessMatrix = ref([
-  { page: 'Dashboard', roles: [{name: 'Master Admin', access: 'full'}, {name: 'Admin', access: 'full'}, {name: 'Manager', access: 'full'}, {name: 'Sales Agent', access: 'partial'}, {name: 'AfterSales', access: 'partial'}] },
-  { page: 'Inventory', roles: [{name: 'Master Admin', access: 'full'}, {name: 'Admin', access: 'full'}, {name: 'Manager', access: 'full'}, {name: 'Sales Agent', access: 'none'}, {name: 'AfterSales', access: 'none'}] },
-  { page: 'Transaction In', roles: [{name: 'Master Admin', access: 'full'}, {name: 'Admin', access: 'full'}, {name: 'Manager', access: 'full'}, {name: 'Sales Agent', access: 'partial'}, {name: 'AfterSales', access: 'none'}] },
-  { page: 'Transaction Out', roles: [{name: 'Master Admin', access: 'full'}, {name: 'Admin', access: 'full'}, {name: 'Manager', access: 'full'}, {name: 'Sales Agent', access: 'full'}, {name: 'AfterSales', access: 'none'}] },
-  { page: 'User Management', roles: [{name: 'Master Admin', access: 'full'}, {name: 'Admin', access: 'full'}, {name: 'Manager', access: 'none'}, {name: 'Sales Agent', access: 'none'}, {name: 'AfterSales', access: 'none'}] },
-  { page: 'SA Rotation', roles: [{name: 'Master Admin', access: 'full'}, {name: 'Admin', access: 'full'}, {name: 'Manager', access: 'partial'}, {name: 'Sales Agent', access: 'none'}, {name: 'AfterSales', access: 'full'}] },
-  { page: 'Settings', roles: [{name: 'Master Admin', access: 'full'}, {name: 'Admin', access: 'partial'}, {name: 'Manager', access: 'none'}, {name: 'Sales Agent', access: 'none'}, {name: 'AfterSales', access: 'none'}] }
-]);
-
-const fullAccessCount = computed(() => accessMatrix.value.flatMap(r => r.roles).filter(r => r.access === 'full').length);
-const partialAccessCount = computed(() => accessMatrix.value.flatMap(r => r.roles).filter(r => r.access === 'partial').length);
-const noAccessCount = computed(() => accessMatrix.value.flatMap(r => r.roles).filter(r => r.access === 'none').length);
-
-const openMatrixModal = () => {
-  showMatrixModal.value = true;
-};
 
 /* ===== SERVICE ADVISOR STATE ===== */
 const serviceAdvisors = ref([]);
@@ -2005,13 +1891,16 @@ watch([pendingUsers, approvedUsers], () => {
 onMounted(async () => {
   // Check permissions first
   await fetchUserRoles();
-  hasDashboardAccess.value = canAccessPage('Dashboard');
+  hasDashboardAccess.value = await canAccessPage('Dashboard');
   
   if (!hasDashboardAccess.value) {
     isLoading.value = false;
     router.push('/403');
     return;
   }
+
+  // Fetch accessible pages for granular dashboard permissions
+  accessiblePages.value = await getAccessiblePages();
 
   await setupInventoryListeners();
   setupPendingUsersListener();

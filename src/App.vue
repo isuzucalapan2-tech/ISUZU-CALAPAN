@@ -1,10 +1,9 @@
 <template>
   <div id="app" :class="themeClass" :style="themeStyle">
-    <!-- Toast Notifications -->
+    <SplashScreen :isVisible="isLoading" />
+
     <Toast ref="toastRef" />
     
-    <!-- Session Warning Modal -->
-
     <div v-if="showSessionWarning" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-lg shadow-xl max-w-md mx-4">
         <div class="flex items-center gap-3 mb-4">
@@ -31,8 +30,9 @@
       </div>
     </div>
 
-    <!-- Main Router View -->
-    <router-view></router-view>
+    <div v-show="!isLoading" class="animate-fade-in">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
@@ -41,12 +41,14 @@ import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useAuthStore } from './stores/auth';
 import { AlertTriangleIcon } from 'lucide-vue-next';
 import Toast from './components/Toast.vue';
+import SplashScreen from './components/SplashScreen.vue'; // Import the Splash Screen
 import { provideToast } from './composables/useToast';
 
 const authStore = useAuthStore();
-
-// Set up toast notification system
 const { toastRef } = provideToast();
+
+// Loading state para sa Splash Screen
+const isLoading = ref(true);
 
 const showSessionWarning = ref(false);
 let warningTimeout = null;
@@ -75,11 +77,7 @@ const applyTheme = (theme) => {
     html.classList.add('light');
   } else if (theme === 'auto') {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (prefersDark) {
-      html.classList.add('dark');
-    } else {
-      html.classList.add('light');
-    }
+    html.classList.add(prefersDark ? 'dark' : 'light');
   }
   localStorage.setItem('appTheme', theme);
 };
@@ -99,7 +97,6 @@ const logoutNow = () => {
 const resetWarningTimer = () => {
   if (warningTimeout) clearTimeout(warningTimeout);
   
-  // Show warning 5 minutes before 30-minute timeout
   warningTimeout = setTimeout(() => {
     if (authStore.isAuthenticated) {
       showSessionWarning.value = true;
@@ -107,75 +104,61 @@ const resetWarningTimer = () => {
   }, 25 * 60 * 1000); // 25 minutes
 };
 
-// Listen for session warning events from composable
 onMounted(() => {
+  // Theme initialization
   const savedTheme = localStorage.getItem('appTheme');
   if (savedTheme) {
     applyTheme(savedTheme);
   }
 
-  // Start session warning timer if authenticated
+  // Session management initialization
   if (authStore.isAuthenticated) {
     resetWarningTimer();
   }
 
-  // Listen for custom session warning event
-  window.addEventListener('session-warning', (event) => {
+  window.addEventListener('session-warning', () => {
     showSessionWarning.value = true;
   });
 
-  // Update activity on user interaction
+  // Global activity listener
   const events = ['click', 'keydown', 'scroll', 'touchstart'];
   const handleActivity = () => {
     if (authStore.isAuthenticated) {
       authStore.updateLastActivity();
-      if (showSessionWarning.value) {
-        showSessionWarning.value = false;
-      }
+      if (showSessionWarning.value) showSessionWarning.value = false;
       resetWarningTimer();
     }
   };
 
-  events.forEach(event => {
-    document.addEventListener(event, handleActivity);
-  });
+  events.forEach(event => document.addEventListener(event, handleActivity));
 
-  // Cleanup
+  // --- SPLASH SCREEN TIMEOUT ---
+  // Dito natin papatayin ang loading state. 
+  // Pwedeng taasan ang delay kung gusto mong mas matagal makita ang logo.
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 1500);
+
   onUnmounted(() => {
-    events.forEach(event => {
-      document.removeEventListener(event, handleActivity);
-    });
+    events.forEach(event => document.removeEventListener(event, handleActivity));
     if (warningTimeout) clearTimeout(warningTimeout);
   });
 });
 </script>
 
 <style>
-/* Global styles for session management */
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
+/* Smooth transition para sa paglitaw ng main content */
+.animate-fade-in {
+  animation: fadeInApp 0.6s ease-out forwards;
 }
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+@keyframes fadeInApp {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* Siguraduhin na hindi pwedeng mag-scroll habang loading */
+body:has(.fixed.z-100) {
+  overflow: hidden;
 }
-</style>
+</style> 

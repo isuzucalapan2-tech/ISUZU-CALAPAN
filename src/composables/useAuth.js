@@ -109,18 +109,6 @@ export function useAuth() {
     return true
   }
 
-  const checkPermission = (permission) => {
-    // Extend this based on your permission system
-    const permissions = {
-      admin: ['create', 'read', 'update', 'delete', 'manage_users'],
-      manager: ['create', 'read', 'update', 'delete'],
-      user: ['read']
-    }
-    
-    const userPermissions = permissions[userRole.value] || []
-    return userPermissions.includes(permission)
-  }
-
   onMounted(() => {
     if (isAuthenticated.value) {
       startActivityMonitoring()
@@ -141,7 +129,6 @@ export function useAuth() {
     login,
     logout,
     requireAuth,
-    checkPermission,
     startActivityMonitoring,
     resendVerification: authStore.resendVerification,
     initializeAuth: authStore.initializeAuth

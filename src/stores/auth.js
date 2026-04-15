@@ -23,10 +23,6 @@ export const useAuthStore = defineStore('auth', () => {
   const sessionExpiry = ref(null)
   const lastActivity = ref(Date.now())
 
-  // Getters
-  const isAdmin = computed(() => userRole.value === 'admin')
-  const isManager = computed(() => userRole.value === 'manager')
-  const isUser = computed(() => userRole.value === 'user')
   const hasRole = (role) => userRole.value === role
   const canAccess = (allowedRoles) => {
     if (!Array.isArray(allowedRoles)) return userRole.value === allowedRoles
@@ -35,6 +31,13 @@ export const useAuthStore = defineStore('auth', () => {
   const isSessionValid = computed(() => {
     if (!sessionExpiry.value) return true
     return Date.now() < sessionExpiry.value
+  })
+  
+  // Master Admin getter
+  const isMasterAdmin = computed(() => {
+    const masterAdminRoles = ['Master Admin', 'isuzu&calapan&master&admin101']
+    return masterAdminRoles.includes(userRole.value) || 
+           masterAdminRoles.includes(userProfile.value?.role)
   })
 
   // Actions
@@ -180,13 +183,10 @@ export const useAuthStore = defineStore('auth', () => {
     authError,
     sessionExpiry,
     lastActivity,
-    // Getters
-    isAdmin,
-    isManager,
-    isUser,
     hasRole,
     canAccess,
     isSessionValid,
+    isMasterAdmin,
     // Actions
     initializeAuth,
     login,
