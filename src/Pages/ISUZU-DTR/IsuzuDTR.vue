@@ -45,7 +45,7 @@
 
     <!-- Main Content -->
     <main class="flex-1 relative z-10 overflow-auto p-6 lg:p-6">
-      <div class="max-w-[1800px] mx-auto space-y-6">
+      <div class="max-w-450 mx-auto space-y-6">
 
         <!-- Filters Card -->
         <div class="bg-white rounded-2xl p-6 border border-neutral-300 space-y-4">
@@ -160,7 +160,7 @@
         <!-- DTR Table -->
         <div class="bg-white rounded-2xl border border-neutral-300 overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[1400px]">
+            <table class="w-full text-left border-collapse min-w-350">
               <thead>
                 <tr class="bg-neutral-800 text-white text-[10px] uppercase tracking-widest isuzu-font">
                   <th class="p-4 font-black">Employee No.</th>
@@ -236,7 +236,7 @@
                     </div>
                   </td>
                   
-                  <td class="p-4 max-w-[200px]">
+                  <td class="p-4 max-w-50">
                     <div class="text-[9px] leading-tight" :class="item.isValid ? 'text-gray-600' : 'text-red-600'">
                       {{ item.remarks }}
                     </div>
@@ -298,7 +298,7 @@
 
     <!-- Upload Modal -->
     <Transition name="fade">
-      <div v-if="showUploadModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div v-if="showUploadModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-none" @click="closeUploadModal"></div>
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-hidden flex flex-col">
           

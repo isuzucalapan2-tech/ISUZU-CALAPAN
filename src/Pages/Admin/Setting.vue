@@ -358,7 +358,7 @@
                 <button 
                   @click="showAddRoleModal = true"
                   type="button"
-                  class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
+                  class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-11 shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
                 >
                   <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" /> 
                   <span>Add Role</span>
@@ -439,7 +439,7 @@
                 <button 
                   @click="showAddPositionModal = true"
                   type="button"
-                  class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
+                  class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-11 shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
                 >
                   <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" /> 
                   <span>Add Position</span>
@@ -513,7 +513,7 @@
     </main>
 
     <!-- Add Role Modal - Moved outside main container -->
-    <div v-if="showAddRoleModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div v-if="showAddRoleModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl">
         <div class="flex items-center justify-between mb-6">
           <h3 class="text-lg font-black uppercase tracking-tight text-neutral-800">Add New Role</h3>
@@ -550,7 +550,7 @@
     </div>
 
     <!-- Add Position Modal - Moved outside main container -->
-    <div v-if="showAddPositionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div v-if="showAddPositionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl">
         <div class="flex items-center justify-between mb-6">
           <h3 class="text-lg font-black uppercase tracking-tight text-neutral-800">Add New Position</h3>

@@ -68,7 +68,7 @@
         </div>
 
         <!-- Master Admin Transfer Section (Visible only to Master Admin) -->
-        <div v-if="authStore.isMasterAdmin" class="bg-gradient-to-r from-red-600/10 to-orange-600/10 border border-red-200 rounded-xl p-4 sm:p-6">
+        <div v-if="authStore.isMasterAdmin" class="bg-linear-to-r from-red-600/10 to-orange-600/10 border border-red-200 rounded-xl p-4 sm:p-6">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
               <div class="bg-red-600 p-2 rounded-lg text-white">
@@ -92,7 +92,7 @@
         <!-- Critical Alert: Multiple Master Admins -->
         <div v-if="masterAdminWarning" class="bg-red-50 border-2 border-red-500 rounded-xl p-4 sm:p-6 animate-pulse">
           <div class="flex items-start gap-3">
-            <AlertTriangle class="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertTriangle class="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
             <div>
               <h2 class="text-sm font-bold text-red-700 uppercase tracking-wide">System Critical Alert</h2>
               <p class="text-xs text-red-600 mt-1">
@@ -274,7 +274,7 @@
   <div v-if="showTransferModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div :class="['w-full max-w-md rounded-2xl shadow-2xl overflow-hidden', isDarkMode ? 'bg-neutral-800' : 'bg-white']">
       <!-- Modal Header -->
-      <div class="bg-gradient-to-r from-red-600 to-orange-600 p-4 sm:p-6">
+      <div class="bg-linear-to-r from-red-600 to-orange-600 p-4 sm:p-6">
         <div class="flex items-center gap-3">
           <Crown class="w-6 h-6 text-white" />
           <h2 class="text-lg font-bold text-white uppercase tracking-wide">Transfer Master Admin</h2>
@@ -287,7 +287,7 @@
         <!-- Warning Message -->
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
           <div class="flex items-start gap-2">
-            <AlertTriangle class="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <AlertTriangle class="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
             <p class="text-xs text-yellow-700">
               This action will demote you to "Admin" role and promote the selected user to Master Admin. 
               This cannot be undone without another Master Admin.

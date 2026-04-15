@@ -42,7 +42,7 @@
         <!-- Critical Alert: Multiple Master Admins -->
         <div v-if="masterAdminWarning" class="bg-red-50 border-2 border-red-500 rounded-xl p-4 sm:p-6 animate-pulse">
           <div class="flex items-start gap-3">
-            <AlertTriangle class="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertTriangle class="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
             <div>
               <h2 class="text-sm font-bold text-red-700 uppercase tracking-wide">System Critical Alert</h2>
               <p class="text-xs text-red-600 mt-1">
