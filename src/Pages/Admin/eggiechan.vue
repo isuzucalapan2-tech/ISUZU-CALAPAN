@@ -40,6 +40,7 @@
 import { ref, computed } from 'vue'
 
 const team = ref([
+<<<<<<< Updated upstream
 	{
 		name: 'Arnold Z. Adeva',
 		role: 'Lead Developer',
@@ -70,6 +71,38 @@ const team = ref([
 		photo: 'https://randomuser.me/api/portraits/men/65.jpg',
 		bio: 'Ansel specializes in backend development and quality assurance, keeping the server and database reliable.'
 	}
+=======
+  {
+    name: 'Arnold Z. Adeva',
+    role: 'Lead Developer',
+    photo: '/Team/AZ.jpg',
+    bio: 'Arnold leads the team with expertise in full-stack development, ensuring robust and scalable solutions.'
+  },
+  {
+    name: 'Michael Joshua F. Manga',
+    role: 'UI/UX Designer | Frontend Developer',
+    photo: '/Team/MJM.png',
+    bio: 'Michael crafts intuitive user interfaces and seamless user experiences, bringing designs to life on the frontend.'
+  },
+  {
+    name: 'Dominic Medrano',
+    role: 'Project Manager',
+    photo: '/Team/Sir_Dom.jpg',
+    bio: 'Dominic organizes, coordinates, and drives the team to deliver projects efficiently and on schedule.'
+  },
+  {
+    name: 'Donabel V. Gasco',
+    role: 'Backend Engineer | QA Specialist',
+    photo: '/Team/DV.jpg',
+    bio: 'Donabel develops and maintains backend systems, and ensures product quality through rigorous testing.'
+  },
+  {
+    name: 'Ansel Phillip C. Laniosa',
+    role: 'Backend Engineer | QA Specialist',
+    photo: '/Team/APL.jpg',
+    bio: 'Ansel specializes in backend development and quality assurance, keeping the server and database reliable.'
+  }
+>>>>>>> Stashed changes
 ])
 
 // Theme and card classes (copied from Dashboard.vue)
