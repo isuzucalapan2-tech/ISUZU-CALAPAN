@@ -41,7 +41,7 @@
 							:class="[cardClass, 'h-full rounded-xl p-8 flex flex-col items-center justify-center border-2 border-red-600/20 bg-white relative']">
 							
 							<img :src="projectManager.photo" :alt="projectManager.name" 
-								class="w-32 h-32 sm:w-36 sm:h-36 rounded-4xl object-cover border-4 border-neutral-100 mb-6 p-1.5 bg-white" />
+								class="w-32 h-32 sm:w-36 sm:h-36 rounded-[2rem] object-cover border-4 border-neutral-100 mb-6 p-1.5 bg-white" />
 							
 							<h2 class="text-2xl font-extrabold text-neutral-950 text-center mb-1.5 leading-tight">{{ projectManager.name }}</h2>
 							
