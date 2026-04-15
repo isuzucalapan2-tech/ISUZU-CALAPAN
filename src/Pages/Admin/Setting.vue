@@ -160,14 +160,29 @@
                     <textarea v-model="car.description" class="text-xs text-neutral-500 w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500 resize-none h-20" placeholder="Description"></textarea>
                     <input v-model="car.promo" class="text-red-600 font-black text-base md:text-lg w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Promo" />
                     <input v-model="car.promoLabel" class="text-[10px] font-black text-neutral-400 uppercase tracking-widest w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Label (e.g. Special Offer)" />
+
+                    <!-- Contact Us Fields -->
+
                     <button @click="removeCarPromo(idx)" class="mt-auto pt-2 text-[10px] font-bold text-red-500 hover:text-red-700 uppercase tracking-tighter self-start">Remove</button>
                   </div>
                 </div>
 
                 <div class="flex items-center justify-center min-h-50 border-2 border-dashed border-neutral-300 rounded-2xl bg-white/30">
+
                   <button @click="addCarPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-red-700 transition shadow-md">+ Add Car Promo</button>
                 </div>
               </div>
+
+              <!-- Contact Us Section for Car Promos -->
+              <div class="mt-8 bg-white/60 rounded-2xl p-6 border border-neutral-200">
+                <h3 class="text-lg font-black isuzu-font uppercase tracking-widest mb-4 text-red-600">Contact Us (for Car Promos)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input v-model="carPromosContact.contactNumber" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Number" />
+                  <input v-model="carPromosContact.contactPerson" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Person" />
+                  <input v-model="carPromosContact.address" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Address" />
+                  <input v-model="carPromosContact.socials" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Social Media Accounts (comma separated)" />
+                </div>
+              </div> 
             </div>
 
             <div class="bg-white/40 backdrop-blur-sm rounded-3xl p-5 md:p-8 border border-gray-200">
@@ -204,6 +219,16 @@
 
                 <div class="flex items-center justify-center min-h-50 border-2 border-dashed border-neutral-500/30 rounded-2xl">
                   <button @click="addPartPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-red-700 transition shadow-md">+ Add Part Promo</button>
+                </div>
+              </div>
+              <!-- Contact Us Section for Parts Promos -->
+              <div class="mt-8 bg-white/60 rounded-2xl p-6 border border-neutral-200">
+                <h3 class="text-lg font-black isuzu-font uppercase tracking-widest mb-4 text-red-600">Contact Us (for Parts Promos)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input v-model="partsPromosContact.contactNumber" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Number" />
+                  <input v-model="partsPromosContact.contactPerson" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Person" />
+                  <input v-model="partsPromosContact.address" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Address" />
+                  <input v-model="partsPromosContact.socials" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Social Media Accounts (comma separated)" />
                 </div>
               </div>
             </div>
@@ -614,7 +639,11 @@ function addCarPromo() {
     description: "",
     promo: "",
     promoLabel: "Special Offer",
-    image: ""
+    image: "",
+    contactNumber: "",
+    contactPerson: "",
+    address: "",
+    socials: ""
   });
 }
 
@@ -640,6 +669,20 @@ function removePartPromo(idx) {
 // Promos Management State
 const landingCarPromos = ref([]);
 const landingPartsPromos = ref([]);
+// Contact Us for Car Promos (single section)
+const carPromosContact = ref({
+  contactNumber: "",
+  contactPerson: "",
+  address: "",
+  socials: ""
+});
+// Contact Us for Parts Promos (single section)
+const partsPromosContact = ref({
+  contactNumber: "",
+  contactPerson: "",
+  address: "",
+  socials: ""
+});
 
 // Load promos from Firestore on mount
 onMounted(async () => {
@@ -656,6 +699,16 @@ onMounted(async () => {
       landingPartsPromos.value.forEach(part => {
         if (!('partsType' in part)) part.partsType = 'Genuine Parts';
       });
+      // Load Contact Us fields for car promos
+      carPromosContact.value.contactNumber = data.carPromosContactNumber || "";
+      carPromosContact.value.contactPerson = data.carPromosContactPerson || "";
+      carPromosContact.value.address = data.carPromosContactAddress || "";
+      carPromosContact.value.socials = data.carPromosContactSocials || "";
+      // Load Contact Us fields for parts promos
+      partsPromosContact.value.contactNumber = data.partsPromosContactNumber || "";
+      partsPromosContact.value.contactPerson = data.partsPromosContactPerson || "";
+      partsPromosContact.value.address = data.partsPromosContactAddress || "";
+      partsPromosContact.value.socials = data.partsPromosContactSocials || "";
       // ...load other landing fields...
     } else {
       // If no data, initialize with defaults
@@ -669,6 +722,8 @@ onMounted(async () => {
         { name: "Brake Pads", description: "Reliable stopping power.", promo: "Buy 1 Get 1 50%", image: "" },
         { name: "Filters", description: "Maintain air purity inside.", promo: "Bundle Deal", image: "" }
       ];
+      carPromosContact.value = { contactNumber: "", contactPerson: "", address: "", socials: "" };
+      partsPromosContact.value = { contactNumber: "", contactPerson: "", address: "", socials: "" };
     }
   } catch (error) {
     console.error("Error loading promos:", error);
@@ -715,6 +770,10 @@ async function savePromos() {
     landingCarPromos.value.forEach(car => {
       if (!('image' in car)) car.image = '';
       if (!('promoLabel' in car)) car.promoLabel = 'Special Offer';
+      if (!('contactNumber' in car)) car.contactNumber = '';
+      if (!('contactPerson' in car)) car.contactPerson = '';
+      if (!('address' in car)) car.address = '';
+      if (!('socials' in car)) car.socials = '';
     });
     landingPartsPromos.value.forEach(part => {
       if (!('image' in part)) part.image = '';
@@ -723,6 +782,14 @@ async function savePromos() {
     await setDoc(doc(db, "settings", "landingPage"), {
       carPromos: landingCarPromos.value,
       partsPromos: landingPartsPromos.value,
+      carPromosContactNumber: carPromosContact.value.contactNumber,
+      carPromosContactPerson: carPromosContact.value.contactPerson,
+      carPromosContactAddress: carPromosContact.value.address,
+      carPromosContactSocials: carPromosContact.value.socials,
+      partsPromosContactNumber: partsPromosContact.value.contactNumber,
+      partsPromosContactPerson: partsPromosContact.value.contactPerson,
+      partsPromosContactAddress: partsPromosContact.value.address,
+      partsPromosContactSocials: partsPromosContact.value.socials,
     }, { merge: true });
     saveSuccess.value = true;
     setTimeout(() => (saveSuccess.value = false), 3000);
@@ -1038,7 +1105,13 @@ onMounted(async () => {
     if (snap.exists()) {
       const data = snap.data();
       landingCarPromos.value = Array.isArray(data.carPromos) ? JSON.parse(JSON.stringify(data.carPromos)) : [];
+      landingCarPromos.value.forEach(car => {
+        if (!('promoLabel' in car)) car.promoLabel = 'Special Offer';
+      });
       landingPartsPromos.value = Array.isArray(data.partsPromos) ? JSON.parse(JSON.stringify(data.partsPromos)) : [];
+      landingPartsPromos.value.forEach(part => {
+        if (!('partsType' in part)) part.partsType = 'Genuine Parts';
+      });
       // Load About Us & Slogan from Firestore
       aboutUsTextLine1.value = data.aboutUsTextLine1 || "";
       aboutUsTextLine2.value = data.aboutUsTextLine2 || "";

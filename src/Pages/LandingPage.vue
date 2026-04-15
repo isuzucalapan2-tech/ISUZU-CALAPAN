@@ -88,10 +88,31 @@
               <div class="p-6">
                 <h3 class="text-sm font-black isuzu-font uppercase tracking-wider mb-2">{{ car.name }}</h3>
                 <p class="text-xs text-neutral-500 font-medium mb-4 line-clamp-2">{{ car.description }}</p>
-                <div class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">{{ car.promoLabel || 'Limited Time Offer' }}</div>
+                <div class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2">{{ car.promoLabel || 'Limited Time Offer' }}</div>
+
+                <!-- Contact Us Section -->
+                <div v-if="car.contactNumber || car.contactPerson || car.address || car.socials" class="mt-3 border-t border-neutral-200 pt-3">
+                  <div class="text-[10px] font-bold text-neutral-700 uppercase mb-1">Contact Us</div>
+                  <div v-if="car.contactPerson" class="text-[11px] text-neutral-700"><span class="font-bold">Contact Person:</span> {{ car.contactPerson }}</div>
+                  <div v-if="car.contactNumber" class="text-[11px] text-neutral-700"><span class="font-bold">Number:</span> {{ car.contactNumber }}</div>
+                  <div v-if="car.address" class="text-[11px] text-neutral-700"><span class="font-bold">Address:</span> {{ car.address }}</div>
+                  <div v-if="car.socials" class="text-[11px] text-neutral-700"><span class="font-bold">Socials:</span> <span v-for="(soc, i) in car.socials.split(',')" :key="i">{{ soc.trim() }}<span v-if="i < car.socials.split(',').length - 1">,&nbsp;</span></span></div>
+                </div>
               </div>
             </div>
           </div>
+
+          <div v-if="carPromosContact.contactNumber || carPromosContact.contactPerson || carPromosContact.address || carPromosContact.socials" class="max-w-2xl mx-auto mb-24 bg-white/70 rounded-2xl p-6 border border-neutral-200">
+            <h3 class="text-lg font-black isuzu-font uppercase tracking-widest mb-4 text-red-600">Contact Us (for Car Promos)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div v-if="carPromosContact.contactNumber" class="text-[13px] text-neutral-700"><span class="font-bold">Contact Number:</span> {{ carPromosContact.contactNumber }}</div>
+              <div v-if="carPromosContact.contactPerson" class="text-[13px] text-neutral-700"><span class="font-bold">Contact Person:</span> {{ carPromosContact.contactPerson }}</div>
+              <div v-if="carPromosContact.address" class="text-[13px] text-neutral-700 md:col-span-2"><span class="font-bold">Address:</span> {{ carPromosContact.address }}</div>
+              <div v-if="carPromosContact.socials" class="text-[13px] text-neutral-700 md:col-span-2"><span class="font-bold">Social Media:</span> <span v-for="(soc, i) in carPromosContact.socials.split(',')" :key="i">{{ soc.trim() }}<span v-if="i < carPromosContact.socials.split(',').length - 1">,&nbsp;</span></span></div>
+            </div>
+          </div>
+
+          
 
           <div class="text-center md:text-left mb-12">
             <p class="text-red-600 text-xs font-black tracking-[0.3em] uppercase mb-2">Maintenance</p>
@@ -114,6 +135,16 @@
                   <span class="text-white font-black italic">{{ part.promo }}</span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div v-if="partsPromosContact.contactNumber || partsPromosContact.contactPerson || partsPromosContact.address || partsPromosContact.socials" class="max-w-2xl mx-auto my-16 bg-white/70 rounded-2xl p-6 border border-neutral-200">
+            <h3 class="text-lg font-black isuzu-font uppercase tracking-widest mb-4 text-red-600">Contact Us (for Parts Promos)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div v-if="partsPromosContact.contactNumber" class="text-[13px] text-neutral-700"><span class="font-bold">Contact Number:</span> {{ partsPromosContact.contactNumber }}</div>
+              <div v-if="partsPromosContact.contactPerson" class="text-[13px] text-neutral-700"><span class="font-bold">Contact Person:</span> {{ partsPromosContact.contactPerson }}</div>
+              <div v-if="partsPromosContact.address" class="text-[13px] text-neutral-700 md:col-span-2"><span class="font-bold">Address:</span> {{ partsPromosContact.address }}</div>
+              <div v-if="partsPromosContact.socials" class="text-[13px] text-neutral-700 md:col-span-2"><span class="font-bold">Social Media:</span> <span v-for="(soc, i) in partsPromosContact.socials.split(',')" :key="i">{{ soc.trim() }}<span v-if="i < partsPromosContact.socials.split(',').length - 1">,&nbsp;</span></span></div>
             </div>
           </div>
         </div>
@@ -239,6 +270,8 @@ const carPromos = ref([]);
 const partsPromos = ref([]);
 const brandIdentity = ref({ mission: "", vision: "", coreValues: [] });
 const aboutUs = ref({ aboutTextLine1: "", aboutTextLine2: "", slogan: "" });
+const carPromosContact = ref({ contactNumber: '', contactPerson: '', address: '', socials: '' });
+const partsPromosContact = ref({ contactNumber: '', contactPerson: '', address: '', socials: '' });
 
 onMounted(async () => {
   try {
@@ -277,6 +310,14 @@ onMounted(async () => {
           part.image = localPartsPromos[idx].image;
         }
       });
+      carPromosContact.value.contactNumber = data.carPromosContactNumber || '';
+      carPromosContact.value.contactPerson = data.carPromosContactPerson || '';
+      carPromosContact.value.address = data.carPromosContactAddress || '';
+      carPromosContact.value.socials = data.carPromosContactSocials || '';
+      partsPromosContact.value.contactNumber = data.partsPromosContactNumber || '';
+      partsPromosContact.value.contactPerson = data.partsPromosContactPerson || '';
+      partsPromosContact.value.address = data.partsPromosContactAddress || '';
+      partsPromosContact.value.socials = data.partsPromosContactSocials || '';
     }
   } catch (error) {
     console.error("Error fetching landing page data:", error);
