@@ -1366,7 +1366,6 @@ const printInventory = (data, title) => {
       <title>${title} - ISUZU Calapan</title>
       <style>
         @page {
-          size: landscape;
           margin: 10mm;
         }
         * {

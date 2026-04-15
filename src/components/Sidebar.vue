@@ -3,7 +3,9 @@
     
     <aside class="hidden md:flex md:flex-col w-64 bg-neutral-900 text-white border-r border-neutral-900 shadow-2xl shrink-0">
       <div class="h-16 flex items-center px-8">
-        <span class="text-xl font-black text-red-600 tracking-[0.2em] uppercase isuzu-font">ISUZU</span>
+        <router-link to="/admin/eggiechan" class="focus:outline-none">
+          <span class="text-xl font-black text-red-600 tracking-[0.2em] uppercase isuzu-font">ISUZU</span>
+        </router-link>
       </div>
 
       <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto custom-scrollbar">

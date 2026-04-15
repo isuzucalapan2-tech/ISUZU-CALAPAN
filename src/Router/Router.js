@@ -1,3 +1,4 @@
+import EggieChan from '../Pages/Admin/eggiechan.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
@@ -189,6 +190,12 @@ const routes = [
         component: AttendancePlotting,
         meta: { requiresAuth: true, pageId: 'isuzu-dtr' } // Same access as DTR Management
       },
+      { 
+        path: 'eggiechan',
+        name: 'EggieChan',
+        component: EggieChan,
+        meta: { requiresAuth: true }
+      }
     ]
   },
   // --- Error Routes ---
