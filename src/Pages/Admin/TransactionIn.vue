@@ -174,13 +174,12 @@
                       <div v-if="item.statusIN === 'Stock IN'" class="flex items-center gap-2">
                         <button 
                           v-if="canEdit && isStockOutButtonEnabled(item)"
-                          @click="processStockOut(item)" 
-                          :disabled="processingItems[item.id]"
-                          class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-neutral-800 transition-all flex items-center gap-1"
-                        >
-                          <X class="w-3 h-3" /> {{ processingItems[item.id] ? '...' : 'Stock OUT' }}
-                          <span class="text-[8px] opacity-70">({{ getStockOutExpirationText(item) }})</span>
-                        </button>
+                        @click="processStockOut(item)" 
+                        :disabled="processingItems[item.id]"
+                        class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-neutral-800 transition-all flex items-center gap-1"
+                      >
+                        <X class="w-3 h-3" /> {{ processingItems[item.id] ? '...' : 'Retrieve' }} {{ getStockOutExpirationText(item) }}
+                      </button>
 
                         <span v-else-if="!canEdit && isStockOutButtonEnabled(item)" class="text-neutral-400 text-[9px] font-black flex items-center gap-1">
                           <Lock class="w-3 h-3" /> LOCKED
@@ -830,7 +829,7 @@ const isStockOutButtonEnabled = (transaction) => {
   const diffTime = now - createdDate;
   const diffDays = diffTime / (1000 * 60 * 60 * 24); // Convert to days
   
-  return diffDays <= 3; // Button enabled only within 3 days
+  return diffDays <= 7; // Button enabled only within 7 days
 };
 
 // Get Stock OUT expiration text
@@ -841,7 +840,8 @@ const getStockOutExpirationText = (transaction) => {
   const now = new Date();
   const diffTime = now - createdDate;
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
-  const remainingDays = Math.max(0, 3 - Math.floor(diffDays));
+const remainingDays = Math.max(0, 7 - Math.floor(diffDays));
+
   
   if (remainingDays === 0) {
     const remainingHours = Math.max(0, 72 - Math.floor(diffTime / (1000 * 60 * 60)));
@@ -1138,7 +1138,7 @@ const processStockOut = async (transaction) => {
   try {
     // Check if within 3-day window
     if (!isStockOutButtonEnabled(transaction)) {
-      toast.error('Stock OUT button has expired. Transaction is locked after 3 days.', 'Transaction Locked');
+    toast.error('Stock OUT button has expired. Transaction is locked after 7 days.', 'Transaction Locked');
       processingItems.value[transaction.id] = false;
       return;
     }

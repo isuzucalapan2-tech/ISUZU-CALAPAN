@@ -192,8 +192,13 @@
                   <td class="px-2 sm:px-3 lg:px-6 py-2 sm:py-3 lg:py-4">
                     <div class="flex items-center gap-1 sm:gap-2">
                       <div :class="['w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full', admin.Status === 'Active' ? 'bg-green-500' : 'bg-neutral-400']"></div>
-                      <span :class="['text-[8px] sm:text-[10px] lg:text-[11px] font-bold uppercase', admin.Status === 'Active' ? 'text-green-600' : 'text-neutral-500']">
+                      <span :class="['text-[8px] sm:text-[10px] lg:text-[11px] font-bold uppercase', admin.Status === 'Active' ? 'text-green-600' : 'text-red-600']">
                         {{ admin.Status || "Deactivated" }}
+                        <span v-if="admin.Status !== 'Active' && admin.deactivationReason" 
+                              class="block text-[6px] sm:text-[7px] font-normal mt-0.5 leading-tight opacity-80 max-w-[120px] truncate" 
+                              :title="admin.deactivationReason">
+                          {{ admin.deactivationReason }}
+                        </span>
                       </span>
                     </div>
                   </td>
@@ -361,7 +366,7 @@
 <script setup>
 import { ref, onMounted, computed, watch, nextTick } from "vue";
 import { db } from "../../Firebase/Firebase";
-import { collection, getDocs, updateDoc, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, doc, getDoc, serverTimestamp, writeBatch } from "firebase/firestore";
 import Loaders from "../../components/Loaders.vue";
 import { useMasterAdmin } from "../../composables/useMasterAdmin";
 import { useAuthStore } from "../../stores/auth";
@@ -582,11 +587,49 @@ const grantPrivilege = async (admin) => {
 };
 
 const toggleStatus = async (admin) => {
+  if (!authStore.isMasterAdmin) {
+    console.error('Only Master Admin can toggle status');
+    return;
+  }
+
   const newStatus = admin.Status === 'Active' ? 'Deactivated' : 'Active';
+  const action = newStatus === 'Deactivated' ? 'deactivate' : 'reactivate';
+  
+  if (!confirm(`Are you sure you want to ${action} "${admin.firstName} ${admin.lastName}"?\n\n${newStatus === 'Active' ? 'DDOS counters will be reset.' : ''}`)) {
+    return;
+  }
+
   try {
-    await updateDoc(doc(db, "Administrator", admin.id), { Status: newStatus });
+    const batch = writeBatch(db);
+    const mainDocRef = doc(db, "Administrator", admin.id);
+    const logRef = doc(collection(db, "Administrator", admin.id, "loginAttempts"));
+
+    // Update status and handle reactivation cleanup
+    const statusUpdate = { Status: newStatus };
+    if (newStatus === 'Active') {
+      statusUpdate.failedAttempts = 0;
+      statusUpdate.lastFailedAttempt = null;
+      statusUpdate.deactivationReason = null;
+    }
+    batch.update(mainDocRef, statusUpdate);
+
+    // Log manual action
+    batch.set(logRef, {
+      timestamp: serverTimestamp(),
+      reason: `Manually ${action}ed by Master Admin`,
+      manualAction: true,
+      performedBy: authStore.user.uid,
+      performedByEmail: authStore.user.email
+    });
+
+    await batch.commit();
     admin.Status = newStatus;
-  } catch (err) { console.error(err); }
+
+    // Refresh list
+    await fetchAdmins();
+  } catch (err) { 
+    console.error('Error toggling status:', err);
+  }
 };
 
 const clearAllFilters = () => {
