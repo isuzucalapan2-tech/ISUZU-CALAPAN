@@ -1359,7 +1359,7 @@ const printInventory = (data, title) => {
   });
   
   // Create print window content
-  const printContent = `
+ const printContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -1381,26 +1381,35 @@ const printInventory = (data, title) => {
           background: #fff;
         }
 
-        /* NEW HEADER STYLES */
+        /* UPDATED HEADER STYLES */
         .header-container {
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          /* Space-between ensures the Isuzu logo stays left and MDO content moves right */
+          justify-content: space-between; 
           padding-bottom: 10px;
           margin-bottom: 15px;
-          border-bottom: 3px solid #dc2626; /* The red line from the image */
+          border-bottom: 3px solid #dc2626; 
         }
         .header-left {
+          /* Only takes up as much space as the logo needs */
+          flex: 0 0 auto;
+        }
+        .header-right-group {
+          /* This container holds both the MDO logo and the text, pushed to the right */
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
           flex: 1;
         }
         .header-center {
-          flex: 1;
-          text-align: center;
+          /* Logo is now part of the right-aligned group */
+          margin-right: 15px;
         }
         .header-right {
-          flex: 2;
           text-align: left;
-          padding-left: 20px;
+          border-left: 1px solid #ccc; /* Optional: adds a small separator like some corporate letterheads */
+          padding-left: 15px;
         }
         .header-logo-isuzu {
           height: 60px;
@@ -1520,14 +1529,17 @@ const printInventory = (data, title) => {
         <div class="header-left">
           <img src="/isuzucalapanHeader.png" alt="ISUZU Calapan City" class="header-logo-isuzu">
         </div>
-        <div class="header-center">
-          <img src="/mdoLogo.png" alt="MDO Motors" class="header-logo-mdo">
-        </div>
-        <div class="header-right">
-          <span class="comp-name-bold">MINA DE ORO MOTORS INCORPORATED</span>
-          <div class="comp-details">
-            Km. 9 Nautical Highway, Puting Tubig, Calapan City,<br>
-            Oriental Mindoro, 5200
+        
+        <div class="header-right-group">
+          <div class="header-center">
+            <img src="/mdoLogo.png" alt="MDO Motors" class="header-logo-mdo">
+          </div>
+          <div class="header-right">
+            <span class="comp-name-bold">MINA DE ORO MOTORS INCORPORATED</span>
+            <div class="comp-details">
+              Km. 9 Nautical Highway, Puting Tubig, Calapan City,<br>
+              Oriental Mindoro, 5200
+            </div>
           </div>
         </div>
       </div>
@@ -1585,7 +1597,7 @@ const printInventory = (data, title) => {
       
       <div class="footer">
         <p>ISUZU Calapan Inventory Management System &copy; ${now.getFullYear()}</p>
-        <p>System Generated Report | Confidental</p>
+        <p>System Generated Report | Confidential</p>
       </div>
       
       <script>

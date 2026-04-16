@@ -394,7 +394,7 @@
                 <FileSpreadsheet class="w-8 h-8" />
               </div>
               <div>
-                <h3 class="text-2xl font-black isuzu-font uppercase text-neutral-800 tracking-tighter flex items-center gap-2">
+                <h3 class="text-2xl font-black isuzu-font text-neutral-800 tracking-tighter flex items-center gap-2">
                   Batch <span class="text-blue-600">Import</span>
                   <!-- Info Icon with Tooltip -->
                   <div class="relative group">
@@ -402,24 +402,43 @@
                       <Info class="w-4 h-4 text-neutral-600" />
                     </button>
                     <!-- Tooltip -->
-                    <div class="absolute left-full top-0 ml-3 w-80 bg-neutral-800 text-white p-4 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50" style="font-family: Arial, sans-serif;">
-                      <div class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2" style="font-family: Arial, sans-serif;">📋 Import Validation Requirements</div>
-                      <div class="text-[9px] space-y-2" style="font-family: Arial, sans-serif;">
-                        <div class="font-bold text-green-400" style="font-family: Arial, sans-serif;">✓ REQUIRED FIELDS (ALL must be filled):</div>
-                        <div style="font-family: Arial, sans-serif;">• Control No. - Must match inventory</div>
-                        <div style="font-family: Arial, sans-serif;">• Part No. - Must exist in inventory</div>
-                        <div style="font-family: Arial, sans-serif;">• Category - Must match inventory</div>
-                        <div style="font-family: Arial, sans-serif;">• Part Name - Must match inventory</div>
-                        <div style="font-family: Arial, sans-serif;">• Model - Must match inventory</div>
-                        <div style="font-family: Arial, sans-serif;">• Quantity - Must be greater than 0</div>
-                        <div style="font-family: Arial, sans-serif;">• Client Name - Cannot be empty</div>
-                        <div class="font-bold text-yellow-400 mt-2" style="font-family: Arial, sans-serif;">✓ STOCK VALIDATION:</div>
-                        <div style="font-family: Arial, sans-serif;">• Quantity cannot exceed available stock</div>
-                        <div style="font-family: Arial, sans-serif;">• System checks real-time inventory</div>
-                        <div class="font-bold text-blue-400 mt-2" style="font-family: Arial, sans-serif;">✓ OPTIONAL FIELDS:</div>
-                        <div style="font-family: Arial, sans-serif;">• Note - Optional notes/remarks</div>
+                    <div class="absolute left-full top-0 ml-3 w-80 bg-neutral-900 text-white p-5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none max-h-100 overflow-y-auto">
+  
+                      <header class="border-b border-neutral-700 pb-2 mb-3">
+                        <h4 class="text-[11px] font-black uppercase tracking-widest text-blue-400 flex items-center gap-2">
+                          📋 Import Validation Requirements
+                        </h4>
+                      </header>
+
+                      <div class="space-y-4 text-[11px] leading-relaxed font-sans">
+                        <section>
+                          <h5 class="font-bold text-green-400 mb-1 text-[10px]">✓ Required Fields (All must be filled)</h5>
+                          <ul class="space-y-0.5 text-neutral-300">
+                            <li><b class="text-white">Control No.</b> — Must match inventory</li>
+                            <li><b class="text-white">Part No.</b> — Must exist in inventory</li>
+                            <li><b class="text-white">Category</b> — Must match inventory</li>
+                            <li><b class="text-white">Part Name</b> — Must match inventory</li>
+                            <li><b class="text-white">Model</b> — Must match inventory</li>
+                            <li><b class="text-white">Quantity</b> — Must be greater than 0</li>
+                            <li><b class="text-white">Client Name</b> — Cannot be empty</li>
+                          </ul>
+                        </section>
+
+                        <section>
+                          <h5 class="font-bold text-yellow-400 mb-1 uppercase text-[10px]">⚠ Stock Validation</h5>
+                          <ul class="space-y-0.5 text-neutral-300">
+                            <li>Quantity <span class="text-white font-bold">cannot exceed</span> available stock</li>
+                            <li>System checks real-time inventory levels</li>
+                          </ul>
+                        </section>
+
+                        <section>
+                          <h5 class="font-bold text-blue-400 mb-1 uppercase text-[10px]">✓ Optional</h5>
+                          <p class="text-neutral-300"><b class="text-white">Note</b> — Optional notes/remarks</p>
+                        </section>
                       </div>
-                      <div class="absolute top-4 -left-2 w-4 h-4 bg-neutral-800 transform rotate-45"></div>
+
+                      <div class="absolute top-4 -left-1.5 w-3 h-3 bg-neutral-900 rotate-45"></div>
                     </div>
                   </div>
                 </h3>
@@ -1448,7 +1467,7 @@ const printTransactionOut = (data, title) => {
   });
   
   // Create print window content
-  const printContent = `
+ const printContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -1470,34 +1489,55 @@ const printTransactionOut = (data, title) => {
           background: #fff;
         }
         
-        /* NEW HEADER STYLES */
+        /* UPDATED HEADER STYLES */
         .header-container {
           display: flex;
-          justify-content: space-between;
+          justify-content: space-between; /* Isuzu on left, MDO Group on right */
           align-items: center;
           padding-bottom: 10px;
           margin-bottom: 15px;
           border-bottom: 3px solid #ea580c;
         }
+
         .header-left img {
-          height: 60px; /* Adjusted for Isuzu Logo */
+          height: 60px;
           width: auto;
+          display: block;
         }
-        .header-center img {
-          height: 60px; /* Adjusted for MDO Logo */
+
+        /* Group for Logo and Company Name/Address */
+        .header-right-group {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          flex: 1;
+        }
+
+        .header-center-logo {
+          margin-right: 15px; /* Space between logo and text */
+        }
+
+        .header-center-logo img {
+          height: 60px;
           width: auto;
+          display: block;
         }
-        .header-right {
+
+        .header-right-text {
           text-align: left;
-          flex: 0 0 400px;
+          border-left: 1px solid #ddd; /* Optional separator line */
+          padding-left: 15px;
         }
+
         .company-full-name {
           font-size: 14pt;
           font-weight: bold;
           text-transform: uppercase;
+          line-height: 1.2;
         }
+
         .address-line {
-          font-size: 10pt;
+          font-size: 9pt;
           color: #333;
         }
         
@@ -1598,6 +1638,7 @@ const printTransactionOut = (data, title) => {
         }
         @media print {
           .no-print { display: none; }
+          body { -webkit-print-color-adjust: exact; }
         }
       </style>
     </head>
@@ -1606,13 +1647,16 @@ const printTransactionOut = (data, title) => {
         <div class="header-left">
           <img src="/isuzucalapanHeader.png" alt="ISUZU Calapan City">
         </div>
-        <div class="header-center">
-          <img src="/mdoLogo.png" alt="MDO Motors">
-        </div>
-        <div class="header-right">
-          <div class="company-full-name">MINA DE ORO MOTORS INCORPORATED</div>
-          <div class="address-line">Km. 9 Nautical Highway, Puting Tubig, Calapan City</div>
-          <div class="address-line">Oriental Mindoro, 5200</div>
+
+        <div class="header-right-group">
+          <div class="header-center-logo">
+            <img src="/mdoLogo.png" alt="MDO Motors">
+          </div>
+          <div class="header-right-text">
+            <div class="company-full-name">MINA DE ORO MOTORS INCORPORATED</div>
+            <div class="address-line">Km. 9 Nautical Highway, Puting Tubig, Calapan City</div>
+            <div class="address-line">Oriental Mindoro, 5200</div>
+          </div>
         </div>
       </div>
 
