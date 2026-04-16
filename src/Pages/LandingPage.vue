@@ -102,11 +102,12 @@
             </div>
           </div>
 
-          <div v-if="carPromosContact.contactNumber || carPromosContact.contactPerson || carPromosContact.address || carPromosContact.socials" class="max-w-2xl mx-auto mb-24 bg-white/70 rounded-2xl p-6 border border-neutral-200">
+          <div v-if="carPromosContact.contactNumber || carPromosContact.contactPerson || carPromosContact.address || carPromosContact.socials || carPromosContact.email" class="max-w-2xl mx-auto mb-24 bg-white/70 rounded-2xl p-6 border border-neutral-200">
             <h3 class="text-lg font-black isuzu-font uppercase tracking-widest mb-4 text-red-600">Contact Us (for Car Promos)</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div v-if="carPromosContact.contactNumber" class="text-[13px] text-neutral-700"><span class="font-bold">Contact Number:</span> {{ carPromosContact.contactNumber }}</div>
               <div v-if="carPromosContact.contactPerson" class="text-[13px] text-neutral-700"><span class="font-bold">Contact Person:</span> {{ carPromosContact.contactPerson }}</div>
+              <div v-if="carPromosContact.email" class="text-[13px] text-neutral-700"><span class="font-bold">Email:</span> {{ carPromosContact.email }}</div>
               <div v-if="carPromosContact.address" class="text-[13px] text-neutral-700 md:col-span-2"><span class="font-bold">Address:</span> {{ carPromosContact.address }}</div>
               <div v-if="carPromosContact.socials" class="text-[13px] text-neutral-700 md:col-span-2"><span class="font-bold">Social Media:</span> <span v-for="(soc, i) in carPromosContact.socials.split(',')" :key="i">{{ soc.trim() }}<span v-if="i < carPromosContact.socials.split(',').length - 1">,&nbsp;</span></span></div>
             </div>
@@ -138,11 +139,12 @@
             </div>
           </div>
 
-          <div v-if="partsPromosContact.contactNumber || partsPromosContact.contactPerson || partsPromosContact.address || partsPromosContact.socials" class="max-w-2xl mx-auto my-16 bg-white/70 rounded-2xl p-6 border border-neutral-200">
+          <div v-if="partsPromosContact.contactNumber || partsPromosContact.contactPerson || partsPromosContact.address || partsPromosContact.socials || partsPromosContact.email" class="max-w-2xl mx-auto my-16 bg-white/70 rounded-2xl p-6 border border-neutral-200">
             <h3 class="text-lg font-black isuzu-font uppercase tracking-widest mb-4 text-red-600">Contact Us (for Parts Promos)</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div v-if="partsPromosContact.contactNumber" class="text-[13px] text-neutral-700"><span class="font-bold">Contact Number:</span> {{ partsPromosContact.contactNumber }}</div>
               <div v-if="partsPromosContact.contactPerson" class="text-[13px] text-neutral-700"><span class="font-bold">Contact Person:</span> {{ partsPromosContact.contactPerson }}</div>
+              <div v-if="partsPromosContact.email" class="text-[13px] text-neutral-700"><span class="font-bold">Email:</span> {{ partsPromosContact.email }}</div>
               <div v-if="partsPromosContact.address" class="text-[13px] text-neutral-700 md:col-span-2"><span class="font-bold">Address:</span> {{ partsPromosContact.address }}</div>
               <div v-if="partsPromosContact.socials" class="text-[13px] text-neutral-700 md:col-span-2"><span class="font-bold">Social Media:</span> <span v-for="(soc, i) in partsPromosContact.socials.split(',')" :key="i">{{ soc.trim() }}<span v-if="i < partsPromosContact.socials.split(',').length - 1">,&nbsp;</span></span></div>
             </div>
@@ -270,8 +272,8 @@ const carPromos = ref([]);
 const partsPromos = ref([]);
 const brandIdentity = ref({ mission: "", vision: "", coreValues: [] });
 const aboutUs = ref({ aboutTextLine1: "", aboutTextLine2: "", slogan: "" });
-const carPromosContact = ref({ contactNumber: '', contactPerson: '', address: '', socials: '' });
-const partsPromosContact = ref({ contactNumber: '', contactPerson: '', address: '', socials: '' });
+const carPromosContact = ref({ contactNumber: '', contactPerson: '', address: '', socials: '', email: '' });
+const partsPromosContact = ref({ contactNumber: '', contactPerson: '', address: '', socials: '', email: '' });
 
 onMounted(async () => {
   try {
@@ -314,10 +316,12 @@ onMounted(async () => {
       carPromosContact.value.contactPerson = data.carPromosContactPerson || '';
       carPromosContact.value.address = data.carPromosContactAddress || '';
       carPromosContact.value.socials = data.carPromosContactSocials || '';
+      carPromosContact.value.email = data.carPromosContactEmail || '';
       partsPromosContact.value.contactNumber = data.partsPromosContactNumber || '';
       partsPromosContact.value.contactPerson = data.partsPromosContactPerson || '';
       partsPromosContact.value.address = data.partsPromosContactAddress || '';
       partsPromosContact.value.socials = data.partsPromosContactSocials || '';
+      partsPromosContact.value.email = data.partsPromosContactEmail || '';
     }
   } catch (error) {
     console.error("Error fetching landing page data:", error);

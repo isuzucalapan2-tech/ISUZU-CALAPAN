@@ -179,6 +179,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input v-model="carPromosContact.contactNumber" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Number" />
                   <input v-model="carPromosContact.contactPerson" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Person" />
+                  <input v-model="carPromosContact.email" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Email" />
                   <input v-model="carPromosContact.address" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Address" />
                   <input v-model="carPromosContact.socials" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Social Media Accounts (comma separated)" />
                 </div>
@@ -227,6 +228,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input v-model="partsPromosContact.contactNumber" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Number" />
                   <input v-model="partsPromosContact.contactPerson" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Person" />
+                  <input v-model="partsPromosContact.email" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Email" />
                   <input v-model="partsPromosContact.address" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Address" />
                   <input v-model="partsPromosContact.socials" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Social Media Accounts (comma separated)" />
                 </div>
@@ -676,14 +678,16 @@ const carPromosContact = ref({
   contactNumber: "",
   contactPerson: "",
   address: "",
-  socials: ""
+  socials: "",
+  email: ""
 });
 // Contact Us for Parts Promos (single section)
 const partsPromosContact = ref({
   contactNumber: "",
   contactPerson: "",
   address: "",
-  socials: ""
+  socials: "",
+  email: ""
 });
 
 // Load promos from Firestore on mount
@@ -706,11 +710,13 @@ onMounted(async () => {
       carPromosContact.value.contactPerson = data.carPromosContactPerson || "";
       carPromosContact.value.address = data.carPromosContactAddress || "";
       carPromosContact.value.socials = data.carPromosContactSocials || "";
+      carPromosContact.value.email = data.carPromosContactEmail || "";
       // Load Contact Us fields for parts promos
       partsPromosContact.value.contactNumber = data.partsPromosContactNumber || "";
       partsPromosContact.value.contactPerson = data.partsPromosContactPerson || "";
       partsPromosContact.value.address = data.partsPromosContactAddress || "";
       partsPromosContact.value.socials = data.partsPromosContactSocials || "";
+      partsPromosContact.value.email = data.partsPromosContactEmail || "";
       // ...load other landing fields...
     } else {
       // If no data, initialize with defaults
@@ -788,10 +794,12 @@ async function savePromos() {
       carPromosContactPerson: carPromosContact.value.contactPerson,
       carPromosContactAddress: carPromosContact.value.address,
       carPromosContactSocials: carPromosContact.value.socials,
+      carPromosContactEmail: carPromosContact.value.email,
       partsPromosContactNumber: partsPromosContact.value.contactNumber,
       partsPromosContactPerson: partsPromosContact.value.contactPerson,
       partsPromosContactAddress: partsPromosContact.value.address,
       partsPromosContactSocials: partsPromosContact.value.socials,
+      partsPromosContactEmail: partsPromosContact.value.email,
     }, { merge: true });
     saveSuccess.value = true;
     setTimeout(() => (saveSuccess.value = false), 3000);
