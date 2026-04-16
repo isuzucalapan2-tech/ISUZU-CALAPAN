@@ -1,171 +1,184 @@
-
-
 <template>
-  <div :class="themeClass" :style="themeStyle" class="min-h-screen flex flex-col font-sans relative overflow-hidden">
-    <!-- Background Decoration -->
-    <div class="absolute top-0 left-0 w-full z-0 opacity-10 pointer-events-none">
+  <div :class="themeClass" :style="themeStyle" class="min-h-screen bg-white flex flex-col font-sans relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full z-0 opacity-20 pointer-events-none">
       <svg viewBox="0 0 500 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
-        <path d="M0 15 H280 L330 45 H500" stroke="#2563eb" stroke-width="2" />
+        <path d="M0 15 H280 L330 45 H500" stroke="url(#paint0_linear)" stroke-width="1.5" />
+        <defs>
+          <linearGradient id="paint0_linear" x1="0" y1="0" x2="500" y2="0" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#2563eb" />
+            <stop offset="1" stop-color="#3b82f6" stop-opacity="0" />
+          </linearGradient>
+        </defs>
       </svg>
     </div>
 
-    <!-- Header -->
-    <header class="relative z-10 px-8 py-6 flex justify-between items-center backdrop-blur-none">
-      <div class="flex items-center gap-4">
-        <div class="bg-blue-600 p-2 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    <header class="relative z-10 px-8 py-8 flex justify-between items-center bg-white/7 backdrop-blur-none ">
+      <div class="flex items-center gap-5">
+        <div class="bg-blue-600 p-2.5 rounded-xl ring-4 ring-blue-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
         </div>
         <div>
-          <h1 class="text-2xl font-black isuzu-font uppercase tracking-widest text-neutral-800">
+          <h1 class="text-2xl font-black uppercase tracking-tight text-neutral-900 leading-none mb-1 isuzu-font">
             Attendance <span class="text-blue-600">Plotting</span>
           </h1>
-          <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Attendance Visualization & Analytics</p>
+          <p class="text-[10px] text-blue-500/70 font-bold uppercase tracking-[0.4em]">Analytics Engine v2.0</p>
         </div>
       </div>
-      <button @click="showAddEmployee = true" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg flex items-center gap-2">
+      <button @click="showAddEmployee = true" class="bg-neutral-900 hover:bg-blue-600 text-white px-7 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-300 transform hover:-translate-y-0.5 shadow-xl shadow-slate-200 flex items-center gap-3">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
         Add Employee
       </button>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 relative z-10 overflow-auto p-6 lg:p-6">
-      <div class="max-w-[1800px] mx-auto space-y-6">
-        <!-- Employees List -->
-        <div v-if="employees.length === 0" class="bg-white rounded-2xl border border-neutral-300 p-12 flex flex-col items-center justify-center min-h-[300px]">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 text-blue-200 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2M16 11V7a4 4 0 00-8 0v4M5 11h14M12 17v.01" /></svg>
-          <h2 class="text-xl font-black isuzu-font uppercase tracking-widest text-neutral-700 mb-2">No Employees Added</h2>
-          <p class="text-[12px] text-gray-500 mb-4">Click "Add Employee" to start plotting attendance.</p>
+    <main class="flex-1 relative z-10 overflow-auto p-5">
+      <div class="max-w-350 mx-auto space-y-8">
+        
+        <div v-if="employees.length === 0" class="bg-white rounded-3xl border border-dashed border-gray-300 p-20 flex flex-col items-center justify-center transition-all">
+          <div class="bg-gray-50 p-8 rounded-full mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2M16 11V7a4 4 0 00-8 0v4M5 11h14M12 17v.01" />
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-neutral-800 uppercase tracking-widest mb-2">System Ready</h2>
+          <p class="text-sm text-gray-400">Add an employee to begin attendance visualization.</p>
         </div>
 
         <div v-else>
-          <!-- Color Legend -->
-          <div class="flex flex-wrap gap-4 mb-6 items-center justify-center">
-            <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full border-2 border-gray-300 inline-block" style="background-color: #F68EA0;"></span>
-              <span class="text-xs font-bold text-gray-700">WORKING DAY</span>
+          <div class="bg-white/50 backdrop-blur-none rounded-2xl p-1 flex flex-wrap gap-8 mb-5 items-center justify-left">
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full ring-4 ring-[#F68EA0]/20" style="background-color: #F68EA0;"></span>
+              <span class="text-[11px] font-black text-slate-600 uppercase tracking-tighter">Working Day</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full border-2 border-gray-300 inline-block" style="background-color: #B3B3E3;"></span>
-              <span class="text-xs font-bold text-gray-700">REST DAY</span>
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full ring-4 ring-[#B3B3E3]/20" style="background-color: #B3B3E3;"></span>
+              <span class="text-[11px] font-black text-slate-600 uppercase tracking-tighter">Rest Day</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full border-2 border-gray-300 inline-block" style="background-color: #7FC3FF;"></span>
-              <span class="text-xs font-bold text-gray-700">HOLIDAY</span>
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full ring-4 ring-[#7FC3FF]/20" style="background-color: #7FC3FF;"></span>
+              <span class="text-[11px] font-black text-slate-600 uppercase tracking-tighter">Holiday</span>
             </div>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div v-for="(employee, idx) in employees" :key="employee.id" class="bg-white rounded-2xl border border-neutral-300 p-6 flex flex-col shadow relative">
-              <div class="absolute top-4 right-4 flex gap-2">
-              <button @click="startEditEmployee(idx)" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-full p-2 shadow transition-all" title="Edit Employee">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13h3l8-8a2.828 2.828 0 10-4-4l-8 8v3z" /></svg>
-              </button>
-              <button @click="removeEmployee(idx)" class="bg-red-100 hover:bg-red-200 text-red-600 rounded-full p-2 shadow transition-all" title="Remove Employee">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <div class="flex items-center gap-3 mb-4">
-              <div class="bg-blue-100 p-2 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m13-7V7a4 4 0 00-3-3.87M9 4a4 4 0 00-3 3.87V7m0 0a4 4 0 013-3.87M9 4a4 4 0 013 3.87M9 4a4 4 0 013 3.87" /></svg>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <div v-for="(employee, idx) in employees" :key="employee.id" class="group bg-white rounded-2xl border border-neutral-300 p-7 flex flex-col  hover:shadow-blue-500/5 transition-all duration-500 relative">
+              
+              <div class="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button @click="startEditEmployee(idx)" class="bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl p-2.5 transition-colors" title="Edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13h3l8-8a2.828 2.828 0 10-4-4l-8 8v3z" /></svg>
+                </button>
+                <button @click="removeEmployee(idx)" class="bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl p-2.5 transition-colors" title="Delete">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
               </div>
-              <div>
-                <p class="text-[10px] font-black text-gray-400 uppercase">Employee</p>
-                <p class="text-lg font-black text-neutral-800">{{ employee.name }}</p>
-              </div>
-            </div>
-            <!-- Editable Calendar -->
-            <div class="flex-1 flex flex-col items-center justify-center">
-              <div class="w-full mb-2 flex justify-between items-center">
-                <button @click="() => { if (currentMonth > 0) currentMonth--; else { currentMonth = 11; currentYear--; } }" class="text-blue-500 hover:text-blue-700 px-2">&lt;</button>
-                <span class="font-bold">{{ new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long', year: 'numeric' }) }}</span>
-                <button @click="() => { if (currentMonth < 11) currentMonth++; else { currentMonth = 0; currentYear++; } }" class="text-blue-500 hover:text-blue-700 px-2">&gt;</button>
-              </div>
-              <div class="grid grid-cols-7 gap-1 w-full">
-                <div v-for="d in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" :key="d" class="text-center text-xs font-bold text-gray-400 py-1">{{ d }}</div>
-                <template v-if="(() => { const firstDay = new Date(currentYear, currentMonth, 1).getDay(); return firstDay; })() > 0">
-                  <div v-for="n in new Array(new Date(currentYear, currentMonth, 1).getDay()).fill(0)" :key="'empty'+n" class="" />
-                </template>
-                <div v-for="(dayObj, dayIdx) in (employee.attendance?.[getMonthKey(currentYear, currentMonth)] || getDefaultAttendance(currentYear, currentMonth))" :key="dayObj.day" class="flex justify-center items-center">
-                  <button
-                    :class="[
-                      'w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs border',
-                      dayObj.status === 'required' ? 'text-gray-900 border-gray-300' :
-                      dayObj.status === 'holiday' ? 'text-white border-gray-300' :
-                      dayObj.status === 'rest' ? 'text-white border-gray-300' :
-                      dayObj.status === 'late' ? 'text-white border-gray-300' :
-                      dayObj.status === 'absent' ? 'text-white border-gray-300' :
-                      dayObj.status === 'undertime' ? 'text-white border-gray-300' :
-                      dayObj.status === 'overtime' ? 'text-white border-gray-300' :
-                      'bg-white text-gray-700 border-gray-300'
-                    ]"
-                    @click="() => updateAttendance(idx, dayIdx, cycleStatus(dayObj.status))"
-                    :title="dayObj.status.charAt(0).toUpperCase() + dayObj.status.slice(1)"
-                    :style="{
-                      backgroundColor: dayObj._color
-                        ? dayObj._color
-                        : dayObj.status === 'required' ? '#F68EA0'
-                        : dayObj.status === 'rest' ? '#B3B3E3'
-                        : dayObj.status === 'holiday' ? '#7FC3FF'
-                        : '#fff',
-                      color: dayObj.status === 'required' ? '#222' : '#fff'
-                    }"
-                  >
-                    {{ dayObj.day }}
-                  </button>
+
+              <div class="flex items-center gap-4 mb-8">
+                <div class="bg-slate-50 p-3 rounded-2xl group-hover:bg-blue-50 transition-colors duration-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m13-7V7a4 4 0 00-3-3.87M9 4a4 4 0 00-3 3.87V7m0 0a4 4 0 013-3.87M9 4a4 4 0 013 3.87M9 4a4 4 0 013 3.87" /></svg>
+                </div>
+                <div>
+                  <p class="text-[9px] font-black text-blue-500 uppercase tracking-widest">ID: {{ 1000 + idx }}</p>
+                  <p class="text-xl font-bold text-slate-800 tracking-tight">{{ employee.name }}</p>
                 </div>
               </div>
-              <!-- (Optional) Small legend below calendar, can be removed if redundant -->
-              <div class="flex gap-2 mt-2">
-                <span class="w-4 h-4 rounded-full border-2 border-gray-300 inline-block" style="background-color: #F68EA0;" title="Working Day"></span>
-                <span class="w-4 h-4 rounded-full border-2 border-gray-300 inline-block" style="background-color: #B3B3E3;" title="Rest Day"></span>
-                <span class="w-4 h-4 rounded-full border-2 border-gray-300 inline-block" style="background-color: #7FC3FF;" title="Holiday"></span>
-              </div>
-              <div class="w-full mt-2">
-                <p class="text-[11px] text-gray-500 mb-1 font-bold uppercase">Notes / Updates</p>
-                <ul class="text-[11px] text-gray-600 list-disc pl-5">
-                  <li v-for="(note, nidx) in employee.notes" :key="nidx">{{ note }}</li>
-                  <li v-if="employee.notes.length === 0" class="italic text-gray-400">No updates yet.</li>
-                </ul>
+
+              <div class="flex-1 flex flex-col">
+                <div class="w-full mb-6 flex justify-between items-center bg-slate-50 rounded-xl p-2">
+                  <button @click="() => { if (currentMonth > 0) currentMonth--; else { currentMonth = 11; currentYear--; } }" class="p-2 hover:bg-white rounded-lg transition-all text-slate-400 hover:text-blue-600 font-black">&larr;</button>
+                  <span class="font-black text-xs uppercase tracking-widest text-slate-600">{{ new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long', year: 'numeric' }) }}</span>
+                  <button @click="() => { if (currentMonth < 11) currentMonth++; else { currentMonth = 0; currentYear++; } }" class="p-2 hover:bg-white rounded-lg transition-all text-slate-400 hover:text-blue-600 font-black">&rarr;</button>
+                </div>
+
+                <div class="grid grid-cols-7 gap-2 w-full mb-6">
+                  <div v-for="d in ['S','M','T','W','T','F','S']" :key="d" class="text-center text-[10px] font-black text-slate-300 py-1">{{ d }}</div>
+                  
+                  <template v-if="(() => { const firstDay = new Date(currentYear, currentMonth, 1).getDay(); return firstDay; })() > 0">
+                    <div v-for="n in new Array(new Date(currentYear, currentMonth, 1).getDay()).fill(0)" :key="'empty'+n" class="h-9" />
+                  </template>
+
+                  <div v-for="(dayObj, dayIdx) in (employee.attendance?.[getMonthKey(currentYear, currentMonth)] || getDefaultAttendance(currentYear, currentMonth))" :key="dayObj.day" class="flex justify-center items-center">
+                    <button
+                      :class="[
+                        'w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs transition-all duration-200 active:scale-90 border-2',
+                        dayObj.status === 'required' ? 'border-transparent shadow-md shadow-red-100' :
+                        dayObj.status === 'holiday' ? 'border-transparent shadow-md shadow-blue-100' :
+                        dayObj.status === 'rest' ? 'border-transparent shadow-md shadow-indigo-100' :
+                        'bg-white text-slate-400 border-slate-100 hover:border-slate-200'
+                      ]"
+                      @click="() => updateAttendance(idx, dayIdx, cycleStatus(dayObj.status))"
+                      :style="{
+                        backgroundColor: dayObj._color
+                          ? dayObj._color
+                          : dayObj.status === 'required' ? '#F68EA0'
+                          : dayObj.status === 'rest' ? '#B3B3E3'
+                          : dayObj.status === 'holiday' ? '#7FC3FF'
+                          : '',
+                        color: (dayObj.status === 'required' || dayObj.status === 'rest' || dayObj.status === 'holiday') ? '#fff' : ''
+                      }"
+                    >
+                      {{ dayObj.day }}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-50">
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-tighter">Activity Stream</p>
+                  </div>
+                  <ul class="space-y-2">
+                    <li v-for="(note, nidx) in employee.notes" :key="nidx" class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border-l-2 border-blue-400">{{ note }}</li>
+                    <li v-if="employee.notes.length === 0" class="italic text-[11px] text-slate-300">No recent activity detected.</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Add Employee Modal -->
-      <div v-if="showAddEmployee" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative">
-          <button @click="showAddEmployee = false" class="absolute top-4 right-4 text-gray-400 hover:text-red-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+      <div v-if="showAddEmployee || editEmployeeIdx !== null" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="cancelModals"></div>
+        
+        <div v-if="showAddEmployee" class="bg-white rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md relative z-10 border border-white">
+          <button @click="showAddEmployee = false" class="absolute top-6 right-6 text-slate-300 hover:text-rose-500 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
-          <h2 class="text-xl font-black isuzu-font uppercase tracking-widest mb-4">Add Employee</h2>
+          <div class="mb-8">
+            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight">New Member</h2>
+            <p class="text-xs text-slate-400 mt-1 uppercase font-bold tracking-widest">Employee Directory</p>
+          </div>
           <form @submit.prevent="addEmployee">
-            <label class="block mb-2 text-xs font-bold uppercase text-gray-600">Employee Name</label>
-            <input v-model="newEmployeeName" type="text" class="w-full px-4 py-2 rounded-lg border border-gray-300 mb-4 focus:ring-2 focus:ring-blue-500" placeholder="Enter employee name" required />
-            <div class="flex justify-end">
-              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow">Add</button>
+            <div class="mb-6">
+              <label class="block mb-2 text-[10px] font-black uppercase text-blue-500 tracking-widest">Full Name</label>
+              <input v-model="newEmployeeName" type="text" class="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none ring-2 ring-transparent focus:ring-blue-500/20 focus:bg-white transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" placeholder="e.g. Juan Dela Cruz" required />
             </div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-200 transition-all">
+              Initialize Profile
+            </button>
           </form>
         </div>
-      </div>
 
-      <!-- Edit Employee Modal -->
-      <div v-if="editEmployeeIdx !== null" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative">
-          <button @click="cancelEditEmployee" class="absolute top-4 right-4 text-gray-400 hover:text-red-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        <div v-if="editEmployeeIdx !== null" class="bg-white rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md relative z-10 border border-white">
+          <button @click="cancelEditEmployee" class="absolute top-6 right-6 text-slate-300 hover:text-rose-500 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
-          <h2 class="text-xl font-black isuzu-font uppercase tracking-widest mb-4">Edit Employee</h2>
+          <div class="mb-8">
+            <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Update Details</h2>
+            <p class="text-xs text-slate-400 mt-1 uppercase font-bold tracking-widest">ID Modification</p>
+          </div>
           <form @submit.prevent="saveEditEmployee">
-            <label class="block mb-2 text-xs font-bold uppercase text-gray-600">Employee Name</label>
-            <input v-model="editEmployeeName" type="text" class="w-full px-4 py-2 rounded-lg border border-gray-300 mb-4 focus:ring-2 focus:ring-blue-500" placeholder="Enter employee name" required />
-            <div class="flex justify-end">
-              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow">Save</button>
+             <div class="mb-6">
+              <label class="block mb-2 text-[10px] font-black uppercase text-blue-500 tracking-widest">Updated Name</label>
+              <input v-model="editEmployeeName" type="text" class="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none ring-2 ring-transparent focus:ring-blue-500/20 focus:bg-white transition-all text-sm font-bold text-slate-700" required />
             </div>
+            <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-200 transition-all">
+              Sync Changes
+            </button>
           </form>
         </div>
       </div>
-      </div> <!-- closes max-w-[1800px] mx-auto space-y-6 -->
     </main>
   </div>
 </template>
@@ -194,7 +207,7 @@ const DTR_STATUS_COLORS = {
   overtime: '#AC693C',
 };
 
-// Helper to get YYYY-MM-DD string
+// Helper to get YYYY-MM-DD stringwwwwwwwwwwwwwwwwwwwwwwwwww
 function getDateKey(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }

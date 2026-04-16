@@ -1455,7 +1455,6 @@ const printTransactionOut = (data, title) => {
       <title>${title} - ISUZU Calapan</title>
       <style>
         @page {
-          size: landscape;
           margin: 10mm;
         }
         * {

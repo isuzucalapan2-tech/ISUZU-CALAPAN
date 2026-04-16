@@ -173,7 +173,10 @@
                       <textarea v-model="car.description" class="text-xs text-neutral-500 w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500 resize-none h-20" placeholder="Description"></textarea>
                       <input v-model="car.promo" class="text-red-600 font-black text-base md:text-lg w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Promo" />
                       <input v-model="car.promoLabel" class="text-[10px] font-black text-neutral-400 uppercase tracking-widest w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Label (e.g. Special Offer)" />
-                      <button v-if="canDelete" @click="removeCarPromo(idx)" class="mt-auto pt-2 text-[10px] font-bold text-red-500 hover:text-red-700 uppercase tracking-tighter self-start">Remove</button>
+  
+                    <!-- Contact Us Fields -->
+
+                    <button v-if="canDelete" @click="removeCarPromo(idx)" class="mt-auto pt-2 text-[10px] font-bold text-red-500 hover:text-red-700 uppercase tracking-tighter self-start">Remove</button>
                     </template>
                     <!-- Read-only view -->
                     <template v-else>
@@ -187,9 +190,22 @@
 
                 <!-- Add Car Promo button - only show if canCreate -->
                 <div v-if="canCreate" class="flex items-center justify-center min-h-50 border-2 border-dashed border-neutral-300 rounded-2xl bg-white/30">
+
                   <button @click="addCarPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-red-700 transition shadow-md">+ Add Car Promo</button>
                 </div>
               </div>
+
+              <!-- Contact Us Section for Car Promos -->
+              <div class="mt-8 bg-white/60 rounded-2xl p-6 border border-neutral-200">
+                <h3 class="text-lg font-black isuzu-font uppercase tracking-widest mb-4 text-red-600">Contact Us (for Car Promos)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input v-model="carPromosContact.contactNumber" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Number" />
+                  <input v-model="carPromosContact.contactPerson" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Person" />
+                  <input v-model="carPromosContact.email" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Email" />
+                  <input v-model="carPromosContact.address" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Address" />
+                  <input v-model="carPromosContact.socials" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Social Media Accounts (comma separated)" />
+                </div>
+              </div> 
             </div>
 
             <div class="bg-white/40 backdrop-blur-sm rounded-3xl p-5 md:p-8 border border-gray-200">
@@ -238,6 +254,17 @@
                 <!-- Add Part Promo button - only show if canCreate -->
                 <div v-if="canCreate" class="flex items-center justify-center min-h-50 border-2 border-dashed border-neutral-500/30 rounded-2xl">
                   <button @click="addPartPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-red-700 transition shadow-md">+ Add Part Promo</button>
+                </div>
+              </div>
+              <!-- Contact Us Section for Parts Promos -->
+              <div class="mt-8 bg-white/60 rounded-2xl p-6 border border-neutral-200">
+                <h3 class="text-lg font-black isuzu-font uppercase tracking-widest mb-4 text-red-600">Contact Us (for Parts Promos)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input v-model="partsPromosContact.contactNumber" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Number" />
+                  <input v-model="partsPromosContact.contactPerson" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Person" />
+                  <input v-model="partsPromosContact.email" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Email" />
+                  <input v-model="partsPromosContact.address" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Address" />
+                  <input v-model="partsPromosContact.socials" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Social Media Accounts (comma separated)" />
                 </div>
               </div>
             </div>
@@ -432,7 +459,7 @@
                   v-if="canCreate"
                   @click="showAddRoleModal = true"
                   type="button"
-                  class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
+                  class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-11 shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
                 >
                   <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" /> 
                   <span>Add Role</span>
@@ -522,7 +549,7 @@
                   v-if="canCreate"
                   @click="showAddPositionModal = true"
                   type="button"
-                  class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px] shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
+                  class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-11 shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
                 >
                   <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" /> 
                   <span>Add Position</span>
@@ -603,7 +630,7 @@
     </main>
 
     <!-- Add Role Modal - Moved outside main container -->
-    <div v-if="showAddRoleModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div v-if="showAddRoleModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl">
         <div class="flex items-center justify-between mb-6">
           <h3 class="text-lg font-black uppercase tracking-tight text-neutral-800">Add New Role</h3>
@@ -640,7 +667,7 @@
     </div>
 
     <!-- Add Position Modal - Moved outside main container -->
-    <div v-if="showAddPositionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div v-if="showAddPositionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl">
         <div class="flex items-center justify-between mb-6">
           <h3 class="text-lg font-black uppercase tracking-tight text-neutral-800">Add New Position</h3>
@@ -714,7 +741,11 @@ function addCarPromo() {
     description: "",
     promo: "",
     promoLabel: "Special Offer",
-    image: ""
+    image: "",
+    contactNumber: "",
+    contactPerson: "",
+    address: "",
+    socials: ""
   });
 }
 
@@ -740,6 +771,22 @@ function removePartPromo(idx) {
 // Promos Management State
 const landingCarPromos = ref([]);
 const landingPartsPromos = ref([]);
+// Contact Us for Car Promos (single section)
+const carPromosContact = ref({
+  contactNumber: "",
+  contactPerson: "",
+  address: "",
+  socials: "",
+  email: ""
+});
+// Contact Us for Parts Promos (single section)
+const partsPromosContact = ref({
+  contactNumber: "",
+  contactPerson: "",
+  address: "",
+  socials: "",
+  email: ""
+});
 
 // Load promos from Firestore on mount
 onMounted(async () => {
@@ -756,6 +803,18 @@ onMounted(async () => {
       landingPartsPromos.value.forEach(part => {
         if (!('partsType' in part)) part.partsType = 'Genuine Parts';
       });
+      // Load Contact Us fields for car promos
+      carPromosContact.value.contactNumber = data.carPromosContactNumber || "";
+      carPromosContact.value.contactPerson = data.carPromosContactPerson || "";
+      carPromosContact.value.address = data.carPromosContactAddress || "";
+      carPromosContact.value.socials = data.carPromosContactSocials || "";
+      carPromosContact.value.email = data.carPromosContactEmail || "";
+      // Load Contact Us fields for parts promos
+      partsPromosContact.value.contactNumber = data.partsPromosContactNumber || "";
+      partsPromosContact.value.contactPerson = data.partsPromosContactPerson || "";
+      partsPromosContact.value.address = data.partsPromosContactAddress || "";
+      partsPromosContact.value.socials = data.partsPromosContactSocials || "";
+      partsPromosContact.value.email = data.partsPromosContactEmail || "";
       // ...load other landing fields...
     } else {
       // If no data, initialize with defaults
@@ -769,6 +828,8 @@ onMounted(async () => {
         { name: "Brake Pads", description: "Reliable stopping power.", promo: "Buy 1 Get 1 50%", image: "" },
         { name: "Filters", description: "Maintain air purity inside.", promo: "Bundle Deal", image: "" }
       ];
+      carPromosContact.value = { contactNumber: "", contactPerson: "", address: "", socials: "" };
+      partsPromosContact.value = { contactNumber: "", contactPerson: "", address: "", socials: "" };
     }
   } catch (error) {
     console.error("Error loading promos:", error);
@@ -815,6 +876,10 @@ async function savePromos() {
     landingCarPromos.value.forEach(car => {
       if (!('image' in car)) car.image = '';
       if (!('promoLabel' in car)) car.promoLabel = 'Special Offer';
+      if (!('contactNumber' in car)) car.contactNumber = '';
+      if (!('contactPerson' in car)) car.contactPerson = '';
+      if (!('address' in car)) car.address = '';
+      if (!('socials' in car)) car.socials = '';
     });
     landingPartsPromos.value.forEach(part => {
       if (!('image' in part)) part.image = '';
@@ -823,6 +888,16 @@ async function savePromos() {
     await setDoc(doc(db, "settings", "landingPage"), {
       carPromos: landingCarPromos.value,
       partsPromos: landingPartsPromos.value,
+      carPromosContactNumber: carPromosContact.value.contactNumber,
+      carPromosContactPerson: carPromosContact.value.contactPerson,
+      carPromosContactAddress: carPromosContact.value.address,
+      carPromosContactSocials: carPromosContact.value.socials,
+      carPromosContactEmail: carPromosContact.value.email,
+      partsPromosContactNumber: partsPromosContact.value.contactNumber,
+      partsPromosContactPerson: partsPromosContact.value.contactPerson,
+      partsPromosContactAddress: partsPromosContact.value.address,
+      partsPromosContactSocials: partsPromosContact.value.socials,
+      partsPromosContactEmail: partsPromosContact.value.email,
     }, { merge: true });
     saveSuccess.value = true;
     setTimeout(() => (saveSuccess.value = false), 3000);
@@ -1224,7 +1299,13 @@ onMounted(async () => {
     if (snap.exists()) {
       const data = snap.data();
       landingCarPromos.value = Array.isArray(data.carPromos) ? JSON.parse(JSON.stringify(data.carPromos)) : [];
+      landingCarPromos.value.forEach(car => {
+        if (!('promoLabel' in car)) car.promoLabel = 'Special Offer';
+      });
       landingPartsPromos.value = Array.isArray(data.partsPromos) ? JSON.parse(JSON.stringify(data.partsPromos)) : [];
+      landingPartsPromos.value.forEach(part => {
+        if (!('partsType' in part)) part.partsType = 'Genuine Parts';
+      });
       // Load About Us & Slogan from Firestore
       aboutUsTextLine1.value = data.aboutUsTextLine1 || "";
       aboutUsTextLine2.value = data.aboutUsTextLine2 || "";
