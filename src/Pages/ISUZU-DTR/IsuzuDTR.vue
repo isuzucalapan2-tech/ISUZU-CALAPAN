@@ -54,7 +54,7 @@
             <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
               <div class="relative">
                 <Search class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input v-model="searchQuery" type="text" placeholder="Search employee..." :class="inputClass" class="w-full pl-12 pr-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest outline-none focus:ring-2 focus:ring-blue-500 border transition-all" />
+                <input v-model="searchQuery" type="text" placeholder="Name or Id" :class="inputClass" class="w-full pl-12 pr-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest outline-none focus:ring-2 focus:ring-blue-500 border transition-all" />
               </div>
 
               <select v-model="selectedDepartment" :class="inputClass" class="rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none border focus:ring-2 focus:ring-blue-500">
@@ -121,7 +121,20 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- Raw Rows Card (New) -->
+          <div class="bg-white rounded-xl p-4 border border-neutral-200">
+            <div class="flex items-center gap-3">
+              <div class="bg-indigo-100 p-2 rounded-lg">
+                <Database class="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase">Raw Rows Read</p>
+                <p class="text-xl font-black text-indigo-600">{{ totalRawRows || 0 }}</p>
+              </div>
+            </div>
+          </div>
+          
           <div class="bg-white rounded-xl p-4 border border-neutral-200">
             <div class="flex items-center gap-3">
               <div class="bg-blue-100 p-2 rounded-lg">
@@ -166,6 +179,9 @@
                   <th class="p-4 font-black">Employee No.</th>
                   <th class="p-4 font-black">Department</th>
                   <th class="p-4 font-black">Name</th>
+                  <th class="p-4 font-black text-center">Card No.</th>
+                  <th class="p-4 font-black text-center">Location ID</th>
+                  <th class="p-4 font-black text-center">ID Number</th>
                   <th class="p-4 font-black">Date</th>
                   <th class="p-4 font-black text-center bg-blue-900/50" colspan="2">Morning</th>
                   <th class="p-4 font-black text-center bg-orange-900/50" colspan="2">Afternoon</th>
@@ -173,7 +189,7 @@
                   <th class="p-4 font-black text-center">Status</th>
                 </tr>
                 <tr class="bg-neutral-700 text-white text-[9px] uppercase tracking-widest">
-                  <th class="p-2 font-black" colspan="4"></th>
+                  <th class="p-2 font-black" colspan="7"></th>
                   <th class="p-2 font-black text-center bg-blue-800/30">IN</th>
                   <th class="p-2 font-black text-center bg-blue-800/30">OUT</th>
                   <th class="p-2 font-black text-center bg-orange-800/30">IN</th>
@@ -193,7 +209,11 @@
                       {{ item.department || 'N/A' }}
                     </span>
                   </td>
-                  <td class="p-4 text-neutral-800 font-black">{{ item.name }}</td>
+                  <td class="p-4 text-neutral-800 font-black">{{ item.rawName || item.name }}</td>
+                  <td class="p-4 text-neutral-500 text-[9px] text-center">{{ item.cardNo || '-' }}</td>
+                  <!-- Additional fields from new format - always visible -->
+                  <td class="p-4 text-neutral-500 text-[9px] text-center">{{ item.locationId || '-' }}</td>
+                  <td class="p-4 text-neutral-500 text-[9px] text-center">{{ item.idNumber || '-' }}</td>
                   <td class="p-4 text-neutral-500">{{ item.dateFormatted }}</td>
                   
                   <!-- Morning IN -->
@@ -250,7 +270,7 @@
                 </tr>
 
                 <tr v-if="paginatedDTR.length === 0">
-                  <td colspan="10" class="p-20 text-center opacity-30">
+                  <td colspan="13" class="p-20 text-center opacity-30">
                     <div class="flex flex-col items-center">
                       <Database class="w-16 h-16 mb-2" />
                       <p class="font-black isuzu-font uppercase tracking-widest">No DTR records found</p>
@@ -368,7 +388,12 @@
               <table class="w-full text-[10px]">
                 <thead class="bg-neutral-800 text-white sticky top-0">
                   <tr>
+                    <th class="p-3 text-left font-black uppercase">Employee No.</th>
+                    <th class="p-3 text-left font-black uppercase">Department</th>
                     <th class="p-3 text-left font-black uppercase">Name</th>
+                    <th class="p-3 text-center font-black uppercase">Card No.</th>
+                    <th class="p-3 text-center font-black uppercase">Location ID</th>
+                    <th class="p-3 text-center font-black uppercase">ID Number</th>
                     <th class="p-3 text-left font-black uppercase">Date</th>
                     <th class="p-3 text-center font-black uppercase">Morning</th>
                     <th class="p-3 text-center font-black uppercase">Afternoon</th>
@@ -378,7 +403,12 @@
                 <tbody>
                   <tr v-for="(item, idx) in dtrData.slice(0, 20)" :key="idx" 
                       :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
-                    <td class="p-3 font-bold">{{ item.name }}</td>
+                    <td class="p-3 font-mono text-gray-500">{{ item.employeeNo || '-' }}</td>
+                    <td class="p-3 text-gray-500">{{ item.department || 'N/A' }}</td>
+                    <td class="p-3 font-bold">{{ item.rawName || item.name }}</td>
+                    <td class="p-3 text-center text-gray-500">{{ item.cardNo || '-' }}</td>
+                    <td class="p-3 text-center text-gray-500">{{ item.locationId || '-' }}</td>
+                    <td class="p-3 text-center text-gray-500">{{ item.idNumber || '-' }}</td>
                     <td class="p-3 text-gray-500">{{ item.dateFormatted }}</td>
                     <td class="p-3 text-center">
                       <span class="text-[9px]">{{ item.morning.in }} - {{ item.morning.out }}</span>
@@ -393,7 +423,7 @@
                     </td>
                   </tr>
                   <tr v-if="dtrData.length > 20">
-                    <td colspan="5" class="p-3 text-center text-gray-400 text-[10px]">
+                    <td colspan="10" class="p-3 text-center text-gray-400 text-[10px]">
                       ... and {{ dtrData.length - 20 }} more records
                     </td>
                   </tr>
@@ -561,6 +591,32 @@ const filteredDTR = computed(() => {
       return itemDate <= end;
     });
   }
+
+// Sort by last name alphabetically, then date ascending for same name
+  filtered.sort((a, b) => {
+    // Get the raw name (in "LASTNAME, Firstname" format)
+    const nameA = a.rawName || a.name || '';
+    const nameB = b.rawName || b.name || '';
+    
+    // Extract last name (part before the comma)
+    const lastNameA = nameA.split(',')[0]?.trim().toLowerCase() || '';
+    const lastNameB = nameB.split(',')[0]?.trim().toLowerCase() || '';
+    
+    // Compare last names
+    if (lastNameA < lastNameB) return -1;
+    if (lastNameA > lastNameB) return 1;
+    
+    // If last names are equal, compare dates ascending (earliest first)
+    if (a.date && b.date) {
+      return new Date(a.date) - new Date(b.date);
+    }
+    
+    // Fallback to full name comparison
+    if (nameA < nameB) return -1;
+    if (nameA > nameB) return 1;
+    
+    return 0;
+  });
 
   return filtered;
 });
@@ -997,6 +1053,9 @@ const printDTR = (data, title) => {
             <th>Employee No.</th>
             <th>Department</th>
             <th>Name</th>
+            <th class="text-center">Card No.</th>
+            <th class="text-center">Location ID</th>
+            <th class="text-center">ID Number</th>
             <th>Date</th>
             <th class="text-center">Morning In</th>
             <th class="text-center">Morning Out</th>
@@ -1023,7 +1082,10 @@ const printDTR = (data, title) => {
             <tr>
               <td>${item.employeeNo || '-'}</td>
               <td>${(item.department || '-').toUpperCase()}</td>
-              <td>${(item.name || '-').toUpperCase()}</td>
+              <td>${(item.rawName || item.name || '-').toUpperCase()}</td>
+              <td class="text-center">${item.cardNo || '-'}</td>
+              <td class="text-center">${item.locationId || '-'}</td>
+              <td class="text-center">${item.idNumber || '-'}</td>
               <td>${item.dateFormatted}</td>
               <td class="text-center ${morningInClass}">${item.morning.in}</td>
               <td class="text-center ${morningOutClass}">${item.morning.out}</td>

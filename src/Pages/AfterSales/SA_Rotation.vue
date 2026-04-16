@@ -5,6 +5,11 @@ x
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col overflow-hidden">
       
+      <!-- View-Only Mode Banner -->
+      <div v-if="!canEdit && !canCreate && canView" class="bg-amber-500 text-white px-4 py-2 text-center text-[10px] font-black uppercase tracking-widest z-50 flex items-center justify-center gap-2">
+        <Eye class="w-3 h-3" /> View-Only Mode - You have permission to view but not modify records
+      </div>
+
       <!-- Page Header and Mode Banner -->
       <header class="bg-white border-b border-neutral-200 px-6 py-3 flex flex-col md:flex-row items-start md:items-center justify-between shrink-0 gap-3">
         <div class="flex items-center gap-3">
@@ -211,13 +216,13 @@ x
                       <td class="px-3 py-2 whitespace-nowrap text-[12px] text-neutral-400">{{ formatDate(assignment.date) }}</td>
                       <td class="px-3 py-2 whitespace-nowrap text-right text-sm font-medium space-x-1">
                         <template v-if="isAssignmentCutOff(assignment)">
-                          <button class="text-red-600 hover:text-red-900" title="Delete" @click="deleteAssignmentDirect(getOriginalIndex(assignment))">🗑</button>
-                          <button class="text-amber-600 hover:text-amber-900" title="Reassign" @click="reassignAssignment(getOriginalIndex(assignment))">🔄</button>
+                          <button v-if="canDelete" class="text-red-600 hover:text-red-900" title="Delete" @click="deleteAssignmentDirect(getOriginalIndex(assignment))">🗑</button>
+                          <button v-if="canEdit" class="text-amber-600 hover:text-amber-900" title="Reassign" @click="reassignAssignment(getOriginalIndex(assignment))">🔄</button>
                         </template>
                         <template v-else>
-                          <button class="text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded px-1 transition-all duration-200" title="Edit" @click="openEditModal(getOriginalIndex(assignment), assignment)">✎</button>
-                          <button class="text-green-600 hover:text-green-900 hover:bg-green-100 rounded px-1 transition-all duration-200" title="Done" @click="markAsDone(getOriginalIndex(assignment))">✓</button>
-                          <button class="text-orange-500 hover:text-orange-900 hover:bg-orange-100 rounded px-1 transition-all duration-200" title="Cancel" @click="cancelAssignment(getOriginalIndex(assignment))">✕</button>
+                          <button v-if="canEdit" class="text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded px-1 transition-all duration-200" title="Edit" @click="openEditModal(getOriginalIndex(assignment), assignment)">✎</button>
+                          <button v-if="canEdit" class="text-green-600 hover:text-green-900 hover:bg-green-100 rounded px-1 transition-all duration-200" title="Done" @click="markAsDone(getOriginalIndex(assignment))">✓</button>
+                          <button v-if="canEdit" class="text-orange-500 hover:text-orange-900 hover:bg-orange-100 rounded px-1 transition-all duration-200" title="Cancel" @click="cancelAssignment(getOriginalIndex(assignment))">✕</button>
                         </template>
                       </td>
                     </tr>
@@ -311,10 +316,10 @@ x
                             <div 
                               class="h-1 rounded-full transition-all duration-300"
                               :class="getWorkloadColor(getCurrentActive(sa.saName))"
-                              :style="{ width: Math.min(100, (getCurrentActive(sa.saName) / 5) * 100) + '%' }"
+                              :style="{ width: Math.min(100, (getCurrentActive(sa.saName) / 10) * 100) + '%' }"
                             ></div>
                           </div>
-                          <span class="text-[8px] text-slate-400 w-3">{{ getCurrentActive(sa.saName) }}/5</span>
+                          <span class="text-[8px] text-slate-400 w-3">{{ getCurrentActive(sa.saName) }}/10</span>
                         </div>
                       </div>
 
@@ -329,7 +334,7 @@ x
                             <span class="text-xs font-black text-indigo-600 leading-none">{{ getCurrentActive(sa.saName) }}</span>
                             <span class="text-[8px] text-slate-400 uppercase">Active</span>
                           </div>
-                          <div v-if="hoveringSAIndex === index" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden animate-fade-in-up">
+                          <div v-if="hoveringSAIndex === index" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden animate-fade-in-down">
                             <div class="bg-indigo-600 text-white text-[10px] font-bold px-2 py-1 text-center">Active PROs</div>
                             <ul class="max-h-32 overflow-y-auto py-1">
                               <li v-if="getActiveProsList(sa.saName).length === 0" class="text-center text-[10px] text-slate-400 py-2 italic">No active PROs</li>
@@ -346,9 +351,9 @@ x
                             ⋮
                           </button>
                           <div v-if="dropdownIndex === index && dropdownType === 'serviceAdvisors'" 
-                               class="absolute right-0 bottom-full mb-1 w-32 bg-white rounded-lg shadow-xl border border-slate-100 z-60 overflow-hidden animate-fade-in-up">
-                            <button class="w-full text-left px-3 py-2 text-xs text-slate-600 hover:bg-slate-50 hover:pl-4 transition-all duration-200" @click.stop="openSAEditModal(index, sa.saName, sa.saStatus)">✎ Edit</button>
-                            <button class="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-red-50 hover:pl-4 border-t border-slate-100 transition-all duration-200" @click.stop="openSADeleteModal(index, sa.saName)">🗑 Delete</button>
+                               class="absolute right-0 top-full mt-1 w-32 bg-white rounded-lg shadow-xl border border-slate-100 z-50 overflow-hidden animate-fade-in-down">
+                            <button v-if="canEdit" class="w-full text-left px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:pl-5 transition-all duration-200 flex items-center gap-2" @click.stop="openSAEditModal(index, sa.saName, sa.saStatus)">✎ Edit</button>
+                            <button v-if="canDelete" class="w-full text-left px-4 py-2 text-xs font-medium text-red-500 hover:bg-red-50 hover:pl-5 transition-all duration-200 flex items-center gap-2 border-t border-slate-100" @click.stop="openSADeleteModal(index, sa.saName)">🗑 Delete</button>
                           </div>
                         </div>
                       </div>
@@ -360,7 +365,7 @@ x
                   </div>
                 </div>
 
-                <div class="p-3 bg-white border-t border-slate-100 shrink-0 z-10">
+                <div v-if="canCreate" class="p-3 bg-white border-t border-slate-100 shrink-0 z-10">
                   <form @submit.prevent="addServiceAdvisor" class="flex gap-2">
                     <input 
                       v-model="newServiceAdvisor" 
@@ -398,10 +403,10 @@ x
                         </button>
                         <div v-if="dropdownIndex === index && dropdownType === 'prOrders'" 
                              class="absolute right-0 top-full mt-1 w-32 bg-white rounded-lg shadow-xl border border-slate-100 z-50 overflow-hidden animate-fade-in-down">
-                          <button class="w-full text-left px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:pl-5 transition-all duration-200 flex items-center gap-2" @click.stop="openPREditModal(index, pr)">
+                          <button v-if="canEdit" class="w-full text-left px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:pl-5 transition-all duration-200 flex items-center gap-2" @click.stop="openPREditModal(index, pr)">
                             <span>✎</span> Edit
                           </button>
-                          <button class="w-full text-left px-4 py-2 text-xs font-medium text-red-500 hover:bg-red-50 hover:pl-5 transition-all duration-200 flex items-center gap-2 border-t border-slate-100" @click.stop="openPRDeleteModal(index, pr)">
+                          <button v-if="canDelete" class="w-full text-left px-4 py-2 text-xs font-medium text-red-500 hover:bg-red-50 hover:pl-5 transition-all duration-200 flex items-center gap-2 border-t border-slate-100" @click.stop="openPRDeleteModal(index, pr)">
                             <span>🗑</span> Delete
                           </button>
                         </div>
@@ -414,7 +419,7 @@ x
                   </div>
                 </div>
 
-                <div class="p-3 bg-white border-t border-slate-100 shrink-0 z-10">
+                <div v-if="canCreate" class="p-3 bg-white border-t border-slate-100 shrink-0 z-10">
                   <form @submit.prevent="addPROrder" class="flex gap-2">
                     <input 
                       v-model="newPROrder" 
@@ -499,7 +504,7 @@ x
                         </span>
                       </td>
                       <td class="px-3 py-2 whitespace-nowrap text-right text-sm">
-                        <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded px-1 transition-all duration-200" @click="deleteAssignment(getOriginalIndex(assignment))">🗑</button>
+                        <button v-if="canDelete" class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded px-1 transition-all duration-200" @click="deleteAssignment(getOriginalIndex(assignment))">🗑</button>
                       </td>
                     </tr>
                   </tbody>
@@ -665,6 +670,14 @@ import { ref, computed, onMounted, watch, onUnmounted } from 'vue';
 import { db } from "../../Firebase/Firebase";
 import { doc, onSnapshot, updateDoc, getDoc, deleteField, setDoc, collection, getDocs } from "firebase/firestore";
 import { useToast } from "../../composables/useToast";
+import { usePermissions } from "../../composables/usePermissions";
+import { useRouter } from 'vue-router';
+import { Eye } from 'lucide-vue-next';
+
+// Initialize permissions and router
+const { canView, canCreate, canEdit, canDelete, canAccessPage, fetchUserRoles } = usePermissions();
+const router = useRouter();
+const hasSARotationAccess = ref(false);
 
 // Initialize toast notifications
 const toast = useToast();
@@ -673,7 +686,7 @@ const toast = useToast();
 // CONFIGURATION
 // ==========================================
 const CONFIG = {
-  MAX_ONGOING_PER_SA: 5,
+  MAX_ONGOING_PER_SA: 10,
   STATUS_UNAVAILABLE: ['BUSY', 'ABSENT'],
   STATUS_AVAILABLE: ['AVAILABLE', 'WORKING'],
   MAX_HISTORY_RANGE_DAYS: 31
@@ -736,7 +749,7 @@ const historySearchQuery = ref("");
 const historyStatusFilter = ref("");
 const currentPage = ref(1);
 const historyPage = ref(1);
-const itemsPerPage = ref(5);
+const itemsPerPage = ref(8);
 
 // Date Filtering
 const historyFromDate = ref(getTodayDateString());
@@ -773,8 +786,8 @@ const discontinuedAssignments = computed(() => {
 const hasDiscontinuedOrders = computed(() => discontinuedAssignments.value.length > 0);
 
 const canCreateAssignments = computed(() => {
-  // Can only create assignments in TODAY view AND when no discontinued orders exist
-  return viewMode.value === 'TODAY' && !hasDiscontinuedOrders.value;
+  // Can only create assignments in TODAY view AND when no discontinued orders exist AND user has canCreate permission
+  return viewMode.value === 'TODAY' && !hasDiscontinuedOrders.value && canCreate.value;
 });
 
 const dateRangeDays = computed(() => {
@@ -935,10 +948,10 @@ function getSAStatusColor(status) {
 }
 
 function getWorkloadColor(count) {
-  if (count <= 1) return 'bg-green-500';
-  if (count === 2) return 'bg-yellow-500';
-  if (count === 3) return 'bg-orange-500';
-  if (count >= 4) return 'bg-red-500';
+  if (count <= 3) return 'bg-green-500';
+  if (count <= 5) return 'bg-yellow-500';
+  if (count <= 7) return 'bg-orange-500';
+  if (count >= 8) return 'bg-red-500';
   return 'bg-slate-400';
 }
 
@@ -2065,50 +2078,89 @@ watch(hasDiscontinuedOrders, (newValue) => {
 });
 
 // ==========================================
-// INITIALIZATION - CHECK YESTERDAY FIRST
+// INITIALIZATION - CHECK FOR CUT-OFF ORDERS
 // ==========================================
 
-async function checkYesterdayForCutOff() {
+async function checkForCutOffAssignments() {
   try {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayKey = formatDateKey(yesterday);
+    const daysToCheck = 30; // Check last 30 days for cut-off orders
+    const today = new Date();
+    const cutOffDates = [];
+    let mostRecentCutOffDate = null;
+    let totalCutOffOrders = 0;
     
-    const docRef = doc(db, "SA_Assignment", `isuzu&calapan&assignments&${yesterdayKey}`);
-    const docSnap = await getDoc(docRef);
-    
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      const yesterdayAssignments = Object.values(data);
+    // Check each day from yesterday backwards
+    for (let i = 1; i <= daysToCheck; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() - i);
+      const dateKey = formatDateKey(checkDate);
       
-      // Check if any are ON GOING (cut-off orders)
-      const cutOffOrders = yesterdayAssignments.filter(item => 
-        item.status === "ON GOING"
-      );
+      const docRef = doc(db, "SA_Assignment", `isuzu&calapan&assignments&${dateKey}`);
+      const docSnap = await getDoc(docRef);
       
-      if (cutOffOrders.length > 0) {
-        // Set date to yesterday to show cut-off orders
-        historyFromDate.value = yesterdayKey;
-        historyToDate.value = yesterdayKey;
-        currentlyViewingDateRange.value = true;
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const dayAssignments = Object.values(data);
         
-        // Load yesterday's assignments
-        await loadAssignmentsByDateRange();
-        
-        // Show notification
-        toast.warning(
-          `${cutOffOrders.length} cut-off order(s) from yesterday detected. Please delete or reassign them to enable new assignments.`,
-          'Cut-off Orders Detected',
-          8000
+        // Check if any are ON GOING (cut-off orders)
+        const cutOffOrders = dayAssignments.filter(item => 
+          item.status === "ON GOING"
         );
         
-        return true; // Has cut-off orders
+        if (cutOffOrders.length > 0) {
+          cutOffDates.push({
+            date: dateKey,
+            count: cutOffOrders.length,
+            orders: cutOffOrders
+          });
+          totalCutOffOrders += cutOffOrders.length;
+          
+          // Track the most recent date with cut-off orders
+          if (!mostRecentCutOffDate) {
+            mostRecentCutOffDate = dateKey;
+          }
+        }
       }
+    }
+    
+    // If cut-off orders found, load the most recent date's view
+    if (cutOffDates.length > 0) {
+      // Set date range to show all dates with cut-off orders
+      // From the oldest cut-off date to the most recent
+      const oldestCutOffDate = cutOffDates[cutOffDates.length - 1].date;
+      historyFromDate.value = oldestCutOffDate;
+      historyToDate.value = mostRecentCutOffDate;
+      currentlyViewingDateRange.value = true;
+      
+      // Load all assignments from the date range
+      await loadAssignmentsByDateRange();
+      
+      // Build notification message
+      let notificationMessage = '';
+      if (cutOffDates.length === 1) {
+        // Parse date consistently to avoid timezone issues
+        const [year, month, day] = cutOffDates[0].date.split('-').map(Number);
+        const cutOffDate = new Date(year, month - 1, day); // month is 0-indexed
+        const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const daysAgo = Math.ceil((todayDate - cutOffDate) / (1000 * 60 * 60 * 24));
+        notificationMessage = `${totalCutOffOrders} cut-off order(s) from ${daysAgo} day(s) ago detected. Please delete or reassign them to enable new assignments.`;
+      } else {
+        notificationMessage = `${totalCutOffOrders} cut-off order(s) across ${cutOffDates.length} dates detected (from ${formatDate(oldestCutOffDate)} to ${formatDate(mostRecentCutOffDate)}). Please handle all of them to enable new assignments.`;
+      }
+      
+      // Show notification
+      toast.warning(
+        notificationMessage,
+        'Cut-off Orders Detected',
+        10000
+      );
+      
+      return true; // Has cut-off orders
     }
     
     return false; // No cut-off orders
   } catch (error) {
-    console.error("Error checking yesterday for cut-off:", error);
+    console.error("Error checking for cut-off assignments:", error);
     return false;
   }
 }
@@ -2118,6 +2170,16 @@ async function checkYesterdayForCutOff() {
 // ==========================================
 
 onMounted(async () => {
+  // Check page access first
+  await fetchUserRoles();
+  hasSARotationAccess.value = canAccessPage('SA_Rotation');
+  
+  if (!hasSARotationAccess.value) {
+    // Redirect to 403 page if no access
+    router.push('/403');
+    return;
+  }
+  
   // Start listeners for static data
   listenToStatuses();
   listenToServiceAdvisors();
@@ -2125,8 +2187,8 @@ onMounted(async () => {
   listenToSAStats();
   listenToPROHandlers();
   
-  // Check yesterday first for cut-off orders BEFORE setting date
-  const hasCutOffOrders = await checkYesterdayForCutOff();
+  // Check for cut-off orders from any past date (up to 30 days back)
+  const hasCutOffOrders = await checkForCutOffAssignments();
   
   if (!hasCutOffOrders) {
     // No cut-off orders, set to today and start live listener

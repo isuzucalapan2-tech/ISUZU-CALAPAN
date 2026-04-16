@@ -39,6 +39,7 @@
           </div>
           <!-- Lock/Unlock Button for Master Admin -->
           <button 
+            v-if="!page.alwaysAccessible"
             @click="togglePageLock(page)"
             :class="['p-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-xs font-bold uppercase tracking-wider',
                      page.locked 
@@ -50,6 +51,15 @@
             <UnlockIcon v-else class="w-4 h-4" />
             {{ page.locked ? 'Locked' : 'Unlocked' }}
           </button>
+          <!-- Always Accessible Indicator -->
+          <div 
+            v-else
+            class="p-2 rounded-lg bg-blue-600 text-white flex items-center gap-2 text-xs font-bold uppercase tracking-wider cursor-not-allowed"
+            title="This page is always accessible to all administrators"
+          >
+            <UnlockIcon class="w-4 h-4" />
+            Accessible
+          </div>
         </div>
         
         <div class="space-y-6">
@@ -63,7 +73,7 @@
               <div class="flex flex-wrap gap-2">
                 <label v-for="role in availableRoles" :key="role" 
                        :class="['flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-xs font-bold uppercase tracking-wider',
-                                isMasterAdminRole(role)
+                                isMasterAdminRole(role) || page.alwaysAccessible
                                 ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20 cursor-not-allowed opacity-100' 
                                 : page.locked && page.allowedRoles.includes(role)
                                   ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20 cursor-not-allowed'
@@ -73,9 +83,9 @@
                                       ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20 cursor-pointer' 
                                       : 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 hover:bg-neutral-600/10 cursor-pointer']">
                   <input type="checkbox" 
-                         :checked="page.allowedRoles.includes(role) || isMasterAdminRole(role)" 
+                         :checked="page.allowedRoles.includes(role) || isMasterAdminRole(role) || page.alwaysAccessible" 
                          @change="handleRoleChange(page, role)" 
-                         :disabled="isMasterAdminRole(role) || page.locked"
+                         :disabled="isMasterAdminRole(role) || page.locked || page.alwaysAccessible"
                          class="hidden" />
                   {{ role }}
                   <span v-if="isMasterAdminRole(role)" class="text-[8px] opacity-70">(Required)</span>
@@ -88,7 +98,7 @@
               <div class="flex flex-wrap gap-2">
                 <label v-for="position in availablePositions" :key="position"
                        :class="['flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-xs font-bold uppercase tracking-wider',
-                                isStaffPositionRequired(page, position)
+                                isStaffPositionRequired(page, position) || page.alwaysAccessible
                                 ? 'bg-neutral-900 border-neutral-900 text-white shadow-md cursor-not-allowed opacity-100' 
                                 : page.locked && page.allowedPositions.includes(position)
                                   ? 'bg-neutral-900 border-neutral-900 text-white shadow-md cursor-not-allowed'
@@ -99,9 +109,9 @@
                                       : 'bg-neutral-600/5 border-neutral-300/20 text-gray-500 hover:bg-neutral-600/10 cursor-pointer']">
                   <input type="checkbox" 
                          :value="position" 
-                         :checked="page.allowedPositions.includes(position) || isStaffPositionRequired(page, position)"
+                         :checked="page.allowedPositions.includes(position) || isStaffPositionRequired(page, position) || page.alwaysAccessible"
                          @change="handlePositionChange(page, position)" 
-                         :disabled="isStaffPositionRequired(page, position) || page.locked"
+                         :disabled="isStaffPositionRequired(page, position) || page.locked || page.alwaysAccessible"
                          class="hidden" />
                   {{ position }}
                   <span v-if="isStaffPositionRequired(page, position)" class="text-[8px] opacity-70">(Required)</span>
@@ -141,9 +151,10 @@ const pages = ref([
   { 
     id: 'dashboard', 
     name: 'Dashboard', 
-    allowedRoles: [], 
+    allowedRoles: ['All'], 
     allowedPositions: [],
-    locked: false
+    locked: true,
+    alwaysAccessible: true
   },
   { 
     id: 'user-management', 
@@ -190,6 +201,14 @@ const pages = ref([
   { 
     id: 'settings', 
     name: 'Settings', 
+    allowedRoles: ['All'], 
+    allowedPositions: [],
+    locked: true,
+    alwaysAccessible: true
+  },
+  { 
+    id: 'settings-landing', 
+    name: 'Settings - Landing Editor', 
     allowedRoles: [], 
     allowedPositions: [],
     locked: false
@@ -220,6 +239,18 @@ const fetchAccessOptions = async () => {
     availablePositions.value = positionSnapshot.docs
       .map(d => d.data().position)
       .filter(Boolean);
+
+    // For always accessible pages (settings and dashboard), automatically enable all roles and positions
+    const alwaysAccessiblePages = pages.value.filter(p => p.alwaysAccessible);
+    for (const page of alwaysAccessiblePages) {
+      // Set all roles as allowed (keep the 'All' special value and add all individual roles)
+      page.allowedRoles = ['All', ...availableRoles.value];
+      // Set all positions as allowed
+      page.allowedPositions = [...availablePositions.value];
+      
+      // Update Firestore with these defaults
+      await updatePageAccess(page);
+    }
   } catch (err) {
     console.error('Error fetching access options:', err);
   }
@@ -277,7 +308,7 @@ const pageHasMasterAdmin = (page) => {
 };
 
 // Pages where Staff position should always be required
-const STAFF_REQUIRED_PAGES = ['sa-rotation', 'settings'];
+const STAFF_REQUIRED_PAGES = ['sa-rotation', 'settings', 'settings-landing'];
 
 // Check if Staff position is required (when Master Admin is allowed OR for specific pages)
 const isStaffPositionRequired = (page, position) => {
