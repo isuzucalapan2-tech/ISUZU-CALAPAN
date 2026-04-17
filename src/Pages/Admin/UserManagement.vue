@@ -195,7 +195,7 @@
                       <span :class="['text-[8px] sm:text-[10px] lg:text-[11px] font-bold uppercase', admin.Status === 'Active' ? 'text-green-600' : 'text-red-600']">
                         {{ admin.Status || "Deactivated" }}
                         <span v-if="admin.Status !== 'Active' && admin.deactivationReason" 
-                              class="block text-[6px] sm:text-[7px] font-normal mt-0.5 leading-tight opacity-80 max-w-[120px] truncate" 
+                              class="block text-[6px] sm:text-[7px] font-normal mt-0.5 leading-tight opacity-80 max-w-30 truncate" 
                               :title="admin.deactivationReason">
                           {{ admin.deactivationReason }}
                         </span>

@@ -84,12 +84,12 @@ export function useExcelExport() {
       { key: 'partName', header: 'Part Name' },
       { key: 'partNo', header: 'Part No.' },
       { key: 'model', header: 'Model' },
+      { key: 'minimum', header: 'Minimum', format: 'number' },
       { key: 'description', header: 'Description' },
       { key: 'quantity', header: 'Quantity', format: 'number' },
       { key: 'unitPrice', header: 'Unit Price (₱)', format: 'currency' },
       { key: 'totalValue', header: 'Total Value (₱)', format: 'currency' }
     ];
-    
     exportToExcel(inventoryItems, columns, filename);
   };
 
@@ -101,59 +101,52 @@ export function useExcelExport() {
   const parseExcelFile = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
       reader.onload = (e) => {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
           const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-          
           if (jsonData.length < 2) {
             resolve([]);
             return;
           }
-          
           // Extract headers (first row)
           const headers = jsonData[0].map(h => h.toString().trim());
-          
           // Map column indices
           const columnMap = {
             category: headers.findIndex(h => h.toLowerCase().includes('category')),
             partName: headers.findIndex(h => h.toLowerCase().includes('part name')),
             partNo: headers.findIndex(h => h.toLowerCase().includes('part no')),
             model: headers.findIndex(h => h.toLowerCase().includes('model')),
+            minimum: headers.findIndex(h => h.toLowerCase().includes('minimum')),
             description: headers.findIndex(h => h.toLowerCase().includes('description')),
             quantity: headers.findIndex(h => h.toLowerCase().includes('quantity')),
             unitPrice: headers.findIndex(h => h.toLowerCase().includes('unit price') || h.toLowerCase().includes('price')),
           };
-          
           // Parse data rows
           const items = [];
           for (let i = 1; i < jsonData.length; i++) {
             const row = jsonData[i];
             if (row.length === 0) continue; // Skip empty rows
-            
             const item = {
               category: columnMap.category >= 0 ? String(row[columnMap.category] || '').trim() : '',
               partName: columnMap.partName >= 0 ? String(row[columnMap.partName] || '').trim() : '',
               partNo: columnMap.partNo >= 0 ? String(row[columnMap.partNo] || '').trim() : '',
               model: columnMap.model >= 0 ? String(row[columnMap.model] || '').trim() : '',
+              minimum: columnMap.minimum >= 0 ? parseInt(row[columnMap.minimum]) || 0 : 0,
               description: columnMap.description >= 0 ? String(row[columnMap.description] || '').trim() : '',
               quantity: columnMap.quantity >= 0 ? parseInt(row[columnMap.quantity]) || 0 : 0,
               unitPrice: columnMap.unitPrice >= 0 ? parseFloat(row[columnMap.unitPrice]) || 0 : 0,
               rowNumber: i + 1 // For error reporting
             };
-            
             items.push(item);
           }
-          
           resolve(items);
         } catch (error) {
           reject(error);
         }
       };
-      
       reader.onerror = () => reject(new Error('Failed to read file'));
       reader.readAsArrayBuffer(file);
     });
@@ -186,13 +179,18 @@ export function useExcelExport() {
       errors.push('Model is required');
     }
     
+    // Minimum validation
+    if (item.minimum === undefined || item.minimum === null || isNaN(item.minimum)) {
+      errors.push('Minimum is required');
+    } else if (item.minimum < 0) {
+      errors.push('Minimum must be 0 or greater');
+    }
     // Quantity validation
     if (item.quantity === undefined || item.quantity === null || isNaN(item.quantity)) {
       errors.push('Quantity is required');
     } else if (item.quantity < 0) {
       errors.push('Quantity must be 0 or greater');
     }
-    
     // Unit Price validation
     if (item.unitPrice === undefined || item.unitPrice === null || isNaN(item.unitPrice)) {
       errors.push('Unit Price is required');
@@ -284,6 +282,7 @@ export function useExcelExport() {
         'Part Name': 'SAMPLE PART NAME',
         'Part No': 'PART-001',
         'Model': 'MODEL-X',
+        'Minimum': 2,
         'Quantity': 10,
         'Unit Price': 1000.00,
         'Description': 'SAMPLE DESCRIPTION'
@@ -293,29 +292,27 @@ export function useExcelExport() {
         'Part Name': 'ANOTHER PART NAME',
         'Part No': 'PART-002',
         'Model': 'MODEL-Y',
+        'Minimum': 1,
         'Quantity': 5,
         'Unit Price': 2500.00,
         'Description': 'ANOTHER DESCRIPTION'
       }
     ];
-    
     const worksheet = XLSX.utils.json_to_sheet(templateData);
-    
     // Set column widths for better readability
     worksheet['!cols'] = [
       { wch: 15 }, // Category
       { wch: 25 }, // Part Name
       { wch: 15 }, // Part No
       { wch: 12 }, // Model
+      { wch: 10 }, // Minimum
       { wch: 10 }, // Quantity
       { wch: 15 }, // Unit Price
       { wch: 25 }  // Description
     ];
-    
     // Create a workbook with the worksheet
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Import Template');
-    
     // Add a second sheet with instructions
     const instructionData = [
       { 'INSTRUCTIONS': 'INVENTORY IMPORT TEMPLATE GUIDE' },
@@ -325,13 +322,14 @@ export function useExcelExport() {
       { 'INSTRUCTIONS': '• Part Name - Full part name (e.g., PISTON ASSEMBLY, OIL FILTER, etc.)' },
       { 'INSTRUCTIONS': '• Part No - Unique part number (e.g., PART-001, ISZ-1234, etc.)' },
       { 'INSTRUCTIONS': '• Model - Vehicle/model compatibility (e.g., D-MAX, MU-X, etc.)' },
+      { 'INSTRUCTIONS': '• Minimum - Minimum stock threshold (must be 0 or greater)' },
       { 'INSTRUCTIONS': '• Quantity - Stock quantity (must be 0 or greater)' },
       { 'INSTRUCTIONS': '• Unit Price - Price per unit in PHP (must be 0 or greater)' },
       { 'INSTRUCTIONS': '• Description - Optional description/notes' },
       { 'INSTRUCTIONS': '' },
       { 'INSTRUCTIONS': 'VALIDATION RULES:' },
       { 'INSTRUCTIONS': '• All fields except Description are required' },
-      { 'INSTRUCTIONS': '• Quantity and Unit Price must be 0 or greater' },
+      { 'INSTRUCTIONS': '• Minimum, Quantity and Unit Price must be 0 or greater' },
       { 'INSTRUCTIONS': '• Part No. must NOT exist in current inventory (new items only)' },
       { 'INSTRUCTIONS': '• Duplicate Part No. within the same import file is not allowed' },
       { 'INSTRUCTIONS': '' },
@@ -340,11 +338,9 @@ export function useExcelExport() {
       { 'INSTRUCTIONS': '• Part No. should be unique identifiers for each part' },
       { 'INSTRUCTIONS': '• You can add new categories - they will be created automatically' }
     ];
-    
     const instructionSheet = XLSX.utils.json_to_sheet(instructionData);
     instructionSheet['!cols'] = [{ wch: 60 }];
     XLSX.utils.book_append_sheet(workbook, instructionSheet, 'Instructions');
-    
     XLSX.writeFile(workbook, 'Inventory_Import_Template.xlsx');
   };
 

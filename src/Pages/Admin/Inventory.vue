@@ -94,55 +94,70 @@
                 </div>
               </div>
 
-              <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 bg-white border border-neutral-200 rounded-2xl">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-6 lg:gap-8">
-                  <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 rounded-xl shrink-0">
-                      <Package class="w-5 h-5" />
+
+              <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2 p-2 bg-white border border-neutral-200 rounded-xl">
+                <div class="flex flex-wrap gap-2 lg:gap-4 items-stretch w-full">
+                  <div class="flex items-center gap-2 min-w-40 flex-1">
+                    <div class="w-7 h-7 flex items-center justify-center bg-red-50 text-red-600 rounded-lg shrink-0">
+                      <Package class="w-4 h-4" />
                     </div>
-                    <div class="space-y-1">
-                      <p class="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em]">Quantity Range</p>
-                      <div class="flex items-center gap-2">
-                        <input v-model="minQty" type="number" placeholder="MIN" class="w-16 h-8 bg-neutral-50 border border-neutral-200 rounded-lg text-[10px] font-bold text-center outline-none focus:border-red-500 focus:bg-white transition-all" />
-                        <div class="w-2 h-px bg-neutral-300"></div>
-                        <input v-model="maxQty" type="number" placeholder="MAX" class="w-16 h-8 bg-neutral-50 border border-neutral-200 rounded-lg text-[10px] font-bold text-center outline-none focus:border-red-500 focus:bg-white transition-all" />
+                    <div class="space-y-0.5">
+                      <p class="text-[8px] font-black text-neutral-400 uppercase tracking-[0.15em]">Qty</p>
+                      <div class="flex items-center gap-1">
+                        <input v-model="minQty" type="number" placeholder="MIN" class="w-12 h-6 bg-neutral-50 border border-neutral-200 rounded text-[9px] font-bold text-center outline-none focus:border-red-500 focus:bg-white transition-all" />
+                        <div class="w-1 h-px bg-neutral-300"></div>
+                        <input v-model="maxQty" type="number" placeholder="MAX" class="w-12 h-6 bg-neutral-50 border border-neutral-200 rounded text-[9px] font-bold text-center outline-none focus:border-red-500 focus:bg-white transition-all" />
                       </div>
                     </div>
                   </div>
 
                   <div class="hidden sm:block w-px h-10 bg-neutral-100"></div>
 
-                  <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
-                      <Banknote class="w-5 h-5" />
+                  <div class="flex items-center gap-2 min-w-40 flex-1">
+                    <div class="w-7 h-7 flex items-center justify-center bg-yellow-50 text-yellow-600 rounded-lg shrink-0">
+                      <AlertTriangle class="w-4 h-4" />
                     </div>
-                    <div class="space-y-1">
-                      <p class="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em]">Price Range (₱)</p>
-                      <div class="flex items-center gap-2">
-                        <input v-model="minPrice" type="number" placeholder="0.00" class="w-24 h-8 bg-neutral-50 border border-neutral-200 rounded-lg text-[10px] font-bold px-2 outline-none focus:border-red-500 focus:bg-white transition-all" />
-                        <div class="w-2 h-px bg-neutral-300"></div>
-                        <input v-model="maxPrice" type="number" placeholder="MAX" class="w-24 h-8 bg-neutral-50 border border-neutral-200 rounded-lg text-[10px] font-bold px-2 outline-none focus:border-red-500 focus:bg-white transition-all" />
+                    <div class="space-y-0.5">
+                      <p class="text-[8px] font-black text-neutral-400 uppercase tracking-[0.15em]">Min</p>
+                      <div class="flex items-center gap-1">
+                        <input v-model="minMinimum" type="number" placeholder="MIN" class="w-12 h-6 bg-neutral-50 border border-neutral-200 rounded text-[9px] font-bold text-center outline-none focus:border-yellow-500 focus:bg-white transition-all" />
+                        <div class="w-1 h-px bg-neutral-300"></div>
+                        <input v-model="maxMinimum" type="number" placeholder="MAX" class="w-12 h-6 bg-neutral-50 border border-neutral-200 rounded text-[9px] font-bold text-center outline-none focus:border-yellow-500 focus:bg-white transition-all" />
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div v-if="hasActiveFilters" class="flex items-center justify-end pt-4 lg:pt-0 border-t lg:border-t-0 border-neutral-50">
-                  <button @click="clearAllFilters" class="group flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all duration-300 active:scale-95">
-                    <RefreshCcw class="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
-                    Clear Filters
-                  </button>
-                </div>
+                  <div class="hidden sm:block w-px h-10 bg-neutral-100"></div>
 
-                <div class="relative w-full md:w-64 h-12">
-                  <select 
-                    v-model="selectedCategory" 
-                    class="w-full h-full pl-4 pr-10 bg-white border border-neutral-300 rounded-2xl text-[10px] font-black text-neutral-700 uppercase tracking-widest outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/5 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="">ALL CATEGORIES</option>
-                    <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
-                  </select>
-                  <ChevronDown class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                  <div class="flex items-center gap-2 min-w-45 flex-1">
+                    <div class="w-7 h-7 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg shrink-0">
+                      <Banknote class="w-4 h-4" />
+                    </div>
+                    <div class="space-y-0.5">
+                      <p class="text-[8px] font-black text-neutral-400 uppercase tracking-[0.15em]">Price (₱)</p>
+                      <div class="flex items-center gap-1">
+                        <input v-model="minPrice" type="number" placeholder="0.00" class="w-16 h-6 bg-neutral-50 border border-neutral-200 rounded text-[9px] font-bold px-1 outline-none focus:border-red-500 focus:bg-white transition-all" />
+                        <div class="w-1 h-px bg-neutral-300"></div>
+                        <input v-model="maxPrice" type="number" placeholder="MAX" class="w-16 h-6 bg-neutral-50 border border-neutral-200 rounded text-[9px] font-bold px-1 outline-none focus:border-red-500 focus:bg-white transition-all" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="relative min-w-40 flex-1 flex items-center h-9">
+                    <select 
+                      v-model="selectedCategory" 
+                      class="w-full h-full pl-3 pr-8 bg-white border border-neutral-300 rounded-xl text-[9px] font-black text-neutral-700 uppercase tracking-widest outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/10 transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="">ALL CATEGORIES</option>
+                      <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
+                    </select>
+                    <ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-neutral-400 pointer-events-none" />
+                  </div>
+                  <div v-if="hasActiveFilters" class="flex items-center justify-end flex-1 min-w-20">
+                    <button @click="clearAllFilters" class="group flex items-center gap-1 px-3 py-1.5 bg-neutral-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-red-600 transition-all duration-300 active:scale-95">
+                      <RefreshCcw class="w-3 h-3 group-hover:rotate-180 transition-transform duration-500" />
+                      Clear
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -197,6 +212,7 @@
                   <th class="px-4 lg:px-6 py-4 lg:py-5 font-black">Part Specification</th>
                   <th class="px-4 lg:px-6 py-4 lg:py-5 font-black hidden lg:table-cell">Description</th>
                   <th class="px-4 lg:px-6 py-4 lg:py-5 font-black text-center">Stock</th>
+                  <th class="px-4 lg:px-6 py-4 lg:py-5 font-black text-center">Minimum</th>
                   <th class="px-4 lg:px-6 py-4 lg:py-5 font-black">Price Info</th>
                   <th class="px-4 lg:px-6 py-4 lg:py-5 font-black">Total Value</th>
                   <th class="px-4 lg:px-6 py-4 lg:py-5 font-black text-center">Actions</th>
@@ -205,54 +221,52 @@
 
               <tbody class="divide-y divide-neutral-100">
                 <tr v-for="item in paginatedInventory" :key="item.id" class="hover:bg-red-50/40 transition-colors group">
-                  
                   <td class="px-4 lg:px-6 py-3">
                     <div class="flex flex-col">
                       <span class="text-xs lg:text-sm font-mono font-black text-red-600">{{ item.controlNo }}</span>
                       <span class="text-[8px] lg:text-[9px] font-black bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded mt-1 w-fit uppercase shrink-0">
-                        {{ item.category }}
+                        Category: {{ item.category }}
                       </span>
                     </div>
                   </td>
-
                   <td class="px-4 lg:px-6 py-3">
                     <div class="flex flex-col max-w-50 lg:max-w-xs">
                       <span class="text-[11px] lg:text-[13px] font-black text-neutral-800 uppercase tracking-tight truncate">
                         {{ item.partName }}
                       </span>
                       <span class="text-[8px] lg:text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 truncate">
-                        PN: {{ item.partNo }} | <span class="text-neutral-400">MOD: {{ item.model }}</span>
+                        PartNo: {{ item.partNo }} | <span class="text-neutral-400">MODEL: {{ item.model }}</span>
                       </span>
                     </div>
                   </td>
-
                   <td class="px-4 lg:px-6 py-3 hidden lg:table-cell">
                     <span class="text-[10px] lg:text-xs text-gray-500 line-clamp-2 leading-relaxed">
                       {{ item.description || '-' }}
                     </span>
                   </td>
-
                   <td class="px-4 lg:px-6 py-3 text-center">
-                    <div :class="item.quantity < 5 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'" 
+                    <div :class="item.quantity < (item.minimum ?? 0) ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'" 
                         class="inline-block px-3 py-1 rounded-full text-[10px] lg:text-xs font-black min-w-10">
                       {{ item.quantity || 0 }}
                     </div>
                   </td>
-
+                  <td class="px-4 lg:px-6 py-3 text-center">
+                    <div :class="'inline-block px-3 py-1 rounded-full text-[10px] lg:text-xs font-black min-w-10 ' + (item.quantity < (item.minimum ?? 0) ? 'bg-yellow-100 text-yellow-700' : 'bg-neutral-100 text-neutral-700')">
+                      {{ item.minimum ?? 0 }}
+                    </div>
+                  </td>
                   <td class="px-4 lg:px-6 py-3 whitespace-nowrap">
                     <div class="flex flex-col">
                       <span class="text-[9px] text-gray-400 uppercase font-black block lg:hidden">Unit Price</span>
                       <span class="text-xs lg:text-sm font-bold text-neutral-700 italic">₱{{ formatPrice(item.unitPrice) }}</span>
                     </div>
                   </td>
-
                   <td class="px-4 lg:px-6 py-3 whitespace-nowrap">
                     <div class="flex flex-col">
                       <span class="text-[9px] text-gray-400 uppercase font-black block lg:hidden">Total</span>
                       <span class="text-xs lg:text-sm font-black text-emerald-600">₱{{ formatPrice(item.totalValue) }}</span>
                     </div>
                   </td>
-
                   <td class="px-4 lg:px-6 py-3 text-center">
                     <div class="flex items-center justify-center gap-1.5 lg:gap-3">
                       <button v-if="canEdit" @click="editItem(item)" class="bg-neutral-100 hover:bg-blue-600 hover:text-white text-neutral-500 p-2 rounded-xl transition-all active:scale-90">
@@ -339,7 +353,7 @@
               <div class="space-y-2 md:col-span-2">
                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Category Select/Add</label>
                 <div class="flex gap-2">
-                  <select v-model="form.category" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500 uppercase">
+                  <select v-model="form.category" :class="['flex-1 bg-gray-50 border rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500 uppercase', (!form.category && showModal) ? 'border-red-500' : 'border-gray-200']">
                     <option value="">Select Existing</option>
                     <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat }}</option>
                   </select>
@@ -348,6 +362,7 @@
                     <Plus class="w-5 h-5" />
                   </button>
                 </div>
+                <div v-if="!form.category && showModal" class="text-[10px] text-red-600 font-bold mt-1 ml-1">Category is required.</div>
               </div>
 
               <div class="space-y-2">
@@ -360,9 +375,16 @@
                 <input v-model="form.partNo" type="text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500 uppercase" required />
               </div>
 
+
               <div class="space-y-2">
                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Model</label>
                 <input v-model="form.model" type="text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-red-500 uppercase" required />
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-yellow-500 ml-1">Minimum</label>
+                <input v-model="form.minimum" type="number" min="0" class="w-full bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-yellow-500 uppercase" required />
+                <span class="text-[9px] text-yellow-600">Minimum stock threshold for alerts</span>
               </div>
 
               <div class="space-y-2">
@@ -443,6 +465,7 @@
                             <li><b class="text-white">Part No.</b> — Unique part number</li>
                             <li><b class="text-white">Model</b> — Vehicle compatibility</li>
                             <li><b class="text-white">Quantity</b> — Stock (0 or greater)</li>
+                            <li><b class="text-white">Minimum</b> — Minimum Quantity</li>
                             <li><b class="text-white">Unit Price</b> — Price (0 or greater)</li>
                           </ul>
                         </section>
@@ -511,6 +534,7 @@
                     <th class="p-3 text-left font-black uppercase">Part No.</th>
                     <th class="p-3 text-left font-black uppercase">Part Name</th>
                     <th class="p-3 text-left font-black uppercase">Model</th>
+                    <th class="p-3 text-right font-black uppercase">Minimum</th>
                     <th class="p-3 text-right font-black uppercase">Qty</th>
                     <th class="p-3 text-right font-black uppercase">Unit Price</th>
                     <th class="p-3 text-right font-black uppercase">Total</th>
@@ -524,6 +548,7 @@
                     <td class="p-3 font-bold">{{ item.partNo }}</td>
                     <td class="p-3 text-neutral-600">{{ item.partName }}</td>
                     <td class="p-3 text-neutral-500">{{ item.model }}</td>
+                    <td class="p-3 text-right font-black">{{ item.minimum ?? 0 }}</td>
                     <td class="p-3 text-right font-black">{{ item.quantity }}</td>
                     <td class="p-3 text-right">₱{{ item.unitPrice?.toLocaleString() }}</td>
                     <td class="p-3 text-right font-black text-green-600">₱{{ item.totalValue?.toLocaleString() }}</td>
@@ -652,6 +677,9 @@ const minQty = ref("");
 const maxQty = ref("");
 const minPrice = ref("");
 const maxPrice = ref("");
+// Minimum filter states
+const minMinimum = ref("");
+const maxMinimum = ref("");
 
 // Real-time listeners
 const inventoryListeners = ref([]);
@@ -665,6 +693,7 @@ const form = ref({
   partName: "",
   partNo: "",
   model: "",
+  minimum: 0,
   description: "",
   quantity: 0,
   unitPrice: 0
@@ -737,7 +766,16 @@ watch(searchQuery, (newValue) => {
 });
 
 // Reset to first page when filters change
-watch([selectedCategory, debouncedSearchQuery, minQty, maxQty, minPrice, maxPrice], () => {
+watch([
+  selectedCategory,
+  debouncedSearchQuery,
+  minQty,
+  maxQty,
+  minPrice,
+  maxPrice,
+  minMinimum,
+  maxMinimum
+], () => {
   currentPage.value = 1;
 });
 
@@ -774,6 +812,16 @@ const filteredInventory = computed(() => {
   }
   if (!isNaN(maxQ)) {
     filtered = filtered.filter(item => (item.quantity || 0) <= maxQ);
+  }
+
+  // Minimum range filter
+  const minM = parseInt(minMinimum.value);
+  const maxM = parseInt(maxMinimum.value);
+  if (!isNaN(minM)) {
+    filtered = filtered.filter(item => (item.minimum || 0) >= minM);
+  }
+  if (!isNaN(maxM)) {
+    filtered = filtered.filter(item => (item.minimum || 0) <= maxM);
   }
 
   // Price range filter (unitPrice)
@@ -829,7 +877,9 @@ const hasActiveFilters = computed(() =>
   minQty.value ||
   maxQty.value ||
   minPrice.value ||
-  maxPrice.value
+  maxPrice.value ||
+  minMinimum.value ||
+  maxMinimum.value
 );
 
 
@@ -1144,6 +1194,7 @@ const editItem = (item) => {
     partName: item.partName || "",
     partNo: item.partNo || "",
     model: item.model || "",
+    minimum: item.minimum ?? 0,
     description: item.description || "",
     quantity: item.quantity || 0,
     unitPrice: item.unitPrice || 0,
@@ -1159,8 +1210,15 @@ const editItem = (item) => {
    CRUD OPERATIONS
 ===================== */
 const saveItem = async () => {
-  if (!form.value.category || !form.value.partName || !form.value.partNo) {
+  if (!form.value.category || !form.value.partName || !form.value.partNo || form.value.minimum === undefined || form.value.minimum === null || form.value.minimum === "") {
     alert("Please fill in all required fields");
+    return;
+  }
+  // Check for duplicate part number (case-insensitive)
+  const partNoUpper = form.value.partNo.toUpperCase();
+  const isDuplicate = inventoryItems.value.some(item => item.partNo && item.partNo.toUpperCase() === partNoUpper && (!isEditing.value || item.id !== form.value.id));
+  if (isDuplicate) {
+    alert("Duplicate Part Number: This part number already exists in inventory.");
     return;
   }
 
@@ -1183,6 +1241,7 @@ const saveItem = async () => {
         partName: form.value.partName.toUpperCase(),
         partNo: form.value.partNo.toUpperCase(),
         model: form.value.model.toUpperCase(),
+        minimum: parseInt(form.value.minimum) || 0,
         description: (form.value.description || "").toUpperCase(),
         quantity: qty,
         unitPrice: price,
@@ -1209,6 +1268,7 @@ const saveItem = async () => {
         partName: form.value.partName.toUpperCase(),
         partNo: form.value.partNo.toUpperCase(),
         model: form.value.model.toUpperCase(),
+        minimum: parseInt(form.value.minimum) || 0,
         description: (form.value.description || "").toUpperCase(),
         quantity: qty,
         unitPrice: price,
@@ -1272,6 +1332,8 @@ const clearAllFilters = () => {
   maxQty.value = "";
   minPrice.value = "";
   maxPrice.value = "";
+  minMinimum.value = "";
+  maxMinimum.value = "";
 };
 
 const toggleSearch = () => {
@@ -1743,6 +1805,7 @@ const confirmImport = async () => {
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           totalValue: item.totalValue,
+          minimum: item.minimum !== undefined ? item.minimum : '',
           createdAt: new Date(),
           updatedAt: new Date()
         };
