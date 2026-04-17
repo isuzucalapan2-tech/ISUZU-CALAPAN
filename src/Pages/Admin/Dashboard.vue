@@ -38,86 +38,318 @@
               <h2 :class="['text-lg text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">Inventory <span class="text-red-600">Overview</span></h2>
             </div>
 
+            <!-- DYNAMIC INVENTORY DASHBOARD CARDS -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
-
-              <div class="bg-neutral-900 rounded-2xl p-6 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 w-16 h-16 bg-green-500/10 rounded-bl-[4rem]"></div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Availability</p>
-                <p class="text-3xl font-black text-green-500">{{ inStock }} <span class="text-xs text-white/50 font-medium">IN STOCK</span></p>
-                <p class="mt-4 text-[10px] text-white/40 uppercase tracking-widest">Optimal Levels</p>
+              <!-- Total Items -->
+              <div :class="[cardClass, 'rounded-2xl p-6 flex flex-col items-start justify-between relative overflow-hidden group']" :style="cardStyle">
+                <div class="flex items-center gap-2 mb-2">
+                  <Boxes class="w-6 h-6 text-red-600" />
+                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Items</span>
+                </div>
+                <p class="text-3xl font-black text-neutral-900">{{ inventoryItems.length }}</p>
+                <span class="mt-2 text-[10px] text-gray-500 uppercase">Unique Inventory Records</span>
               </div>
 
-              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 hover:border-red-600 transition-all group relative overflow-hidden shadow-sm">
-                <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform">
-                  <Package class="w-24 h-24 text-neutral-500" />
+              <!-- Total Stock Quantity -->
+              <div :class="[cardClass, 'rounded-2xl p-6 flex flex-col items-start justify-between relative overflow-hidden group']" :style="cardStyle">
+                <div class="flex items-center gap-2 mb-2">
+                  <Package class="w-6 h-6 text-green-600" />
+                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Quantity</span>
                 </div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Critical Warnings</p>
-                <p class="text-3xl font-black text-red-600">{{ outOfStock }}</p>
-                <div class="mt-4 flex items-center text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/30 w-fit px-2 py-1 rounded-lg">
-                  <AlertTriangle class="w-3 h-3 mr-1" /> OUT OF STOCK
+                <p class="text-3xl font-black text-green-600">{{ totalInventoryQuantity.toLocaleString() }}</p>
+                <span class="mt-2 text-[10px] text-gray-500 uppercase">All Stock Units</span>
+              </div>
+
+              <!-- Total Inventory Value -->
+              <div :class="[cardClass, 'rounded-2xl p-6 flex flex-col items-start justify-between relative overflow-hidden group']" :style="cardStyle">
+                <div class="flex items-center gap-2 mb-2">
+                  <Banknote class="w-6 h-6 text-emerald-600" />
+                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Value</span>
                 </div>
-                <div v-if="outOfStock > 0" class="mt-3 pt-3 border-t border-neutral-200/50 max-h-30 overflow-y-auto">
-                  <div v-for="item in inventoryItems.filter(i => i.quantity === 0).slice(0, 3)" :key="item.id" class="text-[9px] py-1">
-                    <p class="font-bold text-gray-700 dark:text-gray-300">{{ item.partNo }}</p>
-                    <p class="text-gray-500 dark:text-gray-400">{{ item.partName }}</p>
+                <p class="text-3xl font-black text-emerald-600">₱{{ totalInventoryValue.toLocaleString('en-PH', { minimumFractionDigits: 2 }) }}</p>
+                <span class="mt-2 text-[10px] text-gray-500 uppercase">Inventory Valuation</span>
+              </div>
+
+
+              <!-- Low Stock Items with Popover/Modal (fixed popover logic) -->
+              <div class="relative group" @mouseenter="showLowStockPopover = true" @mouseleave="showLowStockPopover = false">
+                <div
+                  :class="[cardClass, 'rounded-2xl p-6 flex flex-col items-start justify-between relative cursor-pointer']"
+                  :style="cardStyle"
+                  @click="toggleLowStockModal"
+                  tabindex="0"
+                  @keydown.enter="toggleLowStockModal"
+                  @keydown.space.prevent="toggleLowStockModal"
+                >
+                  <div class="flex items-center gap-2 mb-2">
+                    <AlertTriangle class="w-6 h-6 text-orange-500" />
+                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Low Stock</span>
                   </div>
-                  <p v-if="outOfStock > 3" class="text-[8px] font-bold text-red-600 uppercase italic mt-2">+{{ outOfStock - 3 }} more</p>
+                  <p class="text-3xl font-black text-orange-500">{{ lowStockItems.length }}</p>
+                  <span class="mt-2 text-[10px] text-gray-500 uppercase">Below Minimum</span>
                 </div>
-              </div>
-
-              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 hover:border-orange-600 transition-all group relative overflow-hidden shadow-sm">
-                <div class="absolute -right-4 -bottom-2 opacity-10 group-hover:scale-110 transition-transform text-orange-500">
-                  <AlertTriangle class="w-24 h-24" />
-                </div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Low Stock Alerts</p>
-                <p class="text-3xl font-black text-orange-600">{{ lowStock }}</p>
-                <div class="mt-4 flex items-center text-[10px] font-bold text-orange-600 bg-orange-50 dark:bg-orange-900/30 w-fit px-2 py-1 rounded-lg">
-                  <AlertTriangle class="w-3 h-3 mr-1" /> REORDER SOON
-                </div>
-                <div v-if="lowStock > 0" class="mt-3 pt-3 border-t border-neutral-200/50 max-h-30 overflow-y-auto">
-                  <div v-for="item in inventoryItems.filter(i => i.quantity > 0 && i.quantity <= 10).slice(0, 3)" :key="item.id" class="text-[9px] py-1">
-                    <p class="font-bold text-gray-700 dark:text-gray-300">{{ item.partNo }} ({{ item.quantity }})</p>
-                    <p class="text-gray-500 dark:text-gray-400">{{ item.partName }}</p>
+                <!-- Desktop Popover -->
+                <div
+                  v-if="showLowStockPopover && !isMobile"
+                  class="absolute left-0 top-full mt-2 z-50 w-80 bg-gray-50 border border-gray-200 rounded-xl shadow-xl p-3"
+                >
+                  <div class="font-bold text-orange-600 text-xs mb-2">Low Stock Items</div>
+                  <div v-if="lowStockItems.length === 0" class="text-xs text-gray-400">No low stock items.</div>
+                  <div v-else class="max-h-60 overflow-y-auto divide-y divide-gray-100 dark:divide-neutral-800">
+                    <div v-for="item in lowStockItems" :key="item.id" class="py-2">
+                      <div class="font-bold text-[11px] text-orange-700">{{ item.partName || 'N/A' }}</div>
+                      <div class="text-[10px] text-gray-500">Part No: <span class="font-mono">{{ item.partNo }}</span></div>
+                      <div class="text-[10px] text-gray-500">Model: <span>{{ item.model || 'N/A' }}</span></div>
+                      <div class="text-[10px] text-orange-600">Stock: <span class="font-bold">{{ item.quantity }}</span></div>
+                    </div>
                   </div>
-                  <p v-if="lowStock > 3" class="text-[8px] font-bold text-orange-600 uppercase italic mt-2">+{{ lowStock - 3 }} more</p>
                 </div>
               </div>
 
-              <div class="bg-neutral-600/10 rounded-2xl p-4 sm:p-6 border border-neutral-600/40 hover:border-purple-600 transition-all group relative overflow-hidden shadow-sm">
-                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Quantity</p>
-                <p class="text-3xl font-black text-neutral-800">{{ totalInventoryQuantity.toLocaleString() }}</p>
-                <div class="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                  <div class="h-full bg-purple-500 rounded-full" style="width: 70%"></div>
+              <!-- Mobile Modal -->
+              <transition name="fade">
+                <div v-if="showLowStockModal && isMobile" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-xl w-11/12 max-w-md p-5 relative">
+                    <button @click="showLowStockModal = false" class="absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                      <X class="w-5 h-5" />
+                    </button>
+                    <div class="font-bold text-orange-600 text-base mb-3">Low Stock Items</div>
+                    <div v-if="lowStockItems.length === 0" class="text-xs text-gray-400">No low stock items.</div>
+                    <div v-else class="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-neutral-800">
+                      <div v-for="item in lowStockItems" :key="item.id" class="py-3">
+                        <div class="font-bold text-[13px] text-orange-700">{{ item.partName || 'N/A' }}</div>
+                        <div class="text-[11px] text-gray-500">Part No: <span class="font-mono">{{ item.partNo }}</span></div>
+                        <div class="text-[11px] text-gray-500">Model: <span>{{ item.model || 'N/A' }}</span></div>
+                        <div class="text-[11px] text-orange-600">Stock: <span class="font-bold">{{ item.quantity }}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </transition>
+
+
+              <!-- Out of Stock Items with Popover/Modal -->
+              <div class="relative group" @mouseenter="showOutOfStockPopover = true" @mouseleave="showOutOfStockPopover = false">
+                <div
+                  :class="[cardClass, 'rounded-2xl p-6 flex flex-col items-start justify-between relative cursor-pointer']"
+                  :style="cardStyle"
+                  @click="toggleOutOfStockModal"
+                  tabindex="0"
+                  @keydown.enter="toggleOutOfStockModal"
+                  @keydown.space.prevent="toggleOutOfStockModal"
+                >
+                  <div class="flex items-center gap-2 mb-2">
+                    <PackageX class="w-6 h-6 text-red-600" />
+                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Out of Stock</span>
+                  </div>
+                  <p class="text-3xl font-black text-red-600">{{ outOfStockItems.length }}</p>
+                  <span class="mt-2 text-[10px] text-gray-500 uppercase">Zero Quantity</span>
+                </div>
+                <!-- Desktop Popover -->
+                <div
+                  v-if="showOutOfStockPopover && !isMobile"
+                  class="absolute left-0 top-full mt-2 z-50 w-80 bg-gray-50 border border-gray-200 rounded-xl shadow-xl p-3"
+                >
+                  <div class="font-bold text-red-600 text-xs mb-2">Out of Stock Items</div>
+                  <div v-if="outOfStockItems.length === 0" class="text-xs text-gray-400">No out of stock items.</div>
+                  <div v-else class="max-h-60 overflow-y-auto divide-y divide-gray-100 dark:divide-neutral-800">
+                    <div v-for="item in outOfStockItems" :key="item.id" class="py-2">
+                      <div class="font-bold text-[11px] text-red-700">{{ item.partName || 'N/A' }}</div>
+                      <div class="text-[10px] text-gray-500">Part No: <span class="font-mono">{{ item.partNo }}</span></div>
+                      <div class="text-[10px] text-gray-500">Model: <span>{{ item.model || 'N/A' }}</span></div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div class="bg-neutral-600/10 rounded-2xl p-6 border-b-4 border-red-600 hover:border-red-900 relative group overflow-hidden shadow-sm">
-                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Critical Stock</p>
-                <p class="text-3xl font-black text-red-600">{{ outOfStock }}</p>
-                <p class="mt-4 text-[10px] font-bold text-red-600/50 uppercase tracking-widest flex items-center gap-1">
-                  <AlertTriangle class="w-3 h-3" /> Reorder Needed
-                </p>
-              </div>
-            </div>
+              <!-- Mobile Modal -->
+              <transition name="fade">
+                <div v-if="showOutOfStockModal && isMobile" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-xl w-11/12 max-w-md p-5 relative">
+                    <button @click="showOutOfStockModal = false" class="absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                      <X class="w-5 h-5" />
+                    </button>
+                    <div class="font-bold text-red-600 text-base mb-3">Out of Stock Items</div>
+                    <div v-if="outOfStockItems.length === 0" class="text-xs text-gray-400">No out of stock items.</div>
+                    <div v-else class="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-neutral-800">
+                      <div v-for="item in outOfStockItems" :key="item.id" class="py-3">
+                        <div class="font-bold text-[13px] text-red-700">{{ item.partName || 'N/A' }}</div>
+                        <div class="text-[11px] text-gray-500">Part No: <span class="font-mono">{{ item.partNo }}</span></div>
+                        <div class="text-[11px] text-gray-500">Model: <span>{{ item.model || 'N/A' }}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </transition>
 
-            <div class="grid grid-cols-1 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-              <div :class="[cardClass, 'rounded-2xl p-4 sm:p-6 lg:p-8 border border-neutral-600/40 xl:col-span-1']" :style="cardStyle">
-                <h3 :class="['text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2', textClass]">
-                  <PieChart class="w-4 h-4 text-red-600" /> Status Distribution
-                </h3>
-                <div class="h-70 relative px-4">
-                  <canvas ref="statusChart"></canvas>
+              <!-- Categories Count -->
+              <div :class="[cardClass, 'rounded-2xl p-6 flex flex-col items-start justify-between relative overflow-hidden group']" :style="cardStyle">
+                <div class="flex items-center gap-2 mb-2">
+                  <Filter class="w-6 h-6 text-blue-600" />
+                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Categories</span>
+                </div>
+                <p class="text-3xl font-black text-blue-600">{{ uniqueCategories.length }}</p>
+                <span class="mt-2 text-[10px] text-gray-500 uppercase">Inventory Groups</span>
+              </div>
+
+
+              <!-- Most Stocked Items with Popover/Modal -->
+              <div v-if="mostStockedItem" class="relative group" @mouseenter="showMostStockedPopover = true" @mouseleave="showMostStockedPopover = false">
+                <div
+                  :class="[cardClass, 'rounded-2xl p-6 flex flex-col items-start justify-between relative cursor-pointer']"
+                  :style="cardStyle"
+                  @click="toggleMostStockedModal"
+                  tabindex="0"
+                  @keydown.enter="toggleMostStockedModal"
+                  @keydown.space.prevent="toggleMostStockedModal"
+                >
+                  <div class="flex items-center gap-2 mb-2">
+                    <ChevronUp class="w-6 h-6 text-green-700" />
+                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Most Stocked</span>
+                  </div>
+                  <p class="text-lg font-black text-green-700">{{ mostStockedItem.partName || mostStockedItem.partNo }}</p>
+                  <span class="mt-2 text-[10px] text-gray-500 uppercase">Qty: {{ mostStockedItem.quantity }}</span>
+                </div>
+                <!-- Desktop Popover -->
+                <div
+                  v-if="showMostStockedPopover && !isMobile"
+                  class="absolute left-0 top-full mt-2 z-50 w-80 bg-gray-50 border border-gray-200 rounded-xl shadow-xl p-3"
+                >
+                  <div class="font-bold text-green-700 text-xs mb-2">Top 5 Most Stocked</div>
+                  <div v-if="topMostStocked.length === 0" class="text-xs text-gray-400">No items.</div>
+                  <div v-else class="max-h-60 overflow-y-auto divide-y divide-gray-100 dark:divide-neutral-800">
+                    <div v-for="item in topMostStocked" :key="item.id" class="py-2 flex justify-between items-center">
+                      <span class="font-bold text-[11px] text-green-700">{{ item.partName || 'N/A' }}</span>
+                      <span class="text-[11px] font-black">{{ item.quantity }}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div :class="[cardClass, 'rounded-2xl p-4 sm:p-6 lg:p-8 border border-neutral-600/40 xl:col-span-2']" :style="cardStyle">
-                <h3 :class="['text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2', textClass]">
-                  <BarChart3 class="w-4 h-4 text-red-600" /> Stock by Category
-                </h3>
-                <div class="h-70 relative">
-                  <canvas ref="categoryChart"></canvas>
+              <!-- Mobile Modal -->
+              <transition name="fade">
+                <div v-if="showMostStockedModal && isMobile" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-xl w-11/12 max-w-md p-5 relative">
+                    <button @click="showMostStockedModal = false" class="absolute top-2 right-2 text-gray-400 hover:text-green-700">
+                      <X class="w-5 h-5" />
+                    </button>
+                    <div class="font-bold text-green-700 text-base mb-3">Top 5 Most Stocked</div>
+                    <div v-if="topMostStocked.length === 0" class="text-xs text-gray-400">No items.</div>
+                    <div v-else class="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-neutral-800">
+                      <div v-for="item in topMostStocked" :key="item.id" class="py-3 flex justify-between items-center">
+                        <span class="font-bold text-[13px] text-green-700">{{ item.partName || 'N/A' }}</span>
+                        <span class="text-[13px] font-black">{{ item.quantity }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </transition>
+
+
+              <!-- Least Stocked Items with Popover/Modal -->
+              <div v-if="leastStockedItem" class="relative group" @mouseenter="showLeastStockedPopover = true" @mouseleave="showLeastStockedPopover = false">
+                <div
+                  :class="[cardClass, 'rounded-2xl p-6 flex flex-col items-start justify-between relative cursor-pointer']"
+                  :style="cardStyle"
+                  @click="toggleLeastStockedModal"
+                  tabindex="0"
+                  @keydown.enter="toggleLeastStockedModal"
+                  @keydown.space.prevent="toggleLeastStockedModal"
+                >
+                  <div class="flex items-center gap-2 mb-2">
+                    <ChevronDown class="w-6 h-6 text-orange-700" />
+                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Least Stocked</span>
+                  </div>
+                  <p class="text-lg font-black text-orange-700">{{ leastStockedItem.partName || leastStockedItem.partNo }}</p>
+                  <span class="mt-2 text-[10px] text-gray-500 uppercase">Qty: {{ leastStockedItem.quantity }}</span>
+                </div>
+                <!-- Desktop Popover -->
+                <div
+                  v-if="showLeastStockedPopover && !isMobile"
+                  class="absolute left-0 top-full mt-2 z-50 w-80 bg-gray-50 border border-gray-200 rounded-xl shadow-xl p-3"
+                >
+                  <div class="font-bold text-orange-700 text-xs mb-2">Top 5 Least Stocked</div>
+                  <div v-if="topLeastStocked.length === 0" class="text-xs text-gray-400">No items.</div>
+                  <div v-else class="max-h-60 overflow-y-auto divide-y divide-gray-100 dark:divide-neutral-800">
+                    <div v-for="item in topLeastStocked" :key="item.id" class="py-2 flex justify-between items-center">
+                      <span class="font-bold text-[11px] text-orange-700">{{ item.partName || 'N/A' }}</span>
+                      <span class="text-[11px] font-black">{{ item.quantity }}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              <!-- Mobile Modal -->
+              <transition name="fade">
+                <div v-if="showLeastStockedModal && isMobile" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-xl w-11/12 max-w-md p-5 relative">
+                    <button @click="showLeastStockedModal = false" class="absolute top-2 right-2 text-gray-400 hover:text-orange-700">
+                      <X class="w-5 h-5" />
+                    </button>
+                    <div class="font-bold text-orange-700 text-base mb-3">Top 5 Least Stocked</div>
+                    <div v-if="topLeastStocked.length === 0" class="text-xs text-gray-400">No items.</div>
+                    <div v-else class="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-neutral-800">
+                      <div v-for="item in topLeastStocked" :key="item.id" class="py-3 flex justify-between items-center">
+                        <span class="font-bold text-[13px] text-orange-700">{{ item.partName || 'N/A' }}</span>
+                        <span class="text-[13px] font-black">{{ item.quantity }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </transition>
+
+
+              <!-- Highest Value Items with Popover/Modal -->
+              <div v-if="highestValueItem" class="relative group" @mouseenter="showHighestValuePopover = true" @mouseleave="showHighestValuePopover = false">
+                <div
+                  :class="[cardClass, 'rounded-2xl p-6 flex flex-col items-start justify-between relative cursor-pointer']"
+                  :style="cardStyle"
+                  @click="toggleHighestValueModal"
+                  tabindex="0"
+                  @keydown.enter="toggleHighestValueModal"
+                  @keydown.space.prevent="toggleHighestValueModal"
+                >
+                  <div class="flex items-center gap-2 mb-2">
+                    <Banknote class="w-6 h-6 text-emerald-700" />
+                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Highest Value</span>
+                  </div>
+                  <p class="text-lg font-black text-emerald-700">{{ highestValueItem.partName || highestValueItem.partNo }}</p>
+                  <span class="mt-2 text-[10px] text-gray-500 uppercase">₱{{ highestValueItem.totalValue?.toLocaleString('en-PH', { minimumFractionDigits: 2 }) }}</span>
+                </div>
+                <!-- Desktop Popover -->
+                <div
+                  v-if="showHighestValuePopover && !isMobile"
+                  class="absolute left-0 top-full mt-2 z-50 w-80 bg-gray-50 border border-gray-200 rounded-xl shadow-xl p-3"
+                >
+                  <div class="font-bold text-emerald-700 text-xs mb-2">Top 5 Highest Value</div>
+                  <div v-if="topHighestValue.length === 0" class="text-xs text-gray-400">No items.</div>
+                  <div v-else class="max-h-60 overflow-y-auto divide-y divide-gray-100 dark:divide-neutral-800">
+                    <div v-for="item in topHighestValue" :key="item.id" class="py-2 flex justify-between items-center">
+                      <span class="font-bold text-[11px] text-emerald-700">{{ item.partName || 'N/A' }}</span>
+                      <span class="text-[11px] font-black">₱{{ item.totalValue?.toLocaleString('en-PH', { minimumFractionDigits: 2 }) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mobile Modal -->
+              <transition name="fade">
+                <div v-if="showHighestValueModal && isMobile" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-xl w-11/12 max-w-md p-5 relative">
+                    <button @click="showHighestValueModal = false" class="absolute top-2 right-2 text-gray-400 hover:text-emerald-700">
+                      <X class="w-5 h-5" />
+                    </button>
+                    <div class="font-bold text-emerald-700 text-base mb-3">Top 5 Highest Value</div>
+                    <div v-if="topHighestValue.length === 0" class="text-xs text-gray-400">No items.</div>
+                    <div v-else class="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-neutral-800">
+                      <div v-for="item in topHighestValue" :key="item.id" class="py-3 flex justify-between items-center">
+                        <span class="font-bold text-[13px] text-emerald-700">{{ item.partName || 'N/A' }}</span>
+                        <span class="text-[13px] font-black">₱{{ item.totalValue?.toLocaleString('en-PH', { minimumFractionDigits: 2 }) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </transition>
             </div>
 
             <!-- Alerts & Notifications in Inventory -->
@@ -150,31 +382,7 @@
                   </p>
                 </div>
 
-                <div v-if="lowStock > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-orange-900/50' : 'bg-white border-neutral-200 shadow-sm']">
-                  <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                      <div class="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
-                      <h4 :class="['text-[10px] font-black uppercase tracking-[0.15em]', isDarkMode ? 'text-orange-400' : 'text-orange-600']">
-                        Low Inventory
-                      </h4>
-                    </div>
-                    <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-md', isDarkMode ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-50 text-orange-700']">{{ lowStock }}</span>
-                  </div>
-
-                  <div class="space-y-3">
-                    <div v-for="item in inventoryItems.filter(i => i.quantity > 0 && i.quantity <= 10).slice(0, 4)" :key="item.id">
-                      <div class="flex justify-between items-start">
-                        <p :class="['text-[11px] font-bold leading-none mb-1', textClass]">{{ item.partNo }}</p>
-                        <span class="text-[9px] font-black text-orange-600">{{ item.quantity }} QTY</span>
-                      </div>
-                      <p :class="['text-[9px] truncate opacity-60 uppercase tracking-tighter', subTextClass]">{{ item.partName }}</p>
-                    </div>
-                  </div>
-
-                  <p v-if="lowStock > 4" :class="['text-[9px] font-bold uppercase mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800', subTextClass]">
-                    + {{ lowStock - 4 }} More Items
-                  </p>
-                </div>
+                <!-- Low Inventory alert card removed as requested -->
 
                 <!-- User Requests Card - Only show if user has approve/user-management access -->
                 <div v-if="(isMasterAdmin || accessiblePages.includes('approve') || accessiblePages.includes('user-management')) && pendingUsersCount > 0" :class="['p-5 rounded-xl border transition-all', isDarkMode ? 'bg-neutral-900/50 border-yellow-900/50' : 'bg-white border-neutral-200 shadow-sm']">
@@ -230,10 +438,15 @@
                     </div>
                     <span class="font-bold text-sm text-gray-600 dark:text-gray-300">Critical Stock</span>
                   </div>
-                  <span class="text-3xl font-black text-red-600">{{ outOfStock }}</span>
+                  <span class="text-3xl font-black text-red-600">{{ lowStockItems.length + outOfStockItems.length }}</span>
                 </div>
                 <div class="mt-auto pt-2 border-t border-gray-50 dark:border-neutral-700 flex justify-between items-center">
-                  <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-red-500 transition-colors">Go to Inventory</span>
+                  <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 group-hover:text-red-500 transition-colors">
+                    Go to Inventory
+                    <template v-if="(lowStockItems.length + outOfStockItems.length) > 0">
+                      ({{ lowStockItems.length + outOfStockItems.length }} Issue{{ (lowStockItems.length + outOfStockItems.length) > 1 ? 's' : '' }})
+                    </template>
+                  </span>
                   <ChevronRight class="w-3 h-3 text-gray-300 group-hover:text-red-500 transition-transform group-hover:translate-x-1" />
                 </div>
               </button>
@@ -911,9 +1124,51 @@
 
 
 <script setup>
+// --- Most/Least/Highest Value Popover/Modal State ---
+const showMostStockedPopover = ref(false);
+const showMostStockedModal = ref(false);
+const showLeastStockedPopover = ref(false);
+const showLeastStockedModal = ref(false);
+const showHighestValuePopover = ref(false);
+const showHighestValueModal = ref(false);
+
+function toggleMostStockedModal() {
+  if (isMobile.value) {
+    showMostStockedModal.value = !showMostStockedModal.value;
+  }
+}
+function toggleLeastStockedModal() {
+  if (isMobile.value) {
+    showLeastStockedModal.value = !showLeastStockedModal.value;
+  }
+}
+function toggleHighestValueModal() {
+  if (isMobile.value) {
+    showHighestValueModal.value = !showHighestValueModal.value;
+  }
+}
+
+// Top 5 computed lists
+const topMostStocked = computed(() =>
+  [...inventoryItems.value]
+    .filter(item => typeof item.quantity === 'number')
+    .sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
+    .slice(0, 5)
+);
+const topLeastStocked = computed(() =>
+  [...inventoryItems.value]
+    .filter(item => typeof item.quantity === 'number')
+    .sort((a, b) => (a.quantity || 0) - (b.quantity || 0))
+    .slice(0, 5)
+);
+const topHighestValue = computed(() =>
+  [...inventoryItems.value]
+    .filter(item => typeof item.totalValue === 'number')
+    .sort((a, b) => (b.totalValue || 0) - (a.totalValue || 0))
+    .slice(0, 5)
+);
 import { ref, onMounted, computed, nextTick, onUnmounted, watch } from "vue";
 import { useRouter } from "vue-router";
-
 import { useAuth } from "../../composables/useAuth";
 import { usePermissions } from "../../composables/usePermissions";
 import { db } from "../../Firebase/Firebase";
@@ -959,6 +1214,55 @@ const textClass = computed(() => isDarkMode.value ? 'text-white' : 'text-gray-80
 const subTextClass = computed(() => isDarkMode.value ? 'text-gray-300' : 'text-gray-600');
 const tableHeaderClass = computed(() => isDarkMode.value ? 'bg-gray-800 text-gray-200' : 'bg-gray-100 text-gray-700');
 const tableRowClass = computed(() => isDarkMode.value ? 'hover:bg-gray-800' : 'hover:bg-gray-50');
+
+
+// --- Low Stock Popover/Modal State ---
+const showLowStockPopover = ref(false);
+const showLowStockModal = ref(false);
+const isMobile = ref(false);
+
+function toggleLowStockModal() {
+  if (isMobile.value) {
+    showLowStockModal.value = !showLowStockModal.value;
+  }
+}
+
+onMounted(() => {
+  // Simple mobile detection
+  isMobile.value = window.innerWidth <= 768;
+  window.addEventListener('resize', () => {
+    isMobile.value = window.innerWidth <= 768;
+  });
+});
+
+
+// --- Inventory Dashboard Card Computed Properties ---
+const lowStockItems = computed(() => inventoryItems.value.filter(item => item.quantity > 0 && item.quantity <= (item.minimum ?? 0)));
+const outOfStockItems = computed(() => inventoryItems.value.filter(item => (item.quantity || 0) === 0));
+const uniqueCategories = computed(() => Array.from(new Set(inventoryItems.value.map(item => item.category))));
+const mostStockedItem = computed(() => {
+  if (!inventoryItems.value.length) return null;
+  return inventoryItems.value.reduce((max, item) => (item.quantity > (max?.quantity || 0) ? item : max), null);
+});
+const leastStockedItem = computed(() => {
+  const filtered = inventoryItems.value.filter(item => item.quantity > 0);
+  if (!filtered.length) return null;
+  return filtered.reduce((min, item) => (item.quantity < (min?.quantity || Infinity) ? item : min), null);
+});
+const highestValueItem = computed(() => {
+  if (!inventoryItems.value.length) return null;
+  return inventoryItems.value.reduce((max, item) => (item.totalValue > (max?.totalValue || 0) ? item : max), null);
+});
+
+// --- Out of Stock Popover/Modal State ---
+const showOutOfStockPopover = ref(false);
+const showOutOfStockModal = ref(false);
+
+function toggleOutOfStockModal() {
+  if (isMobile.value) {
+    showOutOfStockModal.value = !showOutOfStockModal.value;
+  }
+}
 
 /* ===== STATE ===== */
 const { user, isAuthenticated } = useAuth();
