@@ -72,8 +72,8 @@ x
                 <div class="space-y-3">
                   <div>
                     <label class="block text-[9px] font-black text-neutral-500 uppercase tracking-widest mb-1">Select Retail Order</label>
-                    <select v-model="assignmentForm.selectedPRO" @change="onPROSelected" class="w-full rounded-lg border-neutral-300 text-xs shadow-sm focus:border-red-600 focus:ring-red-600 py-2 hover:border-neutral-400 transition-colors duration-200"
-                            :disabled="!canCreateAssignments">
+                <select v-model="assignmentForm.selectedPRO" @change="onPROSelected" class="w-full rounded-lg border-neutral-300 text-xs shadow-sm focus:border-red-600 focus:ring-red-600 py-2 hover:border-neutral-400 transition-colors duration-200"
+                            :disabled="!canCreateAssignments || isActiveOrdersLoading">
                       <option value="">Choose a Retail Order</option>
                       <option v-for="pro in availablePROs" :key="pro" :value="pro">{{ pro }}</option>
                     </select>
@@ -177,6 +177,7 @@ x
                   <span class="text-base">📋</span>
                   <h2 class="font-black text-xs tracking-widest uppercase">Active Orders</h2>
                   <span v-if="viewMode === 'TODAY'" class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Live</span>
+                  <!-- <span v-if="isActiveOrdersLoading" class="ml-2 text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold animate-pulse">Loading...</span> -->
                 </div>
                 <input 
                     v-model="searchQuery"
@@ -718,6 +719,8 @@ const switchableTab = ref('advisors');
 // Forms
 const newServiceAdvisor = ref("");
 const newPROrder = ref("");
+const isActiveOrdersLoading = ref(true);
+
 const assignmentForm = ref({
   selectedPRO: "",
   selectedSA: "",
@@ -786,8 +789,8 @@ const discontinuedAssignments = computed(() => {
 const hasDiscontinuedOrders = computed(() => discontinuedAssignments.value.length > 0);
 
 const canCreateAssignments = computed(() => {
-  // Can only create assignments in TODAY view AND when no discontinued orders exist AND user has canCreate permission
-  return viewMode.value === 'TODAY' && !hasDiscontinuedOrders.value && canCreate.value;
+  // Can only create assignments in TODAY view AND when no discontinued orders exist AND user has canCreate permission AND active orders loaded
+  return viewMode.value === 'TODAY' && !hasDiscontinuedOrders.value && canCreate.value && !isActiveOrdersLoading.value;
 });
 
 const dateRangeDays = computed(() => {
@@ -1253,8 +1256,10 @@ function listenToAssignments() {
         status: item.status || "ON GOING",
         date: item.date instanceof Date ? item.date : (item.date ? new Date(item.date) : new Date())
       }));
+      isActiveOrdersLoading.value = false;
     } else {
       assignments.value = [];
+      isActiveOrdersLoading.value = false;
     }
   });
 }
@@ -1370,8 +1375,10 @@ async function loadAssignmentsByDateRange() {
     
     assignments.value = allAssignments;
     loadedDateKeys.value = newLoadedDateKeys; // Update loaded dates tracking
+    isActiveOrdersLoading.value = false;
   } catch (error) {
     console.error("Error loading date range:", error);
+    isActiveOrdersLoading.value = false;
   }
 }
 
