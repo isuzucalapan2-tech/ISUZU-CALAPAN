@@ -1483,7 +1483,7 @@ const initCharts = () => {
       labels: ["In Stock", "Low Stock", "Out of Stock"],
       datasets: [{ 
         data: [inStock.value, lowStock.value, outOfStock.value], 
-        backgroundColor: ["#10b981", "#f97316", "#ef4444"],
+        backgroundColor: ["#10b981", "#fb7185", "#ef4444"],
         borderWidth: 8,
         borderColor: isDarkMode.value ? '#262626' : '#ffffff',
         hoverOffset: 15,
