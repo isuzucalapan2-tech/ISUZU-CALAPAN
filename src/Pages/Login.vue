@@ -157,7 +157,14 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuth } from "../composables/useAuth";
-import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+import { 
+  collection, query, where, getDocs, doc, getDoc, 
+  serverTimestamp, 
+  increment, 
+  writeBatch,
+  addDoc,
+  updateDoc 
+} from "firebase/firestore";
 import { db } from "../Firebase/Firebase";
 import { useToast } from "../composables/useToast";
 import { Eye, EyeOff, ArrowLeft } from "lucide-vue-next"; 
@@ -251,29 +258,105 @@ const handleLogin = async () => {
       return;
     }
 
-    // Check Status (Deactivated)
-    if (adminDoc.Status === "Deactivated") {
-      toast.error("Your account has been deactivated. Please contact an administrator to reactivate your account.", "Account Deactivated");
+    // MASTER ADMIN BYPASS FULL STATUS CHECK & DDOS
+    let isMasterAdmin = false;
+    try {
+      const roleDocRef = doc(db, 'Administrator', adminId, 'Roles', 'Default_Roles');
+      const roleDoc = await getDoc(roleDocRef);
+      if (roleDoc.exists()) {
+        const role = roleDoc.data().role;
+        const MASTER_ADMIN_ROLES = ['Master Admin', 'isuzu&calapan&master&admin101'];
+        isMasterAdmin = MASTER_ADMIN_ROLES.includes(role);
+      }
+    } catch (roleErr) {
+      console.warn('Could not check role for bypass:', roleErr);
+    }
+
+    if (!isMasterAdmin && adminDoc.Status === "Deactivated") {
+      toast.error(`Your account has been deactivated. Reason: ${adminDoc.deactivationReason || 'Manual deactivation'}. Please contact an administrator to reactivate your account.`, "Account Deactivated");
       isLoading.value = false;
       return;
     }
 
-    // Attempt login
-    const result = await login(emailToLogin, password.value, rememberMe.value);
 
-    if (!result.success) {
-      if (result.error === 'Please verify your email first.') {
-        showVerificationNotice.value = true;
-        toast.error("Please verify your email before logging in.", "Email Not Verified");
+
+    // Anti-DDOS: Skip for Master Admin, apply to others (no status change for Master Admin)
+    if (!isMasterAdmin) {
+      const now = Date.now();
+      const ONE_HOUR = 60 * 60 * 1000;
+      if (adminDoc.failedAttempts >= 5 && 
+          adminDoc.lastFailedAttempt && 
+          (now - new Date(adminDoc.lastFailedAttempt.toMillis()).getTime()) < ONE_HOUR) {
+        await updateDoc(doc(db, 'Administrator', adminId), {
+          Status: 'Deactivated',
+          deactivationReason: 'Max login attempts exceeded (DDOS protection)'
+        });
+        toast.error("Account temporarily deactivated due to too many failed login attempts. Please contact administrator.", "Account Locked");
+        isLoading.value = false;
+        return;
+      }
+    }
+
+    // Attempt Firebase login
+    let loginResult;
+    try {
+      loginResult = await login(emailToLogin, password.value, rememberMe.value);
+    } catch (authError) {
+      loginResult = { success: false, error: authError.message };
+    }
+
+    if (!loginResult.success) {
+      // LOGIN FAILURE: Update failed attempts & log
+      const batch = writeBatch(db);
+      
+      // Skip counters for Master Admin
+      if (!isMasterAdmin) {
+        // Increment failed attempts atomically
+        batch.update(doc(db, 'Administrator', adminId), {
+          failedAttempts: increment(1),
+          lastFailedAttempt: serverTimestamp()
+        });
+      }
+
+      // Log attempt (use .set with auto-id via addDoc reference)
+      const logRef = doc(collection(db, 'Administrator', adminId, 'loginAttempts'));
+      batch.set(logRef, {
+        timestamp: serverTimestamp(),
+        reason: 'Incorrect password or email',
+        attemptCount: adminDoc.failedAttempts + 1,
+        identifier: identifier.value
+      });
+
+      await batch.commit();
+
+      // Check if max attempts reached → deactivate
+      if (!isMasterAdmin) {
+        const updatedDoc = await getDoc(doc(db, 'Administrator', adminId));
+        const updatedData = updatedDoc.data();
+        if (updatedData.failedAttempts >= 5) {
+          await updateDoc(doc(db, 'Administrator', adminId), {
+            Status: 'Deactivated',
+            deactivationReason: 'Max login attempts (5) exceeded - DDOS protection'
+          });
+          toast.error("Account deactivated due to 5 failed login attempts. Contact administrator to reset.", "Account Deactivated");
+        } else {
+          toast.error(`Login failed. Attempts remaining: ${5 - updatedData.failedAttempts}`, "Login Failed");
+        }
       } else {
-        toast.error(result.error, "Login Failed");
+        toast.error("Invalid credentials. Master Admin login failed.", "Login Failed");
       }
       isLoading.value = false;
       return;
     }
 
-    // Check email verification after successful Firebase login
-    if (!result.user.emailVerified) {
+    // LOGIN SUCCESS: Reset failed attempts
+    await updateDoc(doc(db, 'Administrator', adminId), {
+      failedAttempts: 0,
+      lastFailedAttempt: null
+    });
+
+    // Continue with existing verification check...
+    if (!loginResult.user.emailVerified) {
       showVerificationNotice.value = true;
       toast.error("Please verify your email before logging in.", "Email Not Verified");
       isLoading.value = false;

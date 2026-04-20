@@ -13,7 +13,8 @@ export function useIsuzuDTR() {
 
   /**
    * Parse attendance Excel file
-   * Expected format: Name, DateTime columns
+   * Supports both legacy format and new DTR.xls format
+   * New DTR.xls format: Department, Name, No., Date/Time, Location ID, ID Number, CardNo
    * @param {File} file - Excel file to parse
    * @returns {Promise<Array>} - Array of raw attendance records
    */
@@ -26,7 +27,7 @@ export function useIsuzuDTR() {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           
-          // Process all sheets (tabs) - each tab represents one employee's DTR
+          // Process all sheets (tabs)
           const allRecords = [];
           
           workbook.SheetNames.forEach(sheetName => {
@@ -38,52 +39,19 @@ export function useIsuzuDTR() {
             // Extract headers (first row)
             const headers = jsonData[0].map(h => h?.toString().trim() || '');
             
-            // Map column indices - flexible matching
-            const columnMap = {
-              employeeNo: headers.findIndex(h => h.toLowerCase().includes('employee no') || h.toLowerCase().includes('emp no') || h.toLowerCase().includes('id')),
-              department: headers.findIndex(h => h.toLowerCase().includes('department') || h.toLowerCase().includes('dept')),
-              name: headers.findIndex(h => h.toLowerCase().includes('name') || h.toLowerCase().includes('employee')),
-              dateTime: headers.findIndex(h => h.toLowerCase().includes('date') || h.toLowerCase().includes('time') || h.toLowerCase().includes('datetime')),
-            };
+            // Check if this is the new DTR.xls format
+            const isNewFormat = headers.some(h => h.toLowerCase().includes('location id')) || 
+                               headers.some(h => h.toLowerCase() === 'no.') ||
+                               headers.some(h => h.toLowerCase().includes('date/time'));
             
-            // If no specific columns found, try to infer from data structure
-            const hasStandardColumns = columnMap.name >= 0 || columnMap.dateTime >= 0;
-            
-            // Parse data rows
-            for (let i = 1; i < jsonData.length; i++) {
-              const row = jsonData[i];
-              if (!row || row.length === 0) continue; // Skip empty rows
-              
-              let record;
-              
-              if (hasStandardColumns) {
-                // Standard format with named columns
-                record = {
-                  sheetName: sheetName,
-                  employeeNo: columnMap.employeeNo >= 0 ? String(row[columnMap.employeeNo] || '').trim() : '',
-                  department: columnMap.department >= 0 ? String(row[columnMap.department] || '').trim() : '',
-                  name: columnMap.name >= 0 ? String(row[columnMap.name] || '').trim() : sheetName,
-                  dateTime: columnMap.dateTime >= 0 ? parseDateTime(row[columnMap.dateTime]) : null,
-                  rawDateTime: columnMap.dateTime >= 0 ? row[columnMap.dateTime] : null,
-                  rowNumber: i + 1
-                };
-              } else {
-                // Infer format: assume first column is name/identifier, second is datetime
-                record = {
-                  sheetName: sheetName,
-                  employeeNo: '',
-                  department: '',
-                  name: String(row[0] || sheetName).trim(),
-                  dateTime: row.length > 1 ? parseDateTime(row[1]) : null,
-                  rawDateTime: row.length > 1 ? row[1] : null,
-                  rowNumber: i + 1
-                };
-              }
-              
-              // Only add records with valid datetime
-              if (record.dateTime && !isNaN(record.dateTime.getTime())) {
-                allRecords.push(record);
-              }
+            if (isNewFormat) {
+              // Parse new DTR.xls format
+              const newFormatRecords = parseNewDTRFormat(jsonData, headers, sheetName);
+              allRecords.push(...newFormatRecords);
+            } else {
+              // Parse legacy format
+              const legacyRecords = parseLegacyFormat(jsonData, headers, sheetName);
+              allRecords.push(...legacyRecords);
             }
           });
           
@@ -96,6 +64,189 @@ export function useIsuzuDTR() {
       reader.onerror = () => reject(new Error('Failed to read file'));
       reader.readAsArrayBuffer(file);
     });
+  };
+
+  /**
+   * Parse new DTR.xls format
+   * Columns: Department, Name, No., Date/Time, Location ID, ID Number, CardNo
+   * Name format: "LASTNAME, Firstname"
+   * Date/Time format: "2/2/2026 7:35:52 AM"
+   */
+  const parseNewDTRFormat = (jsonData, headers, sheetName) => {
+    const records = [];
+    
+    // Map column indices for new format
+    const columnMap = {
+      department: headers.findIndex(h => h.toLowerCase().includes('department')),
+      name: headers.findIndex(h => h.toLowerCase().includes('name')),
+      employeeNo: headers.findIndex(h => h.toLowerCase() === 'no.' || h.toLowerCase() === 'no'),
+      dateTime: headers.findIndex(h => h.toLowerCase().includes('date/time') || h.toLowerCase().includes('datetime')),
+      locationId: headers.findIndex(h => h.toLowerCase().includes('location id')),
+      idNumber: headers.findIndex(h => h.toLowerCase().includes('id number')),
+      cardNo: headers.findIndex(h => h.toLowerCase().includes('cardno') || h.toLowerCase().includes('card no')),
+    };
+    
+    // Parse data rows
+    for (let i = 1; i < jsonData.length; i++) {
+      const row = jsonData[i];
+      if (!row || row.length === 0) continue; // Skip empty rows
+      
+      const rawDateTime = columnMap.dateTime >= 0 ? row[columnMap.dateTime] : null;
+      const parsedDateTime = parseNewFormatDateTime(rawDateTime);
+      
+      // Parse name format "LASTNAME, Firstname"
+      const rawName = columnMap.name >= 0 ? String(row[columnMap.name] || '').trim() : '';
+      const parsedName = parseNameFormat(rawName);
+      
+      const record = {
+        sheetName: sheetName,
+        employeeNo: columnMap.employeeNo >= 0 ? String(row[columnMap.employeeNo] || '').trim() : '',
+        department: columnMap.department >= 0 ? String(row[columnMap.department] || '').trim() : '',
+        name: parsedName,
+        rawName: rawName,
+        dateTime: parsedDateTime,
+        rawDateTime: rawDateTime,
+        locationId: columnMap.locationId >= 0 ? String(row[columnMap.locationId] || '').trim() : '',
+        idNumber: columnMap.idNumber >= 0 ? String(row[columnMap.idNumber] || '').trim() : '',
+        cardNo: columnMap.cardNo >= 0 ? String(row[columnMap.cardNo] || '').trim() : '',
+        rowNumber: i + 1,
+        format: 'new'
+      };
+      
+      // Only add records with valid datetime
+      if (record.dateTime && !isNaN(record.dateTime.getTime())) {
+        records.push(record);
+      }
+    }
+    
+    return records;
+  };
+
+  /**
+   * Parse legacy format (original format)
+   */
+  const parseLegacyFormat = (jsonData, headers, sheetName) => {
+    const records = [];
+    
+    // Map column indices - flexible matching
+    const columnMap = {
+      employeeNo: headers.findIndex(h => h.toLowerCase().includes('employee no') || h.toLowerCase().includes('emp no') || h.toLowerCase().includes('id')),
+      department: headers.findIndex(h => h.toLowerCase().includes('department') || h.toLowerCase().includes('dept')),
+      name: headers.findIndex(h => h.toLowerCase().includes('name') || h.toLowerCase().includes('employee')),
+      dateTime: headers.findIndex(h => h.toLowerCase().includes('date') || h.toLowerCase().includes('time') || h.toLowerCase().includes('datetime')),
+    };
+    
+    const hasStandardColumns = columnMap.name >= 0 || columnMap.dateTime >= 0;
+    
+    // Parse data rows
+    for (let i = 1; i < jsonData.length; i++) {
+      const row = jsonData[i];
+      if (!row || row.length === 0) continue;
+      
+      let record;
+      
+      if (hasStandardColumns) {
+        record = {
+          sheetName: sheetName,
+          employeeNo: columnMap.employeeNo >= 0 ? String(row[columnMap.employeeNo] || '').trim() : '',
+          department: columnMap.department >= 0 ? String(row[columnMap.department] || '').trim() : '',
+          name: columnMap.name >= 0 ? String(row[columnMap.name] || '').trim() : sheetName,
+          dateTime: columnMap.dateTime >= 0 ? parseDateTime(row[columnMap.dateTime]) : null,
+          rawDateTime: columnMap.dateTime >= 0 ? row[columnMap.dateTime] : null,
+          rowNumber: i + 1,
+          format: 'legacy'
+        };
+      } else {
+        // Infer format: assume first column is name/identifier, second is datetime
+        record = {
+          sheetName: sheetName,
+          employeeNo: '',
+          department: '',
+          name: String(row[0] || sheetName).trim(),
+          dateTime: row.length > 1 ? parseDateTime(row[1]) : null,
+          rawDateTime: row.length > 1 ? row[1] : null,
+          rowNumber: i + 1,
+          format: 'legacy'
+        };
+      }
+      
+      if (record.dateTime && !isNaN(record.dateTime.getTime())) {
+        records.push(record);
+      }
+    }
+    
+    return records;
+  };
+
+  /**
+   * Parse name format "LASTNAME, Firstname" to "Firstname LASTNAME"
+   */
+  const parseNameFormat = (rawName) => rawName;
+
+  /**
+   * Parse Date/Time from new format (e.g., "2/2/2026 7:35:52 AM")
+   */
+  const parseNewFormatDateTime = (value) => {
+    if (!value) return null;
+    
+    // If it's already a Date object
+    if (value instanceof Date) return value;
+    
+    // If it's a number (Excel serial date)
+    if (typeof value === 'number') {
+      const excelEpoch = new Date(1899, 11, 30);
+      const days = Math.floor(value);
+      const fraction = value - days;
+      const milliseconds = days * 24 * 60 * 60 * 1000 + fraction * 24 * 60 * 60 * 1000;
+      return new Date(excelEpoch.getTime() + milliseconds);
+    }
+    
+    // If it's a string (e.g., "2/2/2026 7:35:52 AM")
+    if (typeof value === 'string') {
+      // Try parsing with native Date
+      const parsed = new Date(value);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+      
+      // Try manual parsing for formats like "M/d/yyyy h:mm:ss AM/PM"
+      const manualParsed = parseManualDateTime(value);
+      if (manualParsed) return manualParsed;
+    }
+    
+    return null;
+  };
+
+  /**
+   * Manually parse datetime strings like "2/2/2026 7:35:52 AM"
+   */
+  const parseManualDateTime = (value) => {
+    // Pattern: M/d/yyyy h:mm:ss AM/PM or MM/dd/yyyy hh:mm:ss AM/PM
+    const pattern = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})\s*(AM|PM)?$/i;
+    const match = value.match(pattern);
+    
+    if (match) {
+      const month = parseInt(match[1]) - 1; // 0-based month
+      const day = parseInt(match[2]);
+      const year = parseInt(match[3]);
+      let hours = parseInt(match[4]);
+      const minutes = parseInt(match[5]);
+      const seconds = parseInt(match[6]);
+      const ampm = match[7];
+      
+      // Convert to 24-hour format if AM/PM specified
+      if (ampm) {
+        if (ampm.toUpperCase() === 'PM' && hours !== 12) {
+          hours += 12;
+        } else if (ampm.toUpperCase() === 'AM' && hours === 12) {
+          hours = 0;
+        }
+      }
+      
+      return new Date(year, month, day, hours, minutes, seconds);
+    }
+    
+    return null;
   };
 
   /**
@@ -466,12 +617,18 @@ export function useIsuzuDTR() {
         const dayRecords = employeeData[date];
         const processedDay = processDailyLogs(dayRecords);
         
+        // Get the first record with new format fields
+        const firstRecordWithExtras = dayRecords[0] || {};
+        
         dtrEntries.push({
           employeeNo: firstRecord.employeeNo || '',
           department: firstRecord.department || '',
           name: employeeName,
           date: processedDay.date,
           dateFormatted: formatDateDisplay(processedDay.date),
+          locationId: firstRecordWithExtras.locationId || '',
+          idNumber: firstRecordWithExtras.idNumber || '',
+          cardNo: firstRecordWithExtras.cardNo || '',
           morning: {
             in: formatTimeDisplay(processedDay.morning.timeIn),
             out: formatTimeDisplay(processedDay.morning.timeOut),
@@ -544,37 +701,45 @@ export function useIsuzuDTR() {
       return;
     }
 
-    // Transform data for export
+    // Transform data for export to match table columns exactly
     const exportData = dtrData.map((item, index) => ({
-      'No.': index + 1,
-      'Employee No.': item.employeeNo,
-      'Department': item.department,
-      'Name': item.name,
+      '#': index + 1,
+      'Employee No.': item.employeeNo || '',
+      'Department': item.department || '',
+      'Name': item.rawName || item.name || '',
+      'Card No.': item.cardNo || '',
+      'Location ID': item.locationId || '',
+      'ID Number': item.idNumber || '',
       'Date': item.dateFormatted,
-      'Morning In': item.morning.in,
-      'Morning Out': item.afternoon.out,
-      'Afternoon In': item.afternoon.in,
-      'Afternoon Out': item.afternoon.out,
+      'Morning IN': item.morning.in,
+      'Morning OUT': item.morning.out,
+      'Afternoon IN': item.afternoon.in,
+      'Afternoon OUT': item.afternoon.out,
       'Hours Worked': item.hoursWorked,
-      'Remarks': item.remarks
+      'Remarks': item.remarks,
+      'Status': item.isValid ? 'Valid' : 'Invalid'
     }));
 
     // Create worksheet
     const worksheet = XLSX.utils.json_to_sheet(exportData);
 
-    // Set column widths
+    // Set column widths to match new structure
     worksheet['!cols'] = [
-      { wch: 5 },   // No.
-      { wch: 15 },  // Employee No.
-      { wch: 20 },  // Department
+      { wch: 4 },   // #
+      { wch: 12 },  // Employee No.
+      { wch: 15 },  // Department
       { wch: 25 },  // Name
+      { wch: 12 },  // Card No.
+      { wch: 12 },  // Location ID
+      { wch: 12 },  // ID Number
       { wch: 12 },  // Date
-      { wch: 12 },  // Morning In
-      { wch: 12 },  // Morning Out
-      { wch: 12 },  // Afternoon In
-      { wch: 12 },  // Afternoon Out
+      { wch: 13 },  // Morning IN
+      { wch: 13 },  // Morning OUT
+      { wch: 13 },  // Afternoon IN
+      { wch: 13 },  // Afternoon OUT
       { wch: 12 },  // Hours Worked
-      { wch: 40 }   // Remarks
+      { wch: 30 },  // Remarks
+      { wch: 10 }   // Status
     ];
 
     // Create workbook
@@ -645,78 +810,99 @@ export function useIsuzuDTR() {
   };
 
   /**
-   * Download DTR template
+   * Download DTR template - Updated for new DTR.xls format
+   * Columns: Department, Name, No., Date/Time, Location ID, ID Number, CardNo
    */
   const downloadDTRTemplate = () => {
     const templateData = [
       {
-        'Employee No.': 'EMP001',
         'Department': 'Sales',
-        'Name': 'Juan Dela Cruz',
-        'DateTime': '2024-01-15 07:45:00'
+        'Name': 'DELA CRUZ, Juan',
+        'No.': 'EMP001',
+        'Date/Time': '2/2/2026 7:35:52 AM',
+        'Location ID': 'LOC001',
+        'ID Number': 'ID001',
+        'CardNo': 'CARD001'
       },
       {
-        'Employee No.': '',
         'Department': '',
         'Name': '',
-        'DateTime': '2024-01-15 12:05:00'
+        'No.': '',
+        'Date/Time': '2/2/2026 12:05:15 PM',
+        'Location ID': '',
+        'ID Number': '',
+        'CardNo': ''
       },
       {
-        'Employee No.': '',
         'Department': '',
         'Name': '',
-        'DateTime': '2024-01-15 13:00:00'
+        'No.': '',
+        'Date/Time': '2/2/2026 1:00:30 PM',
+        'Location ID': '',
+        'ID Number': '',
+        'CardNo': ''
       },
       {
-        'Employee No.': '',
         'Department': '',
         'Name': '',
-        'DateTime': '2024-01-15 17:30:00'
+        'No.': '',
+        'Date/Time': '2/2/2026 5:30:45 PM',
+        'Location ID': '',
+        'ID Number': '',
+        'CardNo': ''
       }
     ];
 
     const worksheet = XLSX.utils.json_to_sheet(templateData);
     worksheet['!cols'] = [
-      { wch: 15 },  // Employee No.
       { wch: 20 },  // Department
       { wch: 25 },  // Name
-      { wch: 20 }   // DateTime
+      { wch: 15 },  // No.
+      { wch: 25 },  // Date/Time
+      { wch: 15 },  // Location ID
+      { wch: 15 },  // ID Number
+      { wch: 15 }   // CardNo
     ];
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance Template');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'DTR Template');
 
     // Add instructions sheet
     const instructionData = [
-      { 'INSTRUCTIONS': 'DTR ATTENDANCE IMPORT TEMPLATE' },
+      { 'INSTRUCTIONS': 'DTR ATTENDANCE IMPORT TEMPLATE (NEW FORMAT)' },
       { 'INSTRUCTIONS': '' },
       { 'INSTRUCTIONS': 'COLUMN DESCRIPTIONS:' },
-      { 'INSTRUCTIONS': '• Employee No. - Employee ID number (optional)' },
-      { 'INSTRUCTIONS': '• Department - Employee department (optional)' },
-      { 'INSTRUCTIONS': '• Name - Employee full name' },
-      { 'INSTRUCTIONS': '• DateTime - Date and time of log (required)' },
+      { 'INSTRUCTIONS': '• Department - Employee department' },
+      { 'INSTRUCTIONS': '• Name - Employee name in "LASTNAME, Firstname" format' },
+      { 'INSTRUCTIONS': '• No. - Employee ID number' },
+      { 'INSTRUCTIONS': '• Date/Time - Date and time in format: M/d/yyyy h:mm:ss AM/PM' },
+      { 'INSTRUCTIONS': '• Location ID - Location identifier (optional)' },
+      { 'INSTRUCTIONS': '• ID Number - Additional ID field (optional)' },
+      { 'INSTRUCTIONS': '• CardNo - Card number (optional)' },
       { 'INSTRUCTIONS': '' },
       { 'INSTRUCTIONS': 'ATTENDANCE LOGGING RULES:' },
       { 'INSTRUCTIONS': '• Minimum 2 logs per day (Time In and Time Out)' },
       { 'INSTRUCTIONS': '• Maximum 4 logs per day (2 Morning + 2 Afternoon)' },
-      { 'INSTRUCTIONS': '• Morning: Before 8:00 AM → 12:00 PM' },
-      { 'INSTRUCTIONS': '• Afternoon: 12:01 PM → onwards' },
+      { 'INSTRUCTIONS': '• Morning: Before 12:00 PM' },
+      { 'INSTRUCTIONS': '• Afternoon: 12:01 PM onwards' },
       { 'INSTRUCTIONS': '' },
       { 'INSTRUCTIONS': 'TIME CLASSIFICATION:' },
       { 'INSTRUCTIONS': '• Before 8:00 AM: Early/On-time' },
       { 'INSTRUCTIONS': '• 8:00 AM - 12:00 PM: Late' },
-      { 'INSTRUCTIONS': '• Out before 12:00 PM or 5:00 PM: Undertime' },
+      { 'INSTRUCTIONS': '• Out before 5:00 PM: Undertime' },
       { 'INSTRUCTIONS': '' },
-      { 'INSTRUCTIONS': 'VALID COMBINATIONS:' },
-      { 'INSTRUCTIONS': '• 1 Morning + 1 Afternoon (standard)' },
-      { 'INSTRUCTIONS': '• 2 Morning logs (Time In + Time Out)' },
-      { 'INSTRUCTIONS': '• 2 Afternoon logs (Time In + Time Out)' },
-      { 'INSTRUCTIONS': '• 2 Morning + 2 Afternoon (with break)' },
+      { 'INSTRUCTIONS': 'NAME FORMAT:' },
+      { 'INSTRUCTIONS': '• Use "LASTNAME, Firstname" format (e.g., "AURE, Janrey")' },
+      { 'INSTRUCTIONS': '• System will automatically convert to "Firstname LASTNAME"' },
       { 'INSTRUCTIONS': '' },
-      { 'INSTRUCTIONS': 'TIPS:' },
-      { 'INSTRUCTIONS': '• Each Excel sheet/tab can represent one employee' },
-      { 'INSTRUCTIONS': '• Or use single sheet with Name column for multiple employees' },
-      { 'INSTRUCTIONS': '• DateTime format: YYYY-MM-DD HH:MM:SS or Excel date/time' }
+      { 'INSTRUCTIONS': 'DATE/TIME FORMAT:' },
+      { 'INSTRUCTIONS': '• Use format: M/d/yyyy h:mm:ss AM/PM' },
+      { 'INSTRUCTIONS': '• Example: 2/2/2026 7:35:52 AM' },
+      { 'INSTRUCTIONS': '• Or use Excel date/time format' },
+      { 'INSTRUCTIONS': '' },
+      { 'INSTRUCTIONS': 'COMPATIBILITY:' },
+      { 'INSTRUCTIONS': '• This template matches the new DTR.xls format' },
+      { 'INSTRUCTIONS': '• System also supports legacy format for backward compatibility' }
     ];
 
     const instructionSheet = XLSX.utils.json_to_sheet(instructionData);

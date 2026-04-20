@@ -189,9 +189,10 @@
                       <button 
                         v-if="canEdit && item.statusOUT === 'Completed' && isCancelAvailable(item)"
                         @click="cancelSale(item)" 
-                        class="bg-neutral-800 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-red-600 transition-all flex items-center gap-1"
+                        :disabled="processingItems[item.id]"
+                        class="bg-neutral-800 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-red-600 transition-all flex items-center gap-1 disabled:opacity-50"
                       >
-                        <X class="w-3 h-3" /> Return
+                        <X class="w-3 h-3" /> Return {{ processingItems[item.id] ? '...' : getCancelExpirationText(item) }}
                       </button>
                       <div 
                         v-else-if="!canEdit && item.statusOUT === 'Completed' && isCancelAvailable(item)"
@@ -906,7 +907,7 @@ const isCancelAvailable = (item) => {
   const diffTime = now - soldDate;
   const diffDays = diffTime / (1000 * 60 * 60 * 24); // Convert to days
   
-  return diffDays <= 3;
+  return diffDays <= 7;
 };
 
 // Get cancel expiration text
@@ -917,10 +918,10 @@ const getCancelExpirationText = (item) => {
   const now = new Date();
   const diffTime = now - soldDate;
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
-  const remainingDays = Math.max(0, 3 - Math.floor(diffDays));
+  const remainingDays = Math.max(0, 7 - Math.floor(diffDays));
   
   if (remainingDays === 0) {
-    const remainingHours = Math.max(0, 72 - Math.floor(diffTime / (1000 * 60 * 60)));
+    const remainingHours = Math.max(0, 168 - Math.floor(diffTime / (1000 * 60 * 60))); // 7*24=168
     if (remainingHours > 0) {
       return `${remainingHours}h left`;
     }

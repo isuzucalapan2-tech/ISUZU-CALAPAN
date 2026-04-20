@@ -54,21 +54,27 @@
           >
             <UserIcon class="w-3.5 h-3.5 md:w-4 md:h-4" /> General
           </button>
+          <!-- Landing Editor Tab - Page Control Applied -->
           <button 
+            v-if="canAccessLanding"
             @click="activeTab = 'landing'" 
             :class="activeTab === 'landing' ? 'bg-white text-red-600 shadow-sm' : 'text-neutral-500 hover:text-neutral-800'"
             class="px-4 py-2.5 md:px-8 md:py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-[10px] md:text-xs tracking-widest isuzu-font whitespace-nowrap"
           >
             <LayoutIcon class="w-3.5 h-3.5 md:w-4 md:h-4" /> Landing Editor
           </button>
+          <!-- Database Tab - Master Admin Only -->
           <button 
+            v-if="isMasterAdmin"
             @click="activeTab = 'database'" 
             :class="activeTab === 'database' ? 'bg-white text-red-600 shadow-sm' : 'text-neutral-500 hover:text-neutral-800'"
             class="px-4 py-2.5 md:px-8 md:py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-[10px] md:text-xs tracking-widest isuzu-font whitespace-nowrap"
           >
             <DatabaseIcon class="w-3.5 h-3.5 md:w-4 md:h-4" /> Database
           </button>
+          <!-- Role & Position Tab - Master Admin Only -->
           <button 
+            v-if="isMasterAdmin"
             @click="activeTab = 'roleposition'" 
             :class="activeTab === 'roleposition' ? 'bg-white text-red-600 shadow-sm' : 'text-neutral-500 hover:text-neutral-800'"
             class="px-4 py-2.5 md:px-8 md:py-3 flex items-center gap-2 transition-all rounded-xl font-bold uppercase text-[10px] md:text-xs tracking-widest isuzu-font whitespace-nowrap"
@@ -84,7 +90,7 @@
           </div>
           <div v-if="saveSuccess" key="success" class="fixed bottom-4 right-4 md:bottom-10 md:right-10 bg-neutral-800 text-white px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-2xl z-50 flex items-center gap-3 md:gap-4 border-b-4 border-green-500">
             <CheckCircleIcon class="w-4 h-4 md:w-5 md:h-5 text-green-400" /> 
-            <span class="text-[10px] md:text-sm font-bold uppercase tracking-widest">Promos Updated</span>
+            <span class="text-[10px] md:text-sm font-bold uppercase tracking-widest">Saved</span>
           </div>
         </TransitionGroup>
 
@@ -135,6 +141,10 @@
           </div>
 
           <div v-if="activeTab === 'landing'" class="space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <!-- View-Only Mode Banner for Landing Editor -->
+            <div v-if="!canEdit && !canCreate && !canDelete" class="bg-yellow-500 text-white px-4 py-2 text-center text-[10px] font-black uppercase tracking-widest z-50 mb-4 rounded-lg">
+              <Eye class="w-3 h-3 inline-block mr-1" /> View-Only Mode - Landing editor requires edit permissions
+            </div>
             
             <div class="bg-white/40 backdrop-blur-sm rounded-3xl p-5 md:p-8 border border-gray-200">
               <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 md:mb-10 gap-4">
@@ -145,7 +155,8 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
                 <div v-for="(car, idx) in landingCarPromos" :key="idx" class="bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-sm flex flex-col">
                   <div class="w-full h-40 md:h-48 flex items-center justify-center bg-gray-100 relative group shrink-0">
-                    <label class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
+                    <!-- Image upload - only show if canEdit -->
+                    <label v-if="canEdit" class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
                       </svg>
@@ -156,18 +167,45 @@
                   </div>
 
                   <div class="p-4 md:p-5 space-y-3 flex-1 flex flex-col">
-                    <input v-model="car.name" class="isuzu-font text-base md:text-lg font-bold w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Car Name" />
-                    <textarea v-model="car.description" class="text-xs text-neutral-500 w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500 resize-none h-20" placeholder="Description"></textarea>
-                    <input v-model="car.promo" class="text-red-600 font-black text-base md:text-lg w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Promo" />
-                    <input v-model="car.promoLabel" class="text-[10px] font-black text-neutral-400 uppercase tracking-widest w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Label (e.g. Special Offer)" />
-                    <button @click="removeCarPromo(idx)" class="mt-auto pt-2 text-[10px] font-bold text-red-500 hover:text-red-700 uppercase tracking-tighter self-start">Remove</button>
+                    <!-- Editable fields - only if canEdit -->
+                    <template v-if="canEdit">
+                      <input v-model="car.name" class="isuzu-font text-base md:text-lg font-bold w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Car Name" />
+                      <textarea v-model="car.description" class="text-xs text-neutral-500 w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500 resize-none h-20" placeholder="Description"></textarea>
+                      <input v-model="car.promo" class="text-red-600 font-black text-base md:text-lg w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Promo" />
+                      <input v-model="car.promoLabel" class="text-[10px] font-black text-neutral-400 uppercase tracking-widest w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-red-500" placeholder="Label (e.g. Special Offer)" />
+  
+                    <!-- Contact Us Fields -->
+
+                    <button v-if="canDelete" @click="removeCarPromo(idx)" class="mt-auto pt-2 text-[10px] font-bold text-red-500 hover:text-red-700 uppercase tracking-tighter self-start">Remove</button>
+                    </template>
+                    <!-- Read-only view -->
+                    <template v-else>
+                      <p class="isuzu-font text-base md:text-lg font-bold text-neutral-800">{{ car.name || 'No Name' }}</p>
+                      <p class="text-xs text-neutral-500">{{ car.description || 'No Description' }}</p>
+                      <p class="text-red-600 font-black text-base md:text-lg">{{ car.promo || 'No Promo' }}</p>
+                      <p class="text-[10px] font-black text-neutral-400 uppercase tracking-widest">{{ car.promoLabel || 'Special Offer' }}</p>
+                    </template>
                   </div>
                 </div>
 
-                <div class="flex items-center justify-center min-h-50 border-2 border-dashed border-neutral-300 rounded-2xl bg-white/30">
+                <!-- Add Car Promo button - only show if canCreate -->
+                <div v-if="canCreate" class="flex items-center justify-center min-h-50 border-2 border-dashed border-neutral-300 rounded-2xl bg-white/30">
+
                   <button @click="addCarPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-red-700 transition shadow-md">+ Add Car Promo</button>
                 </div>
               </div>
+
+              <!-- Contact Us Section for Car Promos -->
+              <div class="mt-8 bg-white/60 rounded-2xl p-6 border border-neutral-200">
+                <h3 class="text-lg font-black isuzu-font uppercase tracking-widest mb-4 text-red-600">Contact Us (for Car Promos)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input v-model="carPromosContact.contactNumber" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Number" />
+                  <input v-model="carPromosContact.contactPerson" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Person" />
+                  <input v-model="carPromosContact.email" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Email" />
+                  <input v-model="carPromosContact.address" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Address" />
+                  <input v-model="carPromosContact.socials" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Social Media Accounts (comma separated)" />
+                </div>
+              </div> 
             </div>
 
             <div class="bg-white/40 backdrop-blur-sm rounded-3xl p-5 md:p-8 border border-gray-200">
@@ -179,7 +217,8 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-10">
                 <div v-for="(part, idx) in landingPartsPromos" :key="idx" class="bg-neutral-800 text-white rounded-2xl overflow-hidden hover:bg-neutral-900 transition-all flex flex-col">
                   <div class="w-full h-36 md:h-40 flex items-center justify-center bg-white/10 relative group shrink-0">
-                    <label class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
+                    <!-- Image upload - only show if canEdit -->
+                    <label v-if="canEdit" class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12V8a2 2 0 012-2h12a2 2 0 012 2v4M16 12l-4-4-4 4" />
                       </svg>
@@ -190,20 +229,42 @@
                   </div>
 
                   <div class="p-5 md:p-6 space-y-3 flex-1 flex flex-col">
-                    <input v-model="part.name" class="font-bold text-sm md:text-base isuzu-font text-red-500 w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500" placeholder="Part Name" />
-                    <textarea v-model="part.description" class="text-xs opacity-60 w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500 resize-none h-16" placeholder="Description"></textarea>
-                    <input v-model="part.promo" class="text-base md:text-lg font-black text-white w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" />
-                    <select v-model="part.partsType" class="text-[10px] font-black uppercase tracking-widest w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500">
-                      <option value="Genuine Parts">Genuine Parts</option>
-                      <option value="Best Value Parts">Best Value Parts</option>
-                      <option value="Select Parts">Select Parts</option>
-                    </select>
-                    <button @click="removePartPromo(idx)" class="mt-auto pt-2 text-[10px] text-red-400 hover:underline self-start uppercase font-bold">Remove</button>
+                    <!-- Editable fields - only if canEdit -->
+                    <template v-if="canEdit">
+                      <input v-model="part.name" class="font-bold text-sm md:text-base isuzu-font text-red-500 w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500" placeholder="Part Name" />
+                      <textarea v-model="part.description" class="text-xs opacity-60 w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500 resize-none h-16" placeholder="Description"></textarea>
+                      <input v-model="part.promo" class="text-base md:text-lg font-black text-white w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500" placeholder="Promo" />
+                      <select v-model="part.partsType" class="text-[10px] font-black uppercase tracking-widest w-full bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 outline-none focus:border-red-500">
+                        <option value="Genuine Parts">Genuine Parts</option>
+                        <option value="Best Value Parts">Best Value Parts</option>
+                        <option value="Select Parts">Select Parts</option>
+                      </select>
+                      <button v-if="canDelete" @click="removePartPromo(idx)" class="mt-auto pt-2 text-[10px] text-red-400 hover:underline self-start uppercase font-bold">Remove</button>
+                    </template>
+                    <!-- Read-only view -->
+                    <template v-else>
+                      <p class="font-bold text-sm md:text-base isuzu-font text-red-500">{{ part.name || 'No Name' }}</p>
+                      <p class="text-xs opacity-60">{{ part.description || 'No Description' }}</p>
+                      <p class="text-base md:text-lg font-black text-white">{{ part.promo || 'No Promo' }}</p>
+                      <p class="text-[10px] font-black uppercase tracking-widest">{{ part.partsType || 'Genuine Parts' }}</p>
+                    </template>
                   </div>
                 </div>
 
-                <div class="flex items-center justify-center min-h-50 border-2 border-dashed border-neutral-500/30 rounded-2xl">
+                <!-- Add Part Promo button - only show if canCreate -->
+                <div v-if="canCreate" class="flex items-center justify-center min-h-50 border-2 border-dashed border-neutral-500/30 rounded-2xl">
                   <button @click="addPartPromo" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-red-700 transition shadow-md">+ Add Part Promo</button>
+                </div>
+              </div>
+              <!-- Contact Us Section for Parts Promos -->
+              <div class="mt-8 bg-white/60 rounded-2xl p-6 border border-neutral-200">
+                <h3 class="text-lg font-black isuzu-font uppercase tracking-widest mb-4 text-red-600">Contact Us (for Parts Promos)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input v-model="partsPromosContact.contactNumber" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Number" />
+                  <input v-model="partsPromosContact.contactPerson" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Contact Person" />
+                  <input v-model="partsPromosContact.email" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500" placeholder="Email" />
+                  <input v-model="partsPromosContact.address" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Address" />
+                  <input v-model="partsPromosContact.socials" class="text-xs w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-blue-500 md:col-span-2" placeholder="Social Media Accounts (comma separated)" />
                 </div>
               </div>
             </div>
@@ -225,15 +286,24 @@
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
                 <div class="space-y-2">
                   <label class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Mission</label>
-                  <textarea v-model="missionText" placeholder="Mission Statement" rows="4" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-xs md:text-sm leading-relaxed"></textarea>
+                  <textarea v-if="canEdit" v-model="missionText" placeholder="Mission Statement" rows="4" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-xs md:text-sm leading-relaxed"></textarea>
+                  <div v-else class="w-full p-4 bg-neutral-700/30 border border-neutral-600/50 rounded-xl text-xs md:text-sm leading-relaxed text-gray-300">
+                    {{ missionText || 'No mission statement set' }}
+                  </div>
                 </div>
                 <div class="space-y-2">
                   <label class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Vision</label>
-                  <textarea v-model="visionText" placeholder="Vision Statement" rows="4" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-xs md:text-sm leading-relaxed"></textarea>
+                  <textarea v-if="canEdit" v-model="visionText" placeholder="Vision Statement" rows="4" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-xs md:text-sm leading-relaxed"></textarea>
+                  <div v-else class="w-full p-4 bg-neutral-700/30 border border-neutral-600/50 rounded-xl text-xs md:text-sm leading-relaxed text-gray-300">
+                    {{ visionText || 'No vision statement set' }}
+                  </div>
                 </div>
                 <div class="space-y-2">
                   <label class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Core Values</label>
-                  <textarea v-model="valuesText" placeholder="Values..." rows="4" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-xs md:text-sm leading-relaxed"></textarea>
+                  <textarea v-if="canEdit" v-model="valuesText" placeholder="Values..." rows="4" class="w-full p-4 bg-neutral-700/50 border border-neutral-600 rounded-xl outline-none focus:border-red-500 text-xs md:text-sm leading-relaxed"></textarea>
+                  <div v-else class="w-full p-4 bg-neutral-700/30 border border-neutral-600/50 rounded-xl text-xs md:text-sm leading-relaxed text-gray-300">
+                    {{ valuesText || 'No core values set' }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -247,15 +317,24 @@
                 <div class="space-y-6">
                   <div>
                     <label class="block text-[9px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-2">About Us Text (Line 1)</label>
-                    <input v-model="aboutUsTextLine1" class="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-xs md:text-sm font-medium outline-none focus:border-red-500" />
+                    <input v-if="canEdit" v-model="aboutUsTextLine1" class="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-xs md:text-sm font-medium outline-none focus:border-red-500" />
+                    <div v-else class="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-3 text-xs md:text-sm font-medium text-neutral-700">
+                      {{ aboutUsTextLine1 || 'No text set' }}
+                    </div>
                   </div>
                   <div>
                     <label class="block text-[9px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-2">About Us Text (Line 2)</label>
-                    <input v-model="aboutUsTextLine2" class="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-xs md:text-sm font-medium outline-none focus:border-red-500" />
+                    <input v-if="canEdit" v-model="aboutUsTextLine2" class="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-xs md:text-sm font-medium outline-none focus:border-red-500" />
+                    <div v-else class="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-3 text-xs md:text-sm font-medium text-neutral-700">
+                      {{ aboutUsTextLine2 || 'No text set' }}
+                    </div>
                   </div>
                   <div>
                     <label class="block text-[9px] font-black uppercase tracking-[0.2em] text-neutral-500 mb-2">Slogan</label>
-                    <input v-model="sloganText" class="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-sm md:text-base font-bold outline-none focus:border-red-500" />
+                    <input v-if="canEdit" v-model="sloganText" class="w-full bg-white border border-neutral-300 rounded-lg px-4 py-3 text-sm md:text-base font-bold outline-none focus:border-red-500" />
+                    <div v-else class="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-3 text-sm md:text-base font-bold text-neutral-700">
+                      {{ sloganText || 'No slogan set' }}
+                    </div>
                     <p v-if="aboutUsSaveSuccess" class="mt-2 text-green-600 text-[10px] font-bold">Slogan updated!</p>
                   </div>
                 </div>
@@ -272,14 +351,23 @@
             </div>
 
             <div class="flex justify-center pt-10 pb-16">
-              <button @click="saveLandingContent" class="group w-full sm:w-auto bg-red-600 text-white px-8 md:px-16 py-4 md:py-6 rounded-full font-black text-base md:text-xl shadow-[0_20px_50px_rgba(204,0,0,0.2)] hover:shadow-[0_20px_50px_rgba(204,0,0,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 isuzu-font">
+              <button v-if="canEdit" @click="saveLandingContent" class="group w-full sm:w-auto bg-red-600 text-white px-8 md:px-16 py-4 md:py-6 rounded-full font-black text-base md:text-xl shadow-[0_20px_50px_rgba(204,0,0,0.2)] hover:shadow-[0_20px_50px_rgba(204,0,0,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 isuzu-font">
                 <SaveIcon class="w-5 h-5 md:w-7 md:h-7" /> UPDATE LIVE WEBSITE
               </button>
+              <div v-else class="flex items-center gap-2 px-6 py-4 bg-gray-100 text-gray-400 rounded-full border border-gray-200">
+                <Lock class="w-5 h-5" />
+                <span class="text-sm font-black uppercase tracking-widest">Update Locked - Edit Permission Required</span>
+              </div>
             </div>
 
           </div>
 
           <div v-if="activeTab === 'database'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <!-- View-Only Mode Banner for Database -->
+            <div v-if="!canEdit" class="bg-yellow-500 text-white px-4 py-2 text-center text-[10px] font-black uppercase tracking-widest z-50 mb-4 rounded-lg">
+              <Eye class="w-3 h-3 inline-block mr-1" /> View-Only Mode - Database sync requires edit permissions
+            </div>
+
             <div class="bg-white/40 backdrop-blur-sm rounded-2xl p-6 md:p-10 relative overflow-hidden max-w-4xl border border-gray-200">
               <div class="absolute top-0 right-0 p-4 opacity-5 hidden sm:block">
                 <DatabaseIcon class="w-24 h-24 md:w-32 md:h-32 text-neutral-900" />
@@ -313,7 +401,9 @@
                       Last sync: <span class="font-bold text-neutral-600">Not available</span>
                     </div>
 
+                    <!-- Sync Button with Edit Permission Check -->
                     <button
+                      v-if="canEdit"
                       @click="runSync"
                       :disabled="syncing"
                       class="group relative overflow-hidden flex items-center gap-3 bg-neutral-900 dark:bg-red-600 text-white px-6 py-3 rounded-2xl transition-all duration-300 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed border border-white/10"
@@ -329,6 +419,10 @@
                         <span v-else>Processing Data Transfer...</span>
                       </span>
                     </button>
+                    <div v-else class="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-400 rounded-2xl border border-gray-200">
+                      <Lock class="w-4 h-4" />
+                      <span class="text-[11px] font-black uppercase tracking-[0.2em]">Sync Locked</span>
+                    </div>
                   </div>
                 </div>
 
@@ -345,6 +439,11 @@
           </div>
 
           <div v-if="activeTab === 'roleposition'" class="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+            <!-- View-Only Mode Banner for Role & Position -->
+            <div v-if="!canEdit && !canCreate && !canDelete" class="bg-yellow-500 text-white px-4 py-2 text-center text-[10px] font-black uppercase tracking-widest z-50 mb-4 rounded-lg">
+              <Eye class="w-3 h-3 inline-block mr-1" /> View-Only Mode - Role & Position management requires edit permissions
+            </div>
+
             <!-- Roles Management Section -->
             <div class="bg-white/40 backdrop-blur-sm rounded-2xl p-6 md:p-10 relative overflow-hidden border border-gray-200">
               <div class="absolute top-0 right-0 p-4 opacity-5 hidden sm:block">
@@ -355,7 +454,9 @@
                 <h2 class="text-lg md:text-xl font-black flex items-center gap-3 uppercase tracking-tighter text-neutral-800">
                   <span class="w-1.5 h-6 md:w-2 md:h-8 bg-red-600 rounded-full"></span> Roles Management
                 </h2>
+                <!-- Add Role Button with Create Permission Check -->
                 <button 
+                  v-if="canCreate"
                   @click="showAddRoleModal = true"
                   type="button"
                   class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-11 shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
@@ -363,6 +464,10 @@
                   <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" /> 
                   <span>Add Role</span>
                 </button>
+                <div v-else class="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-400 rounded-xl border border-gray-200">
+                  <Lock class="w-4 h-4" />
+                  <span class="text-xs font-bold uppercase tracking-widest">Add Role Locked</span>
+                </div>
               </div>
 
               <div class="relative z-10">
@@ -386,6 +491,7 @@
                         </td>
                         <td class="py-3 px-4 text-right">
                           <div class="flex items-center justify-end gap-2">
+                            <!-- Save/Cancel buttons for editing -->
                             <button 
                               v-if="editingRole && editingRole.id === role.id"
                               @click="saveRoleEdit"
@@ -400,15 +506,17 @@
                             >
                               <XIcon class="w-4 h-4" />
                             </button>
+                            <!-- Edit Button with Edit Permission Check -->
                             <button 
-                              v-else-if="!isProtectedRole(role.roleName)"
+                              v-else-if="canEdit && !isProtectedRole(role.roleName)"
                               @click="startEditRole(role)"
                               class="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                             >
                               <PencilIcon class="w-4 h-4" />
                             </button>
+                            <!-- Delete Button with Delete Permission Check -->
                             <button 
-                              v-if="!isProtectedRole(role.roleName)"
+                              v-if="canDelete && !isProtectedRole(role.roleName)"
                               @click="deleteRole(role)"
                               class="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                             >
@@ -436,7 +544,9 @@
                 <h2 class="text-lg md:text-xl font-black flex items-center gap-3 uppercase tracking-tighter text-neutral-800">
                   <span class="w-1.5 h-6 md:w-2 md:h-8 bg-red-600 rounded-full"></span> Positions Management
                 </h2>
+                <!-- Add Position Button with Create Permission Check -->
                 <button 
+                  v-if="canCreate"
                   @click="showAddPositionModal = true"
                   type="button"
                   class="relative bg-green-600 text-white px-4 py-3 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest hover:bg-green-700 active:bg-green-800 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 min-h-11 shadow-md hover:shadow-lg whitespace-nowrap select-none touch-manipulation w-full sm:w-auto cursor-pointer"
@@ -444,6 +554,10 @@
                   <PlusIcon class="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" /> 
                   <span>Add Position</span>
                 </button>
+                <div v-else class="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-400 rounded-xl border border-gray-200">
+                  <Lock class="w-4 h-4" />
+                  <span class="text-xs font-bold uppercase tracking-widest">Add Position Locked</span>
+                </div>
               </div>
 
               <div class="relative z-10">
@@ -467,6 +581,7 @@
                         </td>
                         <td class="py-3 px-4 text-right">
                           <div class="flex items-center justify-end gap-2">
+                            <!-- Save/Cancel buttons for editing -->
                             <button 
                               v-if="editingPosition && editingPosition.id === position.id"
                               @click="savePositionEdit"
@@ -481,15 +596,17 @@
                             >
                               <XIcon class="w-4 h-4" />
                             </button>
+                            <!-- Edit Button with Edit Permission Check -->
                             <button 
-                              v-else-if="!isProtectedPosition(position.position)"
+                              v-else-if="canEdit && !isProtectedPosition(position.position)"
                               @click="startEditPosition(position)"
                               class="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                             >
                               <PencilIcon class="w-4 h-4" />
                             </button>
+                            <!-- Delete Button with Delete Permission Check -->
                             <button 
-                              v-if="!isProtectedPosition(position.position)"
+                              v-if="canDelete && !isProtectedPosition(position.position)"
                               @click="deletePosition(position)"
                               class="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                             >
@@ -597,6 +714,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useAuth } from "../../composables/useAuth";
+import { usePermissions } from "../../composables/usePermissions";
 import { doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
 import { db } from "../../Firebase/Firebase";
 import Loaders from "../../components/Loaders.vue";
@@ -606,8 +724,15 @@ import {
   UserCogIcon, SaveIcon,
   Loader2Icon, CheckCircleIcon, XCircleIcon,
   MoonIcon, SunIcon, LayoutIcon, Database as DatabaseIcon, RefreshCw,
-  ShieldIcon, PlusIcon, PencilIcon, TrashIcon, XIcon
+  ShieldIcon, PlusIcon, PencilIcon, TrashIcon, XIcon, Eye, Lock
 } from "lucide-vue-next";
+
+// Permissions
+const { isMasterAdmin, canView, canEdit, canCreate, canDelete, canAccessPage } = usePermissions();
+
+// Page access control for landing tab
+const canAccessLanding = ref(false);
+const landingPageLoading = ref(true);
 
 // Add/Remove Car and Part Promo handlers
 function addCarPromo() {
@@ -616,7 +741,11 @@ function addCarPromo() {
     description: "",
     promo: "",
     promoLabel: "Special Offer",
-    image: ""
+    image: "",
+    contactNumber: "",
+    contactPerson: "",
+    address: "",
+    socials: ""
   });
 }
 
@@ -642,6 +771,22 @@ function removePartPromo(idx) {
 // Promos Management State
 const landingCarPromos = ref([]);
 const landingPartsPromos = ref([]);
+// Contact Us for Car Promos (single section)
+const carPromosContact = ref({
+  contactNumber: "",
+  contactPerson: "",
+  address: "",
+  socials: "",
+  email: ""
+});
+// Contact Us for Parts Promos (single section)
+const partsPromosContact = ref({
+  contactNumber: "",
+  contactPerson: "",
+  address: "",
+  socials: "",
+  email: ""
+});
 
 // Load promos from Firestore on mount
 onMounted(async () => {
@@ -658,6 +803,18 @@ onMounted(async () => {
       landingPartsPromos.value.forEach(part => {
         if (!('partsType' in part)) part.partsType = 'Genuine Parts';
       });
+      // Load Contact Us fields for car promos
+      carPromosContact.value.contactNumber = data.carPromosContactNumber || "";
+      carPromosContact.value.contactPerson = data.carPromosContactPerson || "";
+      carPromosContact.value.address = data.carPromosContactAddress || "";
+      carPromosContact.value.socials = data.carPromosContactSocials || "";
+      carPromosContact.value.email = data.carPromosContactEmail || "";
+      // Load Contact Us fields for parts promos
+      partsPromosContact.value.contactNumber = data.partsPromosContactNumber || "";
+      partsPromosContact.value.contactPerson = data.partsPromosContactPerson || "";
+      partsPromosContact.value.address = data.partsPromosContactAddress || "";
+      partsPromosContact.value.socials = data.partsPromosContactSocials || "";
+      partsPromosContact.value.email = data.partsPromosContactEmail || "";
       // ...load other landing fields...
     } else {
       // If no data, initialize with defaults
@@ -671,6 +828,8 @@ onMounted(async () => {
         { name: "Brake Pads", description: "Reliable stopping power.", promo: "Buy 1 Get 1 50%", image: "" },
         { name: "Filters", description: "Maintain air purity inside.", promo: "Bundle Deal", image: "" }
       ];
+      carPromosContact.value = { contactNumber: "", contactPerson: "", address: "", socials: "" };
+      partsPromosContact.value = { contactNumber: "", contactPerson: "", address: "", socials: "" };
     }
   } catch (error) {
     console.error("Error loading promos:", error);
@@ -717,6 +876,10 @@ async function savePromos() {
     landingCarPromos.value.forEach(car => {
       if (!('image' in car)) car.image = '';
       if (!('promoLabel' in car)) car.promoLabel = 'Special Offer';
+      if (!('contactNumber' in car)) car.contactNumber = '';
+      if (!('contactPerson' in car)) car.contactPerson = '';
+      if (!('address' in car)) car.address = '';
+      if (!('socials' in car)) car.socials = '';
     });
     landingPartsPromos.value.forEach(part => {
       if (!('image' in part)) part.image = '';
@@ -725,6 +888,16 @@ async function savePromos() {
     await setDoc(doc(db, "settings", "landingPage"), {
       carPromos: landingCarPromos.value,
       partsPromos: landingPartsPromos.value,
+      carPromosContactNumber: carPromosContact.value.contactNumber,
+      carPromosContactPerson: carPromosContact.value.contactPerson,
+      carPromosContactAddress: carPromosContact.value.address,
+      carPromosContactSocials: carPromosContact.value.socials,
+      carPromosContactEmail: carPromosContact.value.email,
+      partsPromosContactNumber: partsPromosContact.value.contactNumber,
+      partsPromosContactPerson: partsPromosContact.value.contactPerson,
+      partsPromosContactAddress: partsPromosContact.value.address,
+      partsPromosContactSocials: partsPromosContact.value.socials,
+      partsPromosContactEmail: partsPromosContact.value.email,
     }, { merge: true });
     saveSuccess.value = true;
     setTimeout(() => (saveSuccess.value = false), 3000);
@@ -1126,7 +1299,13 @@ onMounted(async () => {
     if (snap.exists()) {
       const data = snap.data();
       landingCarPromos.value = Array.isArray(data.carPromos) ? JSON.parse(JSON.stringify(data.carPromos)) : [];
+      landingCarPromos.value.forEach(car => {
+        if (!('promoLabel' in car)) car.promoLabel = 'Special Offer';
+      });
       landingPartsPromos.value = Array.isArray(data.partsPromos) ? JSON.parse(JSON.stringify(data.partsPromos)) : [];
+      landingPartsPromos.value.forEach(part => {
+        if (!('partsType' in part)) part.partsType = 'Genuine Parts';
+      });
       // Load About Us & Slogan from Firestore
       aboutUsTextLine1.value = data.aboutUsTextLine1 || "";
       aboutUsTextLine2.value = data.aboutUsTextLine2 || "";
@@ -1212,6 +1391,17 @@ onMounted(async () => {
     } catch (error) {
       console.error("Error loading settings:", error);
     }
+  }
+  
+  // Check page access for landing tab
+  try {
+    const hasLandingAccess = await canAccessPage('settings-landing');
+    canAccessLanding.value = hasLandingAccess;
+  } catch (err) {
+    console.error('Error checking landing page access:', err);
+    canAccessLanding.value = false;
+  } finally {
+    landingPageLoading.value = false;
   }
   
   // Fetch roles and positions
