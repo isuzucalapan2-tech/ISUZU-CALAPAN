@@ -33,7 +33,6 @@
           <section v-if="canViewInventory" id="dashboard-group-inventory" class="space-y-6">
             <div class="flex items-center gap-3 mb-2">
               <div class="bg-red-600 p-2 rounded-xl">
-                <Boxes class="w-5 h-5 text-white" />
               </div>
               <h2 :class="['text-lg text-neutral-900 uppercase tracking-tighter isuzu-font', textClass]">Inventory <span class="text-red-600">Overview</span></h2>
             </div>
