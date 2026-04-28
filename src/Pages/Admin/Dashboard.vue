@@ -1082,31 +1082,7 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-              
-              <div :class="[cardClass, 'rounded-3xl p-4 sm:p-6 bg-white/10 backdrop-blur-none lg:col-span-2']" :style="cardStyle">
-                <div class="flex items-center justify-between mb-6">
-                  <h2 :class="['text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2', textClass]">
-                    <TrendingUp class="w-5 h-5 text-blue-600" />
-                    Stock Flow <span :class="isDarkMode ? 'text-blue-400' : 'text-blue-600'">Analytics</span>
-                  </h2>
-                  <span :class="['text-[10px] font-black uppercase tracking-widest', subTextClass]">Last 7 Days</span>
-                </div>
-                <div class="h-80 w-full relative">
-                  <canvas ref="transactionChart"></canvas>
-                </div>
-              </div>
-
-              <div :class="[cardClass, 'rounded-3xl p-4 sm:p-6 bg-white/10 backdrop-blur-none']" :style="cardStyle">
-                <div class="flex items-center justify-between mb-6">
-                  <h2 :class="['text-lg font-black uppercase tracking-tighter isuzu-font flex items-center gap-2', textClass]">
-                    <BarChart3 class="w-5 h-5 text-orange-600" />
-                    Category <span :class="isDarkMode ? 'text-orange-400' : 'text-orange-600'">Sales</span>
-                  </h2>
-                </div>
-                <div class="h-80 w-full relative">
-                  <canvas ref="salesCategoryChart"></canvas>
-                </div>
-              </div>
+            
               
             </div>
           </section>
