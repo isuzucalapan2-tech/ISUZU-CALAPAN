@@ -439,10 +439,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, watch, nextTick, onUnmounted } from 'vue';
 import { useIsuzuDTR } from '../../composables/useIsuzuDTR';
 import { useToast } from '../../composables/useToast';
 import Loaders from '../../components/Loaders.vue';
+import { rdb } from '../../Firebase/Firebase';
+import { ref as dbRef, set, onValue, remove, get } from 'firebase/database';
 
 import {
   Clock,
@@ -479,10 +481,15 @@ const toast = useToast();
 // Loading state
 const isLoading = ref(true);
 
+// Firebase Realtime Database - DTR Storage
+const DTR_STORAGE_PATH = 'dtr_current/upload';
+let deleteTimer = null;
+
 // Data
 const dtrData = ref([]);
 const hasUploadedData = ref(false);
 const totalRawRows = ref(0);
+const uploadTimestamp = ref(null);
 
 // Search and filter states
 const searchQuery = ref('');
@@ -777,11 +784,128 @@ const resetUpload = () => {
   }
 };
 
-// Confirm upload and close modal
-const confirmUpload = () => {
-  hasUploadedData.value = false;
-  showUploadModal.value = false;
-  toast.success('DTR data loaded successfully!', 'Complete');
+// Sanitize data - replace undefined with null for Firebase compatibility
+const sanitizeData = (data) => {
+  return data.map(item => {
+    const sanitized = {};
+    for (const key in item) {
+      sanitized[key] = item[key] === undefined ? null : item[key];
+    }
+    return sanitized;
+  });
+};
+
+// Save DTR data to Firebase Realtime Database
+const saveDTRToDatabase = async (data) => {
+  try {
+    console.log('Saving DTR to database, records:', data.length);
+    const timestamp = Date.now();
+    const dtrRef = dbRef(rdb, DTR_STORAGE_PATH);
+    
+    // Sanitize data to remove undefined values (Firebase doesn't allow undefined)
+    const sanitizedData = sanitizeData(data);
+    console.log('Sanitized data, first record:', sanitizedData[0]);
+    
+    // Save data with timestamp
+    await set(dtrRef, {
+      data: sanitizedData,
+      timestamp: timestamp,
+      totalRows: totalRawRows.value
+    });
+    
+    console.log('DTR saved to database successfully');
+    uploadTimestamp.value = timestamp;
+    
+    // Set auto-delete timer for 3 hours (3 * 60 * 60 * 1000 ms)
+    // Clear existing timer if any
+    if (deleteTimer) {
+      clearTimeout(deleteTimer);
+    }
+    
+    deleteTimer = setTimeout(async () => {
+      try {
+        await remove(dbRef(rdb, DTR_STORAGE_PATH));
+        dtrData.value = [];
+        totalRawRows.value = 0;
+        uploadTimestamp.value = null;
+        toast.info('DTR data has been automatically deleted after 3 hours', 'Auto-Delete');
+      } catch (error) {
+        console.error('Error auto-deleting DTR data:', error);
+      }
+    }, 3 * 60 * 60 * 1000);
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving DTR to database:', error);
+    alert('Error saving DTR to database: ' + error.message);
+    toast.error('Failed to save data to database', 'Error');
+    return false;
+  }
+};
+
+// Load DTR data from Firebase Realtime Database
+const loadDTRFromDatabase = async () => {
+  try {
+    const dtrRef = dbRef(rdb, DTR_STORAGE_PATH);
+    const snapshot = await get(dtrRef);
+    
+    if (snapshot.exists()) {
+      const storedData = snapshot.val();
+      
+      // Check if data is still valid (less than 3 hours old)
+      const timestamp = storedData.timestamp;
+      const now = Date.now();
+      const hoursPassed = (now - timestamp) / (1000 * 60 * 60);
+      
+      if (hoursPassed >= 3) {
+        // Auto-delete expired data
+        await remove(dtrRef);
+        toast.info('Previous DTR data has expired and been removed', 'Auto-Delete');
+        return false;
+      }
+      
+      dtrData.value = storedData.data || [];
+      totalRawRows.value = storedData.totalRows || 0;
+      uploadTimestamp.value = timestamp;
+      
+      // Set remaining auto-delete timer
+      const timeRemaining = 3 * 60 * 60 * 1000 - (now - timestamp);
+      if (deleteTimer) {
+        clearTimeout(deleteTimer);
+      }
+      
+      deleteTimer = setTimeout(async () => {
+        try {
+          await remove(dbRef(rdb, DTR_STORAGE_PATH));
+          dtrData.value = [];
+          totalRawRows.value = 0;
+          uploadTimestamp.value = null;
+          toast.info('DTR data has been automatically deleted after 3 hours', 'Auto-Delete');
+        } catch (error) {
+          console.error('Error auto-deleting DTR data:', error);
+        }
+      }, timeRemaining);
+      
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error loading DTR from database:', error);
+    return false;
+  }
+};
+
+// Confirm upload and save to database
+const confirmUpload = async () => {
+  // First, save to database (which will replace previous data)
+  const saved = await saveDTRToDatabase(dtrData.value);
+  
+  if (saved) {
+    hasUploadedData.value = false;
+    showUploadModal.value = false;
+    toast.success('DTR data saved to database and will auto-delete in 3 hours!', 'Complete');
+  }
 };
 
 // Close upload modal
@@ -1128,7 +1252,26 @@ const printDTR = (data, title) => {
 onMounted(async () => {
   await nextTick();
   document.addEventListener('click', closeMenus);
+  
+  // Try to load existing DTR data from database (with timeout to prevent hanging)
+  const loadPromise = loadDTRFromDatabase();
+  const timeoutPromise = new Promise(resolve => setTimeout(resolve, 3000));
+  
+  try {
+    await Promise.race([loadPromise, timeoutPromise]);
+  } catch (e) {
+    console.error('Error loading from database:', e);
+  }
+  
+  // Always set loading to false
   isLoading.value = false;
+});
+
+// Cleanup on unmount
+onUnmounted(() => {
+  if (deleteTimer) {
+    clearTimeout(deleteTimer);
+  }
 });
 </script>
 
