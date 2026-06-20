@@ -690,8 +690,8 @@ export function useIsuzuDTR() {
     });
   };
 
-  /**
-   * Export DTR to Excel
+/**
+   * Export DTR to Excel - One tab per employee
    * @param {Array} dtrData - Processed DTR entries
    * @param {String} filename - Output filename
    */
@@ -701,56 +701,79 @@ export function useIsuzuDTR() {
       return;
     }
 
-    // Transform data for export to match table columns exactly
-    const exportData = dtrData.map((item, index) => ({
-      '#': index + 1,
-      'Employee No.': item.employeeNo || '',
-      'Department': item.department || '',
-      'Name': item.rawName || item.name || '',
-      'Card No.': item.cardNo || '',
-      'Location ID': item.locationId || '',
-      'ID Number': item.idNumber || '',
-      'Date': item.dateFormatted,
-      'Morning IN': item.morning.in,
-      'Morning OUT': item.morning.out,
-      'Afternoon IN': item.afternoon.in,
-      'Afternoon OUT': item.afternoon.out,
-      'Hours Worked': item.hoursWorked,
-      'Remarks': item.remarks,
-      'Status': item.isValid ? 'Valid' : 'Invalid'
-    }));
-
-    // Create worksheet
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-    // Set column widths to match new structure
-    worksheet['!cols'] = [
-      { wch: 4 },   // #
-      { wch: 12 },  // Employee No.
-      { wch: 15 },  // Department
-      { wch: 25 },  // Name
-      { wch: 12 },  // Card No.
-      { wch: 12 },  // Location ID
-      { wch: 12 },  // ID Number
-      { wch: 12 },  // Date
-      { wch: 13 },  // Morning IN
-      { wch: 13 },  // Morning OUT
-      { wch: 13 },  // Afternoon IN
-      { wch: 13 },  // Afternoon OUT
-      { wch: 12 },  // Hours Worked
-      { wch: 30 },  // Remarks
-      { wch: 10 }   // Status
-    ];
-
     // Create workbook
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'DTR');
 
-    // Add summary sheet
-    const summaryData = generateSummaryData(dtrData);
-    const summarySheet = XLSX.utils.json_to_sheet(summaryData);
-    summarySheet['!cols'] = [{ wch: 30 }, { wch: 15 }];
-    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+    // Group data by employee name
+    const employeeGroups = {};
+    dtrData.forEach(item => {
+      // Use rawName if available, otherwise use name
+      const empName = item.rawName || item.name || 'Unknown';
+      
+      if (!employeeGroups[empName]) {
+        employeeGroups[empName] = [];
+      }
+      employeeGroups[empName].push(item);
+    });
+
+// Create a sheet for each employee, sorted alphabetically by name
+    const sortedEmployees = Object.keys(employeeGroups).sort();
+    
+    sortedEmployees.forEach(empName => {
+      const empRecords = employeeGroups[empName];
+      
+      // Sort this employee's records by date (newest first), then by name
+      empRecords.sort((a, b) => {
+        const dateCompare = new Date(b.date) - new Date(a.date);
+        if (dateCompare !== 0) return dateCompare;
+        return (a.rawName || a.name || '').localeCompare(b.rawName || b.name || '');
+      });
+      
+      // Transform data for this employee to match table columns exactly
+      const exportData = empRecords.map((item, index) => ({
+        '#': index + 1,
+        'Employee No.': item.employeeNo || '',
+        'Department': item.department || '',
+        'Name': item.rawName || item.name || '',
+        'Card No.': item.cardNo || '',
+        'Location ID': item.locationId || '',
+        'ID Number': item.idNumber || '',
+        'Date': item.dateFormatted,
+        'Morning IN': item.morning.in,
+        'Morning OUT': item.morning.out,
+        'Afternoon IN': item.afternoon.in,
+        'Afternoon OUT': item.afternoon.out,
+        'Hours Worked': item.hoursWorked,
+        'Remarks': item.remarks,
+        'Status': item.isValid ? 'Valid' : 'Invalid'
+      }));
+
+      // Create worksheet
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+      // Set column widths
+      worksheet['!cols'] = [
+        { wch: 4 },   // #
+        { wch: 12 },  // Employee No.
+        { wch: 15 },  // Department
+        { wch: 25 },  // Name
+        { wch: 12 },  // Card No.
+        { wch: 12 },  // Location ID
+        { wch: 12 },  // ID Number
+        { wch: 12 },  // Date
+        { wch: 13 },  // Morning IN
+        { wch: 13 },  // Morning OUT
+        { wch: 13 },  // Afternoon IN
+        { wch: 13 },  // Afternoon OUT
+        { wch: 12 },  // Hours Worked
+        { wch: 30 },  // Remarks
+        { wch: 10 }   // Status
+      ];
+
+      // Sheet name max length is 31 characters
+      const sheetName = empName.length > 31 ? empName.substring(0, 31) : empName;
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    });
 
     // Generate filename with timestamp
     const timestamp = new Date().toISOString().split('T')[0];

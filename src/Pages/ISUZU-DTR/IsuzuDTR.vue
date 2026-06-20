@@ -785,11 +785,43 @@ const resetUpload = () => {
 };
 
 // Sanitize data - replace undefined with null for Firebase compatibility
+// Also convert Date objects to ISO strings for Firebase serialization
 const sanitizeData = (data) => {
   return data.map(item => {
     const sanitized = {};
     for (const key in item) {
-      sanitized[key] = item[key] === undefined ? null : item[key];
+      let value = item[key];
+      
+      // Handle undefined
+      if (value === undefined) {
+        sanitized[key] = null;
+        continue;
+      }
+      
+      // Handle Date objects - convert to ISO string
+      if (value instanceof Date) {
+        sanitized[key] = value.toISOString();
+        continue;
+      }
+      
+      // Handle nested objects that might contain Date objects
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        const nested = {};
+        for (const nestedKey in value) {
+          let nestedValue = value[nestedKey];
+          if (nestedValue instanceof Date) {
+            nested[nestedKey] = nestedValue.toISOString();
+          } else if (nestedValue === undefined) {
+            nested[nestedKey] = null;
+          } else {
+            nested[nestedKey] = nestedValue;
+          }
+        }
+        sanitized[key] = nested;
+        continue;
+      }
+      
+      sanitized[key] = value;
     }
     return sanitized;
   });
